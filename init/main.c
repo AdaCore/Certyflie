@@ -41,13 +41,21 @@
 /* ST includes */
 #include "stm32fxxx.h"
 
+ /* Ada mixing testng purpose */
+extern void adainit(void);
+extern void adafinal(void);
+extern void ada_systemLaunch(void);
+
 int main() 
 {
   //Initialize the platform.
   platformInit();
 
   //Launch the system task that will initialize and start everything
-  systemLaunch();
+  //systemLaunch();
+  adainit();
+  ada_systemLaunch();
+  adafinal();
 
   //Start the FreeRTOS scheduler
   vTaskStartScheduler();

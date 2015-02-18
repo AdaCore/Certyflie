@@ -66,6 +66,11 @@ xSemaphoreHandle canStartMutex;
 /* Private functions */
 static void systemTask(void *arg);
 
+/* Ada mixing testng purpose */
+extern void adainit(void);
+extern void adafinal(void);
+extern void ada_systemInit(void);
+
 /* Public functions */
 void systemLaunch(void)
 {
