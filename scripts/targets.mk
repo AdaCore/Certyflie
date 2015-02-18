@@ -20,15 +20,21 @@ VTMPL_COMMAND_SILENT="  VTMPL $@"
 	@$(if $(QUIET), ,echo $(VTMPL_COMMAND$(VERBOSE)) )
 	@$(VTMPL_COMMAND)
 
+ADA_LIB_COMMAND=$(ADA_BUILDER) -P $(ADA_PROJECT_FILE)
+ADA_LIB_COMMAND_SILENT="  BUILD    $@"
+$(ADA_LIB):
+	@$(if $(QUIET), ,echo $(ADA_LIB_COMMAND$(VERBOSE)) )
+	@$(ADA_LIB_COMMAND)
+
 CC_COMMAND=$(CC) $(CFLAGS) -c $< -o $(BIN)/$@
 CC_COMMAND_SILENT="  CC    $@"
-.c.o: 
+.c.o:
 	@$(if $(QUIET), ,echo $(CC_COMMAND$(VERBOSE)) )
 	@$(CC_COMMAND)
 
-LD_COMMAND=$(LD) $(LDFLAGS) $(foreach o,$(OBJ),$(BIN)/$(o)) -lm -o $@
+LD_COMMAND=$(LD) $(LDFLAGS) $(foreach o,$(OBJ),$(BIN)/$(o)) $(ADA_LIB_FLAGS) -lm -o $@
 LD_COMMAND_SILENT="  LD    $@"
-$(PROG).elf: $(OBJ)
+$(PROG).elf: $(OBJ) $(ADA_LIB)
 	@$(if $(QUIET), ,echo $(LD_COMMAND$(VERBOSE)) )
 	@$(LD_COMMAND)
 
@@ -56,7 +62,13 @@ AS_COMMAND_SILENT="  AS    $@"
 	@$(if $(QUIET), ,echo $(AS_COMMAND$(VERBOSE)) )
 	@$(AS_COMMAND)
 
-CLEAN_O_COMMAND=rm -f $(foreach o,$(OBJ),$(BIN)/$(o))
+CLEAN_ADA_COMMAND=rm -f $(BIN)/*.ali; rm -f $(ADA_LIB_DIR)/$(ADA_LIB); rm -f $(ADA_LIB_DIR)/*.ali
+CLEAN_ADA_COMMAND_SILENT="  CLEAN_ADA"
+clean_ada: clean_version
+	@$(if $(QUIET), ,echo $(CLEAN_ADA_COMMAND$(VERBOSE)) )
+	@$(CLEAN_ADA_COMMAND)
+
+CLEAN_O_COMMAND=rm -f $(BIN)/*.o
 CLEAN_O_COMMAND_SILENT="  CLEAN_O"
 clean_o: clean_version
 	@$(if $(QUIET), ,echo $(CLEAN_O_COMMAND$(VERBOSE)) )
@@ -64,7 +76,7 @@ clean_o: clean_version
 
 CLEAN_COMMAND=rm -f $(PROG).elf $(PROG).hex $(PROG).bin $(PROG).dfu $(PROG).map $(BIN)/dep/*.d
 CLEAN_COMMAND_SILENT="  CLEAN"
-clean: clean_o
+clean: clean_o clean_ada
 	@$(if $(QUIET), ,echo $(CLEAN_COMMAND$(VERBOSE)) )
 	@$(CLEAN_COMMAND)
 
@@ -73,5 +85,3 @@ MRPROPER_COMMAND_SILENT="  MRPROPER"
 mrproper: clean
 	@$(if $(QUIET), ,echo $(MRPROPER_COMMAND$(VERBOSE)) )
 	@$(MRPROPER_COMMAND)
-
-

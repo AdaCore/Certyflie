@@ -1,0 +1,13 @@
+Library project Cf_Spark is
+  for Object_Dir use "bin";
+  for Languages use ("Ada");
+  for Source_Dirs use ("modules/ada_spark");
+
+  for Library_Name use "spark";
+  for Library_Dir use "bin/lib";
+  for Library_Kind use "static";
+  for Library_Interface use ("system_wrapper");
+
+  for Target use "arm-eabi";
+  for Runtime ("Ada") use "zfp-stm32f4";
+end Cf_Spark;

@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -42,20 +42,20 @@
 #include "stm32fxxx.h"
 
  /* Ada mixing testng purpose */
-extern void adainit(void);
-extern void adafinal(void);
+extern void sparkinit(void);
+extern void sparkfinal(void);
 extern void ada_systemLaunch(void);
 
-int main() 
+int main()
 {
   //Initialize the platform.
   platformInit();
 
   //Launch the system task that will initialize and start everything
-  //systemLaunch();
-  adainit();
+  systemLaunch();
+  sparkinit();
   ada_systemLaunch();
-  adafinal();
+  //sparkfinal();
 
   //Start the FreeRTOS scheduler
   vTaskStartScheduler();
@@ -70,4 +70,3 @@ int main()
 
   return 0;
 }
-
