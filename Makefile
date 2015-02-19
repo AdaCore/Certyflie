@@ -132,7 +132,7 @@ PROJ_OBJ += filter.o cpuid.o cfassert.o configblockeeprom.o eprintf.o crc.o fp16
 PROJ_OBJ += version.o
 
 
-OBJ = $(CRT0) $(FREERTOS_OBJ) $(PORT_OBJ) $(ST_OBJ) $(PROJ_OBJ)
+OBJ = $(CRT0) $(FREERTOS_OBJ) $(PORT_OBJ) $(ST_OBJ) $(PROJ_OBJ) $(WRAPPER_OBJ)
 
 ifdef P
   C_PROFILE = -D P_$(P)
@@ -146,7 +146,7 @@ SIZE = $(CROSS_COMPILE)size
 OBJCOPY = $(CROSS_COMPILE)objcopy
 
 
-INCLUDES = -I$(FREERTOS)/include -I$(PORT) -I.
+INCLUDES+= -I$(FREERTOS)/include -I$(PORT) -I.
 INCLUDES+= -Iconfig -Ihal/interface -Imodules/interface
 INCLUDES+= -Iutils/interface -Idrivers/interface -Iplatform
 INCLUDES+= -I$(STLIB)/CMSIS/Include

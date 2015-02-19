@@ -5,4 +5,4 @@ This project contains the source code for the Crazyflie 2.0 firmware. More infor
 
 ###Folder description
 
-Translation of modules from C to  Ada/SPARK 2014
+Contains function wrappers for all of the macros needed by the Ada units.
