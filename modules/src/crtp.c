@@ -36,7 +36,6 @@
 #include "config.h"
 
 #include "crtp.h"
-#include "info.h"
 #include "cfassert.h"
 
 static bool isInit;
