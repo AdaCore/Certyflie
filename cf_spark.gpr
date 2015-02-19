@@ -1,13 +1,21 @@
 Library project Cf_Spark is
+  type Modes is ("Compile", "Analyze");
+  Mode : Modes := External ("MODE", "Compile");
+
   for Object_Dir use "bin";
   for Languages use ("Ada");
-  for Source_Dirs use ("modules/ada_spark");
+  for Source_Dirs use ("modules/ada_spark/spec", "modules/ada_spark/body");
 
   for Library_Name use "spark";
   for Library_Dir use "bin/lib";
   for Library_Kind use "static";
   for Library_Interface use ("system_wrapper");
+  --if Mode = "Compile" then
+     for Target use "arm-eabi";
+     for Runtime ("Ada") use "zfp-stm32f4";
+  --end if;
 
-  for Target use "arm-eabi";
-  for Runtime ("Ada") use "zfp-stm32f4";
+  package Compiler is
+     for Switches ("Ada") use ("-gnateT=" & Cf_Spark'Project_Dir & "target.atp");
+  end Compiler;
 end Cf_Spark;

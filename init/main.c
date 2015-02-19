@@ -41,7 +41,7 @@
 /* ST includes */
 #include "stm32fxxx.h"
 
- /* Ada mixing testng purpose */
+/* Ada mixing testing purpose */
 extern void sparkinit(void);
 extern void sparkfinal(void);
 extern void ada_systemLaunch(void);
@@ -52,7 +52,7 @@ int main()
   platformInit();
 
   //Launch the system task that will initialize and start everything
-  systemLaunch();
+  //systemLaunch();
   sparkinit();
   ada_systemLaunch();
   //sparkfinal();

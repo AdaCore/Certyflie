@@ -1,4 +1,6 @@
-package System_Wrapper is
+package System_Wrapper
+  with SPARK_Mode
+is
 	procedure C_SystemLaunch;
 	procedure Ada_SystemLaunch;
 	pragma Import(C, C_SystemLaunch, "systemLaunch");

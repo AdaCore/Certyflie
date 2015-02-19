@@ -62,7 +62,7 @@ AS_COMMAND_SILENT="  AS    $@"
 	@$(if $(QUIET), ,echo $(AS_COMMAND$(VERBOSE)) )
 	@$(AS_COMMAND)
 
-CLEAN_ADA_COMMAND=rm -f $(BIN)/*.ali; rm -f $(ADA_LIB_DIR)/$(ADA_LIB); rm -f $(ADA_LIB_DIR)/*.ali
+CLEAN_ADA_COMMAND=gprclean -P $(ADA_PROJECT_FILE);
 CLEAN_ADA_COMMAND_SILENT="  CLEAN_ADA"
 clean_ada: clean_version
 	@$(if $(QUIET), ,echo $(CLEAN_ADA_COMMAND$(VERBOSE)) )

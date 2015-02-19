@@ -17,7 +17,7 @@ CLOAD             ?= 1
 F405              ?= 1
 USE_FPU           ?= 0
 DEBUG             ?= 0
-CLOAD_SCRIPT      ?= ../crazyflie-clients-python/bin/cfloader
+CLOAD_SCRIPT      ?= /home/bitcraze/projects/crazyflie-clients-python/bin/cfloader
 
 # Now needed for SYSLINK
 CFLAGS += -DUSE_RADIOLINK_CRTP     # Set CRTP link to radio
@@ -99,7 +99,7 @@ else
 endif
 
 # Drivers
-PROJ_OBJ += led.o exti.o nvic.o  
+PROJ_OBJ += led.o exti.o nvic.o
 
 ifeq ($(F405), 1)
   PROJ_OBJ += mpu6500.o motors_f405.o i2cdev_f405.o ws2812.o lps25h.o ak8963.o eeprom.o
@@ -157,7 +157,7 @@ INCLUDES+= -I$(STLIB)/STM32_CPAL_Driver/inc
 INCLUDES+= -I$(STLIB)/STM32_USB_Device_Library/Core/inc
 INCLUDES+= -I$(STLIB)/STM32_USB_OTG_Driver/inc
 INCLUDES+= -I$(STLIB)/STM32_CPAL_Driver/devices/stm32f4xx
-INCLUDES+= -I$(STLIB)/CMSIS/STM32F4xx/Include 
+INCLUDES+= -I$(STLIB)/CMSIS/STM32F4xx/Include
 endif
 
 
