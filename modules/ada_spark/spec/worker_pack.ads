@@ -1,4 +1,4 @@
-with System;
+with System; use System;
 
 package Worker_Pack
   with SPARK_Mode
@@ -6,15 +6,15 @@ is
    -- Types
    subtype Pvoid is System.Address;
 
-   type Worker_Work (Func_Name_Size : Natural) is record
-      Func_Name : String (1 .. Func_Name_Size);
+   type Worker_Work is record
+      FuncName : String (1 .. 32);
       Arg : Pvoid;
    end record;
 
    -- Constants and Global Variables
    WORKER_QUEUE_LENGTH : constant Natural := 5;
 
-   XQueueHandle : Pvoid;
+   WorkerQueue : Pvoid := System.Null_Address;
 
    -- Procedures and Functions
    procedure WorkerInit;
@@ -23,7 +23,7 @@ is
 
    procedure WorkerLoop;
 
-   function WorkerSchedule(Func_Name : String; Arg : Pvoid) return Integer;
+   function WorkerSchedule(FuncName : String; Arg : Pvoid) return Integer;
 
    -- Imported C functions
 

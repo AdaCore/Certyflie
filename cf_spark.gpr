@@ -9,7 +9,7 @@ Library project Cf_Spark is
   for Library_Name use "spark";
   for Library_Dir use "bin/lib";
   for Library_Kind use "static";
-  for Library_Interface use ("system_wrapper", "worker_pack");
+  for Library_Interface use ("system_wrapper", "pid_pack");
 
   case Mode is
      when "Compile" =>

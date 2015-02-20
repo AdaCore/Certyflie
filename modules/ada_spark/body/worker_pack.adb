@@ -1,8 +1,14 @@
+with Interfaces; use Interfaces;
+
 package body Worker_Pack is
 
    procedure WorkerInit is
+      function XQueueCreate(QueueLength : Unsigned_32; ItemSize : Unsigned_32) return Pvoid;
+      pragma Import(C, XQueueCreate, "w_xQueueCreate");
    begin
-      null;
+      if WorkerQueue /= System.Null_Address then
+         WorkerQueue := XQueueCreate(Unsigned_32(WORKER_QUEUE_LENGTH), Unsigned_32(Worker_Work'Size / 8));
+      end if;
    end WorkerInit;
 
    function WorkerTest return Boolean is
@@ -15,7 +21,7 @@ package body Worker_Pack is
       null;
    end WorkerLoop;
 
-   function WorkerSchedule(Func_Name : String; Arg : Pvoid) return Integer is
+   function WorkerSchedule(FuncName : String; Arg : Pvoid) return Integer is
    begin
       return 0;
    end WorkerSchedule;
