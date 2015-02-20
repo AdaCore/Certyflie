@@ -1,117 +1,124 @@
-package body Pid_Pack is
+package body Pid_Pack
+  with SPARK_Mode
+is
 
-   procedure PidInit(Pid : out PidObject;
-                     Desired : Float;
-                     Kp : Float;
-                     Ki : Float;
-                     Kd : Float;
-                     Dt : Float) is
+   procedure Pid_Init(Pid : out Pid_Object;
+                      Desired : Float;
+                      Kp : Float;
+                      Ki : Float;
+                      Kd : Float;
+                      Dt : Float) is
    begin
       Pid.Desired := Desired;
+      Pid.Error := 0.0;
+      Pid.Prev_Error := 0.0;
+      Pid.Integ := 0.0;
+      Pid.Deriv := 0.0;
       Pid.Kp := Kp;
       Pid.Ki := Ki;
       Pid.Kd := Kd;
-      Pid.ILimit := DEFAULT_PID_INTEGRATION_LIMIT;
-      Pid.ILimitLow := - DEFAULT_PID_INTEGRATION_LIMIT;
+      Pid.Out_P := 0.0;
+      Pid.Out_I := 0.0;
+      Pid.Out_D := 0.0;
+      Pid.I_Limit := DEFAULT_PID_INTEGRATION_LIMIT;
+      Pid.I_Limit_Low := - DEFAULT_PID_INTEGRATION_LIMIT;
       Pid.Dt := Dt;
-   end PidInit;
+   end Pid_Init;
 
-   procedure PidReset(Pid : in out PidObject) is
+   procedure Pid_Reset(Pid : in out Pid_Object) is
    begin
       Pid.Error := 0.0;
-      Pid.PrevError := 0.0;
+      Pid.Prev_Error := 0.0;
       Pid.Integ := 0.0;
       Pid.Deriv := 0.0;
-   end PidReset;
+   end Pid_Reset;
 
-   function PidUpdate(Pid : in out PidObject;
-                      Measured : Float;
-                      UpdateError : Boolean) return Float is
-      Output : Float := 0.0;
+   procedure Pid_Update(Pid : in out Pid_Object;
+                        Measured : Float;
+                        Update_Error : Boolean) is
    begin
-      if UpdateError then
+      if Update_Error then
          Pid.Error := Pid.Desired - Measured;
       end if;
 
       Pid.Integ := Pid.Integ + Pid.Error * Pid.Dt;
 
-      if Pid.Integ > Pid.ILimit then
-         Pid.Integ := Pid.ILimit;
-      elsif Pid.Integ < Pid.ILimitLow then
-         Pid.Integ := Pid.ILimitLow;
+      if Pid.Integ > Pid.I_Limit then
+         Pid.Integ := Pid.I_Limit;
+      elsif Pid.Integ < Pid.I_Limit_Low then
+         Pid.Integ := Pid.I_Limit_Low;
       end if;
 
-      Pid.Deriv := (Pid.Error - Pid.PrevError) / Pid.Dt;
+      Pid.Deriv := (Pid.Error - Pid.Prev_Error) / Pid.Dt;
 
-      Pid.OutP := Pid.Kp * Pid.Error;
-      Pid.OutI := Pid.Ki * Pid.Integ;
-      Pid.OutD := Pid.Kd * Pid.Deriv;
+      Pid.Out_P := Pid.Kp * Pid.Error;
+      Pid.Out_I := Pid.Ki * Pid.Integ;
+      Pid.Out_D := Pid.Kd * Pid.Deriv;
 
-      Output := Pid.OutP + Pid.OutI + Pid.OutD;
+      Pid.Prev_Error := Pid.Error;
+   end Pid_Update;
 
-      Pid.PrevError := Pid.Error;
+   function Pid_Get_Output(Pid : in Pid_Object) return Float is
+      (Pid.Out_P + Pid.Out_I + Pid.Out_D);
 
-      return Output;
-   end PidUpdate;
-
-   function PidIsActive(Pid : in PidObject) return Boolean is
-      IsActive : Boolean := True;
+   function Pid_Is_Active(Pid : in Pid_Object) return Boolean is
+      Is_Active : Boolean := True;
    begin
       if Pid.Kp < 0.0001 and Pid.Ki < 0.0001 and Pid.Kd < 0.0001 then
-         IsActive := False;
+         Is_Active := False;
       end if;
 
-      return IsActive;
-   end PidIsActive;
+      return Is_Active;
+   end Pid_Is_Active;
 
-   procedure PidSetDesired(Pid : in out PidObject;
-                           Desired : Float) is
+   procedure Pid_Set_Desired(Pid : in out Pid_Object;
+                             Desired : Float) is
    begin
       Pid.Desired := Desired;
-   end PidSetDesired;
+   end Pid_Set_Desired;
 
-   function PidGetDesired(Pid : in PidObject) return Float is
+   function Pid_Get_Desired(Pid : in Pid_Object) return Float is
       (Pid.Desired);
 
-   procedure PidSetIntegralLimit(Pid : in out PidObject;
-                                 Limit : Float) is
+   procedure Pid_Set_Integral_Limit(Pid : in out Pid_Object;
+                                    Limit : Float) is
    begin
-      Pid.ILimit := Limit;
-    end PidSetIntegralLimit;
+      Pid.I_Limit := Limit;
+    end Pid_Set_Integral_Limit;
 
-    procedure PidSetIntegralLimitLow(Pid : in out PidObject;
-                                     LimitLow : Float) is
+    procedure Pid_Set_Integral_Limit_Low(Pid : in out Pid_Object;
+                                         Limit_Low : Float) is
     begin
-       Pid.ILimitLow := LimitLow;
-    end PidSetIntegralLimitLow;
+       Pid.I_Limit_Low := Limit_Low;
+    end Pid_Set_Integral_Limit_Low;
 
-   procedure PidSetError(Pid : in out PidObject;
+   procedure Pid_Set_Error(Pid : in out Pid_Object;
                          Error : Float) is
    begin
       Pid.Error := Error;
-   end PidSetError;
+   end Pid_Set_Error;
 
-   procedure PidSetKp(Pid : in out PidObject;
-                      Kp : Float) is
+   procedure Pid_Set_Kp(Pid : in out Pid_Object;
+                        Kp : Float) is
    begin
       Pid.Kp := Kp;
-   end PidSetKp;
+   end Pid_Set_Kp;
 
-   procedure PidSetKi(Pid : in out PidObject;
-                      Ki : Float) is
+   procedure Pid_Set_Ki(Pid : in out Pid_Object;
+                        Ki : Float) is
    begin
       Pid.Ki := Ki;
-   end PidSetKi;
+   end Pid_Set_Ki;
 
-   procedure PidSetKd(Pid : in out PidObject;
-                      Kd : Float) is
+   procedure Pid_Set_Kd(Pid : in out Pid_Object;
+                        Kd : Float) is
    begin
       Pid.Kd := Kd;
-   end PidSetKd;
+   end Pid_Set_Kd;
 
-   procedure PidSetDt(Pid : in out PidObject;
-                      Dt : Float) is
+   procedure Pid_Set_Dt(Pid : in out Pid_Object;
+                        Dt : Float) is
    begin
       Pid.Dt := Dt;
-   end PidSetDt;
+   end Pid_Set_Dt;
 end Pid_Pack;

@@ -1,5 +1,7 @@
-package Pid_Pack is
-   -- Constants
+package Pid_Pack
+  with SPARK_Mode
+is
+   --  Constants
    PID_ROLL_RATE_KP : constant := 70.0;
    PID_ROLL_RATE_KI : constant := 0.0;
    PID_ROLL_RATE_KD : constant := 0.0;
@@ -32,79 +34,82 @@ package Pid_Pack is
 
    DEFAULT_PID_INTEGRATION_LIMIT : constant := 5000.0;
 
-   -- Types
-   type PidObject is record
-      Desired : Float;    -- Set point
-      Error : Float := 0.0;      -- Error
-      PrevError : Float := 0.0;  -- Previous Error
-      Integ : Float := 0.0;      -- Integral
-      Deriv : Float := 0.0;      -- Derivative
-      Kp : Float;         -- Proportional Gain
-      Ki : Float;         -- Integral Gain
-      Kd : Float;         -- Derivative Gain
-      OutP : Float;       -- Proportional Output (debug)
-      OutI : Float;       -- Integral Output (debug)
-      OutD : Float;       -- Derivative Output (debug)
-      ILimit : Float;     -- Integral Limit
-      ILimitLow : Float;  -- Integral Limit
-      Dt : Float;         -- Delta Time
+   --  Types
+   type Pid_Object is record
+      Desired : Float;           --  Set point
+      Error : Float;             --  Error
+      Prev_Error : Float;         --  Previous Error
+      Integ : Float;             --  Integral
+      Deriv : Float;             --  Derivative
+      Kp : Float;                --  Proportional Gain
+      Ki : Float;                --  Integral Gain
+      Kd : Float;                --  Derivative Gain
+      Out_P : Float;              --  Proportional Output (debug)
+      Out_I : Float;              --  Integral Output (debug)
+      Out_D : Float;              --  Derivative Output (debug)
+      I_Limit : Float;            --  Integral Limit
+      I_Limit_Low : Float;         --  Integral Limit
+      Dt : Float;                --  Delta Time
    end record;
 
-   -- Procedures and Functions
+   --  Procedures and Functions
 
-   -- PID object initialization
-   procedure PidInit(Pid : out PidObject;
-                     Desired : Float;
-                     Kp : Float;
-                     Ki : Float;
-                     Kd : Float;
-                     Dt : Float);
+   --  PID object initialization
+   procedure Pid_Init(Pid : out Pid_Object;
+                      Desired : Float;
+                      Kp : Float;
+                      Ki : Float;
+                      Kd : Float;
+                      Dt : Float);
 
-   -- Reset the PID error values
-   procedure PidReset(Pid : in out PidObject);
+   --  Reset the PID error values
+   procedure Pid_Reset(Pid : in out Pid_Object);
 
-   -- Update the PID parameters. Set 'UpdateError' to 'False' is error has been set
-   -- previously for a special calculation with 'PidSetError'
-   function PidUpdate(Pid : in out PidObject;
-                      Measured : Float;
-                      UpdateError : Boolean) return Float;
+   --  Update the PID parameters. Set 'UpdateError' to 'False' is error has been set
+   --  previously for a special calculation with 'PidSetError'
+   procedure  Pid_Update(Pid : in out Pid_Object;
+                         Measured : Float;
+                         Update_Error : Boolean);
 
-   -- Find out if the PID is active
-   function PidIsActive(Pid : in PidObject) return Boolean;
+   --  Return the PID output. Must be called after 'PidUpdate'
+   function Pid_Get_Output(Pid : in Pid_Object) return Float;
 
-   -- Set a new set point for the PID to track
-   procedure PidSetDesired(Pid : in out PidObject;
+   --  Find out if the PID is active
+   function Pid_Is_Active(Pid : in Pid_Object) return Boolean;
+
+   --  Set a new set point for the PID to track
+   procedure Pid_Set_Desired(Pid : in out Pid_Object;
                            Desired : Float);
 
-   -- Get the PID desired set point
-   function PidGetDesired(Pid : in PidObject) return Float;
+   --  Get the PID desired set point
+   function Pid_Get_Desired(Pid : in Pid_Object) return Float;
 
-   -- Set the integral limit
-   procedure PidSetIntegralLimit(Pid : in out PidObject;
-                                 Limit : Float);
+   --  Set the integral limit
+   procedure Pid_Set_Integral_Limit(Pid : in out Pid_Object;
+                                    Limit : Float);
 
-   -- Set the integral limit
-   procedure PidSetIntegralLimitLow(Pid : in out PidObject;
-                                    LimitLow : Float);
+   --  Set the integral limit
+   procedure Pid_Set_Integral_Limit_Low(Pid : in out Pid_Object;
+                                        Limit_Low : Float);
 
-   -- Set the new error. Used if special calculation is needed.
-   procedure PidSetError(Pid : in out PidObject;
+   --  Set the new error. Used if special calculation is needed.
+   procedure Pid_Set_Error(Pid : in out Pid_Object;
                          Error : Float);
 
-   -- Set a new proprtional gain for the PID
-   procedure PidSetKp(Pid : in out PidObject;
-                      Kp : Float);
+   --  Set a new proprtional gain for the PID
+   procedure Pid_Set_Kp(Pid : in out Pid_Object;
+                        Kp : Float);
 
-   -- Set a new integral gain for the PID
-   procedure PidSetKi(Pid : in out PidObject;
-                      Ki : Float);
+   --  Set a new integral gain for the PID
+   procedure Pid_Set_Ki(Pid : in out Pid_Object;
+                        Ki : Float);
 
-   -- Set a new derivative gain for the PID
-   procedure PidSetKd(Pid : in out PidObject;
-                      Kd : Float);
+   --  Set a new derivative gain for the PID
+   procedure Pid_Set_Kd(Pid : in out Pid_Object;
+                        Kd : Float);
 
-   --  Set a new dt gain for the PID. Defaults to IMU_UPDATE_DT upon construction
-   procedure PidSetDt(Pid : in out PidObject;
-                      Dt : Float);
+   --   Set a new dt gain for the PID. Defaults to IMU_UPDATE_DT upon construction
+   procedure Pid_Set_Dt(Pid : in out Pid_Object;
+                        Dt : Float);
 
 end Pid_Pack;
