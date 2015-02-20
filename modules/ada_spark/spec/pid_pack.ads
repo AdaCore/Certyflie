@@ -60,7 +60,10 @@ is
                       Kp : Float;
                       Ki : Float;
                       Kd : Float;
-                      Dt : Float);
+                      Dt : Float)
+     with
+     Depends => (Pid => (Desired, Kp, Ki, Kd, Dt)),
+     Pre => (Dt /= 0.0);
 
    --  Reset the PID error values
    procedure Pid_Reset(Pid : in out Pid_Object);
@@ -69,10 +72,17 @@ is
    --  previously for a special calculation with 'PidSetError'
    procedure  Pid_Update(Pid : in out Pid_Object;
                          Measured : Float;
-                         Update_Error : Boolean);
+                         Update_Error : Boolean)
+     with
+     Depends => (Pid => (Measured, Pid, Update_Error)),
+     Pre => (if Measured > 0.0 then
+     Pid.Desired >= Float'First + Measured
+     else
+     Pid.Desired <= Float'Last + Measured);
 
    --  Return the PID output. Must be called after 'PidUpdate'
-   function Pid_Get_Output(Pid : in Pid_Object) return Float;
+   function Pid_Get_Output(Pid : in Pid_Object) return Float with
+     Depends => (Pid_Get_Output'Result => Pid);
 
    --  Find out if the PID is active
    function Pid_Is_Active(Pid : in Pid_Object) return Boolean;
