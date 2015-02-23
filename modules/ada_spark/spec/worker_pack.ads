@@ -26,6 +26,7 @@ is
    pragma Export(C, Worker_Test, "ada_workerTest");
 
    procedure Worker_Loop;
+   pragma Export(C, Worker_Loop, "ada_workerLoop");
 
    function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer;
    pragma Export(C, Worker_Schedule, "ada_workerSchedule");

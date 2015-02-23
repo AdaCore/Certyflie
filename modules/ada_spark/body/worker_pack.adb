@@ -8,17 +8,17 @@ package body Worker_Pack is
                              ItemSize : Unsigned_32) return Pvoid;
       pragma Import(C, XQueue_Create, "w_xQueueCreate");
    begin
-      if Worker_Queue /= System.Null_Address then
+      if Worker_Queue = System.Null_Address then
          Worker_Queue := XQueue_Create(Unsigned_32(WORKER_QUEUE_LENGTH), Unsigned_32(Worker_Work'Size / 8));
       end if;
    end Worker_Init;
 
    function Worker_Test return Integer is
    begin
-      if Worker_Queue = System.Null_Address then
-         return 0;
-      else
+      if Worker_Queue /= System.Null_Address then
          return 1;
+      else
+         return 0;
       end if;
    end Worker_Test;
 

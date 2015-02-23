@@ -1,6 +1,6 @@
 /*
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -71,8 +71,8 @@ extern void adainit(void);
 extern void adafinal(void);
 extern void ada_systemInit(void);
 extern void ada_workerInit(void);
-extern bool ada_workerTest(void);
-
+extern int  ada_workerTest(void);
+extern void ada_workerLoop(void);
 
 /* Public functions */
 void systemLaunch(void)
@@ -93,24 +93,25 @@ void systemInit(void)
   xSemaphoreTake(canStartMutex, portMAX_DELAY);
 
   configblockInit();
-  workerInit();
-  //ada_workerInit();
+  ada_workerInit();
   //adcInit();
   ledseqInit();
   pmInit();
-  
+
   isInit = true;
 }
 
 bool systemTest()
 {
   bool pass=isInit;
-  
+
   //pass &= adcTest();
   pass &= ledseqTest();
   pass &= pmTest();
-  pass &= workerTest();//workerTest();
-  
+  pass &= ada_workerTest() != 0;
+
+  DEBUG_PRINT("System correctly initialized: %d\n", pass);
+
   return pass;
 }
 
@@ -119,7 +120,7 @@ bool systemTest()
 void systemTask(void *arg)
 {
   bool pass = true;
-  
+
   ledInit();
   ledSet(CHG_LED, 1);
 
@@ -150,7 +151,7 @@ void systemTask(void *arg)
   stabilizerInit();
   expbrdInit();
   memInit();
-  
+
   //Test the modules
   pass &= systemTest();
   pass &= configblockTest();
@@ -159,7 +160,7 @@ void systemTask(void *arg)
   pass &= stabilizerTest();
   pass &= expbrdTest();
   pass &= memTest();
-  
+
   //Start the firmware
   if(pass)
   {
@@ -193,9 +194,9 @@ void systemTask(void *arg)
     }
   }
   DEBUG_PRINT("Free heap: %d bytes\n", xPortGetFreeHeapSize());
-  
-  workerLoop();
-  
+
+  ada_workerLoop();
+
   //Should never reach this point!
   while(1)
     vTaskDelay(portMAX_DELAY);

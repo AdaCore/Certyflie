@@ -454,8 +454,8 @@ static int logStartBlock(int id, unsigned int period)
     xTimerStart(logBlocks[i].timer, 100);
   } else {
     // single-shoot run
-      workerSchedule(logRunBlock, &logBlocks[i]);
-      //ada_workerSchedule(0, &logBlocks[i]);
+      //workerSchedule(logRunBlock, &logBlocks[i]);
+      ada_workerSchedule(0, &logBlocks[i]);
   }
 
   return 0;
@@ -481,8 +481,8 @@ static int logStopBlock(int id)
 /* This function is called by the timer subsystem */
 void logBlockTimed(xTimerHandle timer)
 {
-    workerSchedule(logRunBlock, pvTimerGetTimerID(timer));
-    //ada_workerSchedule(0, pvTimerGetTimerID(timer));
+    //workerSchedule(logRunBlock, pvTimerGetTimerID(timer));
+    ada_workerSchedule(0, pvTimerGetTimerID(timer));
 }
 
 /* This function is usually called by the worker subsystem */
