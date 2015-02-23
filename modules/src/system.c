@@ -70,6 +70,9 @@ static void systemTask(void *arg);
 extern void adainit(void);
 extern void adafinal(void);
 extern void ada_systemInit(void);
+extern void ada_workerInit(void);
+extern bool ada_workerTest(void);
+
 
 /* Public functions */
 void systemLaunch(void)
@@ -91,10 +94,11 @@ void systemInit(void)
 
   configblockInit();
   workerInit();
+  //ada_workerInit();
   //adcInit();
   ledseqInit();
   pmInit();
-    
+  
   isInit = true;
 }
 
@@ -105,7 +109,7 @@ bool systemTest()
   //pass &= adcTest();
   pass &= ledseqTest();
   pass &= pmTest();
-  pass &= workerTest();
+  pass &= workerTest();//workerTest();
   
   return pass;
 }

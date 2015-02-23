@@ -1,9 +1,11 @@
 with Interfaces; use Interfaces;
+with Utils; use Utils;
 
 package body Worker_Pack is
 
    procedure Worker_Init is
-      function XQueue_Create(QueueLength : Unsigned_32; ItemSize : Unsigned_32) return Pvoid;
+      function XQueue_Create(QueueLength : Unsigned_32;
+                             ItemSize : Unsigned_32) return Pvoid;
       pragma Import(C, XQueue_Create, "w_xQueueCreate");
    begin
       if Worker_Queue /= System.Null_Address then
@@ -11,19 +13,66 @@ package body Worker_Pack is
       end if;
    end Worker_Init;
 
-   function Worker_Test return Boolean is
+   function Worker_Test return Integer is
    begin
-      return True;
+      if Worker_Queue = System.Null_Address then
+         return 0;
+      else
+         return 1;
+      end if;
    end Worker_Test;
 
    procedure Worker_Loop is
+      Work : Worker_Work := (None, System.Null_Address);
+      Res : Integer := 0;
+
+      function XQueue_Receive(XQueue : Pvoid;
+                              Buffer : Pvoid;
+                              Ticks_To_wait : Unsigned_32) return Integer;
+      pragma Import(C, XQueue_Receive, "w_xQueueReceive");
    begin
-      null;
+      if Worker_Queue /= System.Null_Address then
+         while True loop
+            Res := XQueue_Receive(Worker_Queue, Work'Address, PORT_MAX_DELAY);
+
+            if Res = -1 then
+               exit;
+            end if;
+
+            case Work.Func is
+               when Log_Run =>
+                  Log_Run_Worker(Work.Arg);
+               when Neo_Pixel_Ring =>
+                  Neo_Pixel_Ring_Worker(Work.Arg);
+               when others =>
+                  null;
+            end case;
+         end loop;
+      end if;
    end Worker_Loop;
 
-   function Worker_Schedule(Func_Name : String; Arg : Pvoid) return Integer is
+   function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer is
+      Work : Worker_Work := (None, System.Null_Address);
+      Res : Integer := 0;
+
+      function XQueue_Send(XQueue : Pvoid;
+                           Item_To_Queue : PVoid;
+                           Ticks_To_wait : Unsigned_32) return Integer;
+      pragma Import(C, XQueue_Send, "w_xQueueSend");
    begin
-      return 0;
+      case Func_ID is
+         when 0 =>
+            Work.Func := Log_Run;
+         when 1 =>
+            Work.Func := Neo_Pixel_Ring;
+         when others =>
+            Work.Func := None;
+      end case;
+
+      Work.Arg := Arg;
+      Res := XQueue_Send(Worker_Queue, Work'Address, PORT_MAX_DELAY);
+
+      return Res;
    end Worker_Schedule;
 
    procedure Log_Run_Worker (Arg : Pvoid) is

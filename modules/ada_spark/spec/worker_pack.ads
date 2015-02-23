@@ -6,7 +6,7 @@ is
    -- Types
    subtype Pvoid is System.Address;
 
-   type Action is (Log_Run, Neo_Pixel_Ring);
+   type Action is (None, Log_Run, Neo_Pixel_Ring);
 
    type Worker_Work is record
       Func : Action;
@@ -20,17 +20,18 @@ is
 
    -- Procedures and Functions
    procedure Worker_Init;
+   pragma Export(C, Worker_Init, "ada_workerInit");
 
-   function Worker_Test return Boolean;
+   function Worker_Test return Integer;
+   pragma Export(C, Worker_Test, "ada_workerTest");
 
    procedure Worker_Loop;
 
-   function Worker_Schedule(Func_Name : String; Arg : Pvoid) return Integer;
+   function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer;
+   pragma Export(C, Worker_Schedule, "ada_workerSchedule");
 
    procedure Log_Run_Worker (Arg : Pvoid);
 
    procedure Neo_Pixel_Ring_Worker (Arg : Pvoid);
-
-
 
 end Worker_Pack;

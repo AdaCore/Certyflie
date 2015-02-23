@@ -1,3 +1,5 @@
+with Utils; use Utils;
+
 package Pid_Pack
   with SPARK_Mode
 is
@@ -34,7 +36,6 @@ is
 
    DEFAULT_PID_INTEGRATION_LIMIT : constant := 5000.0;
 
-   --  Types
    type Pid_Object is record
       Desired : Float;           --  Set point
       Error : Float;             --  Error
@@ -70,15 +71,15 @@ is
 
    --  Update the PID parameters. Set 'UpdateError' to 'False' is error has been set
    --  previously for a special calculation with 'PidSetError'
-   procedure  Pid_Update(Pid : in out Pid_Object;
+   procedure Pid_Update(Pid : in out Pid_Object;
                          Measured : Float;
                          Update_Error : Boolean)
      with
      Depends => (Pid => (Measured, Pid, Update_Error)),
      Pre => (if Measured > 0.0 then
-     Pid.Desired >= Float'First + Measured
+     Pid.Desired >= Allowed_Float_values'First + Measured
      else
-     Pid.Desired <= Float'Last + Measured);
+     Pid.Desired <= Allowed_Float_values'Last + Measured);
 
    --  Return the PID output. Must be called after 'PidUpdate'
    function Pid_Get_Output(Pid : in Pid_Object) return Float with

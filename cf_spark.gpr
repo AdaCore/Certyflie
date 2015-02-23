@@ -9,7 +9,7 @@ Library project Cf_Spark is
   for Library_Name use "spark";
   for Library_Dir use "bin/lib";
   for Library_Kind use "static";
-  for Library_Interface use ("system_wrapper", "worker_pack", "pid_pack");
+  for Library_Interface use ("system_wrapper", "worker_pack", "pid_pack", "utils");
 
   case Mode is
      when "Compile" =>
@@ -18,4 +18,8 @@ Library project Cf_Spark is
      when others =>
         null;
   end case;
+
+  package Compiler is
+     for Default_Switches ("Ada") use ("-gnatp");
+  end Compiler;
 end Cf_Spark;

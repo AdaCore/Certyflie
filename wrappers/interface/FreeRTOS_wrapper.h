@@ -5,13 +5,14 @@
 #include "queue.h"
 
 xQueueHandle w_xQueueCreate(unsigned portBASE_TYPE uxQueueLength,
-							unsigned portBASE_TYPE uxItemSize);
+                            unsigned portBASE_TYPE uxItemSize);
 
-signed portBASE_TYPE w_xQueueReceive(xQueueHandle xQueue,
-									 void * const pvBuffer,
-									 portTickType xTicksToWait);
+int w_xQueueReceive(xQueueHandle xQueue,
+                    void * const pvBuffer,
+                    portTickType xTicksToWait);
 
-signed portBASE_TYPE w_xQueueSend(xQueueHandle xQueue, 
-								  const void * const pvItemToQueue,
-								  portTickType xTicksToWait);
+int w_xQueueSend(xQueueHandle xQueue,
+                 const void * const pvItemToQueue,
+                 portTickType xTicksToWait);
+
 #endif /* !FREERTOS_WRAPPER_H_ */
