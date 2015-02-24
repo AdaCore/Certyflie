@@ -66,10 +66,7 @@ xSemaphoreHandle canStartMutex;
 /* Private functions */
 static void systemTask(void *arg);
 
-/* Ada mixing testng purpose */
-extern void adainit(void);
-extern void adafinal(void);
-extern void ada_systemInit(void);
+/* use Ada/SPARK worker module */
 extern void ada_workerInit(void);
 extern int  ada_workerTest(void);
 extern void ada_workerLoop(void);
@@ -108,9 +105,8 @@ bool systemTest()
   //pass &= adcTest();
   pass &= ledseqTest();
   pass &= pmTest();
+  //pass &= workerTest();
   pass &= ada_workerTest() != 0;
-
-  DEBUG_PRINT("System correctly initialized: %d\n", pass);
 
   return pass;
 }
@@ -181,7 +177,7 @@ void systemTask(void *arg)
         // System can be forced to start by setting the param to 1 from the cfclient
         if (selftestPassed)
         {
-	        DEBUG_PRINT("Start forced.\n");
+          DEBUG_PRINT("Start forced.\n");
           systemStart();
           break;
         }
@@ -195,6 +191,7 @@ void systemTask(void *arg)
   }
   DEBUG_PRINT("Free heap: %d bytes\n", xPortGetFreeHeapSize());
 
+  //workerLoop();
   ada_workerLoop();
 
   //Should never reach this point!

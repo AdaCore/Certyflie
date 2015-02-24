@@ -1,5 +1,6 @@
 with Interfaces; use Interfaces;
 with Utils; use Utils;
+with Misc_Pack; use Misc_Pack;
 
 package body Worker_Pack is
 
@@ -25,13 +26,13 @@ package body Worker_Pack is
    procedure Worker_Loop is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
-
       function XQueue_Receive(XQueue : Pvoid;
                               Buffer : Pvoid;
                               Ticks_To_wait : Unsigned_32) return Integer;
+
       pragma Import(C, XQueue_Receive, "w_xQueueReceive");
    begin
-      if Worker_Queue /= System.Null_Address then
+       if Worker_Queue /= System.Null_Address then
          while True loop
             Res := XQueue_Receive(Worker_Queue, Work'Address, PORT_MAX_DELAY);
 
@@ -54,11 +55,11 @@ package body Worker_Pack is
    function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
-
       function XQueue_Send(XQueue : Pvoid;
                            Item_To_Queue : PVoid;
                            Ticks_To_wait : Unsigned_32) return Integer;
       pragma Import(C, XQueue_Send, "w_xQueueSend");
+
    begin
       case Func_ID is
          when 0 =>
@@ -70,9 +71,13 @@ package body Worker_Pack is
       end case;
 
       Work.Arg := Arg;
-      Res := XQueue_Send(Worker_Queue, Work'Address, PORT_MAX_DELAY);
+      Res := XQueue_Send(Worker_Queue, Work'Address, 0);
 
-      return Res;
+      if Res = -1 then
+         return 12; -- ENOMEM
+      end if;
+
+      return 0;
    end Worker_Schedule;
 
    procedure Log_Run_Worker (Arg : Pvoid) is

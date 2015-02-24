@@ -142,7 +142,9 @@ static int logStopBlock(int id);
 static void logReset();
 
 
-//Ada testing
+/* Use the Ada/SPARK library to schedule worker functions */
+#define LOG_RUN_BLOCK_ID 0
+
 extern int ada_workerSchedule(int funcID, void *arg);
 
 void logInit(void)
@@ -454,8 +456,7 @@ static int logStartBlock(int id, unsigned int period)
     xTimerStart(logBlocks[i].timer, 100);
   } else {
     // single-shoot run
-      //workerSchedule(logRunBlock, &logBlocks[i]);
-      ada_workerSchedule(0, &logBlocks[i]);
+    ada_workerSchedule(LOG_RUN_BLOCK_ID, &logBlocks[i]);
   }
 
   return 0;
@@ -481,8 +482,7 @@ static int logStopBlock(int id)
 /* This function is called by the timer subsystem */
 void logBlockTimed(xTimerHandle timer)
 {
-    //workerSchedule(logRunBlock, pvTimerGetTimerID(timer));
-    ada_workerSchedule(0, pvTimerGetTimerID(timer));
+  ada_workerSchedule(LOG_RUN_BLOCK_ID, pvTimerGetTimerID(timer));
 }
 
 /* This function is usually called by the worker subsystem */

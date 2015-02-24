@@ -41,21 +41,19 @@
 /* ST includes */
 #include "stm32fxxx.h"
 
-/* Ada mixing testing purpose */
+/* To elaborate the Ada/SPARK library */
 extern void sparkinit(void);
-extern void sparkfinal(void);
-extern void ada_systemLaunch(void);
 
 int main()
 {
   //Initialize the platform.
   platformInit();
 
-  //Launch the system task that will initialize and start everything
-  //systemLaunch();
+  //Initialiaze the Ada/SPARK library */
   sparkinit();
-  ada_systemLaunch();
-  //sparkfinal();
+
+  //Launch the system task that will initialize and start everything
+  systemLaunch();
 
   //Start the FreeRTOS scheduler
   vTaskStartScheduler();
