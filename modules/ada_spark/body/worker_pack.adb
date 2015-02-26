@@ -2,7 +2,8 @@ with Interfaces; use Interfaces;
 with Utils; use Utils;
 with Misc_Pack; use Misc_Pack;
 
-package body Worker_Pack is
+package body Worker_Pack
+is
 
    procedure Worker_Init is
       function XQueue_Create(QueueLength : Unsigned_32;

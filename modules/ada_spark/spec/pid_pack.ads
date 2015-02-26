@@ -36,6 +36,9 @@ is
 
    DEFAULT_PID_INTEGRATION_LIMIT : constant := 5000.0;
 
+   HIGH_DT_LIMIT : constant := 1.0;
+   LOW_DT_LIMIT  : constant := 0.001;
+
    type Pid_Object is record
       Desired : Float;           --  Set point
       Error : Float;             --  Error
@@ -64,7 +67,7 @@ is
                       Dt : Float)
      with
      Depends => (Pid => (Desired, Kp, Ki, Kd, Dt)),
-     Pre => (Dt /= 0.0);
+     Pre => (Dt > 0.0 and Dt < 1.0);
 
    --  Reset the PID error values
    procedure Pid_Reset(Pid : in out Pid_Object);
@@ -72,18 +75,19 @@ is
    --  Update the PID parameters. Set 'UpdateError' to 'False' is error has been set
    --  previously for a special calculation with 'PidSetError'
    procedure Pid_Update(Pid : in out Pid_Object;
-                         Measured : Float;
-                         Update_Error : Boolean)
+                        Measured : Float;
+                        Update_Error : Boolean)
      with
      Depends => (Pid => (Measured, Pid, Update_Error)),
-     Pre => (if Measured > 0.0 then
-     Pid.Desired >= Allowed_Float_values'First + Measured
-     else
-     Pid.Desired <= Allowed_Float_values'Last + Measured);
+     Pre => (Pid.Dt > 0.0 and Pid.Dt < 1.0) and then
+     Pid.Desired in Allowed_Float_Values'Range and then
+     Measured in Allowed_Float_Values'Range and then
+     Pid.Integ in Allowed_Float_Values'Range and then
+     Pid.Error in Allowed_Float_Values'Range and then
+     Pid.Prev_Error in Allowed_Float_Values'Range;
 
-   --  Return the PID output. Must be called after 'PidUpdate'
-   function Pid_Get_Output(Pid : in Pid_Object) return Float with
-     Depends => (Pid_Get_Output'Result => Pid);
+     --  Return the PID output. Must be called after 'PidUpdate'
+   function Pid_Get_Output(Pid : in Pid_Object) return Float;
 
    --  Find out if the PID is active
    function Pid_Is_Active(Pid : in Pid_Object) return Boolean;

@@ -20,6 +20,13 @@ Library project Cf_Spark is
   end case;
 
   package Compiler is
-     for Default_Switches ("Ada") use ("-gnatp");
+     case Mode is
+        when "Compile" =>
+           for Default_Switches ("Ada") use ("-gnatp");
+        when "Analyze" =>
+          for Default_Switches ("Ada") use ("-gnato13");
+        when others =>
+           null;
+     end case;
   end Compiler;
 end Cf_Spark;

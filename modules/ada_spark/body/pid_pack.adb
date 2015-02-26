@@ -41,7 +41,7 @@ is
          Pid.Error := Pid.Desired - Measured;
       end if;
 
-      Pid.Integ := Pid.Integ + Pid.Error * Pid.Dt;
+      Pid.Integ := Pid.Integ + Pid.Error; --* Pid.Dt;
 
       if Pid.Integ > Pid.I_Limit then
          Pid.Integ := Pid.I_Limit;
