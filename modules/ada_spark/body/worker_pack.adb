@@ -3,15 +3,16 @@ with Utils; use Utils;
 with Misc_Pack; use Misc_Pack;
 
 package body Worker_Pack
+  with SPARK_Mode
 is
 
    procedure Worker_Init is
       function XQueue_Create(QueueLength : Unsigned_32;
-                             ItemSize : Unsigned_32) return Pvoid;
+                             ItemSize : Integer) return Pvoid;
       pragma Import(C, XQueue_Create, "w_xQueueCreate");
    begin
       if Worker_Queue = System.Null_Address then
-         Worker_Queue := XQueue_Create(Unsigned_32(WORKER_QUEUE_LENGTH), Unsigned_32(Worker_Work'Size / 8));
+         Worker_Queue := XQueue_Create(Unsigned_32(WORKER_QUEUE_LENGTH), Worker_Work'Size / 8);
       end if;
    end Worker_Init;
 
@@ -24,7 +25,9 @@ is
       end if;
    end Worker_Test;
 
-   procedure Worker_Loop is
+   procedure Worker_Loop
+     with SPARK_Mode => Off
+   is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
       function XQueue_Receive(XQueue : Pvoid;
@@ -53,7 +56,9 @@ is
       end if;
    end Worker_Loop;
 
-   function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer is
+   function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer
+     with SPARK_Mode => Off
+   is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
       function XQueue_Send(XQueue : Pvoid;
