@@ -3,11 +3,11 @@ package body Pid_Pack
 is
 
    procedure Pid_Init(Pid : out Pid_Object;
-                      Desired : Float;
-                      Kp : Float;
-                      Ki : Float;
-                      Kd : Float;
-                      Dt : Float) is
+                      Desired : Allowed_Floats;
+                      Kp : Allowed_Floats;
+                      Ki : Allowed_Floats;
+                      Kd : Allowed_Floats;
+                      Dt : Allowed_Floats) is
    begin
       Pid.Desired := Desired;
       Pid.Error := 0.0;
@@ -34,14 +34,22 @@ is
    end Pid_Reset;
 
    procedure Pid_Update(Pid : in out Pid_Object;
-                        Measured : Float;
+                        Measured : Allowed_Floats;
                         Update_Error : Boolean) is
    begin
       if Update_Error then
          Pid.Error := Pid.Desired - Measured;
       end if;
 
-      Pid.Integ := Pid.Integ + Pid.Error; --* Pid.Dt;
+      pragma Assert (Pid.Error
+                       in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
+
+      pragma Assert (Pid.Dt > 0.0 and Pid.Dt < 1.0);
+
+      pragma Assert (Pid.Error * Pid.Dt
+                       in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
+
+      Pid.Integ := Pid.Integ + Pid.Error * Pid.Dt;
 
       if Pid.Integ > Pid.I_Limit then
          Pid.Integ := Pid.I_Limit;
@@ -72,7 +80,7 @@ is
    end Pid_Is_Active;
 
    procedure Pid_Set_Desired(Pid : in out Pid_Object;
-                             Desired : Float) is
+                             Desired : Allowed_Floats) is
    begin
       Pid.Desired := Desired;
    end Pid_Set_Desired;
@@ -81,13 +89,13 @@ is
       (Pid.Desired);
 
    procedure Pid_Set_Integral_Limit(Pid : in out Pid_Object;
-                                    Limit : Float) is
+                                    Limit : Allowed_Floats) is
    begin
       Pid.I_Limit := Limit;
     end Pid_Set_Integral_Limit;
 
     procedure Pid_Set_Integral_Limit_Low(Pid : in out Pid_Object;
-                                         Limit_Low : Float) is
+                                         Limit_Low : Allowed_Floats) is
     begin
        Pid.I_Limit_Low := Limit_Low;
     end Pid_Set_Integral_Limit_Low;
@@ -99,25 +107,25 @@ is
    end Pid_Set_Error;
 
    procedure Pid_Set_Kp(Pid : in out Pid_Object;
-                        Kp : Float) is
+                        Kp : Allowed_Floats) is
    begin
       Pid.Kp := Kp;
    end Pid_Set_Kp;
 
    procedure Pid_Set_Ki(Pid : in out Pid_Object;
-                        Ki : Float) is
+                        Ki : Allowed_Floats) is
    begin
       Pid.Ki := Ki;
    end Pid_Set_Ki;
 
    procedure Pid_Set_Kd(Pid : in out Pid_Object;
-                        Kd : Float) is
+                        Kd : Allowed_Floats) is
    begin
       Pid.Kd := Kd;
    end Pid_Set_Kd;
 
    procedure Pid_Set_Dt(Pid : in out Pid_Object;
-                        Dt : Float) is
+                        Dt : Allowed_Floats) is
    begin
       Pid.Dt := Dt;
    end Pid_Set_Dt;

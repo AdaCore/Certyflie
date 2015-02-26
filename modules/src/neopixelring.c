@@ -83,6 +83,12 @@ static uint8_t black[][3] = {BLACK, BLACK, BLACK,
                              BLACK, BLACK, BLACK,
                             };
 
+/* Use the Ada/SPARK library to schedule worker functions */
+#define NEO_PIXEL_RING_WORKER_ID 1
+
+extern int ada_workerSchedule(int funcID, void *arg);
+
+
 /**************** Black (LEDs OFF) ***************/
 
 static void blackEffect(uint8_t buffer[][3], bool reset)
@@ -493,7 +499,7 @@ void neopixelringWorker(void * data)
 
 static void neopixelringTimer(xTimerHandle timer)
 {
-  workerSchedule(neopixelringWorker, NULL);
+  ada_workerSchedule(NEO_PIXEL_RING_WORKER_ID, NULL);
 
   setHeadlightsOn(headlightEnable);
 }
