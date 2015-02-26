@@ -39,6 +39,8 @@ is
    HIGH_DT_LIMIT : constant := 1.0;
    LOW_DT_LIMIT  : constant := 0.001;
 
+
+   --  Types
    type Pid_Object is record
       Desired : Allowed_Floats;           --  Set point
       Error : Float;             --  Error
@@ -95,7 +97,7 @@ is
 
    --  Set a new set point for the PID to track
    procedure Pid_Set_Desired(Pid : in out Pid_Object;
-                           Desired : Allowed_Floats);
+                             Desired : Allowed_Floats);
 
    --  Get the PID desired set point
    function Pid_Get_Desired(Pid : in Pid_Object) return Float;
