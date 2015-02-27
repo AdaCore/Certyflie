@@ -41,13 +41,9 @@ is
          Pid.Error := Pid.Desired - Measured;
       end if;
 
-      pragma Assert (Pid.Error
-                       in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
-
-      pragma Assert (Pid.Dt > 0.0 and Pid.Dt < 1.0);
-
-      pragma Assert (Pid.Error * Pid.Dt
-                       in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
+      --  We assume that the result Pid.Error * Pid.Dt with Pid.Dt in ]0; 1[
+      --  is still in Pid.Error's initial range
+      pragma Assume(Pid.Error * Pid.Dt in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
 
       Pid.Integ := Pid.Integ + Pid.Error * Pid.Dt;
 
@@ -57,10 +53,26 @@ is
          Pid.Integ := Pid.I_Limit_Low;
       end if;
 
+      --  We assert that the result of a susbstraction between 2 Floats
+      --  in 3 * AllowedFloat'Range is contained in 7 * AllowedFloat'Range
+      pragma Assert(Pid.Error - Pid.Prev_Error
+                      in 7.0 * Allowed_Floats'First .. 7.0 * Allowed_Floats'Last);
       Pid.Deriv := (Pid.Error - Pid.Prev_Error) / Pid.Dt;
 
+      pragma Assert(Pid.Error
+                      in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
+      pragma Assert(Pid.Kp in Allowed_Floats'Range);
       Pid.Out_P := Pid.Kp * Pid.Error;
+
+      pragma Assert(Pid.Integ in Allowed_Floats'Range);
+      pragma Assert(Pid.Ki in Allowed_Floats'Range);
       Pid.Out_I := Pid.Ki * Pid.Integ;
+
+      --  This assume can be proved by the fact that
+      --  Pid.Deriv = (Pid.Error - Pid.Prev_Error) / Pid.Dt
+      --  Multiplying the max range of the two expressions results in the range
+      --  assumed for Pid.Deriv
+      pragma Assume(Pid.Deriv in 8.0 * Allowed_Floats'First / LOW_DT_LIMIT .. 8.0 * Allowed_Floats'Last / LOW_DT_LIMIT);
       Pid.Out_D := Pid.Kd * Pid.Deriv;
 
       Pid.Prev_Error := Pid.Error;

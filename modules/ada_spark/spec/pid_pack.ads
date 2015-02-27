@@ -36,7 +36,7 @@ is
 
    DEFAULT_PID_INTEGRATION_LIMIT : constant := 5000.0;
 
-   HIGH_DT_LIMIT : constant := 1.0;
+   HIGH_DT_LIMIT : constant := 0.999;
    LOW_DT_LIMIT  : constant := 0.001;
 
    --  Types
@@ -80,7 +80,10 @@ is
                         Update_Error : Boolean)
      with
      Depends => (Pid => (Measured, Pid, Update_Error)),
-     Pre => (Pid.Dt > 0.0 and Pid.Dt < 1.0);
+     Pre => (Pid.Dt > LOW_DT_LIMIT and Pid.Dt < HIGH_DT_LIMIT) and then
+     Pid.Error in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last and then
+     Pid.Prev_Error in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last and then
+     Pid.Integ in Pid.I_Limit_Low .. Pid.I_Limit;
 
      --  Return the PID output. Must be called after 'PidUpdate'
    function Pid_Get_Output(Pid : in Pid_Object) return Float
