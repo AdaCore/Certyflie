@@ -18,11 +18,13 @@ is
 
    Is_Init : Boolean := False;
 
-   procedure Controller_Init with
+   procedure Controller_Init
+     with
      Global => (Output => (Roll_Rate_Pid, Roll_Pid, Pitch_Rate_Pid, Pitch_Pid,
                            Yaw_Rate_Pid, Yaw_Pid, Is_Init));
 
-   function Controller_Test return Boolean with
+   function Controller_Test return Boolean
+     with
      Global => (Input => Is_Init);
 
    procedure Controller_Correct_Rate_PID(Roll_Rate_Actual   : Allowed_Floats;
@@ -30,13 +32,18 @@ is
                                          Yaw_Rate_Actual    : Allowed_Floats;
                                          Roll_Rate_Desired  : Allowed_Floats;
                                          Pitch_Rate_Desired : Allowed_Floats;
-                                         Yaw_Rate_Desired   : Allowed_Floats) with
-     Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid)),
-     Pre    => PreCondition(Roll_Rate_Pid);
+                                         Yaw_Rate_Desired   : Allowed_Floats)
+     with
+     Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
 
-   function PreCondition(Pid : Pid_Object) return Boolean is
-       ((Pid.Dt > 0.0 and Pid.Dt < 1.0) and then
-     (Pid.Integ >= Pid.I_Limit_Low and Pid.Integ <= Pid.I_Limit) and then
-     Pid.Error in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
+   procedure Controller_Reset_All_Pid
+     with
+     Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid,
+                           Roll_Pid, Pitch_Pid, Yaw_Pid));
 
+   procedure Controller_Get_Actuator_Output(Actuator_Roll  : out Integer;
+                                            Actuator_Pitch : out Integer;
+                                            Actuator_Yaw   : out Integer)
+     with
+     Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
 end Controller_Pack;

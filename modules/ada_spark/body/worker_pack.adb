@@ -3,7 +3,6 @@ with Utils; use Utils;
 with Misc_Pack; use Misc_Pack;
 
 package body Worker_Pack
-  with SPARK_Mode
 is
 
    procedure Worker_Init is
