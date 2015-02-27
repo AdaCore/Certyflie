@@ -1,6 +1,6 @@
 with Interfaces; use Interfaces;
 with Utils; use Utils;
-with Misc_Pack; use Misc_Pack;
+with Debug_Pack; use Debug_Pack;
 
 package body Worker_Pack
 is

@@ -36,6 +36,16 @@ is
      with
      Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
 
+   procedure Controller_Correct_Attitude_Pid(Euler_Roll_Actual   : Allowed_Floats;
+                                             Euler_Pitch_Actual  : Allowed_Floats;
+                                             Euler_Yaw_Actual    : Allowed_Floats;
+                                             Euler_Roll_Desired  : Allowed_Floats;
+                                             Euler_Pitch_Desired : Allowed_Floats;
+                                             Euler_Yaw_Desired   : Allowed_Floats)
+     with
+     Global => (In_Out => (Roll_Pid, Pitch_Pid, Yaw_Pid));
+
+
    procedure Controller_Reset_All_Pid
      with
      Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid,
@@ -46,4 +56,10 @@ is
                                             Actuator_Yaw   : out Integer)
      with
      Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
+
+   procedure Controller_Get_Desired_Rate(Roll_Rate_Desired  : out Integer;
+                                         Pitch_Rate_Desired : out Integer;
+                                         Yaw_Rate_Desired   : out Integer)
+     with
+     Global => (Input => (Roll_Pid, Pitch_Pid, Yaw_Pid));
 end Controller_Pack;
