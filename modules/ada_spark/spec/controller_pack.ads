@@ -18,7 +18,6 @@ is
 
    Is_Init : Boolean := False;
 
-
    --  Procedures and functions
 
    --  Initalize all the PID's needed for the drone.
@@ -32,10 +31,11 @@ is
      with
      Global => (Input => Is_Init);
 
-   --  Update the rate PID's for each axis (Roll, Pitch, Yaw) given the measured
-   --  values along each axis and the desired values retrieved from the corresponding
+   --  Update the rate PID's for each axis (Roll, Pitch, Yaw)
+   --  given the measured values along each axis and the desired
+   --  values retrieved from the corresponding
    --  attitude PID's.
-   procedure Controller_Correct_Rate_PID(Roll_Rate_Actual   : Allowed_Floats;
+   procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : Allowed_Floats;
                                          Pitch_Rate_Actual  : Allowed_Floats;
                                          Yaw_Rate_Actual    : Allowed_Floats;
                                          Roll_Rate_Desired  : Allowed_Floats;
@@ -44,15 +44,16 @@ is
      with
      Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
 
-   --  Update the attitude PID's for each axis given (Roll, Pitch, Yaw) given the
-   --  measured values along each axis and the desired values retrieved from the
-   --  commander.
-   procedure Controller_Correct_Attitude_Pid(Euler_Roll_Actual   : Allowed_Floats;
-                                             Euler_Pitch_Actual  : Allowed_Floats;
-                                             Euler_Yaw_Actual    : Allowed_Floats;
-                                             Euler_Roll_Desired  : Allowed_Floats;
-                                             Euler_Pitch_Desired : Allowed_Floats;
-                                             Euler_Yaw_Desired   : Allowed_Floats)
+   --  Update the attitude PID's for each axis given (Roll, Pitch, Yaw)
+   --  given the measured values along each axis and the
+   --  desired values retrieved from the commander.
+   procedure Controller_Correct_Attitude_Pid
+     (Euler_Roll_Actual   : Allowed_Floats;
+      Euler_Pitch_Actual  : Allowed_Floats;
+      Euler_Yaw_Actual    : Allowed_Floats;
+      Euler_Roll_Desired  : Allowed_Floats;
+      Euler_Pitch_Desired : Allowed_Floats;
+      Euler_Yaw_Desired   : Allowed_Floats)
      with
      Global => (In_Out => (Roll_Pid, Pitch_Pid, Yaw_Pid));
 
@@ -64,15 +65,16 @@ is
 
    --  Get the output of the rate PID's.
    --  Must be called after 'Controller_Correct_Rate_Pid' to update the PID's.
-   procedure Controller_Get_Actuator_Output(Actuator_Roll  : out Integer;
+   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer;
                                             Actuator_Pitch : out Integer;
                                             Actuator_Yaw   : out Integer)
      with
      Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
 
    --  Get the output of the attitude PID's, which will command the rate PID's.
-   --  Must be called after 'Controller_Correct_Attitude_Pid' to update the PID's.
-   procedure Controller_Get_Desired_Rate(Roll_Rate_Desired  : out Integer;
+   --  Must be called after 'Controller_Correct_Attitude_Pid' to update
+   --  the PID's.
+   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Integer;
                                          Pitch_Rate_Desired : out Integer;
                                          Yaw_Rate_Desired   : out Integer)
      with

@@ -1,12 +1,10 @@
 with System; use System;
-with Interfaces.C; use Interfaces.C;
+with FreeRTOS_Pack; use FreeRTOS_Pack;
 
 package Worker_Pack
   with SPARK_Mode
 is
    -- Types
-   subtype Pvoid is System.Address;
-
    type Action is (Log_Run, Neo_Pixel_Ring, None);
 
    type Worker_Work is record

@@ -3,11 +3,9 @@ with Utils; use Utils;
 with Debug_Pack; use Debug_Pack;
 
 package body Worker_Pack
+  with SPARK_Mode
 is
    procedure Worker_Init is
-      function XQueue_Create(QueueLength : Unsigned_32;
-                             ItemSize    : Integer) return Pvoid;
-      pragma Import(C, XQueue_Create, "w_xQueueCreate");
    begin
       if Worker_Queue = System.Null_Address then
          Worker_Queue := XQueue_Create(Unsigned_32(WORKER_QUEUE_LENGTH),
@@ -28,19 +26,12 @@ is
    is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
-      function XQueue_Receive(XQueue        : Pvoid;
-                              Buffer        : Pvoid;
-                              Ticks_To_wait : Unsigned_32) return Integer;
-
-      pragma Import(C, XQueue_Receive, "w_xQueueReceive");
    begin
        if Worker_Queue /= System.Null_Address then
-         while True loop
+         loop
             Res := XQueue_Receive(Worker_Queue, Work'Address, PORT_MAX_DELAY);
 
-            if Res = -1 then
-               exit;
-            end if;
+            exit when Res = -1;
 
             case Work.Func is
                when Log_Run =>
@@ -55,24 +46,11 @@ is
    end Worker_Loop;
 
    function Worker_Schedule(Func_ID : Integer;
-                            Arg     : Pvoid) return Integer
-   is
+                            Arg     : Pvoid) return Integer is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
-      function XQueue_Send(XQueue : Pvoid;
-                           Item_To_Queue : PVoid;
-                           Ticks_To_wait : Unsigned_32) return Integer;
-      pragma Import(C, XQueue_Send, "w_xQueueSend");
-
    begin
-      case Func_ID is
-         when 0 =>
-            Work.Func := Log_Run;
-         when 1 =>
-            Work.Func := Neo_Pixel_Ring;
-         when others =>
-            Work.Func := None;
-      end case;
+      Work.Func := Action'Val(Func_ID);
 
       Work.Arg := Arg;
       Res := XQueue_Send(Worker_Queue, Work'Address, 0);
