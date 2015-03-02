@@ -29,11 +29,12 @@ is
    procedure Worker_Loop;
    pragma Export(C, Worker_Loop, "ada_workerLoop");
 
-   function Worker_Schedule(Func_ID : Integer; Arg : Pvoid) return Integer;
+   function Worker_Schedule(Func_ID : Integer;
+                            Arg     : Pvoid) return Integer;
    pragma Export(C, Worker_Schedule, "ada_workerSchedule");
 
-   procedure Log_Run_Worker (Arg : Pvoid);
+   procedure Log_Run_Worker(Arg : Pvoid);
 
-   procedure Neo_Pixel_Ring_Worker (Arg : Pvoid);
+   procedure Neo_Pixel_Ring_Worker(Arg : Pvoid);
 
 end Worker_Pack;

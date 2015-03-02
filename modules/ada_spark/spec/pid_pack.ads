@@ -41,20 +41,20 @@ is
 
    --  Types
    type Pid_Object is record
-      Desired : Allowed_Floats;           --  Set point
-      Error : Float;                      --  Error
-      Prev_Error : Float;                 --  Previous Error
-      Integ : Float;                      --  Integral
-      Deriv : Float;                      --  Derivative
-      Kp : Allowed_Floats;                --  Proportional Gain
-      Ki : Allowed_Floats;                --  Integral Gain
-      Kd : Allowed_Floats;                --  Derivative Gain
-      Out_P : Float;                      --  Proportional Output (debug)
-      Out_I : Float;                      --  Integral Output (debug)
-      Out_D : Float;                      --  Derivative Output (debug)
-      I_Limit : Allowed_Floats;           --  Integral Limit
+      Desired     : Allowed_Floats;       --  Set point
+      Error       : Float;                --  Error
+      Prev_Error  : Float;                --  Previous Error
+      Integ       : Float;                --  Integral
+      Deriv       : Float;                --  Derivative
+      Kp          : Allowed_Floats;       --  Proportional Gain
+      Ki          : Allowed_Floats;       --  Integral Gain
+      Kd          : Allowed_Floats;       --  Derivative Gain
+      Out_P       : Float;                --  Proportional Output (debug)
+      Out_I       : Float;                --  Integral Output (debug)
+      Out_D       : Float;                --  Derivative Output (debug)
+      I_Limit     : Allowed_Floats;       --  Integral Limit
       I_Limit_Low : Allowed_Floats;       --  Integral Limit
-      Dt : Allowed_Floats;                --  Delta Time
+      Dt          : Allowed_Floats;       --  Delta Time
    end record;
 
    --  Procedures and Functions
@@ -145,6 +145,5 @@ is
                         Dt : Allowed_Floats)
      with
      Post => Pid = Pid'Old'Update(Dt => Dt);
-
 
 end Pid_Pack;

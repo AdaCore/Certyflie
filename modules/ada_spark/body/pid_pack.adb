@@ -61,11 +61,9 @@ is
 
       pragma Assert(Pid.Error
                       in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
-      pragma Assert(Pid.Kp in Allowed_Floats'Range);
       Pid.Out_P := Pid.Kp * Pid.Error;
 
       pragma Assert(Pid.Integ in Allowed_Floats'Range);
-      pragma Assert(Pid.Ki in Allowed_Floats'Range);
       Pid.Out_I := Pid.Ki * Pid.Integ;
 
       --  This assume can be proved by the fact that
