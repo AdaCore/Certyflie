@@ -6,6 +6,9 @@ package FreeRTOS_Pack is
    --  Types
    subtype Pvoid is System.Address;
 
+   --  Constants
+   PORT_MAX_DELAY  : constant Unsigned_32    := 16#ffffffff#;
+
    --  Functions and procedures
    function XQueue_Create (QueueLength : Unsigned_32;
                            ItemSize    : Integer) return Pvoid;

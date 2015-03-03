@@ -1,5 +1,5 @@
 with Pid_Pack; use Pid_Pack;
-with Utils; use Utils;
+with Types; use Types;
 
 package Controller_Pack
   with SPARK_Mode

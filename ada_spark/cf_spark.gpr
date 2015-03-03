@@ -4,13 +4,18 @@ Library project Cf_Spark is
 
   for Object_Dir use "../bin";
   for Languages use ("Ada");
-  for Source_Dirs use ("modules/spec", "modules/body", "utils/spec", "utils/body", "wrappers/spec");
-
+  for Source_Dirs use ("modules/spec", "modules/body",
+                       "utils/spec", "utils/body",
+                       "wrappers/spec",
+                       "hal/spec",
+                       "types/spec");
 
   for Library_Name use "spark";
   for Library_Dir use "../bin/lib";
   for Library_Kind use "static";
-  for Library_Interface use ("worker_pack", "pid_pack", "controller_pack", "stabilizer_pack", "utils", "freertos_pack");
+  for Library_Interface use ("worker_pack", "pid_pack", "controller_pack",
+                             "stabilizer_pack", "types", "freertos_pack",
+                             "imu_pack");
 
   case Mode is
      when "Compile" =>
