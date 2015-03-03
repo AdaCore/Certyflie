@@ -1,3 +1,4 @@
+with IMU_Pack; use IMU_Pack;
 with Pid_Pack; use Pid_Pack;
 with Interfaces; use Interfaces;
 
@@ -14,9 +15,23 @@ package Stabilizer_Pack is
    type RPY_Type is (RATE, ANGLE);
    pragma Convention (C, RPY_Type);
 
-   Gyro : Axis_3F;  --  Gyrometer axis data in deg/s
-   Acc  : Axis_3F;  --  Accelerometer axis data in mG
-   Mag  : Axis_3F;  --  Magnetometer axis data in testla
+   --  Variables and constants
+
+   --  Defines in what divided update rate should the attitude
+   --  control loop run relative the rate control loop.
+
+   ATTITUDE_UPDATE_RATE_DIVIDER : Unsigned_32 := 2;
+   FUSION_UPDATE_DT : Float :=
+     (1.0 / (IMU_UPDATE_FREQ / Float(ATTITUDE_UPDATE_RATE_DIVIDER))); --  250hz
+
+   --  Barometer/ Altitude hold stuff
+   ALTHOLD_UPDATE_RATE_DIVIDER : Unsigned_32 := 5; --  500hz/5 = 100hz for barometer measurements
+   ALTHOLD_UPDATE_DT : Float :=
+     (1.0 / (IMU_UPDATE_FREQ / Float(ALTHOLD_UPDATE_RATE_DIVIDER)));  -- 500hz
+
+   Gyro : Axis_3F := (0.0, 0.0, 0.0);  --  Gyrometer axis data in deg/s
+   Acc  : Axis_3F := (0.0, 0.0, 0.0);  --  Accelerometer axis data in mG
+   Mag  : Axis_3F := (0.0, 0.0, 0.0);  --  Magnetometer axis data in testla
 
    Euler_Roll_Actual   : Float;
    Euler_Pitch_Actual  : Float;
@@ -91,7 +106,14 @@ package Stabilizer_Pack is
    Motor_Power_M1  : Unsigned_32;
    Motor_Power_M3  : Unsigned_32;
 
-   procedure Modif_Gyro;
-   pragma Export (C, Modif_Gyro, "ada_modif_gyro");
+   --  Import all of these varaibles frome the C part,
+   --  so the C part can debug/log them easily
+   pragma Export(C, Gyro, "gyro");
+   pragma Export(C, Acc,  "acc");
+   pragma Export(C, Mag,  "mag");
+
+
+   procedure Modif_Variables;
+   pragma Export (C, Modif_Variables, "ada_modif_variables");
 
 end Stabilizer_Pack;

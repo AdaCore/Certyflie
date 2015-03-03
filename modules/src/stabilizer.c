@@ -61,9 +61,9 @@
 #define ALTHOLD_UPDATE_RATE_DIVIDER  5 // 500hz/5 = 100hz for barometer measurements
 #define ALTHOLD_UPDATE_DT  (float)(1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER))   // 500hz
 
-Axis3f gyro = {0, 0, 0}; // Gyro axis data in deg/s
-Axis3f acc;  // Accelerometer axis data in mG
-Axis3f mag;  // Magnetometer axis data in testla
+extern Axis3f gyro; // Gyro axis data in deg/s
+extern Axis3f acc;  // Accelerometer axis data in mG
+extern Axis3f mag;  // Magnetometer axis data in testla
 
 float eulerRollActual;
 float eulerPitchActual;
@@ -142,16 +142,19 @@ static void stabilizerTask(void* param);
 static float constrain(float value, const float minVal, const float maxVal);
 static float deadband(float value, const float threshold);
 
-
-extern void ada_modif_gyro(void);
+/* TEST */
+extern void ada_modif_variables(void);
 
 void stabilizerInit(void)
 {
   if(isInit)
     return;
+  /* TEST */
+  ada_modif_variables();
+  DEBUG_PRINT("gyro.x: %f\n", gyro.x);
+  DEBUG_PRINT("acc.y: %f\n", acc.y);
+  DEBUG_PRINT("mag.z: %f\n", mag.z);
 
-  ada_modif_gyro();
-  DEBUG_PRINT("gyro.x = %f\n", gyro.x);
   motorsInit();
   imu6Init();
   sensfusion6Init();

@@ -1,8 +1,10 @@
 package body Stabilizer_Pack is
 
-   procedure Modif_Gyro is
+   procedure Modif_Variables is
    begin
       Gyro.X := 12.0;
-   end Modif_Gyro;
+      Acc.Y  := 13.0;
+      Mag.Z  := 14.0;
+   end Modif_Variables;
 
 end Stabilizer_Pack;
