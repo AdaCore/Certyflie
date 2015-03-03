@@ -56,6 +56,7 @@ is
       I_Limit_Low : Allowed_Floats;       --  Integral Limit
       Dt          : Allowed_Floats;       --  Delta Time
    end record;
+   pragma Convention (C, Pid_Object);
 
    --  Procedures and Functions
 

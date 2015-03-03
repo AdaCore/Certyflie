@@ -65,72 +65,71 @@ extern Axis3f gyro; // Gyro axis data in deg/s
 extern Axis3f acc;  // Accelerometer axis data in mG
 extern Axis3f mag;  // Magnetometer axis data in testla
 
-float eulerRollActual;
-float eulerPitchActual;
-float eulerYawActual;
-float eulerRollDesired;
-float eulerPitchDesired;
-float eulerYawDesired;
-float rollRateDesired;
-float pitchRateDesired;
-float yawRateDesired;
+extern float eulerRollActual;
+extern float eulerPitchActual;
+extern float eulerYawActual;
+extern float eulerRollDesired;
+extern float eulerPitchDesired;
+extern float eulerYawDesired;
+extern float rollRateDesired;
+extern float pitchRateDesired;
+extern float yawRateDesired;
 
 // Baro variables
-float temperature; // temp from barometer
-float pressure;    // pressure from barometer
-float asl;     // smoothed asl
-float aslRaw;  // raw asl
-float aslLong; // long term asl
+extern float temperature; // temp from barometer
+extern float pressure;    // pressure from barometer
+extern float asl;     // smoothed asl
+extern float aslRaw;  // raw asl
+extern float aslLong; // long term asl
 
 // Altitude hold variables
-PidObject altHoldPID; // Used for altitute hold mode. I gets reset when the bat status changes
-bool altHold = false;          // Currently in altitude hold mode
-bool setAltHold = false;      // Hover mode has just been activated
-float accWZ     = 0.0;
-float accMAG    = 0.0;
-float vSpeedASL = 0.0;
-float vSpeedAcc = 0.0;
-float vSpeed    = 0.0; // Vertical speed (world frame) integrated from vertical acceleration
-float altHoldPIDVal;                    // Output of the PID controller
-float altHoldErr;                       // Different between target and current altitude
+extern PidObject altHoldPID; // Used for altitute hold mode. I gets reset when the bat status changes
+extern bool altHold;          // Currently in altitude hold mode
+extern bool setAltHold;      // Hover mode has just been activated
+extern float accWZ;
+extern float accMAG;
+extern float vSpeedASL;
+extern float vSpeedAcc;
+extern float vSpeed; // Vertical speed (world frame) integrated from vertical acceleration
+extern float altHoldPIDVal;                    // Output of the PID controller
+extern float altHoldErr;                       // Different between target and current altitude
 
 // Altitude hold & Baro Params
-float altHoldKp              = 0.5;  // PID gain constants, used everytime we reinitialise the PID controller
-float altHoldKi              = 0.18;
-float altHoldKd              = 0.0;
-float altHoldChange          = 0;     // Change in target altitude
-float altHoldTarget          = -1;    // Target altitude
-float altHoldErrMax          = 1.0;   // max cap on current estimated altitude vs target altitude in meters
-float altHoldChange_SENS     = 200;   // sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
-float pidAslFac              = 13000; // relates meters asl to thrust
-float pidAlpha               = 0.8;   // PID Smoothing //TODO: shouldnt need to do this
-float vSpeedASLFac           = 0;    // multiplier
-float vSpeedAccFac           = -48;  // multiplier
-float vAccDeadband           = 0.05;  // Vertical acceleration deadband
-float vSpeedASLDeadband      = 0.005; // Vertical speed based on barometer readings deadband
-float vSpeedLimit            = 0.05;  // used to constrain vertical velocity
-float errDeadband            = 0.00;  // error (target - altitude) deadband
-float vBiasAlpha             = 0.98; // Blending factor we use to fuse vSpeedASL and vSpeedAcc
-float aslAlpha               = 0.92; // Short term smoothing
-float aslAlphaLong           = 0.93; // Long term smoothing
-uint16_t altHoldMinThrust    = 00000; // minimum hover thrust - not used yet
-uint16_t altHoldBaseThrust   = 43000; // approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
-uint16_t altHoldMaxThrust    = 60000; // max altitude hold thrust
+extern float altHoldKp;  // PID gain constants, used everytime we reinitialise the PID controller
+extern float altHoldKi;
+extern float altHoldKd;
+extern float altHoldChange;     // Change in target altitude
+extern float altHoldTarget;    // Target altitude
+extern float altHoldErrMax;   // max cap on current estimated altitude vs target altitude in meters
+extern float altHoldChange_SENS;   // sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
+extern float pidAslFac; // relates meters asl to thrust
+extern float pidAlpha;   // PID Smoothing //TODO: shouldnt need to do this
+extern float vSpeedASLFac;    // multiplier
+extern float vSpeedAccFac;  // multiplier
+extern float vAccDeadband;  // Vertical acceleration deadband
+extern float vSpeedASLDeadband; // Vertical speed based on barometer readings deadband
+extern float vSpeedLimit;  // used to constrain vertical velocity
+extern float errDeadband;  // error (target - altitude) deadband
+extern float vBiasAlpha; // Blending factor we use to fuse vSpeedASL and vSpeedAcc
+extern float aslAlpha; // Short term smoothing
+extern float aslAlphaLong; // Long term smoothing
+extern uint16_t altHoldMinThrust; // minimum hover thrust - not used yet
+extern uint16_t altHoldBaseThrust; // approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
+extern uint16_t altHoldMaxThrust; // max altitude hold thrust
 
+extern RPYType rollType;
+extern RPYType pitchType;
+extern RPYType yawType;
 
-RPYType rollType;
-RPYType pitchType;
-RPYType yawType;
+extern uint16_t actuatorThrust;
+extern int16_t  actuatorRoll;
+extern int16_t  actuatorPitch;
+extern int16_t  actuatorYaw;
 
-uint16_t actuatorThrust;
-int16_t  actuatorRoll;
-int16_t  actuatorPitch;
-int16_t  actuatorYaw;
-
-uint32_t motorPowerM4;
-uint32_t motorPowerM2;
-uint32_t motorPowerM1;
-uint32_t motorPowerM3;
+extern uint32_t motorPowerM4;
+extern uint32_t motorPowerM2;
+extern uint32_t motorPowerM1;
+extern uint32_t motorPowerM3;
 
 static bool isInit;
 
