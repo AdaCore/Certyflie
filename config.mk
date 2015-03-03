@@ -15,7 +15,7 @@ ADA_LIB_FLAGS = -L$(ADA_LIB_DIR) -lspark
 WRAPPER_OBJ = FreeRTOS_wrapper.o
 
 # Project file used to build the Ada library
-ADA_PROJECT_FILE = cf_spark.gpr
+ADA_PROJECT_FILE = ada_spark/cf_spark.gpr
 
 # Programs to be run on the Ada part
 ADA_BUILDER = gprbuild

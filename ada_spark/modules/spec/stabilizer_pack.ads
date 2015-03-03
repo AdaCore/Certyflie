@@ -59,8 +59,10 @@ package Stabilizer_Pack is
    Alt_Hold_Target      : Float := -1.0;    --  Target altitude
    Alt_Hold_Err_Max     : Float := 1.0;     --  Max cap on current estimated altitude vs target altitude in meters
    Alt_Hold_Change_SENS : Float := 200.0;   --  Sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
+
    Pid_Asl_Fac          : Float := 13000.0; --  Relates meters asl to thrust
    Pid_Alpha            : Float := 0.8;     --  PID Smoothing //TODO: shouldnt need to do this
+
    V_Speed_ASL_Fac      : Float := 0.0;     --  Multiplier
    V_Speed_Acc_Fac      : Float := -48.0;   --  Multiplier
    V_Acc_Deadband       : Float := 0.05;    --  Vertical acceleration deadband
@@ -70,6 +72,7 @@ package Stabilizer_Pack is
    V_Bias_Alpha         : Float := 0.98;    --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
    Asl_Alpha            : Float := 0.92;    --  Short term smoothing
    Asl_Alpha_Long       : Float := 0.93;    --  Long term smoothing
+
    Alt_Hold_Min_Thrust  : Unsigned_16 := 00000; --  Minimum hover thrust - not used yet
    Alt_Hold_Base_Thrust : Unsigned_16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
    Alt_Hold_Max_Thrust  : Unsigned_16 := 60000; --  max altitude hold thrust

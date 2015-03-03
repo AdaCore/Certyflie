@@ -1,4 +1,5 @@
 with System; use System;
+with Interfaces; use Interfaces;
 with FreeRTOS_Pack; use FreeRTOS_Pack;
 
 package Worker_Pack
@@ -13,7 +14,7 @@ is
    end record;
 
    --  Constants and Global Variables
-   WORKER_QUEUE_LENGTH : constant Natural := 5;
+   WORKER_QUEUE_LENGTH : constant Unsigned_32 := 5;
 
    Worker_Queue : Pvoid := System.Null_Address;
 

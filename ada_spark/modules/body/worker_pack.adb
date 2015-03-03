@@ -1,4 +1,3 @@
-with Interfaces; use Interfaces;
 with Utils; use Utils;
 with Debug_Pack; use Debug_Pack;
 
@@ -8,7 +7,7 @@ is
    procedure Worker_Init is
    begin
       if Worker_Queue = System.Null_Address then
-         Worker_Queue := XQueue_Create (Unsigned_32 (WORKER_QUEUE_LENGTH),
+         Worker_Queue := XQueue_Create (WORKER_QUEUE_LENGTH,
                                         Worker_Work'Size / 8);
       end if;
    end Worker_Init;

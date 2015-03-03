@@ -2,13 +2,13 @@ Library project Cf_Spark is
   type Modes is ("Compile", "Analyze");
   Mode : Modes := External ("MODE", "Compile");
 
-  for Object_Dir use "bin";
+  for Object_Dir use "../bin";
   for Languages use ("Ada");
-  for Source_Dirs use ("modules/ada_spark/spec", "modules/ada_spark/body", "utils/ada_spark/spec", "utils/ada_spark/body", "wrappers/ada_spark/spec");
+  for Source_Dirs use ("modules/spec", "modules/body", "utils/spec", "utils/body", "wrappers/spec");
 
 
   for Library_Name use "spark";
-  for Library_Dir use "bin/lib";
+  for Library_Dir use "../bin/lib";
   for Library_Kind use "static";
   for Library_Interface use ("worker_pack", "pid_pack", "controller_pack", "stabilizer_pack", "utils", "freertos_pack");
 
@@ -23,7 +23,7 @@ Library project Cf_Spark is
   package Compiler is
      case Mode is
         when "Compile" =>
-           for Default_Switches ("Ada") use ("-gnatp", "-gnatyg");
+           for Default_Switches ("Ada") use ("-gnatp");
         when "Analyze" =>
           for Default_Switches ("Ada") use ("-gnato13");
         when others =>
