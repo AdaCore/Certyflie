@@ -153,6 +153,7 @@ void stabilizerInit(void)
   DEBUG_PRINT("gyro.x: %f\n", gyro.x);
   DEBUG_PRINT("acc.y: %f\n", acc.y);
   DEBUG_PRINT("mag.z: %f\n", mag.z);
+  DEBUG_PRINT("altHoldPID.dt: %f\n", altHoldPID.dt);
 
   motorsInit();
   imu6Init();
