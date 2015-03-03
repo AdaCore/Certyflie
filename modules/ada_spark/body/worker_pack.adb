@@ -3,13 +3,13 @@ with Utils; use Utils;
 with Debug_Pack; use Debug_Pack;
 
 package body Worker_Pack
-  with SPARK_Mode
+with SPARK_Mode
 is
    procedure Worker_Init is
    begin
       if Worker_Queue = System.Null_Address then
-         Worker_Queue := XQueue_Create(Unsigned_32(WORKER_QUEUE_LENGTH),
-                                       Worker_Work'Size / 8);
+         Worker_Queue := XQueue_Create (Unsigned_32 (WORKER_QUEUE_LENGTH),
+                                        Worker_Work'Size / 8);
       end if;
    end Worker_Init;
 
@@ -27,17 +27,17 @@ is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
    begin
-       if Worker_Queue /= System.Null_Address then
+      if Worker_Queue /= System.Null_Address then
          loop
-            Res := XQueue_Receive(Worker_Queue, Work'Address, PORT_MAX_DELAY);
+            Res := XQueue_Receive (Worker_Queue, Work'Address, PORT_MAX_DELAY);
 
             exit when Res = -1;
 
             case Work.Func is
                when Log_Run =>
-                  Log_Run_Worker(Work.Arg);
+                  Log_Run_Worker (Work.Arg);
                when Neo_Pixel_Ring =>
-                  Neo_Pixel_Ring_Worker(Work.Arg);
+                  Neo_Pixel_Ring_Worker (Work.Arg);
                when others =>
                   null;
             end case;
@@ -45,15 +45,15 @@ is
       end if;
    end Worker_Loop;
 
-   function Worker_Schedule(Func_ID : Integer;
-                            Arg     : Pvoid) return Integer is
+   function Worker_Schedule (Func_ID : Integer;
+                             Arg     : Pvoid) return Integer is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
    begin
-      Work.Func := Action'Val(Func_ID);
+      Work.Func := Action'Val (Func_ID);
 
       Work.Arg := Arg;
-      Res := XQueue_Send(Worker_Queue, Work'Address, 0);
+      Res := XQueue_Send (Worker_Queue, Work'Address, 0);
 
       if Res = -1 then
          return 12; -- ENOMEM
@@ -62,18 +62,18 @@ is
       return 0;
    end Worker_Schedule;
 
-   procedure Log_Run_Worker(Arg : Pvoid) is
-      procedure Worker_Function(Arg : Pvoid);
-      pragma Import(C, Worker_Function, "logRunBlock");
+   procedure Log_Run_Worker (Arg : Pvoid) is
+      procedure Worker_Function (Arg : Pvoid);
+      pragma Import (C, Worker_Function, "logRunBlock");
    begin
-      Worker_Function(Arg);
+      Worker_Function (Arg);
    end Log_Run_Worker;
 
-   procedure Neo_Pixel_Ring_Worker(Arg : Pvoid) is
-      procedure Worker_Function(Arg : Pvoid);
-      pragma Import(C, Worker_Function, "neopixelringWorker");
+   procedure Neo_Pixel_Ring_Worker (Arg : Pvoid) is
+      procedure Worker_Function (Arg : Pvoid);
+      pragma Import (C, Worker_Function, "neopixelringWorker");
    begin
-      Worker_Function(Arg);
+      Worker_Function (Arg);
    end Neo_Pixel_Ring_Worker;
 
 end Worker_Pack;

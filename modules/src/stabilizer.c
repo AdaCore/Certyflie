@@ -61,61 +61,61 @@
 #define ALTHOLD_UPDATE_RATE_DIVIDER  5 // 500hz/5 = 100hz for barometer measurements
 #define ALTHOLD_UPDATE_DT  (float)(1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER))   // 500hz
 
-static Axis3f gyro; // Gyro axis data in deg/s
-static Axis3f acc;  // Accelerometer axis data in mG
-static Axis3f mag;  // Magnetometer axis data in testla
+Axis3f gyro = {0, 0, 0}; // Gyro axis data in deg/s
+Axis3f acc;  // Accelerometer axis data in mG
+Axis3f mag;  // Magnetometer axis data in testla
 
-static float eulerRollActual;
-static float eulerPitchActual;
-static float eulerYawActual;
-static float eulerRollDesired;
-static float eulerPitchDesired;
-static float eulerYawDesired;
-static float rollRateDesired;
-static float pitchRateDesired;
-static float yawRateDesired;
+float eulerRollActual;
+float eulerPitchActual;
+float eulerYawActual;
+float eulerRollDesired;
+float eulerPitchDesired;
+float eulerYawDesired;
+float rollRateDesired;
+float pitchRateDesired;
+float yawRateDesired;
 
 // Baro variables
-static float temperature; // temp from barometer
-static float pressure;    // pressure from barometer
-static float asl;     // smoothed asl
-static float aslRaw;  // raw asl
-static float aslLong; // long term asl
+float temperature; // temp from barometer
+float pressure;    // pressure from barometer
+float asl;     // smoothed asl
+float aslRaw;  // raw asl
+float aslLong; // long term asl
 
 // Altitude hold variables
-static PidObject altHoldPID; // Used for altitute hold mode. I gets reset when the bat status changes
+PidObject altHoldPID; // Used for altitute hold mode. I gets reset when the bat status changes
 bool altHold = false;          // Currently in altitude hold mode
 bool setAltHold = false;      // Hover mode has just been activated
-static float accWZ     = 0.0;
-static float accMAG    = 0.0;
-static float vSpeedASL = 0.0;
-static float vSpeedAcc = 0.0;
-static float vSpeed    = 0.0; // Vertical speed (world frame) integrated from vertical acceleration
-static float altHoldPIDVal;                    // Output of the PID controller
-static float altHoldErr;                       // Different between target and current altitude
+float accWZ     = 0.0;
+float accMAG    = 0.0;
+float vSpeedASL = 0.0;
+float vSpeedAcc = 0.0;
+float vSpeed    = 0.0; // Vertical speed (world frame) integrated from vertical acceleration
+float altHoldPIDVal;                    // Output of the PID controller
+float altHoldErr;                       // Different between target and current altitude
 
 // Altitude hold & Baro Params
-static float altHoldKp              = 0.5;  // PID gain constants, used everytime we reinitialise the PID controller
-static float altHoldKi              = 0.18;
-static float altHoldKd              = 0.0;
-static float altHoldChange          = 0;     // Change in target altitude
-static float altHoldTarget          = -1;    // Target altitude
-static float altHoldErrMax          = 1.0;   // max cap on current estimated altitude vs target altitude in meters
-static float altHoldChange_SENS     = 200;   // sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
-static float pidAslFac              = 13000; // relates meters asl to thrust
-static float pidAlpha               = 0.8;   // PID Smoothing //TODO: shouldnt need to do this
-static float vSpeedASLFac           = 0;    // multiplier
-static float vSpeedAccFac           = -48;  // multiplier
-static float vAccDeadband           = 0.05;  // Vertical acceleration deadband
-static float vSpeedASLDeadband      = 0.005; // Vertical speed based on barometer readings deadband
-static float vSpeedLimit            = 0.05;  // used to constrain vertical velocity
-static float errDeadband            = 0.00;  // error (target - altitude) deadband
-static float vBiasAlpha             = 0.98; // Blending factor we use to fuse vSpeedASL and vSpeedAcc
-static float aslAlpha               = 0.92; // Short term smoothing
-static float aslAlphaLong           = 0.93; // Long term smoothing
-static uint16_t altHoldMinThrust    = 00000; // minimum hover thrust - not used yet
-static uint16_t altHoldBaseThrust   = 43000; // approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
-static uint16_t altHoldMaxThrust    = 60000; // max altitude hold thrust
+float altHoldKp              = 0.5;  // PID gain constants, used everytime we reinitialise the PID controller
+float altHoldKi              = 0.18;
+float altHoldKd              = 0.0;
+float altHoldChange          = 0;     // Change in target altitude
+float altHoldTarget          = -1;    // Target altitude
+float altHoldErrMax          = 1.0;   // max cap on current estimated altitude vs target altitude in meters
+float altHoldChange_SENS     = 200;   // sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
+float pidAslFac              = 13000; // relates meters asl to thrust
+float pidAlpha               = 0.8;   // PID Smoothing //TODO: shouldnt need to do this
+float vSpeedASLFac           = 0;    // multiplier
+float vSpeedAccFac           = -48;  // multiplier
+float vAccDeadband           = 0.05;  // Vertical acceleration deadband
+float vSpeedASLDeadband      = 0.005; // Vertical speed based on barometer readings deadband
+float vSpeedLimit            = 0.05;  // used to constrain vertical velocity
+float errDeadband            = 0.00;  // error (target - altitude) deadband
+float vBiasAlpha             = 0.98; // Blending factor we use to fuse vSpeedASL and vSpeedAcc
+float aslAlpha               = 0.92; // Short term smoothing
+float aslAlphaLong           = 0.93; // Long term smoothing
+uint16_t altHoldMinThrust    = 00000; // minimum hover thrust - not used yet
+uint16_t altHoldBaseThrust   = 43000; // approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
+uint16_t altHoldMaxThrust    = 60000; // max altitude hold thrust
 
 
 RPYType rollType;
@@ -142,11 +142,16 @@ static void stabilizerTask(void* param);
 static float constrain(float value, const float minVal, const float maxVal);
 static float deadband(float value, const float threshold);
 
+
+extern void ada_modif_gyro(void);
+
 void stabilizerInit(void)
 {
   if(isInit)
     return;
 
+  ada_modif_gyro();
+  DEBUG_PRINT("gyro.x = %f\n", gyro.x);
   motorsInit();
   imu6Init();
   sensfusion6Init();
@@ -498,4 +503,3 @@ PARAM_ADD(PARAM_UINT16, baseThrust, &altHoldBaseThrust)
 PARAM_ADD(PARAM_UINT16, maxThrust, &altHoldMaxThrust)
 PARAM_ADD(PARAM_UINT16, minThrust, &altHoldMinThrust)
 PARAM_GROUP_STOP(altHold)
-
