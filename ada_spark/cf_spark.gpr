@@ -1,7 +1,7 @@
 library project Cf_Spark is
 
    type Modes is
-      ("Compile", "Analyze");
+     ("Compile", "Analyze");
    Mode : Modes := external ("MODE", "Compile");
    for Object_Dir use "../bin";
    for Languages use ("Ada");
@@ -9,7 +9,14 @@ library project Cf_Spark is
    for Library_Name use "spark";
    for Library_Dir use "../bin/lib";
    for Library_Kind use "static";
-   for Library_Interface use ("worker_pack", "pid_pack", "controller_pack", "stabilizer_pack", "types", "freertos_pack", "imu_pack", "motors_pack");
+   for Library_Interface use ("worker_pack",
+                              "pid_pack",
+                              "controller_pack",
+                              "stabilizer_pack",
+                              "types",
+                              "pid_parameters",
+                              "freertos_pack", "imu_pack",
+                              "motors_pack");
 
    case Mode is
 
@@ -40,7 +47,6 @@ library project Cf_Spark is
    package Prove is
 
       case Mode is
-
          when "Compile" =>
             for Switches use ("-XMODE=Analyze", "-j2", "--timeout=10");
 
@@ -50,4 +56,3 @@ library project Cf_Spark is
    end Prove;
 
 end Cf_Spark;
-

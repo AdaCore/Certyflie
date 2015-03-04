@@ -1,10 +1,23 @@
-with IMU_Pack; use IMU_Pack;
-with Pid_Pack; use Pid_Pack;
-with Types; use Types;
 with Interfaces; use Interfaces;
 with Interfaces.C; use Interfaces.C;
 
+with IMU_Pack; use IMU_Pack;
+with Pid_Pack;
+pragma Elaborate_All (Pid_Pack);
+with Types; use Types;
+
+
 package Stabilizer_Pack is
+   --  PID Generic package initizalization
+   package Attitude_Pid is new Pid_Pack (T_Angle'First, T_Angle'Last,
+                                         T_Rate'First, T_Rate'Last);
+
+   package Rate_Pid is new Pid_Pack (T_Rate'First, T_Rate'Last,
+                                     Float'First, Float'Last);
+
+   --  TODO: change altitude types
+   package Altitude_Pid is new Pid_Pack (T_Rate'First, T_Rate'Last,
+                                         Float'First, Float'Last);
 
    --  Types
    type Gyroscope_Data is record
@@ -69,7 +82,7 @@ package Stabilizer_Pack is
    Asl_Long     : Float := 0.0; --  Long term asl
 
    --  Altitude hold variables
-   Alt_Hold_PID : Pid_Object;        --  Used for altitute hold mode.
+   Alt_Hold_PID : Altitude_Pid.Pid_Object;        --  Used for altitute hold mode.
    --  It gets reset when the bat status changes
    Alt_Hold     : Boolean := False;  --  Currently in altitude hold mode
    Set_Alt_Hold : Boolean := False;  --  Hover mode has just been activated

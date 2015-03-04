@@ -3,7 +3,8 @@ package Types is
    --  Types
 
    subtype Allowed_Floats is Float range -100_000.0 .. 100_000.0;
-   subtype Delta_Time     is Float range 0.001 .. 0.999;
+   subtype T_Delta_Time   is Float range 0.001 .. 0.999;
+   subtype T_Coeff        is Float range 0.0   .. 200.0;
 
    --  Angle range type, in degrees.
    subtype T_Angle        is Float range -360.0 .. 360.0;
