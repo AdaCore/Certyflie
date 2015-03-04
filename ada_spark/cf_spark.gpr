@@ -1,43 +1,53 @@
-Library project Cf_Spark is
-  type Modes is ("Compile", "Analyze");
-  Mode : Modes := External ("MODE", "Compile");
+library project Cf_Spark is
 
-  for Object_Dir use "../bin";
-  for Languages use ("Ada");
-  for Source_Dirs use ("modules/spec", "modules/body",
-                       "utils/spec", "utils/body",
-                       "drivers/spec",
-                       "lib/spec",
-                       "hal/spec",
-                       "types/spec");
+   type Modes is
+      ("Compile", "Analyze");
+   Mode : Modes := external ("MODE", "Compile");
+   for Object_Dir use "../bin";
+   for Languages use ("Ada");
+   for Source_Dirs use ("modules/spec", "modules/body", "utils/spec", "utils/body", "drivers/spec", "lib/spec", "hal/spec", "types/spec");
+   for Library_Name use "spark";
+   for Library_Dir use "../bin/lib";
+   for Library_Kind use "static";
+   for Library_Interface use ("worker_pack", "pid_pack", "controller_pack", "stabilizer_pack", "types", "freertos_pack", "imu_pack", "motors_pack");
 
-  for Library_Name use "spark";
-  for Library_Dir use "../bin/lib";
-  for Library_Kind use "static";
-  for Library_Interface use ("worker_pack", "pid_pack", "controller_pack",
-                             "stabilizer_pack", "types", "freertos_pack",
-                             "imu_pack", "motors_pack");
+   case Mode is
 
-  case Mode is
-     when "Compile" =>
-        for Target use "arm-eabi";
-        for Runtime ("Ada") use "zfp-stm32f4";
-     when others =>
-        null;
-  end case;
+      when "Compile" =>
+         for Target use "arm-eabi";
+         for Runtime ("ada") use "zfp-stm32f4";
 
-  package Compiler is
-     case Mode is
-        when "Compile" =>
-           for Default_Switches ("Ada") use ("-gnatp");
-        when "Analyze" =>
-          for Default_Switches ("Ada") use ("-gnato13");
-        when others =>
-           null;
-     end case;
-  end Compiler;
+      when "Analyze" =>
 
-  package Naming is
-     for Casing use "mixedcase";
-  end Naming;
+   end case;
+
+   package Compiler is
+
+      case Mode is
+
+         when "Compile" =>
+            for Default_Switches ("ada") use ("-gnatp");
+
+         when "Analyze" =>
+            for Default_Switches ("ada") use ("-gnato13");
+      end case;
+   end Compiler;
+
+   package Naming is
+      for Casing use "mixedcase";
+   end Naming;
+
+   package Prove is
+
+      case Mode is
+
+         when "Compile" =>
+            for Switches use ("-XMODE=Analyze", "-j2", "--timeout=10");
+
+         when "Analyze" =>
+            for Switches use ("-XMODE=Analyze", "-j2", "--timeout=10");
+      end case;
+   end Prove;
+
 end Cf_Spark;
+

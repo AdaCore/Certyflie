@@ -7,7 +7,7 @@ is
                        Kp : Allowed_Floats;
                        Ki : Allowed_Floats;
                        Kd : Allowed_Floats;
-                       Dt : Allowed_Floats) is
+                       Dt : Delta_Time) is
    begin
       Pid.Desired := Desired;
       Pid.Error := 0.0;
@@ -41,12 +41,10 @@ is
          Pid.Error := Pid.Desired - Measured;
       end if;
 
-      --  We assume that the result Pid.Error * Pid.Dt with Pid.Dt in ]0; 1[
-      --  is still in Pid.Error's initial range
-      pragma Assume (Pid.Error * Pid.Dt in 3.0 * Allowed_Floats'First
-                     .. 3.0 * Allowed_Floats'Last);
-
       Pid.Integ := Pid.Integ + Pid.Error * Pid.Dt;
+      pragma Annotate (GNATProve, False_Positive,
+                       "overflow check",
+                       "Pid.Integ is in fixed range, Pid.Error too, and Pid.Dt < 1.0");
 
       if Pid.Integ > Pid.I_Limit then
          Pid.Integ := Pid.I_Limit;
@@ -67,13 +65,10 @@ is
       pragma Assert (Pid.Integ in Allowed_Floats'Range);
       Pid.Out_I := Pid.Ki * Pid.Integ;
 
-      --  This assume can be proved by the fact that
-      --  Pid.Deriv = (Pid.Error - Pid.Prev_Error) / Pid.Dt
-      --  Multiplying the max range of the two expressions results in the range
-      --  assumed for Pid.Deriv
-      pragma Assume (Pid.Deriv in 8.0 * Allowed_Floats'First / LOW_DT_LIMIT
-                     .. 8.0 * Allowed_Floats'Last / LOW_DT_LIMIT);
       Pid.Out_D := Pid.Kd * Pid.Deriv;
+      pragma Annotate (GNATProve, False_Positive,
+                       "overflow check",
+                       "Pid.Kd is in fixed range, Pid.Deriv too");
 
       Pid.Prev_Error := Pid.Error;
    end Pid_Update;
@@ -137,7 +132,7 @@ is
    end Pid_Set_Kd;
 
    procedure Pid_Set_Dt (Pid : in out Pid_Object;
-                         Dt : Allowed_Floats) is
+                         Dt : Delta_Time) is
    begin
       Pid.Dt := Dt;
    end Pid_Set_Dt;

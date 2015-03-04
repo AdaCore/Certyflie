@@ -1,5 +1,6 @@
 package body Stabilizer_Pack is
 
+   --  For testing purpose
    procedure Modif_Variables is
    begin
       Gyro.X := 12.0;

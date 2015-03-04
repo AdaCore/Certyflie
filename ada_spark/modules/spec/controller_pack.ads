@@ -36,11 +36,11 @@ is
    --  values retrieved from the corresponding
    --  attitude PID's.
    procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : Allowed_Floats;
-                                         Pitch_Rate_Actual  : Allowed_Floats;
-                                         Yaw_Rate_Actual    : Allowed_Floats;
-                                         Roll_Rate_Desired  : Allowed_Floats;
-                                         Pitch_Rate_Desired : Allowed_Floats;
-                                         Yaw_Rate_Desired   : Allowed_Floats)
+                                          Pitch_Rate_Actual  : Allowed_Floats;
+                                          Yaw_Rate_Actual    : Allowed_Floats;
+                                          Roll_Rate_Desired  : Allowed_Floats;
+                                          Pitch_Rate_Desired : Allowed_Floats;
+                                          Yaw_Rate_Desired   : Allowed_Floats)
      with
      Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
 

@@ -1,7 +1,6 @@
 with Debug_Pack; use Debug_Pack;
 
 package body Worker_Pack
-with SPARK_Mode
 is
    procedure Worker_Init is
    begin
