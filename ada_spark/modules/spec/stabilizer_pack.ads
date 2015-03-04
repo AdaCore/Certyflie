@@ -25,7 +25,9 @@ package Stabilizer_Pack is
       Z : T_Mag;
    end record;
 
-   pragma Convention (C, Axis_3F);
+   pragma Convention (C, Gyroscope_Data);
+   pragma Convention (C, Accelerometer_Data);
+   pragma Convention (C, Magnetometer_Data);
 
    type RPY_Type is (RATE, ANGLE);
    for RPY_Type use (RATE => 0, ANGLE => 1);
