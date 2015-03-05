@@ -31,6 +31,13 @@ package Pid_Parameters is
    PID_YAW_KD                : constant := 0.0;
    PID_YAW_INTEGRATION_LIMIT : constant := 360.0;
 
+   --  Default limit for the integral term in PID.
    DEFAULT_PID_INTEGRATION_LIMIT : constant := 5000.0;
+
+   --  Default min and max values for coefficients in PID.
+   MIN_ATTITUDE_COEFF                : constant := 0.0;
+   MAX_ATTITUDE_COEFF                : constant := 5.0;
+   MIN_RATE_COEFF                    : constant := 0.0;
+   MAX_RATE_COEFF                    : constant := 100.0;
 
 end Pid_Parameters;

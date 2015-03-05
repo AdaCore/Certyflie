@@ -49,12 +49,12 @@ is
       return Is_Init;
    end Controller_Test;
 
-   procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : Allowed_Floats;
-                                          Pitch_Rate_Actual  : Allowed_Floats;
-                                          Yaw_Rate_Actual    : Allowed_Floats;
-                                          Roll_Rate_Desired  : Allowed_Floats;
-                                          Pitch_Rate_Desired : Allowed_Floats;
-                                          Yaw_Rate_Desired   : Allowed_Floats)
+   procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : T_Rate;
+                                          Pitch_Rate_Actual  : T_Rate;
+                                          Yaw_Rate_Actual    : T_Rate;
+                                          Roll_Rate_Desired  : T_Rate;
+                                          Pitch_Rate_Desired : T_Rate;
+                                          Yaw_Rate_Desired   : T_Rate)
    is
    begin
       Rate_Pid.Pid_Set_Desired (Roll_Rate_Pid, Roll_Rate_Desired);
@@ -68,12 +68,12 @@ is
    end Controller_Correct_Rate_PID;
 
    procedure Controller_Correct_Attitude_Pid
-     (Euler_Roll_Actual   : Allowed_Floats;
-      Euler_Pitch_Actual  : Allowed_Floats;
-      Euler_Yaw_Actual    : Allowed_Floats;
-      Euler_Roll_Desired  : Allowed_Floats;
-      Euler_Pitch_Desired : Allowed_Floats;
-      Euler_Yaw_Desired   : Allowed_Floats) is
+     (Euler_Roll_Actual   : T_Angle;
+      Euler_Pitch_Actual  : T_Angle;
+      Euler_Yaw_Actual    : T_Angle;
+      Euler_Roll_Desired  : T_Angle;
+      Euler_Pitch_Desired : T_Angle;
+      Euler_Yaw_Desired   : T_Angle) is
       Yaw_Error : Float := Euler_Yaw_Desired - Euler_Yaw_Actual;
    begin
       Attitude_Pid.Pid_Set_Desired (Roll_Pid, Euler_Roll_Desired);

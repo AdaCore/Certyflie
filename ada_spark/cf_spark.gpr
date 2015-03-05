@@ -31,7 +31,6 @@ library project Cf_Spark is
    package Compiler is
 
       case Mode is
-
          when "Compile" =>
             for Default_Switches ("ada") use ("-gnatp");
 
@@ -43,16 +42,5 @@ library project Cf_Spark is
    package Naming is
       for Casing use "mixedcase";
    end Naming;
-
-   package Prove is
-
-      case Mode is
-         when "Compile" =>
-            for Switches use ("-XMODE=Analyze", "-j2", "--timeout=10");
-
-         when "Analyze" =>
-            for Switches use ("-XMODE=Analyze", "-j2", "--timeout=10");
-      end case;
-   end Prove;
 
 end Cf_Spark;

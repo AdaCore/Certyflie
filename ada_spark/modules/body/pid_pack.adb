@@ -7,8 +7,8 @@ is
                        Kp           : T_Coeff;
                        Ki           : T_Coeff;
                        Kd           : T_Coeff;
-                       I_Limit_Low  : Float;
-                       I_Limit_High : Float;
+                       I_Limit_Low  : T_I_Limit;
+                       I_Limit_High : T_I_Limit;
                        Dt           : T_Delta_Time) is
    begin
       Pid.Desired := Desired;
@@ -22,6 +22,8 @@ is
       Pid.Out_P := 0.0;
       Pid.Out_I := 0.0;
       Pid.Out_D := 0.0;
+      Pid.I_Limit_Low  := I_Limit_Low;
+      Pid.I_Limit_High := I_Limit_High;
       Pid.Dt := Dt;
    end Pid_Init;
 
@@ -36,39 +38,36 @@ is
    procedure Pid_Update (Pid          : in out Pid_Object;
                          Measured     : T_Input;
                          Update_Error : Boolean) is
+      Integ : Float;
    begin
       if Update_Error then
          Pid.Error := Pid.Desired - Measured;
       end if;
 
-      Pid.Integ := Pid.Integ + Pid.Error * Pid.Dt;
-      pragma Annotate (GNATProve, False_Positive,
-                       "overflow check",
-                       "Pid.Integ is in fixed range, Pid.Error too, and Pid.Dt < 1.0");
+      pragma Assert(Pid.Error * Pid.Dt in
+                      T_Error'First * 2.0 * T_Delta_Time'Last .. T_Error'Last * 2.0 * T_Delta_Time'Last);
+      Integ := Pid.Integ + Pid.Error * Pid.Dt;
+--        pragma Annotate (GNATProve, False_Positive,
+--                         "overflow check",
+--                         "Pid.Integ is in fixed range, Pid.Error too, and Pid.Dt < 1.0");
 
-      if Pid.Integ > Pid.I_Limit_High then
+      if Integ > Pid.I_Limit_High then
          Pid.Integ := Pid.I_Limit_High;
-      elsif Pid.Integ < Pid.I_Limit_Low then
+      elsif Integ < Pid.I_Limit_Low then
          Pid.Integ := Pid.I_Limit_Low;
       end if;
 
-      --  We assert that the result of a susbstraction between 2 Floats
-      --  in 3 * AllowedFloat'Range is contained in 7 * AllowedFloat'Range
-      pragma Assert (Pid.Error - Pid.Prev_Error
-                     in 7.0 * Allowed_Floats'First .. 7.0 * Allowed_Floats'Last);
       Pid.Deriv := (Pid.Error - Pid.Prev_Error) / Pid.Dt;
 
-      pragma Assert (Pid.Error
-                     in 3.0 * Allowed_Floats'First .. 3.0 * Allowed_Floats'Last);
       Pid.Out_P := Pid.Kp * Pid.Error;
 
-      pragma Assert (Pid.Integ in Allowed_Floats'Range);
+      pragma Assert(Pid.Integ in T_I_Limit);
       Pid.Out_I := Pid.Ki * Pid.Integ;
 
       Pid.Out_D := Pid.Kd * Pid.Deriv;
-      pragma Annotate (GNATProve, False_Positive,
-                       "overflow check",
-                       "Pid.Kd is in fixed range, Pid.Deriv too");
+--        pragma Annotate (GNATProve, False_Positive,
+--                         "overflow check",
+--                         "Pid.Kd is in fixed range, Pid.Deriv too");
 
       Pid.Prev_Error := Pid.Error;
    end Pid_Update;
@@ -96,37 +95,37 @@ is
      (Pid.Desired);
 
    procedure Pid_Set_Error (Pid   : in out Pid_Object;
-                            Error : Float) is
+                            Error : T_Error) is
    begin
       Pid.Error := Error;
    end Pid_Set_Error;
 
    procedure Pid_Set_Kp (Pid : in out Pid_Object;
-                         Kp  : Allowed_Floats) is
+                         Kp  : T_Coeff) is
    begin
       Pid.Kp := Kp;
    end Pid_Set_Kp;
 
    procedure Pid_Set_Ki (Pid : in out Pid_Object;
-                         Ki  : Allowed_Floats) is
+                         Ki  : T_Coeff) is
    begin
       Pid.Ki := Ki;
    end Pid_Set_Ki;
 
    procedure Pid_Set_Kd (Pid : in out Pid_Object;
-                         Kd  : Allowed_Floats) is
+                         Kd  : T_Coeff) is
    begin
       Pid.Kd := Kd;
    end Pid_Set_Kd;
 
    procedure Pid_Set_I_Limit_Low (Pid          : in out Pid_Object;
-                                  I_Limit_Low  : Float) is
+                                  I_Limit_Low  : T_I_Limit) is
    begin
       Pid.I_Limit_Low := I_Limit_Low;
    end Pid_Set_I_Limit_Low;
 
    procedure Pid_Set_I_Limit_High (Pid            : in out Pid_Object;
-                                   I_Limit_High	  : Float) is
+                                   I_Limit_High	  : T_I_Limit) is
    begin
       Pid.I_Limit_High := I_Limit_High;
    end Pid_Set_I_Limit_High;
