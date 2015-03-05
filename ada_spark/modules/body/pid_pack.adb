@@ -44,12 +44,9 @@ is
          Pid.Error := Pid.Desired - Measured;
       end if;
 
-      pragma Assert(Pid.Error * Pid.Dt in
+      pragma Assert (Pid.Error * Pid.Dt in
                       T_Error'First * 2.0 * T_Delta_Time'Last .. T_Error'Last * 2.0 * T_Delta_Time'Last);
       Integ := Pid.Integ + Pid.Error * Pid.Dt;
---        pragma Annotate (GNATProve, False_Positive,
---                         "overflow check",
---                         "Pid.Integ is in fixed range, Pid.Error too, and Pid.Dt < 1.0");
 
       if Integ > Pid.I_Limit_High then
          Pid.Integ := Pid.I_Limit_High;
@@ -61,13 +58,10 @@ is
 
       Pid.Out_P := Pid.Kp * Pid.Error;
 
-      pragma Assert(Pid.Integ in T_I_Limit);
+      pragma Assert (Pid.Integ in T_I_Limit'First * 1.0 .. T_I_Limit'Last * 1.0);
       Pid.Out_I := Pid.Ki * Pid.Integ;
 
       Pid.Out_D := Pid.Kd * Pid.Deriv;
---        pragma Annotate (GNATProve, False_Positive,
---                         "overflow check",
---                         "Pid.Kd is in fixed range, Pid.Deriv too");
 
       Pid.Prev_Error := Pid.Error;
    end Pid_Update;
@@ -125,7 +119,7 @@ is
    end Pid_Set_I_Limit_Low;
 
    procedure Pid_Set_I_Limit_High (Pid            : in out Pid_Object;
-                                   I_Limit_High	  : T_I_Limit) is
+                                   I_Limit_High   : T_I_Limit) is
    begin
       Pid.I_Limit_High := I_Limit_High;
    end Pid_Set_I_Limit_High;

@@ -1,4 +1,5 @@
 with Types; use Types;
+with IMU_Pack; use IMU_Pack;
 with Pid_Parameters; use Pid_Parameters;
 with Pid_Pack;
 pragma Elaborate_All (Pid_Pack);
@@ -39,8 +40,13 @@ is
    --  Initalize all the PID's needed for the drone.
    procedure Controller_Init
      with
-       Global => (Output => (Roll_Rate_Pid, Roll_Pid, Pitch_Rate_Pid, Pitch_Pid,
-                             Yaw_Rate_Pid, Yaw_Pid, Is_Init));
+       Global => (Output => (Roll_Rate_Pid,
+                             Roll_Pid,
+                             Pitch_Rate_Pid,
+                             Pitch_Pid,
+                             Yaw_Rate_Pid,
+                             Yaw_Pid,
+                             Is_Init));
 
    --  Test if the PID's have been initialized.
    function Controller_Test return Boolean

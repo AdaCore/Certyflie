@@ -108,7 +108,8 @@ is
                                              Actuator_Yaw   : out Integer) is
    begin
       Actuator_Roll := Float_To_Int (Rate_Pid.Pid_Get_Output (Roll_Rate_Pid));
-      Actuator_Pitch := Float_To_Int (Rate_Pid.Pid_Get_Output (Pitch_Rate_Pid));
+      Actuator_Pitch := Float_To_Int
+        (Rate_Pid.Pid_Get_Output (Pitch_Rate_Pid));
       Actuator_Yaw := Float_To_Int (Rate_Pid.Pid_Get_Output (Yaw_Rate_Pid));
    end Controller_Get_Actuator_Output;
 
@@ -116,8 +117,10 @@ is
                                           Pitch_Rate_Desired : out Integer;
                                           Yaw_Rate_Desired   : out Integer) is
    begin
-      Roll_Rate_Desired := Float_To_Int (Attitude_Pid.Pid_Get_Output (Roll_Pid));
-      Pitch_Rate_Desired := Float_To_Int (Attitude_Pid.Pid_Get_Output (Pitch_Pid));
+      Roll_Rate_Desired := Float_To_Int
+        (Attitude_Pid.Pid_Get_Output (Roll_Pid));
+      Pitch_Rate_Desired := Float_To_Int
+        (Attitude_Pid.Pid_Get_Output (Pitch_Pid));
       Yaw_Rate_Desired := Float_To_Int (Attitude_Pid.Pid_Get_Output (Yaw_Pid));
    end Controller_Get_Desired_Rate;
 

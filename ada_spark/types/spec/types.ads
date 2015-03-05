@@ -2,18 +2,16 @@ with IMU_Pack; use IMU_Pack;
 
 package Types is
 
-   --  Types
-   subtype Allowed_Floats is Float range -100_000.0 .. 100_000.0;
+   --  General types
+   subtype Positive_Float is Float range 0.0 .. Float'Last;
+
+   --  Allowed delta time range
    subtype T_Delta_Time   is Float range IMU_UPDATE_DT .. 1.0;
 
    --  Angle range type, in degrees.
    subtype T_Angle        is Float range -360.0 .. 360.0;
 
-   --  These ranges are deduced from the MPU9150 specification.
-   --  It corresponds to the maximum range of values that can be output
-   --  by the IMU.
-   subtype T_Rate is Float range -150_000.0  .. 150_000.0;
-   subtype T_Acc  is Float range -16_000.0 .. 16_000.0;
-   subtype T_Mag  is Float range -4_800.0  .. 4_800.0;
+   --  Allowed speed range, in m/s
+   subtype T_Speed        is Float range -2000.0 .. 2000.0;
 
 end Types;
