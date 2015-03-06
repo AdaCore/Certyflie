@@ -3,10 +3,23 @@ with IMU_Pack; use IMU_Pack;
 with Conversion_Pack; use Conversion_Pack;
 
 package body Controller_Pack
-with SPARK_Mode
+with
+SPARK_Mode,
+  Refined_State => (Attitude_PIDs => (Roll_Pid, Pitch_Pid, Yaw_Pid),
+                    Rate_PIDs => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid),
+                    State => Is_Init)
 is
 
-   procedure Controller_Init is
+   procedure Controller_Init
+     with
+       Refined_Global => (Output => (Roll_Rate_Pid,
+                                     Roll_Pid,
+                                     Pitch_Rate_Pid,
+                                     Pitch_Pid,
+                                     Yaw_Rate_Pid,
+                                     Yaw_Pid,
+                                     Is_Init))
+   is
    begin
       Rate_Pid.Pid_Init (Roll_Rate_Pid, 0.0, PID_ROLL_RATE_KP,
                          PID_ROLL_RATE_KI, PID_ROLL_RATE_KD,
@@ -44,7 +57,10 @@ is
       Is_Init := True;
    end Controller_Init;
 
-   function Controller_Test return Boolean is
+   function Controller_Test return Boolean
+     with
+       Refined_Global => (Input => Is_Init)
+   is
    begin
       return Is_Init;
    end Controller_Test;
@@ -55,6 +71,8 @@ is
                                           Roll_Rate_Desired  : T_Rate;
                                           Pitch_Rate_Desired : T_Rate;
                                           Yaw_Rate_Desired   : T_Rate)
+     with
+       Refined_Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid))
    is
    begin
       Rate_Pid.Pid_Set_Desired (Roll_Rate_Pid, Roll_Rate_Desired);
@@ -64,7 +82,6 @@ is
       Rate_Pid.Pid_Update (Pitch_Rate_Pid, Pitch_Rate_Actual, True);
       Rate_Pid.Pid_Update (Roll_Rate_Pid, Roll_Rate_Actual, True);
       Rate_Pid.Pid_Update (Yaw_Rate_Pid, Yaw_Rate_Actual, True);
-
    end Controller_Correct_Rate_PID;
 
    procedure Controller_Correct_Attitude_Pid
@@ -73,7 +90,10 @@ is
       Euler_Yaw_Actual    : T_Angle;
       Euler_Roll_Desired  : T_Angle;
       Euler_Pitch_Desired : T_Angle;
-      Euler_Yaw_Desired   : T_Angle) is
+      Euler_Yaw_Desired   : T_Angle)
+     with
+       Refined_Global => (In_Out => (Roll_Pid, Pitch_Pid, Yaw_Pid))
+   is
       Yaw_Error : Float := Euler_Yaw_Desired - Euler_Yaw_Actual;
    begin
       Attitude_Pid.Pid_Set_Desired (Roll_Pid, Euler_Roll_Desired);
@@ -93,7 +113,11 @@ is
       Attitude_Pid.Pid_Update (Yaw_Pid, Euler_Yaw_Actual, False);
    end Controller_Correct_Attitude_Pid;
 
-   procedure Controller_Reset_All_Pid is
+   procedure Controller_Reset_All_Pid
+     with
+       Refined_Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid,
+                                     Roll_Pid, Pitch_Pid, Yaw_Pid))
+   is
    begin
       Rate_Pid.Pid_Reset (Roll_Rate_Pid);
       Attitude_Pid.Pid_Reset (Roll_Pid);
@@ -105,7 +129,10 @@ is
 
    procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer;
                                              Actuator_Pitch : out Integer;
-                                             Actuator_Yaw   : out Integer) is
+                                             Actuator_Yaw   : out Integer)
+     with
+       Refined_Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid))
+   is
    begin
       Actuator_Roll := Float_To_Int (Rate_Pid.Pid_Get_Output (Roll_Rate_Pid));
       Actuator_Pitch := Float_To_Int
@@ -115,7 +142,10 @@ is
 
    procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Float;
                                           Pitch_Rate_Desired : out Float;
-                                          Yaw_Rate_Desired   : out Float) is
+                                          Yaw_Rate_Desired   : out Float)
+     with
+       Refined_Global => (Input => (Roll_Pid, Pitch_Pid, Yaw_Pid))
+   is
    begin
       Roll_Rate_Desired := Attitude_Pid.Pid_Get_Output (Roll_Pid);
       Pitch_Rate_Desired := Attitude_Pid.Pid_Get_Output (Pitch_Pid);

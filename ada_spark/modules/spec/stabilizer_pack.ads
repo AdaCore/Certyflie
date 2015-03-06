@@ -210,7 +210,8 @@ is
                               Yaw_Type,
                               Acc_WZ,
                               Acc_MAG,
-                              V_Speed)
+                              V_Speed,
+                              Attitude_PIDs)
                   );
 
 private
@@ -231,7 +232,8 @@ private
                              Yaw_Rate_Desired,
                              Acc_WZ,
                              Acc_MAG),
-                  In_Out => V_Speed);
+                  In_Out => (V_Speed,
+                             Attitude_PIDs));
 
    function Dead_Band (Value     : Float;
                        Threshold : Positive_Float) return Float;

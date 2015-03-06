@@ -5,7 +5,8 @@ with Pid_Pack;
 pragma Elaborate_All (Pid_Pack);
 
 package Controller_Pack
-with SPARK_Mode
+with SPARK_Mode,
+  Abstract_State => (Attitude_PIDs, Rate_PIDs, State)
 is
    --  PID Generic package initizalization
    package Attitude_Pid is new Pid_Pack (T_Angle'First,
@@ -21,37 +22,18 @@ is
                                      Float'Last / 4.0,
                                      MIN_RATE_COEFF,
                                      MAX_RATE_COEFF);
-   --  Global variables
-   Roll_Rate_Pid  : Rate_Pid.Pid_Object;
-   Roll_Pid       : Attitude_Pid.Pid_Object;
-   Pitch_Rate_Pid : Rate_Pid.Pid_Object;
-   Pitch_Pid      : Attitude_Pid.Pid_Object;
-   Yaw_Rate_Pid   : Rate_Pid.Pid_Object;
-   Yaw_Pid        : Attitude_Pid.Pid_Object;
-
-   Roll_Output  : Integer := 0;
-   Pitch_Output : Integer := 0;
-   Yaw_Output   : Integer := 0;
-
-   Is_Init : Boolean := False;
 
    --  Procedures and functions
 
    --  Initalize all the PID's needed for the drone.
    procedure Controller_Init
      with
-       Global => (Output => (Roll_Rate_Pid,
-                             Roll_Pid,
-                             Pitch_Rate_Pid,
-                             Pitch_Pid,
-                             Yaw_Rate_Pid,
-                             Yaw_Pid,
-                             Is_Init));
+       Global => (Output => (Attitude_PIDs, Rate_PIDs, State));
 
    --  Test if the PID's have been initialized.
    function Controller_Test return Boolean
      with
-       Global => (Input => Is_Init);
+       Global => (Input => State);
 
    --  Update the rate PID's for each axis (Roll, Pitch, Yaw)
    --  given the measured values along each axis and the desired
@@ -64,7 +46,7 @@ is
                                           Pitch_Rate_Desired : T_Rate;
                                           Yaw_Rate_Desired   : T_Rate)
      with
-       Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
+       Global => (In_Out => Rate_PIDs);
 
    --  Update the attitude PID's for each axis given (Roll, Pitch, Yaw)
    --  given the measured values along each axis and the
@@ -77,13 +59,12 @@ is
       Euler_Pitch_Desired : T_Angle;
       Euler_Yaw_Desired   : T_Angle)
      with
-       Global => (In_Out => (Roll_Pid, Pitch_Pid, Yaw_Pid));
+       Global => (In_Out => Attitude_PIDs);
 
    --  Reset all the PID's error values.
    procedure Controller_Reset_All_Pid
      with
-       Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid,
-                             Roll_Pid, Pitch_Pid, Yaw_Pid));
+       Global => (In_Out => (Attitude_PIDs, Rate_PIDs));
 
    --  Get the output of the rate PID's.
    --  Must be called after 'Controller_Correct_Rate_Pid' to update the PID's.
@@ -91,7 +72,7 @@ is
                                              Actuator_Pitch : out Integer;
                                              Actuator_Yaw   : out Integer)
      with
-       Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid));
+       Global => (Input => Rate_PIDs);
 
    --  Get the output of the attitude PID's, which will command the rate PID's.
    --  Must be called after 'Controller_Correct_Attitude_Pid' to update
@@ -100,5 +81,20 @@ is
                                           Pitch_Rate_Desired : out Float;
                                           Yaw_Rate_Desired   : out Float)
      with
-       Global => (Input => (Roll_Pid, Pitch_Pid, Yaw_Pid));
+       Global => (Input => Attitude_PIDs);
+
+private
+
+   --  Global variables
+
+   Roll_Pid       : Attitude_Pid.Pid_Object with Part_Of => Attitude_PIDs;
+   Pitch_Pid      : Attitude_Pid.Pid_Object with Part_Of => Attitude_PIDs;
+   Yaw_Pid        : Attitude_Pid.Pid_Object with Part_Of => Attitude_PIDs;
+
+   Roll_Rate_Pid  : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
+   Pitch_Rate_Pid : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
+   Yaw_Rate_Pid   : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
+
+   Is_Init : Boolean := False with Part_Of => State;
+
 end Controller_Pack;
