@@ -101,9 +101,9 @@ is
    Alt_Hold_Base_Thrust : Unsigned_16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
    Alt_Hold_Max_Thrust  : Unsigned_16 := 60000; --  max altitude hold thrust
 
-   Roll_Type    : RPY_Type := RATE;
-   Pitch_Type   : RPY_Type := RATE;
-   Yaw_Type     : RPY_Type := RATE;
+   Roll_Type        : RPY_Type := RATE;
+   Pitch_Type       : RPY_Type := RATE;
+   Yaw_Type         : RPY_Type := RATE;
 
    Actuator_Thrust : Unsigned_16 := 0;
    Actuator_Roll   : Integer_16  := 0;
@@ -194,25 +194,25 @@ is
      (Attitude_Update_Counter : in out Unsigned_32;
       Alt_Hold_Update_Counter : in out Unsigned_32)
      with
-       Global => ( Input  => V_Acc_Deadband,
-                   Output => (Roll_Rate_Desired,
-                              Pitch_Rate_Desired,
-                              Yaw_Rate_Desired),
-                   In_Out => (Gyro, Acc, Mag,
-                              Euler_Roll_Desired,
-                              Euler_Pitch_Desired,
-                              Euler_Yaw_Desired,
-                              Euler_Roll_Actual,
-                              Euler_Pitch_Actual,
-                              Euler_Yaw_Actual,
-                              Roll_Type,
-                              Pitch_Type,
-                              Yaw_Type,
-                              Acc_WZ,
-                              Acc_MAG,
-                              V_Speed,
-                              Attitude_PIDs)
-                  );
+       Global => (Input  => V_Acc_Deadband,
+                  In_Out => (Gyro, Acc, Mag,
+                             Euler_Roll_Desired,
+                             Euler_Pitch_Desired,
+                             Euler_Yaw_Desired,
+                             Roll_Rate_Desired,
+                             Pitch_Rate_Desired,
+                             Yaw_Rate_Desired,
+                             Euler_Roll_Actual,
+                             Euler_Pitch_Actual,
+                             Euler_Yaw_Actual,
+                             Roll_Type,
+                             Pitch_Type,
+                             Yaw_Type,
+                             Acc_WZ,
+                             Acc_MAG,
+                             V_Speed,
+                             Attitude_PIDs)
+                 );
 
 private
 
@@ -234,6 +234,28 @@ private
                              Acc_MAG),
                   In_Out => (V_Speed,
                              Attitude_PIDs));
+
+   procedure Stabilizer_Update_Rate
+     with
+       Global => (Input  => (Roll_Type,
+                             Pitch_Type,
+                             Yaw_Type,
+                             Euler_Roll_Desired,
+                             Euler_Pitch_Desired,
+                             Euler_Yaw_Desired,
+                             Gyro),
+                  Output => (Actuator_Roll,
+                             Actuator_Pitch,
+                             Actuator_Yaw),
+                  In_Out => (Roll_Rate_Desired,
+                             Pitch_Rate_Desired,
+                             Yaw_Rate_Desired,
+                             Rate_PIDs));
+
+   procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
+                                          Roll   : Integer_16;
+                                          Pitch  : Integer_16;
+                                          Yaw    : Integer_16);
 
    function Dead_Band (Value     : Float;
                        Threshold : Positive_Float) return Float;

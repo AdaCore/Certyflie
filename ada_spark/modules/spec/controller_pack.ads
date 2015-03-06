@@ -1,3 +1,5 @@
+with Interfaces; use Interfaces;
+
 with Types; use Types;
 with IMU_Pack; use IMU_Pack;
 with Pid_Parameters; use Pid_Parameters;
@@ -68,9 +70,9 @@ is
 
    --  Get the output of the rate PID's.
    --  Must be called after 'Controller_Correct_Rate_Pid' to update the PID's.
-   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer;
-                                             Actuator_Pitch : out Integer;
-                                             Actuator_Yaw   : out Integer)
+   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer_16;
+                                             Actuator_Pitch : out Integer_16;
+                                             Actuator_Yaw   : out Integer_16)
      with
        Global => (Input => Rate_PIDs);
 
@@ -96,5 +98,11 @@ private
    Yaw_Rate_Pid   : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
 
    Is_Init : Boolean := False with Part_Of => State;
+
+   --  Procedures and functions
+
+   --  Truncate a 32-bit Integer into a 16-bit Integer
+   function Truncate_To_Integer_16 (Value : Float) return Integer_16;
+   pragma Inline (Truncate_To_Integer_16);
 
 end Controller_Pack;

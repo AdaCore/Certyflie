@@ -34,10 +34,12 @@ is
    pragma Convention (C, Magnetometer_Data);
 
    --  Constants
+
    IMU_UPDATE_FREQ : constant := 500.0;
    IMU_UPDATE_DT   : constant := 1.0 / IMU_UPDATE_FREQ;
 
    --  Procedures and functions
+
    procedure IMU_9_Read (Gyro : in out Gyroscope_Data;
                          Acc  : in out Accelerometer_Data;
                          Mag  : in out Magnetometer_Data)
@@ -47,5 +49,7 @@ is
    pragma Import (C, IMU_9_Read, "imu9Read");
 
    function IMU_6_Calibrated return Boolean;
+
+   function IMU_Has_Barometer return Boolean;
 
 end IMU_Pack;

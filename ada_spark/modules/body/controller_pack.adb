@@ -127,17 +127,33 @@ is
       Attitude_Pid.Pid_Reset (Yaw_Pid);
    end Controller_Reset_All_Pid;
 
-   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer;
-                                             Actuator_Pitch : out Integer;
-                                             Actuator_Yaw   : out Integer)
+   function Truncate_To_Integer_16 (Value : Float) return Integer_16 is
+      Res : Integer_16;
+   begin
+      if Value > Float (Integer_16'Last) then
+         Res :=  Integer_16'Last;
+      elsif Value < Float (Integer_16'First) then
+         Res :=  Integer_16'First;
+      else
+         Res := Integer_16 (Value);
+      end if;
+
+      return Res;
+   end Truncate_To_Integer_16;
+
+   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer_16;
+                                             Actuator_Pitch : out Integer_16;
+                                             Actuator_Yaw   : out Integer_16)
      with
        Refined_Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid))
    is
    begin
-      Actuator_Roll := Float_To_Int (Rate_Pid.Pid_Get_Output (Roll_Rate_Pid));
-      Actuator_Pitch := Float_To_Int
+      Actuator_Roll := Truncate_To_Integer_16
+        (Rate_Pid.Pid_Get_Output (Roll_Rate_Pid));
+      Actuator_Pitch := Truncate_To_Integer_16
         (Rate_Pid.Pid_Get_Output (Pitch_Rate_Pid));
-      Actuator_Yaw := Float_To_Int (Rate_Pid.Pid_Get_Output (Yaw_Rate_Pid));
+      Actuator_Yaw := Truncate_To_Integer_16
+        (Rate_Pid.Pid_Get_Output (Yaw_Rate_Pid));
    end Controller_Get_Actuator_Output;
 
    procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Float;

@@ -5,11 +5,13 @@ library project Cf_Spark is
    Mode : Modes := external ("MODE", "Compile");
    for Object_Dir use "../bin";
    for Languages use ("Ada");
-   for Source_Dirs use ("modules/spec",
+   for Source_Dirs use (".",
+                        "modules/spec",
                         "modules/body",
                         "utils/spec",
                         "utils/body",
                         "drivers/spec",
+                        "drivers/body",
                         "lib/spec",
                         "hal/spec",
                         "hal/body",
@@ -17,7 +19,8 @@ library project Cf_Spark is
    for Library_Name use "spark";
    for Library_Dir use "../bin/lib";
    for Library_Kind use "static";
-   for Library_Interface use ("worker_pack",
+   for Library_Interface use ("config",
+                              "worker_pack",
                               "sensfusion6_pack",
                               "pid_pack",
                               "controller_pack",

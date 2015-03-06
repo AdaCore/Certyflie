@@ -1,7 +1,7 @@
 with SensFusion6_Pack; use SensFusion6_Pack;
 
 package body Stabilizer_Pack
-  with SPARK_Mode
+with SPARK_Mode
 is
 
    --  For testing purpose
@@ -39,6 +39,16 @@ is
          --  Reset the counter
          Attitude_Update_Counter := 0;
       end if;
+
+      if Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER then
+         --  TODO: Altidude hold mode functions
+         --  Reset the counter
+         Alt_Hold_Update_Counter := 0;
+         null;
+      end if;
+
+      Stabilizer_Update_Rate;
+
    end Stabilizer_Control_Loop;
 
    function Dead_Band (Value     : Float;
@@ -91,7 +101,37 @@ is
                                    Yaw_Rate_Desired);
    end Stabilizer_Update_Attitude;
 
+   procedure Stabilizer_Update_Rate is
+   begin
+      --  If CF is in Rate mode, give the angles given by the pilot
+      --  as input for the Rate PIDs
+      if Roll_Type = RATE then
+         Roll_Rate_Desired := Euler_Roll_Desired;
+      end if;
 
+      if Pitch_Type = RATE then
+         Pitch_Rate_Desired := Euler_Pitch_Desired;
+      end if;
 
+      if Yaw_Type = RATE then
+         Yaw_Rate_Desired := -Euler_Yaw_Desired;
+      end if;
+
+      Controller_Correct_Rate_PID (Gyro.X, -Gyro.Y, Gyro.Z,
+                                   Roll_Rate_Desired,
+                                   Pitch_Rate_Desired,
+                                   Yaw_Rate_Desired);
+      Controller_Get_Actuator_Output (Actuator_Roll,
+                                      Actuator_Pitch,
+                                      Actuator_Yaw);
+   end Stabilizer_Update_Rate;
+
+   procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
+                                          Roll   : Integer_16;
+                                          Pitch  : Integer_16;
+                                          Yaw    : Integer_16) is
+   begin
+      null;
+   end Stabilizer_Distribute_Power;
 
 end Stabilizer_Pack;

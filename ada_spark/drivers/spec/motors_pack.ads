@@ -1,7 +1,14 @@
+with Interfaces; use Interfaces;
+
 package Motors_Pack is
 
+   --  Types
+
+   type Motor_ID is (MOTOR_M1, MOTOR_M2, MOTOR_M3, MOTOR_M4);
+
    --  Procedures and functions
-   procedure Motors_Init;
-   pragma Import (C, Motors_Init, "motorsInit");
+
+   procedure Motor_Set_ratio (ID          : Motor_ID;
+                              Motor_Power : Unsigned_32);
 
 end Motors_Pack;

@@ -1,7 +1,7 @@
 with Interfaces.C; use Interfaces.C;
 
 package Commander_Pack
-  with SPARK_Mode
+with SPARK_Mode
 is
 
    --  Types
@@ -23,5 +23,10 @@ is
      with
        Global => null;
    pragma Import (C, Commander_Get_RPY_Type, "commanderGetRPYType");
+
+   procedure Commander_Watchdog
+     with
+       Global => null;
+   pragma Import (C, Commander_Watchdog, "commanderWatchdog");
 
 end Commander_Pack;
