@@ -1,5 +1,4 @@
 with SensFusion6_Pack; use SensFusion6_Pack;
-with Controller_Pack; use Controller_Pack;
 
 package body Stabilizer_Pack
   with SPARK_Mode

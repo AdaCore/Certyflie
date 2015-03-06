@@ -7,6 +7,7 @@ with Pid_Pack;
 pragma Elaborate_All (Pid_Pack);
 with Pid_Parameters; use Pid_Parameters;
 with Commander_Pack; use Commander_Pack;
+with Controller_Pack; use Controller_Pack;
 
 package Stabilizer_Pack
 with SPARK_Mode
@@ -193,29 +194,41 @@ is
      (Attitude_Update_Counter : in out Unsigned_32;
       Alt_Hold_Update_Counter : in out Unsigned_32)
      with
-       Global => (In_Out => (Gyro, Acc, Mag,
-                             Euler_Roll_Desired,
-                             Euler_Pitch_Desired,
-                             Euler_Yaw_Desired,
-                             Euler_Roll_Actual,
-                             Euler_Pitch_Actual,
-                             Euler_Yaw_Actual,
-                             Roll_Type,
-                             Pitch_Type,
-                             Yaw_Type,
-                             Acc_WZ,
-                             Acc_MAG,
-                             V_Speed),
-                 Input => V_Acc_Deadband);
+       Global => ( Input  => V_Acc_Deadband,
+                   Output => (Roll_Rate_Desired,
+                              Pitch_Rate_Desired,
+                              Yaw_Rate_Desired),
+                   In_Out => (Gyro, Acc, Mag,
+                              Euler_Roll_Desired,
+                              Euler_Pitch_Desired,
+                              Euler_Yaw_Desired,
+                              Euler_Roll_Actual,
+                              Euler_Pitch_Actual,
+                              Euler_Yaw_Actual,
+                              Roll_Type,
+                              Pitch_Type,
+                              Yaw_Type,
+                              Acc_WZ,
+                              Acc_MAG,
+                              V_Speed)
+                  );
 
 private
 
    procedure Stabilizer_Update_Attitude
      with
-       Global => (Input  => (Gyro, Acc, V_Acc_Deadband),
+       Global => (Input  => (Euler_Roll_Desired,
+                             Euler_Pitch_Desired,
+                             Euler_Yaw_Desired,
+                             Gyro,
+                             Acc,
+                             V_Acc_Deadband),
                   Output => (Euler_Roll_Actual,
                              Euler_Pitch_Actual,
                              Euler_Yaw_Actual,
+                             Roll_Rate_Desired,
+                             Pitch_Rate_Desired,
+                             Yaw_Rate_Desired,
                              Acc_WZ,
                              Acc_MAG),
                   In_Out => V_Speed);
