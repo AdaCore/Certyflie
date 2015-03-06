@@ -1,3 +1,5 @@
+with Config; use Config;
+with Motors_Pack; use Motors_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
 
 package body Stabilizer_Pack
@@ -66,6 +68,21 @@ is
       return Res;
    end Dead_Band;
 
+   function Limit_Thrust (Value : Integer_32) return Unsigned_16 is
+      Res : Unsigned_16;
+   begin
+      if Value > Integer_32 (Unsigned_16'Last) then
+         Res := Unsigned_16'Last;
+      elsif Value < 0 then
+         Res := 0;
+      else
+         pragma Assert (Value >= 0 and Value < Integer_32 (Unsigned_16'Last));
+         Res := Unsigned_16 (Value);
+      end if;
+
+      return Res;
+   end Limit_Thrust;
+
    procedure Stabilizer_Update_Attitude is
       Raw_V_Speed : Float;
    begin
@@ -130,8 +147,27 @@ is
                                           Roll   : Integer_16;
                                           Pitch  : Integer_16;
                                           Yaw    : Integer_16) is
+      R : Integer_16 := Roll / 2;
+      P : Integer_16 := Pitch / 2;
+      T : Integer_16 := Integer_16 (Thrust);
    begin
-      null;
+      if QUAD_FORMATION_X then
+         Motor_Power_M1 := Limit_Thrust (Integer_32 (T - R + P + Yaw));
+         Motor_Power_M2 := Limit_Thrust (Integer_32 (T - R - P - Yaw));
+         Motor_Power_M3 := Limit_Thrust (Integer_32 (T + R - P + Yaw));
+         Motor_Power_M4 := Limit_Thrust (Integer_32 (T + R + P - Yaw));
+      else
+         Motor_Power_M1 := Limit_Thrust (Integer_32 (T + Pitch + Yaw));
+         Motor_Power_M2 := Limit_Thrust (Integer_32 (T - Roll - Yaw));
+         Motor_Power_M3 := Limit_Thrust (Integer_32 (T - Pitch + Yaw));
+         Motor_Power_M4 := Limit_Thrust (Integer_32 (T + Roll - Yaw));
+      end if;
+
+      Motor_Set_Ratio (MOTOR_M1, Motor_Power_M1);
+      Motor_Set_Ratio (MOTOR_M2, Motor_Power_M2);
+      Motor_Set_Ratio (MOTOR_M3, Motor_Power_M3);
+      Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
+
    end Stabilizer_Distribute_Power;
 
 end Stabilizer_Pack;

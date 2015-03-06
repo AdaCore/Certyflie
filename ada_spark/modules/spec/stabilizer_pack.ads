@@ -110,10 +110,10 @@ is
    Actuator_Pitch  : Integer_16  := 0;
    Actuator_Yaw    : Integer_16  := 0;
 
-   Motor_Power_M4  : Unsigned_32 := 0;
-   Motor_Power_M2  : Unsigned_32 := 0;
-   Motor_Power_M1  : Unsigned_32 := 0;
-   Motor_Power_M3  : Unsigned_32 := 0;
+   Motor_Power_M4  : Unsigned_16 := 0;
+   Motor_Power_M2  : Unsigned_16 := 0;
+   Motor_Power_M1  : Unsigned_16 := 0;
+   Motor_Power_M3  : Unsigned_16 := 0;
 
    --  Export all of these varaibles frome the C part,
    --  so the C part can debug/log them easily
@@ -195,6 +195,9 @@ is
       Alt_Hold_Update_Counter : in out Unsigned_32)
      with
        Global => (Input  => V_Acc_Deadband,
+                  Output => (Actuator_Roll,
+                             Actuator_Pitch,
+                             Actuator_Yaw),
                   In_Out => (Gyro, Acc, Mag,
                              Euler_Roll_Desired,
                              Euler_Pitch_Desired,
@@ -211,7 +214,8 @@ is
                              Acc_WZ,
                              Acc_MAG,
                              V_Speed,
-                             Attitude_PIDs)
+                             Attitude_PIDs,
+                             Rate_PIDs)
                  );
 
 private
@@ -259,5 +263,9 @@ private
 
    function Dead_Band (Value     : Float;
                        Threshold : Positive_Float) return Float;
+   pragma Inline (Dead_Band);
+
+   function Limit_Thrust (Value : Integer_32) return Unsigned_16;
+   pragma Inline (Limit_Thrust);
 
 end Stabilizer_Pack;

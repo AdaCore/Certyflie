@@ -8,7 +8,7 @@ package Motors_Pack is
 
    --  Procedures and functions
 
-   procedure Motor_Set_ratio (ID          : Motor_ID;
-                              Motor_Power : Unsigned_32);
+   procedure Motor_Set_Ratio (ID          : Motor_ID;
+                              Motor_Power : Unsigned_16);
 
 end Motors_Pack;
