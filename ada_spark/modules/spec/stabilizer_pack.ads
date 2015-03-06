@@ -189,8 +189,9 @@ is
 
    --  Procedures and functions
 
-   procedure Stabilizer_Control_Loop (Attitude_Update_Counter : in out Integer;
-                                      Alt_Hold_Update_Counter : in out Integer)
+   procedure Stabilizer_Control_Loop
+     (Attitude_Update_Counter : in out Unsigned_32;
+      Alt_Hold_Update_Counter : in out Unsigned_32)
      with
        Global => (In_Out => (Gyro, Acc, Mag,
                              Euler_Roll_Desired,

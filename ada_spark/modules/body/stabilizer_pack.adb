@@ -12,8 +12,9 @@ is
       Mag.Z  := 14.0;
    end Modif_Variables;
 
-   procedure Stabilizer_Control_Loop (Attitude_Update_Counter : in out Integer;
-                                      Alt_Hold_Update_Counter : in out Integer)
+   procedure Stabilizer_Control_Loop
+     (Attitude_Update_Counter : in out Unsigned_32;
+      Alt_Hold_Update_Counter : in out Unsigned_32)
    is
    begin
       --  Magnetometer not used for the moment
@@ -23,10 +24,6 @@ is
       if not IMU_6_Calibrated then
          return;
       end if;
-
-      --  TODO: Increment the update counters. Maybe do this in the C part?
-      --Attitude_Update_Counter := Attitude_Update_Counter + 1;
-      --Alt_Hold_Update_Counter := Alt_Hold_Update_Counter + 1;
 
       --  Get commands from the pilot
       Commander_Get_RPY (Euler_Roll_Desired,
@@ -40,8 +37,6 @@ is
          --  Update attitude
          Stabilizer_Update_Attitude;
          --  Reset the counter
-         pragma Warnings (GNATprove, Off, "unused assignment",
-                    Reason => "This function is called periodically.");
          Attitude_Update_Counter := 0;
       end if;
    end Stabilizer_Control_Loop;
@@ -87,6 +82,13 @@ is
       elsif Raw_V_Speed < T_Speed'First then
          V_Speed := T_Speed'First;
       end if;
+
+      --  Get the rate commands from the roll, pitch, yaw attitude PID's
+      Controller_Correct_Attitude_Pid(Euler_Roll_Actual, Euler_Pitch_Actual,
+                                      Euler_Yaw_Actual, Euler_Roll_Desired,
+                                      Euler_Pitch_Desired, Euler_Yaw_Desired);
+      Controller_Get_Desired_Rate(Roll_Rate_Desired, Pitch_Rate_Desired,
+                                  Yaw_Rate_Desired);
    end Stabilizer_Update_Attitude;
 
 
