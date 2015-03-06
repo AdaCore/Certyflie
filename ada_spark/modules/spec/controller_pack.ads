@@ -96,9 +96,9 @@ is
    --  Get the output of the attitude PID's, which will command the rate PID's.
    --  Must be called after 'Controller_Correct_Attitude_Pid' to update
    --  the PID's.
-   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Integer;
-                                          Pitch_Rate_Desired : out Integer;
-                                          Yaw_Rate_Desired   : out Integer)
+   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Float;
+                                          Pitch_Rate_Desired : out Float;
+                                          Yaw_Rate_Desired   : out Float)
      with
        Global => (Input => (Roll_Pid, Pitch_Pid, Yaw_Pid));
 end Controller_Pack;

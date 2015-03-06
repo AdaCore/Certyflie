@@ -1,4 +1,5 @@
 with SensFusion6_Pack; use SensFusion6_Pack;
+with Controller_Pack; use Controller_Pack;
 
 package body Stabilizer_Pack
   with SPARK_Mode
@@ -84,11 +85,11 @@ is
       end if;
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's
-      Controller_Correct_Attitude_Pid(Euler_Roll_Actual, Euler_Pitch_Actual,
-                                      Euler_Yaw_Actual, Euler_Roll_Desired,
-                                      Euler_Pitch_Desired, Euler_Yaw_Desired);
-      Controller_Get_Desired_Rate(Roll_Rate_Desired, Pitch_Rate_Desired,
-                                  Yaw_Rate_Desired);
+      Controller_Correct_Attitude_Pid (Euler_Roll_Actual, Euler_Pitch_Actual,
+                                       Euler_Yaw_Actual, Euler_Roll_Desired,
+                                       Euler_Pitch_Desired, Euler_Yaw_Desired);
+      Controller_Get_Desired_Rate (Roll_Rate_Desired, Pitch_Rate_Desired,
+                                   Yaw_Rate_Desired);
    end Stabilizer_Update_Attitude;
 
 

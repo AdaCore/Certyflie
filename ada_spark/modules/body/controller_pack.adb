@@ -113,15 +113,13 @@ is
       Actuator_Yaw := Float_To_Int (Rate_Pid.Pid_Get_Output (Yaw_Rate_Pid));
    end Controller_Get_Actuator_Output;
 
-   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Integer;
-                                          Pitch_Rate_Desired : out Integer;
-                                          Yaw_Rate_Desired   : out Integer) is
+   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Float;
+                                          Pitch_Rate_Desired : out Float;
+                                          Yaw_Rate_Desired   : out Float) is
    begin
-      Roll_Rate_Desired := Float_To_Int
-        (Attitude_Pid.Pid_Get_Output (Roll_Pid));
-      Pitch_Rate_Desired := Float_To_Int
-        (Attitude_Pid.Pid_Get_Output (Pitch_Pid));
-      Yaw_Rate_Desired := Float_To_Int (Attitude_Pid.Pid_Get_Output (Yaw_Pid));
+      Roll_Rate_Desired := Attitude_Pid.Pid_Get_Output (Roll_Pid);
+      Pitch_Rate_Desired := Attitude_Pid.Pid_Get_Output (Pitch_Pid);
+      Yaw_Rate_Desired := Attitude_Pid.Pid_Get_Output (Yaw_Pid);
    end Controller_Get_Desired_Rate;
 
 end Controller_Pack;
