@@ -133,7 +133,7 @@ extern uint32_t motorPowerM3;
 
 static bool isInit;
 
-static void stabilizerAltHoldUpdate(void);
+void stabilizerAltHoldUpdate(void);
 static void distributePower(const uint16_t thrust, const int16_t roll,
                             const int16_t pitch, const int16_t yaw);
 static uint16_t limitThrust(int32_t value);
@@ -282,7 +282,7 @@ static void stabilizerTask(void* param)
   }
 }
 
-static void stabilizerAltHoldUpdate(void)
+void stabilizerAltHoldUpdate(void)
 {
   // Get altitude hold commands from pilot
   commanderGetAltHold(&altHold, &setAltHold, &altHoldChange);
@@ -502,7 +502,7 @@ PARAM_ADD(PARAM_FLOAT, vSpeedAccFac, &vSpeedAccFac)
 PARAM_ADD(PARAM_FLOAT, vSpeedASLDeadband, &vSpeedASLDeadband)
 PARAM_ADD(PARAM_FLOAT, vSpeedASLFac, &vSpeedASLFac)
 PARAM_ADD(PARAM_FLOAT, vSpeedLimit, &vSpeedLimit)
-PARAM_ADD(PARAM_UINT16, baseThrust, &altHoldBaseThrust)
+PARAM_ADD(PARAM_UINT16, altHoldBaseThrustt, &altHoldBaseThrust)
 PARAM_ADD(PARAM_UINT16, maxThrust, &altHoldMaxThrust)
 PARAM_ADD(PARAM_UINT16, minThrust, &altHoldMinThrust)
 PARAM_GROUP_STOP(altHold)

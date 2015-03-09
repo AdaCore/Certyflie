@@ -226,6 +226,9 @@ is
 
 private
 
+   procedure Stabilizer_Alt_Hold_Update;
+   pragma Import (C, Stabilizer_Alt_Hold_Update, "stabilizerAltHoldUpdate");
+
    procedure Stabilizer_Update_Attitude
      with
        Global => (Input  => (Euler_Roll_Desired,

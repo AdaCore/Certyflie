@@ -143,6 +143,10 @@ is
       Alt_Hold_Update_Counter : in out Unsigned_32)
    is
    begin
+      --  Increment the counters
+      Attitude_Update_Counter := Attitude_Update_Counter + 1;
+      Alt_Hold_Update_Counter := Alt_Hold_Update_Counter + 1;
+
       --  Magnetometer not used for the moment
       IMU_9_Read (Gyro, Acc, Mag);
 
@@ -166,8 +170,10 @@ is
          Attitude_Update_Counter := 0;
       end if;
 
-      if Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER then
+      if IMU_Has_Barometer and
+        Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER then
          --  TODO: Altidude hold mode functions
+         Stabilizer_Alt_Hold_Update;
          --  Reset the counter
          Alt_Hold_Update_Counter := 0;
          null;
@@ -188,7 +194,7 @@ is
       if Actuator_Thrust > 0 then
          --  Ensure that there is no overflow when changing Yaw sign
          if Actuator_Yaw = Integer_16'First then
-            Actuator_Yaw := - Integer_16'Last;
+            Actuator_Yaw := -Integer_16'Last;
          end if;
 
          Stabilizer_Distribute_Power (Actuator_Thrust, Actuator_Roll,
