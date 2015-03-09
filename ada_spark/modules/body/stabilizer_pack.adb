@@ -76,7 +76,7 @@ is
       elsif Value < 0 then
          Res := 0;
       else
-         pragma Assert (Value >= 0 and Value < Integer_32 (Unsigned_16'Last));
+         pragma Assert (Value <= Integer_32 (Unsigned_16'Last));
          Res := Unsigned_16 (Value);
       end if;
 
@@ -147,20 +147,27 @@ is
                                           Roll   : Integer_16;
                                           Pitch  : Integer_16;
                                           Yaw    : Integer_16) is
-      R : Integer_16 := Roll / 2;
-      P : Integer_16 := Pitch / 2;
-      T : Integer_16 := Integer_16 (Thrust);
+      T : Integer_32 := Integer_32 (Thrust);
+      R : Integer_32 := Integer_32 (Roll);
+      P : Integer_32 := Integer_32 (Pitch);
+      Y : Integer_32 := Integer_32 (Yaw);
    begin
       if QUAD_FORMATION_X then
-         Motor_Power_M1 := Limit_Thrust (Integer_32 (T - R + P + Yaw));
-         Motor_Power_M2 := Limit_Thrust (Integer_32 (T - R - P - Yaw));
-         Motor_Power_M3 := Limit_Thrust (Integer_32 (T + R - P + Yaw));
-         Motor_Power_M4 := Limit_Thrust (Integer_32 (T + R + P - Yaw));
+         R := R / 2;
+         P := P / 2;
+         pragma Assert (T <= Integer_32 (Unsigned_16'Last) and
+                          R <= Integer_32 (Integer_16'Last) and
+                          P <= Integer_32 (Integer_16'Last) and
+                          Y <= Integer_32 (Integer_16'Last));
+         Motor_Power_M1 := Limit_Thrust (T - R + P + Y);
+         Motor_Power_M2 := Limit_Thrust (T - R - P - Y);
+         Motor_Power_M3 := Limit_Thrust (T + R - P + Y);
+         Motor_Power_M4 := Limit_Thrust (T + R + P - Y);
       else
-         Motor_Power_M1 := Limit_Thrust (Integer_32 (T + Pitch + Yaw));
-         Motor_Power_M2 := Limit_Thrust (Integer_32 (T - Roll - Yaw));
-         Motor_Power_M3 := Limit_Thrust (Integer_32 (T - Pitch + Yaw));
-         Motor_Power_M4 := Limit_Thrust (Integer_32 (T + Roll - Yaw));
+         Motor_Power_M1 := Limit_Thrust (T + P + Y);
+         Motor_Power_M2 := Limit_Thrust (T - R - Y);
+         Motor_Power_M3 := Limit_Thrust (T - P + Y);
+         Motor_Power_M4 := Limit_Thrust (T + R - Y);
       end if;
 
       Motor_Set_Ratio (MOTOR_M1, Motor_Power_M1);
