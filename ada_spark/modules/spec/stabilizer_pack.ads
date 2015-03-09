@@ -223,6 +223,7 @@ is
                              Attitude_PIDs,
                              Rate_PIDs)
                  );
+   pragma Export (C, Stabilizer_Control_Loop, "ada_stabilizerControlLoop");
 
 private
 

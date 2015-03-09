@@ -126,10 +126,10 @@ extern int16_t  actuatorRoll;
 extern int16_t  actuatorPitch;
 extern int16_t  actuatorYaw;
 
-extern uint32_t motorPowerM4;
-extern uint32_t motorPowerM2;
-extern uint32_t motorPowerM1;
-extern uint32_t motorPowerM3;
+extern uint16_t motorPowerM4;
+extern uint16_t motorPowerM2;
+extern uint16_t motorPowerM1;
+extern uint16_t motorPowerM3;
 
 static bool isInit;
 
@@ -140,6 +140,8 @@ static uint16_t limitThrust(int32_t value);
 static void stabilizerTask(void* param);
 static float constrain(float value, const float minVal, const float maxVal);
 static float deadband(float value, const float threshold);
+
+extern void ada_stabilizerControlLoop(uint32_t attitudeCounter, uint32_t altHoldCounter);
 
 /* TEST */
 extern void ada_modif_variables(void);
@@ -199,86 +201,7 @@ static void stabilizerTask(void* param)
   {
     vTaskDelayUntil(&lastWakeTime, F2T(IMU_UPDATE_FREQ)); // 500Hz
 
-    // Magnetometer not yet used more then for logging.
-    imu9Read(&gyro, &acc, &mag);
-
-    if (imu6IsCalibrated())
-    {
-      commanderGetRPY(&eulerRollDesired, &eulerPitchDesired, &eulerYawDesired);
-      commanderGetRPYType(&rollType, &pitchType, &yawType);
-
-      // 250HZ
-      if (++attitudeCounter >= ATTITUDE_UPDATE_RATE_DIVIDER)
-      {
-        sensfusion6UpdateQ(gyro.x, gyro.y, gyro.z, acc.x, acc.y, acc.z, FUSION_UPDATE_DT);
-        sensfusion6GetEulerRPY(&eulerRollActual, &eulerPitchActual, &eulerYawActual);
-
-        accWZ = sensfusion6GetAccZWithoutGravity(acc.x, acc.y, acc.z);
-        accMAG = (acc.x*acc.x) + (acc.y*acc.y) + (acc.z*acc.z);
-        // Estimate speed from acc (drifts)
-        vSpeed += deadband(accWZ, vAccDeadband) * FUSION_UPDATE_DT;
-
-        controllerCorrectAttitudePID(eulerRollActual, eulerPitchActual, eulerYawActual,
-                                     eulerRollDesired, eulerPitchDesired, -eulerYawDesired,
-                                     &rollRateDesired, &pitchRateDesired, &yawRateDesired);
-        attitudeCounter = 0;
-      }
-
-      // 100HZ
-      if (imuHasBarometer() && (++altHoldCounter >= ALTHOLD_UPDATE_RATE_DIVIDER))
-      {
-        stabilizerAltHoldUpdate();
-        altHoldCounter = 0;
-      }
-
-      if (rollType == RATE)
-      {
-        rollRateDesired = eulerRollDesired;
-      }
-      if (pitchType == RATE)
-      {
-        pitchRateDesired = eulerPitchDesired;
-      }
-      if (yawType == RATE)
-      {
-        yawRateDesired = -eulerYawDesired;
-      }
-
-      // TODO: Investigate possibility to subtract gyro drift.
-      controllerCorrectRatePID(gyro.x, -gyro.y, gyro.z,
-                               rollRateDesired, pitchRateDesired, yawRateDesired);
-
-      controllerGetActuatorOutput(&actuatorRoll, &actuatorPitch, &actuatorYaw);
-
-      if (!altHold || !imuHasBarometer())
-      {
-        // Use thrust from controller if not in altitude hold mode
-        commanderGetThrust(&actuatorThrust);
-      }
-      else
-      {
-        // Added so thrust can be set to 0 while in altitude hold mode after disconnect
-        commanderWatchdog();
-      }
-
-      if (actuatorThrust > 0)
-      {
-#if defined(TUNE_ROLL)
-        distributePower(actuatorThrust, actuatorRoll, 0, 0);
-#elif defined(TUNE_PITCH)
-        distributePower(actuatorThrust, 0, actuatorPitch, 0);
-#elif defined(TUNE_YAW)
-        distributePower(actuatorThrust, 0, 0, -actuatorYaw);
-#else
-        distributePower(actuatorThrust, actuatorRoll, actuatorPitch, -actuatorYaw);
-#endif
-      }
-      else
-      {
-        distributePower(0, 0, 0, 0);
-        controllerResetAllPID();
-      }
-    }
+    ada_stabilizerControlLoop(attitudeCounter, altHoldCounter);
   }
 }
 
@@ -425,6 +348,10 @@ static float deadband(float value, const float threshold)
   return value;
 }
 
+LOG_GROUP_START(debug)
+LOG_ADD(LOG_INT16, apitch, &actuatorPitch)
+LOG_GROUP_STOP(debug)
+
 LOG_GROUP_START(stabilizer)
 LOG_ADD(LOG_FLOAT, roll, &eulerRollActual)
 LOG_ADD(LOG_FLOAT, pitch, &eulerPitchActual)
@@ -453,10 +380,10 @@ LOG_ADD(LOG_FLOAT, z, &mag.z)
 LOG_GROUP_STOP(mag)
 
 LOG_GROUP_START(motor)
-LOG_ADD(LOG_INT32, m4, &motorPowerM4)
-LOG_ADD(LOG_INT32, m1, &motorPowerM1)
-LOG_ADD(LOG_INT32, m2, &motorPowerM2)
-LOG_ADD(LOG_INT32, m3, &motorPowerM3)
+LOG_ADD(LOG_UINT16, m4, &motorPowerM4)
+LOG_ADD(LOG_UINT16, m1, &motorPowerM1)
+LOG_ADD(LOG_UINT16, m2, &motorPowerM2)
+LOG_ADD(LOG_UINT16, m3, &motorPowerM3)
 LOG_GROUP_STOP(motor)
 
 // LOG altitude hold PID controller states

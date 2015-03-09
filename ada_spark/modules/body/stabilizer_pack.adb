@@ -101,12 +101,14 @@ is
          V_Speed := T_Speed'Last;
       elsif Raw_V_Speed < T_Speed'First then
          V_Speed := T_Speed'First;
+      else
+         V_Speed := Raw_V_Speed;
       end if;
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's
       Controller_Correct_Attitude_Pid (Euler_Roll_Actual, Euler_Pitch_Actual,
                                        Euler_Yaw_Actual, Euler_Roll_Desired,
-                                       Euler_Pitch_Desired, Euler_Yaw_Desired);
+                                       Euler_Pitch_Desired, -Euler_Yaw_Desired);
       Controller_Get_Desired_Rate (Roll_Rate_Desired, Pitch_Rate_Desired,
                                    Yaw_Rate_Desired);
    end Stabilizer_Update_Attitude;
@@ -143,10 +145,6 @@ is
       Alt_Hold_Update_Counter : in out Unsigned_32)
    is
    begin
-      --  Increment the counters
-      Attitude_Update_Counter := Attitude_Update_Counter + 1;
-      Alt_Hold_Update_Counter := Alt_Hold_Update_Counter + 1;
-
       --  Magnetometer not used for the moment
       IMU_9_Read (Gyro, Acc, Mag);
 
@@ -154,6 +152,10 @@ is
       if not IMU_6_Calibrated then
          return;
       end if;
+
+      --  Increment the counters
+      Attitude_Update_Counter := Attitude_Update_Counter + 1;
+      Alt_Hold_Update_Counter := Alt_Hold_Update_Counter + 1;
 
       --  Get commands from the pilot
       Commander_Get_RPY (Euler_Roll_Desired,
