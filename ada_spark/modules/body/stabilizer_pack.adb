@@ -14,44 +14,7 @@ is
       Mag.Z  := 14.0;
    end Modif_Variables;
 
-   procedure Stabilizer_Control_Loop
-     (Attitude_Update_Counter : in out Unsigned_32;
-      Alt_Hold_Update_Counter : in out Unsigned_32)
-   is
-   begin
-      --  Magnetometer not used for the moment
-      IMU_9_Read (Gyro, Acc, Mag);
-
-      --  Do nothing if IMU is not calibrated correctly
-      if not IMU_6_Calibrated then
-         return;
-      end if;
-
-      --  Get commands from the pilot
-      Commander_Get_RPY (Euler_Roll_Desired,
-                         Euler_Pitch_Desired,
-                         Euler_Yaw_Desired);
-      Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
-
-      --  Update attitude at IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER
-      --  By default the result is 250 Hz
-      if Attitude_Update_Counter >= ATTITUDE_UPDATE_RATE_DIVIDER then
-         --  Update attitude
-         Stabilizer_Update_Attitude;
-         --  Reset the counter
-         Attitude_Update_Counter := 0;
-      end if;
-
-      if Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER then
-         --  TODO: Altidude hold mode functions
-         --  Reset the counter
-         Alt_Hold_Update_Counter := 0;
-         null;
-      end if;
-
-      Stabilizer_Update_Rate;
-
-   end Stabilizer_Control_Loop;
+   --  Private procedures and functions
 
    function Dead_Band (Value     : Float;
                        Threshold : Positive_Float) return Float is
@@ -82,6 +45,36 @@ is
 
       return Res;
    end Limit_Thrust;
+
+   procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
+                                          Roll   : Integer_16;
+                                          Pitch  : Integer_16;
+                                          Yaw    : Integer_16) is
+      T : Integer_32 := Integer_32 (Thrust);
+      R : Integer_32 := Integer_32 (Roll);
+      P : Integer_32 := Integer_32 (Pitch);
+      Y : Integer_32 := Integer_32 (Yaw);
+   begin
+      if QUAD_FORMATION_X then
+         R := R / 2;
+         P := P / 2;
+
+         Motor_Power_M1 := Limit_Thrust (T - R + P + Y);
+         Motor_Power_M2 := Limit_Thrust (T - R - P - Y);
+         Motor_Power_M3 := Limit_Thrust (T + R - P + Y);
+         Motor_Power_M4 := Limit_Thrust (T + R + P - Y);
+      else
+         Motor_Power_M1 := Limit_Thrust (T + P + Y);
+         Motor_Power_M2 := Limit_Thrust (T - R - Y);
+         Motor_Power_M3 := Limit_Thrust (T - P + Y);
+         Motor_Power_M4 := Limit_Thrust (T + R - Y);
+      end if;
+
+      Motor_Set_Ratio (MOTOR_M1, Motor_Power_M1);
+      Motor_Set_Ratio (MOTOR_M2, Motor_Power_M2);
+      Motor_Set_Ratio (MOTOR_M3, Motor_Power_M3);
+      Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
+   end Stabilizer_Distribute_Power;
 
    procedure Stabilizer_Update_Attitude is
       Raw_V_Speed : Float;
@@ -143,38 +136,67 @@ is
                                       Actuator_Yaw);
    end Stabilizer_Update_Rate;
 
-   procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
-                                          Roll   : Integer_16;
-                                          Pitch  : Integer_16;
-                                          Yaw    : Integer_16) is
-      T : Integer_32 := Integer_32 (Thrust);
-      R : Integer_32 := Integer_32 (Roll);
-      P : Integer_32 := Integer_32 (Pitch);
-      Y : Integer_32 := Integer_32 (Yaw);
+   --  Public functions
+
+   procedure Stabilizer_Control_Loop
+     (Attitude_Update_Counter : in out Unsigned_32;
+      Alt_Hold_Update_Counter : in out Unsigned_32)
+   is
    begin
-      if QUAD_FORMATION_X then
-         R := R / 2;
-         P := P / 2;
-         pragma Assert (T <= Integer_32 (Unsigned_16'Last) and
-                          R <= Integer_32 (Integer_16'Last) and
-                          P <= Integer_32 (Integer_16'Last) and
-                          Y <= Integer_32 (Integer_16'Last));
-         Motor_Power_M1 := Limit_Thrust (T - R + P + Y);
-         Motor_Power_M2 := Limit_Thrust (T - R - P - Y);
-         Motor_Power_M3 := Limit_Thrust (T + R - P + Y);
-         Motor_Power_M4 := Limit_Thrust (T + R + P - Y);
-      else
-         Motor_Power_M1 := Limit_Thrust (T + P + Y);
-         Motor_Power_M2 := Limit_Thrust (T - R - Y);
-         Motor_Power_M3 := Limit_Thrust (T - P + Y);
-         Motor_Power_M4 := Limit_Thrust (T + R - Y);
+      --  Magnetometer not used for the moment
+      IMU_9_Read (Gyro, Acc, Mag);
+
+      --  Do nothing if IMU is not calibrated correctly
+      if not IMU_6_Calibrated then
+         return;
       end if;
 
-      Motor_Set_Ratio (MOTOR_M1, Motor_Power_M1);
-      Motor_Set_Ratio (MOTOR_M2, Motor_Power_M2);
-      Motor_Set_Ratio (MOTOR_M3, Motor_Power_M3);
-      Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
+      --  Get commands from the pilot
+      Commander_Get_RPY (Euler_Roll_Desired,
+                         Euler_Pitch_Desired,
+                         Euler_Yaw_Desired);
+      Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
 
-   end Stabilizer_Distribute_Power;
+      --  Update attitude at IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER
+      --  By default the result is 250 Hz
+      if Attitude_Update_Counter >= ATTITUDE_UPDATE_RATE_DIVIDER then
+         --  Update attitude
+         Stabilizer_Update_Attitude;
+         --  Reset the counter
+         Attitude_Update_Counter := 0;
+      end if;
+
+      if Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER then
+         --  TODO: Altidude hold mode functions
+         --  Reset the counter
+         Alt_Hold_Update_Counter := 0;
+         null;
+      end if;
+
+      Stabilizer_Update_Rate;
+
+      if not Alt_Hold or not IMU_Has_Barometer then
+         --  Get thrust from the commander if alt hold mode
+         --  not activated/working
+         Commander_Get_Thrust (Actuator_Thrust);
+      else
+         --  Added so thrust can be set to 0 while in altitude hold mode
+         --  after disconnect
+         Commander_Watchdog;
+      end if;
+
+      if Actuator_Thrust > 0 then
+         --  Ensure that there is no overflow when changing Yaw sign
+         if Actuator_Yaw = Integer_16'First then
+            Actuator_Yaw := - Integer_16'Last;
+         end if;
+
+         Stabilizer_Distribute_Power (Actuator_Thrust, Actuator_Roll,
+                                      Actuator_Pitch, -Actuator_Yaw);
+      else
+         Stabilizer_Distribute_Power (0, 0, 0, 0);
+         Controller_Reset_All_Pid;
+      end if;
+   end Stabilizer_Control_Loop;
 
 end Stabilizer_Pack;

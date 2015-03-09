@@ -194,10 +194,8 @@ is
      (Attitude_Update_Counter : in out Unsigned_32;
       Alt_Hold_Update_Counter : in out Unsigned_32)
      with
-       Global => (Input  => V_Acc_Deadband,
-                  Output => (Actuator_Roll,
-                             Actuator_Pitch,
-                             Actuator_Yaw),
+       Global => (Input  => (V_Acc_Deadband,
+                             Alt_Hold),
                   In_Out => (Gyro, Acc, Mag,
                              Euler_Roll_Desired,
                              Euler_Pitch_Desired,
@@ -214,6 +212,14 @@ is
                              Acc_WZ,
                              Acc_MAG,
                              V_Speed,
+                             Actuator_Roll,
+                             Actuator_Pitch,
+                             Actuator_Yaw,
+                             Actuator_Thrust,
+                             Motor_Power_M1,
+                             Motor_Power_M2,
+                             Motor_Power_M3,
+                             Motor_Power_M4,
                              Attitude_PIDs,
                              Rate_PIDs)
                  );
@@ -259,7 +265,12 @@ private
    procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
                                           Roll   : Integer_16;
                                           Pitch  : Integer_16;
-                                          Yaw    : Integer_16);
+                                          Yaw    : Integer_16)
+     with
+       Global => (Output => (Motor_Power_M1,
+                             Motor_Power_M2,
+                             Motor_Power_M3,
+                             Motor_Power_M4));
 
    function Dead_Band (Value     : Float;
                        Threshold : Positive_Float) return Float;

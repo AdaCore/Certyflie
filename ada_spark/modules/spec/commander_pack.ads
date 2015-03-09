@@ -1,3 +1,4 @@
+with Interfaces; use Interfaces;
 with Interfaces.C; use Interfaces.C;
 
 package Commander_Pack
@@ -28,5 +29,10 @@ is
      with
        Global => null;
    pragma Import (C, Commander_Watchdog, "commanderWatchdog");
+
+   procedure Commander_Get_Thrust (Thrust : out Unsigned_16)
+   with
+       Global => null;
+   pragma Import (C, Commander_Get_Thrust, "commanderGetThrust");
 
 end Commander_Pack;
