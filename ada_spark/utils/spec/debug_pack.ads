@@ -1,4 +1,5 @@
 with Interfaces.C; use Interfaces.C;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 package Debug_Pack is
 

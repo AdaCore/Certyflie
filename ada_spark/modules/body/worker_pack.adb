@@ -10,7 +10,7 @@ is
       end if;
    end Worker_Init;
 
-   function Worker_Test return Integer is
+   function Worker_Test return bool is
    begin
       if Worker_Queue /= System.Null_Address then
          return 1;

@@ -1,6 +1,5 @@
 with System; use System;
 with Interfaces; use Interfaces;
-with Interfaces.C; use Interfaces.C;
 
 package FreeRTOS_Pack is
    --  Types

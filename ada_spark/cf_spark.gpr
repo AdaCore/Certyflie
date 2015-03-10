@@ -28,7 +28,10 @@ library project Cf_Spark is
                               "stabilizer_pack",
                               "types",
                               "pid_parameters",
-                              "freertos_pack", "imu_pack",
+                              "freertos_pack",
+                              "imu_pack",
+                              "lps25h_pack",
+                              "pm_pack",
                               "motors_pack");
 
    case Mode is

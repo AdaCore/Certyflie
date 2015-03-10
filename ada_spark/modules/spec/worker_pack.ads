@@ -1,5 +1,6 @@
 with System; use System;
 with Interfaces; use Interfaces;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with FreeRTOS_Pack; use FreeRTOS_Pack;
 
 package Worker_Pack
@@ -14,7 +15,7 @@ is
    end record;
 
    --  Constants and Global Variables
-   WORKER_QUEUE_LENGTH : constant Unsigned_32 := 5;
+   WORKER_QUEUE_LENGTH : constant Interfaces.Unsigned_32 := 5;
 
    Worker_Queue : Pvoid := System.Null_Address;
 
@@ -22,7 +23,7 @@ is
    procedure Worker_Init;
    pragma Export (C, Worker_Init, "ada_workerInit");
 
-   function Worker_Test return Integer;
+   function Worker_Test return bool;
    pragma Export (C, Worker_Test, "ada_workerTest");
 
    procedure Worker_Loop;

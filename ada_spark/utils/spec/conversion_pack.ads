@@ -1,5 +1,5 @@
 with Ada.Unchecked_Conversion;
-with Interfaces; use Interfaces;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 package Conversion_Pack is
 

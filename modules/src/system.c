@@ -68,7 +68,7 @@ static void systemTask(void *arg);
 
 /* use Ada/SPARK worker module */
 extern void ada_workerInit(void);
-extern int  ada_workerTest(void);
+extern bool ada_workerTest(void);
 extern void ada_workerLoop(void);
 
 /* Public functions */
@@ -106,7 +106,7 @@ bool systemTest()
   pass &= ledseqTest();
   pass &= pmTest();
   //pass &= workerTest();
-  pass &= ada_workerTest() != 0;
+  pass &= ada_workerTest();
 
   return pass;
 }

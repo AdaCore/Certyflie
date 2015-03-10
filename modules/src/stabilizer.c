@@ -297,15 +297,14 @@ static void distributePower(const uint16_t thrust, const int16_t roll,
   int16_t p = pitch >> 1;
   motorPowerM1 = limitThrust(thrust - r + p + yaw);
   motorPowerM2 = limitThrust(thrust - r - p - yaw);
-  motorPowerM3 =  limitThrust(thrust + r - p + yaw);
-  motorPowerM4 =  limitThrust(thrust + r + p - yaw);
+  motorPowerM3 = limitThrust(thrust + r - p + yaw);
+  motorPowerM4 = limitThrust(thrust + r + p - yaw);
 #else // QUAD_FORMATION_NORMAL
   motorPowerM1 = limitThrust(thrust + pitch + yaw);
   motorPowerM2 = limitThrust(thrust - roll - yaw);
-  motorPowerM3 =  limitThrust(thrust - pitch + yaw);
-  motorPowerM4 =  limitThrust(thrust + roll - yaw);
+  motorPowerM3 = limitThrust(thrust - pitch + yaw);
+  motorPowerM4 = limitThrust(thrust + roll - yaw);
 #endif
-
   motorsSetRatio(MOTOR_M1, motorPowerM1);
   motorsSetRatio(MOTOR_M2, motorPowerM2);
   motorsSetRatio(MOTOR_M3, motorPowerM3);

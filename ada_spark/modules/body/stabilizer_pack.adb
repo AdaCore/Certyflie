@@ -138,6 +138,11 @@ is
                                       Actuator_Yaw);
    end Stabilizer_Update_Rate;
 
+   procedure Stabilizer_Alt_Hold_Update is
+   begin
+      null;
+   end Stabilizer_Alt_Hold_Update;
+
    --  Public functions
 
    procedure Stabilizer_Control_Loop

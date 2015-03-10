@@ -1,5 +1,5 @@
 with Interfaces; use Interfaces;
-with Interfaces.C; use Interfaces.C;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 package Commander_Pack
 with SPARK_Mode
@@ -30,9 +30,14 @@ is
        Global => null;
    pragma Import (C, Commander_Watchdog, "commanderWatchdog");
 
-   procedure Commander_Get_Thrust (Thrust : out Unsigned_16)
-   with
+   procedure Commander_Get_Thrust (Thrust : out Interfaces.Unsigned_16)
+     with
        Global => null;
    pragma Import (C, Commander_Get_Thrust, "commanderGetThrust");
+
+   procedure Commander_Get_Alt_Hold (Alt_Hold        : out bool;
+                                     Set_Alt_Hold    : out bool;
+                                     Alt_Hold_Change : out Float);
+   pragma Import (C, Commander_Get_Alt_Hold, "commanderGetAltHold");
 
 end Commander_Pack;

@@ -1,4 +1,5 @@
 with Interfaces; use Interfaces;
+with Interfaces.C; use Interfaces.C;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 with Types; use Types;

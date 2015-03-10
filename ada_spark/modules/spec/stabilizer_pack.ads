@@ -1,5 +1,4 @@
 with Interfaces; use Interfaces;
-with Interfaces.C; use Interfaces.C;
 
 with Types; use Types;
 with IMU_Pack; use IMU_Pack;
@@ -97,8 +96,8 @@ is
    Asl_Alpha            : Float := 0.92;    --  Short term smoothing
    Asl_Alpha_Long       : Float := 0.93;    --  Long term smoothing
 
-   Alt_Hold_Min_Thrust  : Unsigned_16 := 00000; --  Minimum hover thrust - not used yet
-   Alt_Hold_Base_Thrust : Unsigned_16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
+   Alt_Hold_Min_Thrust  : Interfaces.Unsigned_16 := 00000; --  Minimum hover thrust - not used yet
+   Alt_Hold_Base_Thrust : Interfaces.Unsigned_16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
    Alt_Hold_Max_Thrust  : Unsigned_16 := 60000; --  max altitude hold thrust
 
    Roll_Type        : RPY_Type := RATE;
@@ -191,8 +190,8 @@ is
    --  Procedures and functions
 
    procedure Stabilizer_Control_Loop
-     (Attitude_Update_Counter : in out Unsigned_32;
-      Alt_Hold_Update_Counter : in out Unsigned_32)
+     (Attitude_Update_Counter : in out Interfaces.Unsigned_32;
+      Alt_Hold_Update_Counter : in out Interfaces.Unsigned_32)
      with
        Global => (Input  => (V_Acc_Deadband,
                              Alt_Hold),
@@ -228,7 +227,6 @@ is
 private
 
    procedure Stabilizer_Alt_Hold_Update;
-   pragma Import (C, Stabilizer_Alt_Hold_Update, "stabilizerAltHoldUpdate");
 
    procedure Stabilizer_Update_Attitude
      with
