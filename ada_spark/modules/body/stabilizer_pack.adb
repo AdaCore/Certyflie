@@ -1,3 +1,5 @@
+with Interfaces.C; use Interfaces.C;
+
 with Config; use Config;
 with Motors_Pack; use Motors_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
@@ -31,29 +33,29 @@ is
       return Res;
    end Dead_Band;
 
-   function Limit_Thrust (Value : Integer_32) return Unsigned_16 is
-      Res : Unsigned_16;
+   function Limit_Thrust (Value : T_Int32) return T_Uint16 is
+      Res : T_Uint16;
    begin
-      if Value > Integer_32 (Unsigned_16'Last) then
-         Res := Unsigned_16'Last;
+      if Value > T_Int32 (T_Uint16'Last) then
+         Res := T_Uint16'Last;
       elsif Value < 0 then
          Res := 0;
       else
-         pragma Assert (Value <= Integer_32 (Unsigned_16'Last));
-         Res := Unsigned_16 (Value);
+         pragma Assert (Value <= T_Int32 (T_Uint16'Last));
+         Res := T_Uint16 (Value);
       end if;
 
       return Res;
    end Limit_Thrust;
 
-   procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
-                                          Roll   : Integer_16;
-                                          Pitch  : Integer_16;
-                                          Yaw    : Integer_16) is
-      T : Integer_32 := Integer_32 (Thrust);
-      R : Integer_32 := Integer_32 (Roll);
-      P : Integer_32 := Integer_32 (Pitch);
-      Y : Integer_32 := Integer_32 (Yaw);
+   procedure Stabilizer_Distribute_Power (Thrust : T_Uint16;
+                                          Roll   : T_Int16;
+                                          Pitch  : T_Int16;
+                                          Yaw    : T_Int16) is
+      T : T_Int32 := T_Int32 (Thrust);
+      R : T_Int32 := T_Int32 (Roll);
+      P : T_Int32 := T_Int32 (Pitch);
+      Y : T_Int32 := T_Int32 (Yaw);
    begin
       if QUAD_FORMATION_X then
          R := R / 2;
@@ -106,9 +108,12 @@ is
       end if;
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's
-      Controller_Correct_Attitude_Pid (Euler_Roll_Actual, Euler_Pitch_Actual,
-                                       Euler_Yaw_Actual, Euler_Roll_Desired,
-                                       Euler_Pitch_Desired, -Euler_Yaw_Desired);
+      Controller_Correct_Attitude_Pid (Euler_Roll_Actual,
+                                       Euler_Pitch_Actual,
+                                       Euler_Yaw_Actual,
+                                       Euler_Roll_Desired,
+                                       Euler_Pitch_Desired,
+                                       -Euler_Yaw_Desired);
       Controller_Get_Desired_Rate (Roll_Rate_Desired, Pitch_Rate_Desired,
                                    Yaw_Rate_Desired);
    end Stabilizer_Update_Attitude;
@@ -139,15 +144,27 @@ is
    end Stabilizer_Update_Rate;
 
    procedure Stabilizer_Alt_Hold_Update is
+      Asl_Tmp      : Float;
+      Asl_Long_Tmp : Float;
+      LPS25H_Data_Valid : bool;
    begin
-      null;
+      --  Get altitude hold commands from the pilot
+      Commander_Get_Alt_Hold (Alt_Hold, Set_Alt_Hold, Alt_Hold_Change);
+
+      --  Get barometer altitude estimations
+      LPS25H_Data_Valid := LPS25h_Get_Data (Pressure, Temperature, Asl_Raw);
+      Asl_Tmp := Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha);
+      Asl_Long_Tmp := Asl_Long * Asl_Alpha_Long
+        + Asl_Raw * (1.0 - Asl_Alpha_Long);
+
+
    end Stabilizer_Alt_Hold_Update;
 
    --  Public functions
 
    procedure Stabilizer_Control_Loop
-     (Attitude_Update_Counter : in out Unsigned_32;
-      Alt_Hold_Update_Counter : in out Unsigned_32)
+     (Attitude_Update_Counter : in out T_Uint32;
+      Alt_Hold_Update_Counter : in out T_Uint32)
    is
    begin
       --  Magnetometer not used for the moment
@@ -188,7 +205,7 @@ is
 
       Stabilizer_Update_Rate;
 
-      if not Alt_Hold or not IMU_Has_Barometer then
+      if Alt_Hold = 0 or not IMU_Has_Barometer then
          --  Get thrust from the commander if alt hold mode
          --  not activated/working
          Commander_Get_Thrust (Actuator_Thrust);
@@ -200,8 +217,8 @@ is
 
       if Actuator_Thrust > 0 then
          --  Ensure that there is no overflow when changing Yaw sign
-         if Actuator_Yaw = Integer_16'First then
-            Actuator_Yaw := -Integer_16'Last;
+         if Actuator_Yaw = T_Int16'First then
+            Actuator_Yaw := -T_Int16'Last;
          end if;
 
          Stabilizer_Distribute_Power (Actuator_Thrust, Actuator_Roll,

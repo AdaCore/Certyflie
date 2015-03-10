@@ -1,5 +1,5 @@
 with System; use System;
-with Interfaces; use Interfaces;
+with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with FreeRTOS_Pack; use FreeRTOS_Pack;
 
@@ -15,7 +15,7 @@ is
    end record;
 
    --  Constants and Global Variables
-   WORKER_QUEUE_LENGTH : constant Interfaces.Unsigned_32 := 5;
+   WORKER_QUEUE_LENGTH : constant T_Uint32 := 5;
 
    Worker_Queue : Pvoid := System.Null_Address;
 

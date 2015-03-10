@@ -1,7 +1,8 @@
-with Interfaces; use Interfaces;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 with Types; use Types;
 with IMU_Pack; use IMU_Pack;
+with LPS25h_pack; use LPS25h_pack;
 with Pid_Pack;
 pragma Elaborate_All (Pid_Pack);
 with Pid_Parameters; use Pid_Parameters;
@@ -51,17 +52,17 @@ is
    Yaw_Rate_Desired    : T_Rate  := 0.0;
 
    --  Barometer variables
-   Temperature  : Float := 0.0; --  Temperature from barometer
-   Pressure     : Float := 0.0; --  Pressure from barometer
-   Asl          : Float := 0.0; --  Smoothed asl
-   Asl_Raw      : Float := 0.0; --  Raw asl
-   Asl_Long     : Float := 0.0; --  Long term asl
+   Temperature  : T_Temperature := 0.0; --  Temperature from barometer
+   Pressure     : T_Pressure    := 1000.0; --  Pressure from barometer
+   Asl          : T_Altitude    := 0.0; --  Smoothed asl
+   Asl_Raw      : T_Altitude    := 0.0; --  Raw asl
+   Asl_Long     : T_Altitude    := 0.0; --  Long term asl
 
    --  Altitude hold variables
-   Alt_Hold_PID : Altitude_Pid.Pid_Object;        --  Used for altitute hold mode.
+   Alt_Hold_PID : Altitude_Pid.Pid_Object;  --  Used for altitute hold mode.
    --  It gets reset when the bat status changes
-   Alt_Hold     : Boolean := False;  --  Currently in altitude hold mode
-   Set_Alt_Hold : Boolean := False;  --  Hover mode has just been activated
+   Alt_Hold     : bool := 0;  --  Currently in altitude hold mode
+   Set_Alt_Hold : bool := 0;  --  Hover mode has just been activated
    Acc_WZ       : Float   := 0.0;
    Acc_MAG      : Float   := 0.0;
    V_Speed_ASL  : Float   := 0.0;
@@ -70,7 +71,7 @@ is
    V_Speed      : T_Speed := 0.0;
 
    Alt_Hold_PID_Val : Float := 0.0;  --  Output of the PID controller
-   Alt_Hold_Err     : Float := 0.0;  --  Different between target and current altitude
+   Alt_Hold_Err     : Float := 0.0;  --  Altitude error
 
    --  Altitude hold & barometer params
 
@@ -88,31 +89,31 @@ is
 
    V_Speed_ASL_Fac      : Float := 0.0;     --  Multiplier
    V_Speed_Acc_Fac      : Float := -48.0;   --  Multiplier
-   V_Acc_Deadband       : Positive_Float := 0.05;    --  Vertical acceleration deadband
-   V_Speed_ASL_Deadband : Positive_Float := 0.005;   --  Vertical speed based on barometer readings deadband
+   V_Acc_Deadband       : Positive_Float := 0.05;  --  Vertical acceleration deadband
+   V_Speed_ASL_Deadband : Positive_Float := 0.005; --  Vertical speed based on barometer readings deadband
    V_Speed_Limit        : Float := 0.05;    --  used to constrain vertical velocity
    Err_Deadband         : Float := 0.00;    --  error (target - altitude) deadband
    V_Bias_Alpha         : Float := 0.98;    --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
    Asl_Alpha            : Float := 0.92;    --  Short term smoothing
    Asl_Alpha_Long       : Float := 0.93;    --  Long term smoothing
 
-   Alt_Hold_Min_Thrust  : Interfaces.Unsigned_16 := 00000; --  Minimum hover thrust - not used yet
-   Alt_Hold_Base_Thrust : Interfaces.Unsigned_16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
-   Alt_Hold_Max_Thrust  : Unsigned_16 := 60000; --  max altitude hold thrust
+   Alt_Hold_Min_Thrust  : T_Uint16 := 00000; --  Minimum hover thrust - not used yet
+   Alt_Hold_Base_Thrust : T_Uint16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
+   Alt_Hold_Max_Thrust  : T_Uint16 := 60000; --  max altitude hold thrust
 
    Roll_Type        : RPY_Type := RATE;
    Pitch_Type       : RPY_Type := RATE;
    Yaw_Type         : RPY_Type := RATE;
 
-   Actuator_Thrust : Unsigned_16 := 0;
-   Actuator_Roll   : Integer_16  := 0;
-   Actuator_Pitch  : Integer_16  := 0;
-   Actuator_Yaw    : Integer_16  := 0;
+   Actuator_Thrust : T_Uint16 := 0;
+   Actuator_Roll   : T_Int16  := 0;
+   Actuator_Pitch  : T_Int16  := 0;
+   Actuator_Yaw    : T_Int16  := 0;
 
-   Motor_Power_M4  : Unsigned_16 := 0;
-   Motor_Power_M2  : Unsigned_16 := 0;
-   Motor_Power_M1  : Unsigned_16 := 0;
-   Motor_Power_M3  : Unsigned_16 := 0;
+   Motor_Power_M4  : T_Uint16 := 0;
+   Motor_Power_M2  : T_Uint16 := 0;
+   Motor_Power_M1  : T_Uint16 := 0;
+   Motor_Power_M3  : T_Uint16 := 0;
 
    --  Export all of these varaibles frome the C part,
    --  so the C part can debug/log them easily
@@ -190,8 +191,8 @@ is
    --  Procedures and functions
 
    procedure Stabilizer_Control_Loop
-     (Attitude_Update_Counter : in out Interfaces.Unsigned_32;
-      Alt_Hold_Update_Counter : in out Interfaces.Unsigned_32)
+     (Attitude_Update_Counter : in out T_Uint32;
+      Alt_Hold_Update_Counter : in out T_Uint32)
      with
        Global => (Input  => (V_Acc_Deadband,
                              Alt_Hold),
@@ -264,10 +265,10 @@ private
                              Yaw_Rate_Desired,
                              Rate_PIDs));
 
-   procedure Stabilizer_Distribute_Power (Thrust : Unsigned_16;
-                                          Roll   : Integer_16;
-                                          Pitch  : Integer_16;
-                                          Yaw    : Integer_16)
+   procedure Stabilizer_Distribute_Power (Thrust : T_Uint16;
+                                          Roll   : T_Int16;
+                                          Pitch  : T_Int16;
+                                          Yaw    : T_Int16)
      with
        Global => (Output => (Motor_Power_M1,
                              Motor_Power_M2,
@@ -278,7 +279,7 @@ private
                        Threshold : Positive_Float) return Float;
    pragma Inline (Dead_Band);
 
-   function Limit_Thrust (Value : Integer_32) return Unsigned_16;
+   function Limit_Thrust (Value : T_Int32) return T_Uint16;
    pragma Inline (Limit_Thrust);
 
 end Stabilizer_Pack;

@@ -74,9 +74,9 @@ is
 
    --  Get the output of the rate PID's.
    --  Must be called after 'Controller_Correct_Rate_Pid' to update the PID's.
-   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out Integer_16;
-                                             Actuator_Pitch : out Integer_16;
-                                             Actuator_Yaw   : out Integer_16)
+   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out T_Int16;
+                                             Actuator_Pitch : out T_Int16;
+                                             Actuator_Yaw   : out T_Int16)
      with
        Global => (Input => Rate_PIDs);
 
@@ -114,7 +114,7 @@ private
    --  Procedures and functions
 
    --  Truncate a 32-bit Integer into a 16-bit Integer
-   function Truncate_To_Integer_16 (Value : Float) return Integer_16;
-   pragma Inline (Truncate_To_Integer_16);
+   function Truncate_To_T_Int16 (Value : Float) return T_Int16;
+   pragma Inline (Truncate_To_T_Int16);
 
 end Controller_Pack;

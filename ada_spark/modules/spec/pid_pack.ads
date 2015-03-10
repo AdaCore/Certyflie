@@ -117,7 +117,8 @@ is
      with
        Post => Pid = Pid'Old'Update (I_Limit_High => I_Limit_High);
 
-   --   Set a new dt gain for the PID. Defaults to IMU_UPDATE_DT upon construction.
+   --  Set a new dt gain for the PID. Defaults to
+   --  IMU_UPDATE_DT upon construction.
    procedure Pid_Set_Dt (Pid : in out Pid_Object;
                          Dt  : T_Delta_Time)
      with

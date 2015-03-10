@@ -1,8 +1,15 @@
 with IMU_Pack; use IMU_Pack;
+with Interfaces;
+with Interfaces.C.Extensions;
 
 package Types is
 
    --  General types
+   type T_Int16  is new Interfaces.Integer_16;
+   type T_Int32  is new Interfaces.Integer_32;
+   type T_Uint32 is new Interfaces.Unsigned_32;
+   type T_Uint16 is new Interfaces.Unsigned_16;
+
    subtype Positive_Float is Float range 0.0 .. Float'Last;
 
    --  Allowed delta time range
