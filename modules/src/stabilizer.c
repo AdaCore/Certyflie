@@ -348,9 +348,11 @@ static float deadband(float value, const float threshold)
   return value;
 }
 
-LOG_GROUP_START(debug)
+LOG_GROUP_START(actuator)
+LOG_ADD(LOG_INT16, aroll, &actuatorRoll)
 LOG_ADD(LOG_INT16, apitch, &actuatorPitch)
-LOG_GROUP_STOP(debug)
+LOG_ADD(LOG_INT16, ayaw, &actuatorYaw)
+LOG_GROUP_STOP(actuator)
 
 LOG_GROUP_START(stabilizer)
 LOG_ADD(LOG_FLOAT, roll, &eulerRollActual)
