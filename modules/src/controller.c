@@ -47,12 +47,12 @@
 //Better semantic
 #define SATURATE_SINT16(in) ( (in<INT16_MIN)?INT16_MIN:((in>INT16_MAX)?INT16_MAX:in) )
 
-PidObject pidRollRate;
-PidObject pidPitchRate;
-PidObject pidYawRate;
-PidObject pidRoll;
-PidObject pidPitch;
-PidObject pidYaw;
+extern PidObject pidRollRate;
+extern PidObject pidPitchRate;
+extern PidObject pidYawRate;
+extern PidObject pidRoll;
+extern PidObject pidPitch;
+extern PidObject pidYaw;
 
 int16_t rollOutput;
 int16_t pitchOutput;

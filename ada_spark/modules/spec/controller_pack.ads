@@ -1,4 +1,5 @@
 with Interfaces; use Interfaces;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 with Types; use Types;
 with IMU_Pack; use IMU_Pack;
@@ -31,11 +32,13 @@ is
    procedure Controller_Init
      with
        Global => (Output => (Attitude_PIDs, Rate_PIDs, State));
+   pragma Export (C, Controller_Init, "ada_controllerInit");
 
    --  Test if the PID's have been initialized.
    function Controller_Test return Boolean
      with
        Global => (Input => State);
+   pragma Export (C, Controller_Test, "ada_controllerTest");
 
    --  Update the rate PID's for each axis (Roll, Pitch, Yaw)
    --  given the measured values along each axis and the desired
@@ -96,6 +99,14 @@ private
    Roll_Rate_Pid  : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
    Pitch_Rate_Pid : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
    Yaw_Rate_Pid   : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
+
+   -- Export these variables to log them in the C part
+   pragma Export (C, Roll_Pid, "pidRoll");
+   pragma Export (C, Pitch_Pid, "pidPitch");
+   pragma Export (C, Yaw_Pid, "pidYaw");
+   pragma Export (C, Roll_Rate_Pid, "pidRollRate");
+   pragma Export (C, Pitch_Rate_Pid, "pidPitchRate");
+   pragma Export (C, Yaw_Rate_Pid, "pidYawRate");
 
    Is_Init : Boolean := False with Part_Of => State;
 

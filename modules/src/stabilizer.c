@@ -141,6 +141,8 @@ static void stabilizerTask(void* param);
 static float constrain(float value, const float minVal, const float maxVal);
 static float deadband(float value, const float threshold);
 
+extern void ada_controllerInit(void);
+extern bool ada_controllerTest(void);
 extern void ada_stabilizerControlLoop(uint32_t attitudeCounter, uint32_t altHoldCounter);
 
 /* TEST */
