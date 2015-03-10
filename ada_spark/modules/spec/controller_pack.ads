@@ -35,7 +35,7 @@ is
    pragma Export (C, Controller_Init, "ada_controllerInit");
 
    --  Test if the PID's have been initialized.
-   function Controller_Test return Boolean
+   function Controller_Test return bool
      with
        Global => (Input => State);
    pragma Export (C, Controller_Test, "ada_controllerTest");
@@ -100,7 +100,7 @@ private
    Pitch_Rate_Pid : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
    Yaw_Rate_Pid   : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
 
-   -- Export these variables to log them in the C part
+   --  Export these variables to log them in the C part
    pragma Export (C, Roll_Pid, "pidRoll");
    pragma Export (C, Pitch_Pid, "pidPitch");
    pragma Export (C, Yaw_Pid, "pidYaw");

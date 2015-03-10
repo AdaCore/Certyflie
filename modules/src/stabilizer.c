@@ -162,7 +162,7 @@ void stabilizerInit(void)
   motorsInit();
   imu6Init();
   sensfusion6Init();
-  controllerInit();
+  ada_controllerInit();
 
   rollRateDesired = 0;
   pitchRateDesired = 0;
@@ -181,7 +181,7 @@ bool stabilizerTest(void)
   pass &= motorsTest();
   pass &= imu6Test();
   pass &= sensfusion6Test();
-  pass &= controllerTest();
+  pass &= ada_controllerTest();
 
   return pass;
 }
