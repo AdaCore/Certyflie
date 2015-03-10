@@ -227,7 +227,11 @@ is
 
 private
 
-   procedure Stabilizer_Alt_Hold_Update;
+   procedure Stabilizer_Alt_Hold_Update
+     with
+       Global => (Output => (Alt_Hold,
+                             Set_Alt_Hold,
+                             Alt_Hold_Change));
 
    procedure Stabilizer_Update_Attitude
      with
@@ -274,10 +278,6 @@ private
                              Motor_Power_M2,
                              Motor_Power_M3,
                              Motor_Power_M4));
-
-   function Dead_Band (Value     : Float;
-                       Threshold : Positive_Float) return Float;
-   pragma Inline (Dead_Band);
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16;
    pragma Inline (Limit_Thrust);

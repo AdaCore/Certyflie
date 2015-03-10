@@ -58,8 +58,8 @@ is
    --  Reset the PID error values.
    procedure Pid_Reset (Pid : in out Pid_Object);
 
-   --  Update the PID parameters. Set 'UpdateError' to 'False' is error has been set
-   --  previously for a special calculation with 'PidSetError'.
+   --  Update the PID parameters. Set 'UpdateError' to 'False' is error
+   --  has been set previously for a special calculation with 'PidSetError'.
    procedure Pid_Update (Pid          : in out Pid_Object;
                          Measured     : T_Input;
                          Update_Error : Boolean)

@@ -1,8 +1,11 @@
+with Interfaces.C; use Interfaces.C;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 --  Package wrapping functions from the lps25h pressure sensor driver
 
-package LPS25h_pack is
+package LPS25h_pack
+  with SPARK_Mode
+is
 
    --  Types
 
@@ -12,10 +15,12 @@ package LPS25h_pack is
 
    --  Procedures and functions
 
-   function LPS25h_Get_Data (Pressure    : out T_Pressure;
-                             Temperature : out T_Temperature;
-                             Asl         : out T_Altitude) return bool;
-   pragma Import (C, LPS25h_Get_Data, "lps25hGetData");
+   procedure LPS25h_Get_Data (Pressure    : out T_Pressure;
+                              Temperature : out T_Temperature;
+                              Asl         : out T_Altitude;
+                              Status      : out Boolean)
+     with
+       Global => null;
 
 
 

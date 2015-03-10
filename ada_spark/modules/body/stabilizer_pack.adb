@@ -1,6 +1,7 @@
 with Interfaces.C; use Interfaces.C;
 
 with Config; use Config;
+with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
 
@@ -17,21 +18,6 @@ is
    end Modif_Variables;
 
    --  Private procedures and functions
-
-   function Dead_Band (Value     : Float;
-                       Threshold : Positive_Float) return Float is
-      Res : Float := Value;
-   begin
-      if Value in -Threshold .. Threshold then
-         Res := 0.0;
-      elsif Value > 0.0 then
-         Res := Res - Threshold;
-      elsif Value < 0.0 then
-         Res := Res + Threshold;
-      end if;
-
-      return Res;
-   end Dead_Band;
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16 is
       Res : T_Uint16;
@@ -79,7 +65,7 @@ is
    end Stabilizer_Distribute_Power;
 
    procedure Stabilizer_Update_Attitude is
-      Raw_V_Speed : Float;
+      V_Speed_Tmp : Float;
    begin
       SensFusion6_Update_Q (Gyro.X, Gyro.Y, Gyro.Z,
                             Acc.X, Acc.Y, Acc.Z,
@@ -96,16 +82,11 @@ is
 
       --  Estimate vertical speed from acceleration and constrain
       --  it within a limit
-      Raw_V_Speed := V_Speed +
+      V_Speed_Tmp := V_Speed +
         Dead_Band (Acc_WZ, V_Acc_Deadband) * FUSION_UPDATE_DT;
 
-      if Raw_V_Speed > T_Speed'Last then
-         V_Speed := T_Speed'Last;
-      elsif Raw_V_Speed < T_Speed'First then
-         V_Speed := T_Speed'First;
-      else
-         V_Speed := Raw_V_Speed;
-      end if;
+      Constrain (V_Speed_Tmp, T_Speed'First, T_Speed'Last);
+      V_Speed := V_Speed_Tmp;
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's
       Controller_Correct_Attitude_Pid (Euler_Roll_Actual,
@@ -144,18 +125,19 @@ is
    end Stabilizer_Update_Rate;
 
    procedure Stabilizer_Alt_Hold_Update is
-      Asl_Tmp      : Float;
-      Asl_Long_Tmp : Float;
-      LPS25H_Data_Valid : bool;
+      Asl_Tmp           : Float;
+      Asl_Long_Tmp      : Float;
+      LPS25H_Data_Valid : Boolean;
    begin
       --  Get altitude hold commands from the pilot
       Commander_Get_Alt_Hold (Alt_Hold, Set_Alt_Hold, Alt_Hold_Change);
 
       --  Get barometer altitude estimations
-      LPS25H_Data_Valid := LPS25h_Get_Data (Pressure, Temperature, Asl_Raw);
+      LPS25h_Get_Data (Pressure, Temperature, Asl_Raw, LPS25H_Data_Valid);
       Asl_Tmp := Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha);
       Asl_Long_Tmp := Asl_Long * Asl_Alpha_Long
         + Asl_Raw * (1.0 - Asl_Alpha_Long);
+
 
 
    end Stabilizer_Alt_Hold_Update;

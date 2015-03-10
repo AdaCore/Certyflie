@@ -1,3 +1,5 @@
+with Safety_Pack; use Safety_Pack;
+
 package body Pid_Pack
 with SPARK_Mode
 is
@@ -45,20 +47,19 @@ is
       end if;
 
       pragma Assert (Pid.Error * Pid.Dt in
-                      T_Error'First * 2.0 * T_Delta_Time'Last .. T_Error'Last * 2.0 * T_Delta_Time'Last);
+                       T_Error'First * 2.0 * T_Delta_Time'Last ..
+                       T_Error'Last * 2.0 * T_Delta_Time'Last);
       Integ := Pid.Integ + Pid.Error * Pid.Dt;
 
-      if Integ > Pid.I_Limit_High then
-         Pid.Integ := Pid.I_Limit_High;
-      elsif Integ < Pid.I_Limit_Low then
-         Pid.Integ := Pid.I_Limit_Low;
-      end if;
+      Constrain (Integ, Pid.I_Limit_Low, Pid.I_Limit_High);
+      Pid.Integ := Integ;
 
       Pid.Deriv := (Pid.Error - Pid.Prev_Error) / Pid.Dt;
 
       Pid.Out_P := Pid.Kp * Pid.Error;
 
-      pragma Assert (Pid.Integ in T_I_Limit'First * 1.0 .. T_I_Limit'Last * 1.0);
+      pragma Assert (Pid.Integ in T_I_Limit'First * 1.0 ..
+                                  T_I_Limit'Last * 1.0);
       Pid.Out_I := Pid.Ki * Pid.Integ;
 
       Pid.Out_D := Pid.Kd * Pid.Deriv;

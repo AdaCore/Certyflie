@@ -37,7 +37,9 @@ is
 
    procedure Commander_Get_Alt_Hold (Alt_Hold        : out bool;
                                      Set_Alt_Hold    : out bool;
-                                     Alt_Hold_Change : out Float);
+                                     Alt_Hold_Change : out Float)
+     with
+       Global => null;
    pragma Import (C, Commander_Get_Alt_Hold, "commanderGetAltHold");
 
 end Commander_Pack;

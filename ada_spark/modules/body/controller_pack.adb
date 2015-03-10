@@ -78,7 +78,9 @@ is
                                           Pitch_Rate_Desired : T_Rate;
                                           Yaw_Rate_Desired   : T_Rate)
      with
-       Refined_Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid))
+       Refined_Global => (In_Out => (Roll_Rate_Pid,
+                                     Pitch_Rate_Pid,
+                                     Yaw_Rate_Pid))
    is
    begin
       Rate_Pid.Pid_Set_Desired (Roll_Rate_Pid, Roll_Rate_Desired);
@@ -121,8 +123,12 @@ is
 
    procedure Controller_Reset_All_Pid
      with
-       Refined_Global => (In_Out => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid,
-                                     Roll_Pid, Pitch_Pid, Yaw_Pid))
+       Refined_Global => (In_Out => (Roll_Rate_Pid,
+                                     Pitch_Rate_Pid,
+                                     Yaw_Rate_Pid,
+                                     Roll_Pid,
+                                     Pitch_Pid,
+                                     Yaw_Pid))
    is
    begin
       Rate_Pid.Pid_Reset (Roll_Rate_Pid);
@@ -151,7 +157,9 @@ is
                                              Actuator_Pitch : out T_Int16;
                                              Actuator_Yaw   : out T_Int16)
      with
-       Refined_Global => (Input => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid))
+       Refined_Global => (Input => (Roll_Rate_Pid,
+                                    Pitch_Rate_Pid,
+                                    Yaw_Rate_Pid))
    is
    begin
       Actuator_Roll := Truncate_To_T_Int16
