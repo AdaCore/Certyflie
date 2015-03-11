@@ -1,5 +1,6 @@
 with Pid_Parameters; use Pid_Parameters;
 with IMU_Pack; use IMU_Pack;
+with Safety_Pack; use Safety_Pack;
 
 package body Controller_Pack
 with
@@ -138,20 +139,6 @@ is
       Rate_Pid.Pid_Reset (Yaw_Rate_Pid);
       Attitude_Pid.Pid_Reset (Yaw_Pid);
    end Controller_Reset_All_Pid;
-
-   function Truncate_To_T_Int16 (Value : Float) return T_Int16 is
-      Res : T_Int16;
-   begin
-      if Value > Float (T_Int16'Last) then
-         Res :=  T_Int16'Last;
-      elsif Value < Float (T_Int16'First) then
-         Res :=  T_Int16'First;
-      else
-         Res := T_Int16 (Value);
-      end if;
-
-      return Res;
-   end Truncate_To_T_Int16;
 
    procedure Controller_Get_Actuator_Output (Actuator_Roll  : out T_Int16;
                                              Actuator_Pitch : out T_Int16;

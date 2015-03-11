@@ -11,7 +11,7 @@ is
 
    subtype T_Pressure is Float range 450.0 .. 1100.0;  --  in mBar
    subtype T_Temperature is Float range -20.0 .. 80.0; --  in degree Celcius
-   subtype T_Altitude is Float range -700.0 .. 8000.0;
+   subtype T_Altitude is Float range -8000.0 .. 8000.0;
 
    --  Procedures and functions
 

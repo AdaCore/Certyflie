@@ -4,6 +4,7 @@ with Config; use Config;
 with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
+with PM_Pack; use PM_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode
@@ -85,7 +86,7 @@ is
       V_Speed_Tmp := V_Speed +
         Dead_Band (Acc_WZ, V_Acc_Deadband) * FUSION_UPDATE_DT;
 
-      Constrain (V_Speed_Tmp, T_Speed'First, T_Speed'Last);
+      Constrain (V_Speed_Tmp, -V_Speed_Limit, V_Speed_Limit);
       V_Speed := V_Speed_Tmp;
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's
@@ -125,20 +126,107 @@ is
    end Stabilizer_Update_Rate;
 
    procedure Stabilizer_Alt_Hold_Update is
-      Asl_Tmp           : Float;
-      Asl_Long_Tmp      : Float;
-      LPS25H_Data_Valid : Boolean;
+      Asl_Tmp             : Float;
+      Asl_Long_Tmp        : Float;
+      V_Speed_Tmp         : Float;
+      V_Speed_ASL_Tmp     : Float;
+      Alt_Hold_Target_Tmp : Float;
+      LPS25H_Data_Valid   : Boolean;
+      Prev_Integ          : Float;
+      Baro_V_Speed        : Float;
+      Alt_Hold_PID_Out    : Float;
+      Raw_Thrust          : T_Int16;
    begin
       --  Get altitude hold commands from the pilot
       Commander_Get_Alt_Hold (Alt_Hold, Set_Alt_Hold, Alt_Hold_Change);
 
       --  Get barometer altitude estimations
       LPS25h_Get_Data (Pressure, Temperature, Asl_Raw, LPS25H_Data_Valid);
-      Asl_Tmp := Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha);
-      Asl_Long_Tmp := Asl_Long * Asl_Alpha_Long
-        + Asl_Raw * (1.0 - Asl_Alpha_Long);
+      if LPS25H_Data_Valid then
+         Asl_Tmp := Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha);
+         Asl_Long_Tmp := Asl_Long * Asl_Alpha_Long
+           + Asl_Raw * (1.0 - Asl_Alpha_Long);
+         Constrain (Asl_Tmp, T_Altitude'First, T_Altitude'Last);
+         Constrain (Asl_Long_Tmp, T_Altitude'First, T_Altitude'Last);
+         Asl := Asl_Tmp;
+         Asl_Long := Asl_Long_Tmp;
+      end if;
 
+      --  Estimate vertical speed based on successive barometer readings
+      V_Speed_ASL_Tmp := Dead_Band (Asl - Asl_Long, V_Speed_ASL_Deadband);
+      Constrain (V_Speed_ASL_Tmp, -V_Speed_Limit, V_Speed_Limit);
+      V_Speed_ASL := V_Speed_ASL_Tmp;
+      --  Estimate vertical speed based on Acc - fused with baro
+      --  to reduce drift
+      V_Speed_Tmp := V_Speed * V_Bias_Alpha +
+        V_Speed_ASL * (1.0 - V_Bias_Alpha);
+      Constrain (V_Speed_Tmp, -V_Speed_Limit, V_Speed_Limit);
+      V_Speed := V_Speed_Tmp;
+      V_Speed_Acc := V_Speed;
 
+      --  Reset Integral gain of PID controller if being charged
+      if PM_Is_Discharging = 0 then
+         Alt_Hold_PID.Integ := 0.0;
+      end if;
+
+      --  Altitude hold mode just activated, set target altitude as current
+      --  altitude. Reuse previous integral term as a starting point
+      if Set_Alt_Hold = 1 then
+         --  Set target altitude to current altitude
+         Alt_Hold_Target := Asl;
+         --  Cache last integral term for reuse after PID init
+         Prev_Integ := Alt_Hold_PID.Integ;
+
+         --  Reset PID controller
+         Altitude_Pid.Pid_Init (Alt_Hold_PID,
+                                Asl,
+                                ALT_HOLD_KP,
+                                ALT_HOLD_KP,
+                                ALT_HOLD_KD,
+                                -DEFAULT_PID_INTEGRATION_LIMIT,
+                                DEFAULT_PID_INTEGRATION_LIMIT,
+                                ALTHOLD_UPDATE_DT);
+
+         Alt_Hold_PID.Integ := Prev_Integ;
+
+         Altitude_Pid.Pid_Update (Alt_Hold_PID, Asl, False);
+         Alt_Hold_PID_Val := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
+      end if;
+
+      if Alt_Hold = 1 then
+         --  Update the target altitude and the PID
+         Alt_Hold_Target_Tmp := Alt_Hold_Target +
+           Alt_Hold_Change / Alt_Hold_Change_SENS;
+         Constrain (Alt_Hold_Target_Tmp, T_Altitude'First, T_Altitude'Last);
+         Alt_Hold_Target := Alt_Hold_Target_Tmp;
+         Altitude_Pid.Pid_Set_Desired (Alt_Hold_PID, Alt_Hold_Target);
+
+         --  Compute error (current - target), limit the error
+         Alt_Hold_Err := Dead_Band (Asl - Alt_Hold_Target, Err_Deadband);
+         Constrain (Alt_Hold_Err, -Alt_Hold_Err_Max, Alt_Hold_Err_Max);
+         pragma Assert (Alt_Hold_Err
+                 in Altitude_Pid.T_Error'First .. Altitude_Pid.T_Error'Last);
+         Altitude_Pid.Pid_Set_Error (Alt_Hold_PID, -Alt_Hold_Err);
+         --  TODO: Pid Update ...
+         Altitude_Pid.Pid_Update (Alt_Hold_PID, Asl, False);
+
+         Baro_V_Speed := (1.0 - Pid_Alpha) * ((V_Speed_Acc * V_Speed_Acc_Fac)
+                                           + (V_Speed_ASL * V_Speed_ASL_Fac));
+         Constrain (Baro_V_Speed, T_Speed'First, T_Speed'Last);
+         Alt_Hold_PID_Out := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
+         Constrain (Alt_Hold_PID_Out, T_Altitude'First, T_Altitude'Last);
+         Constrain (Alt_Hold_PID_Val, T_Altitude'First, T_Altitude'Last);
+         pragma Assert (Pid_Alpha in T_Alpha'First * 1.0 .. T_Alpha'Last);
+         Alt_Hold_PID_Val := Pid_Alpha * Alt_Hold_PID_Val +
+           Baro_V_Speed + Alt_Hold_PID_Out;
+         Constrain (Alt_Hold_PID_Val, T_Altitude'First, T_Altitude'Last);
+         pragma Assert (Pid_Asl_Fac
+                        in T_Motor_Fac'First * 1.0 .. T_Motor_Fac'Last);
+         Raw_Thrust := Truncate_To_T_Int16 (Alt_Hold_PID_Val * Pid_Asl_Fac);
+         Actuator_Thrust := Limit_Thrust (T_Int32 (Raw_Thrust)
+                                          + T_Int32 (Alt_Hold_Base_Thrust));
+         Constrain (Actuator_Thrust, Alt_Hold_Min_Thrust, Alt_Hold_Max_Thrust);
+      end if;
 
    end Stabilizer_Alt_Hold_Update;
 

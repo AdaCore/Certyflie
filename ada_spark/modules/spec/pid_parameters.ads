@@ -39,5 +39,7 @@ package Pid_Parameters is
    MAX_ATTITUDE_COEFF                : constant := 5.0;
    MIN_RATE_COEFF                    : constant := 0.0;
    MAX_RATE_COEFF                    : constant := 100.0;
+   MIN_ALTITUDE_COEFF                : constant := 0.0;
+   MAX_ALTITUDE_COEFF                : constant := 2.0;
 
 end Pid_Parameters;

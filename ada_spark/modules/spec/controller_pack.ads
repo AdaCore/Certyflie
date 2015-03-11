@@ -111,10 +111,4 @@ private
 
    Is_Init : Boolean := False with Part_Of => State;
 
-   --  Procedures and functions
-
-   --  Truncate a 32-bit Integer into a 16-bit Integer
-   function Truncate_To_T_Int16 (Value : Float) return T_Int16;
-   pragma Inline (Truncate_To_T_Int16);
-
 end Controller_Pack;

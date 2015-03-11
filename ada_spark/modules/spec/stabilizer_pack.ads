@@ -13,12 +13,12 @@ package Stabilizer_Pack
 with SPARK_Mode
 is
    --  TODO: change altitude types
-   package Altitude_Pid is new Pid_Pack (T_Rate'First,
-                                         T_Rate'Last,
-                                         Float'First / 4.0,
-                                         Float'Last / 4.0,
-                                         MIN_RATE_COEFF,
-                                         MAX_RATE_COEFF);
+   package Altitude_Pid is new Pid_Pack (T_Altitude'First,
+                                         T_Altitude'Last,
+                                         Float'First / 8.0,
+                                         Float'Last / 8.0,
+                                         MIN_ALTITUDE_COEFF,
+                                         MAX_ALTITUDE_COEFF);
    --  Types
 
    --  Variables and constants
@@ -65,8 +65,8 @@ is
    Set_Alt_Hold : bool := 0;  --  Hover mode has just been activated
    Acc_WZ       : Float   := 0.0;
    Acc_MAG      : Float   := 0.0;
-   V_Speed_ASL  : Float   := 0.0;
-   V_Speed_Acc  : Float   := 0.0;
+   V_Speed_ASL  : T_Speed := 0.0;
+   V_Speed_Acc  : T_Speed   := 0.0;
    --  Vertical speed (world frame) integrated from vertical acceleration
    V_Speed      : T_Speed := 0.0;
 
@@ -76,26 +76,26 @@ is
    --  Altitude hold & barometer params
 
    --  PID gain constantsused everytime we reinitialise the PID controller
-   Alt_Hold_Kp          : Float := 0.5;
-   Alt_Hold_Ki          : Float := 0.18;
-   Alt_Hold_Kd          : Float := 0.0;
-   Alt_Hold_Change      : Float := 0.0;     --  Change in target altitude
-   Alt_Hold_Target      : Float := -1.0;    --  Target altitude
-   Alt_Hold_Err_Max     : Float := 1.0;     --  Max cap on current estimated altitude vs target altitude in meters
-   Alt_Hold_Change_SENS : Float := 200.0;   --  Sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
+   ALT_HOLD_KP          : constant := 0.5;
+   ALT_HOLD_KI          : constant := 0.18;
+   ALT_HOLD_KD          : constant := 0.0;
+   Alt_Hold_Change      : T_Altitude := 0.0;     --  Change in target altitude
+   Alt_Hold_Target      : T_Altitude := -1.0;  --  Target altitude
+   Alt_Hold_Err_Max     : T_Alpha := 1.0;  --  Max cap on current estimated altitude vs target altitude in meters
+   Alt_Hold_Change_SENS : T_Sensitivity := 200.0;  --  Sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
 
-   Pid_Asl_Fac          : Float := 13000.0; --  Relates meters asl to thrust
-   Pid_Alpha            : Float := 0.8;     --  PID Smoothing //TODO: shouldnt need to do this
+   Pid_Asl_Fac          : T_Motor_Fac := 13000.0; --  Relates meters asl to thrust
+   Pid_Alpha            : T_Alpha := 0.8;     --  PID Smoothing //TODO: shouldnt need to do this
 
-   V_Speed_ASL_Fac      : Float := 0.0;     --  Multiplier
-   V_Speed_Acc_Fac      : Float := -48.0;   --  Multiplier
+   V_Speed_ASL_Fac      : T_Speed := 0.0;     --  Multiplier
+   V_Speed_Acc_Fac      : T_Speed := -48.0;   --  Multiplier
    V_Acc_Deadband       : Positive_Float := 0.05;  --  Vertical acceleration deadband
    V_Speed_ASL_Deadband : Positive_Float := 0.005; --  Vertical speed based on barometer readings deadband
-   V_Speed_Limit        : Float := 0.05;    --  used to constrain vertical velocity
-   Err_Deadband         : Float := 0.00;    --  error (target - altitude) deadband
-   V_Bias_Alpha         : Float := 0.98;    --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
-   Asl_Alpha            : Float := 0.92;    --  Short term smoothing
-   Asl_Alpha_Long       : Float := 0.93;    --  Long term smoothing
+   V_Speed_Limit        : T_Speed := 0.05;    --  used to constrain vertical velocity
+   Err_Deadband         : Positive_Float := 0.00; --  error (target - altitude) deadband
+   V_Bias_Alpha         : T_Alpha := 0.98;    --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
+   Asl_Alpha            : T_Alpha := 0.92;    --  Short term smoothing
+   Asl_Alpha_Long       : T_Alpha := 0.93;    --  Long term smoothing
 
    Alt_Hold_Min_Thrust  : T_Uint16 := 00000; --  Minimum hover thrust - not used yet
    Alt_Hold_Base_Thrust : T_Uint16 := 43000; --  approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
@@ -148,9 +148,6 @@ is
    pragma Export (C, Alt_Hold_PID_Val, "altHoldPIDVal");
    pragma Export (C, Alt_Hold_Err, "altHoldErr");
 
-   pragma Export (C, Alt_Hold_Kp, "altHoldKp");
-   pragma Export (C, Alt_Hold_Ki, "altHoldKi");
-   pragma Export (C, Alt_Hold_Kd, "altHoldKd");
    pragma Export (C, Alt_Hold_Change, "altHoldChange");
    pragma Export (C, Alt_Hold_Target, "altHoldTarget");
    pragma Export (C, Alt_Hold_Err_Max, "altHoldErrMax");
@@ -195,7 +192,21 @@ is
       Alt_Hold_Update_Counter : in out T_Uint32)
      with
        Global => (Input  => (V_Acc_Deadband,
-                             Alt_Hold),
+                             V_Speed_Limit,
+                             V_Bias_Alpha,
+                             Asl_Alpha,
+                             Asl_Alpha_Long,
+                             V_Speed_ASL_Deadband,
+                             Alt_Hold_Change_SENS,
+                             Err_Deadband,
+                             Alt_Hold_Err_Max,
+                             Alt_Hold_Base_Thrust,
+                             Alt_Hold_Min_Thrust,
+                             Alt_Hold_Max_Thrust,
+                             Pid_Asl_Fac,
+                             Pid_Alpha,
+                             V_Speed_Acc_Fac,
+                             V_Speed_ASL_Fac),
                   In_Out => (Gyro, Acc, Mag,
                              Euler_Roll_Desired,
                              Euler_Pitch_Desired,
@@ -211,7 +222,6 @@ is
                              Yaw_Type,
                              Acc_WZ,
                              Acc_MAG,
-                             V_Speed,
                              Actuator_Roll,
                              Actuator_Pitch,
                              Actuator_Yaw,
@@ -221,17 +231,59 @@ is
                              Motor_Power_M3,
                              Motor_Power_M4,
                              Attitude_PIDs,
-                             Rate_PIDs)
-                 );
+                             Rate_PIDs,
+                             Pressure,
+                             Temperature,
+                             Alt_Hold,
+                             Asl,
+                             Asl_Long,
+                             V_Speed,
+                             Alt_Hold_PID,
+                             Asl_Raw,
+                             Alt_Hold_Change,
+                             Alt_Hold_Target,
+                             Alt_Hold_PID_Val,
+                             Set_Alt_Hold,
+                             V_Speed_ASL,
+                             V_Speed_Acc,
+                             Alt_Hold_Err));
    pragma Export (C, Stabilizer_Control_Loop, "ada_stabilizerControlLoop");
 
 private
 
    procedure Stabilizer_Alt_Hold_Update
      with
-       Global => (Output => (Alt_Hold,
-                             Set_Alt_Hold,
-                             Alt_Hold_Change));
+       Global => (Input   => (Asl_Alpha,
+                              Asl_Alpha_Long,
+                              V_Speed_Limit,
+                              V_Bias_Alpha,
+                              V_Speed_ASL_Deadband,
+                              Alt_Hold_Change_SENS,
+                              Err_Deadband,
+                              Alt_Hold_Err_Max,
+                              Alt_Hold_Base_Thrust,
+                              Alt_Hold_Min_Thrust,
+                              Alt_Hold_Max_Thrust,
+                              Pid_Asl_Fac,
+                              Pid_Alpha,
+                              V_Speed_Acc_Fac,
+                              V_Speed_ASL_Fac),
+                  Output  => (Alt_Hold,
+                              Set_Alt_Hold,
+                              Alt_Hold_Change,
+                              Pressure,
+                              Temperature,
+                              Asl_Raw,
+                              V_Speed_ASL,
+                              V_Speed_Acc),
+                  In_Out  => (Asl,
+                              Asl_Long,
+                              V_Speed,
+                              Alt_Hold_PID,
+                              Alt_Hold_Target,
+                              Alt_Hold_PID_Val,
+                              Alt_Hold_Err,
+                              Actuator_Thrust));
 
    procedure Stabilizer_Update_Attitude
      with
@@ -240,7 +292,8 @@ private
                              Euler_Yaw_Desired,
                              Gyro,
                              Acc,
-                             V_Acc_Deadband),
+                             V_Acc_Deadband,
+                             V_Speed_Limit),
                   Output => (Euler_Roll_Actual,
                              Euler_Pitch_Actual,
                              Euler_Yaw_Actual,
