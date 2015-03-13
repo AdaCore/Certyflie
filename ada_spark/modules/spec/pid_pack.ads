@@ -29,7 +29,7 @@ is
       Desired      : T_Input;       --  Set point
       Error        : T_Error;       --  Error
       Prev_Error   : T_Error;       --  Previous Error
-      Integ        : T_I_Limit;         --  Integral
+      Integ        : T_I_Limit;     --  Integral
       Deriv        : T_Deriv;       --  Derivative
       Kp           : T_Coeff;       --  Proportional Gain
       Ki           : T_Coeff;       --  Integral Gain
@@ -37,8 +37,8 @@ is
       Out_P        : T_Output;      --  Proportional Output (debug)
       Out_I        : T_Output;      --  Integral Output (debug)
       Out_D        : T_Output;      --  Derivative Output (debug)
-      I_Limit_Low  : T_I_Limit;         --  Limit of integral term
-      I_Limit_High : T_I_Limit;         --  Limit of integral term
+      I_Limit_Low  : T_I_Limit;     --  Limit of integral term
+      I_Limit_High : T_I_Limit;     --  Limit of integral term
       Dt           : T_Delta_Time;  --  Delta Time
    end record;
    pragma Convention (C, Pid_Object);

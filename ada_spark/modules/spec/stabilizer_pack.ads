@@ -52,11 +52,11 @@ is
    Yaw_Rate_Desired    : T_Rate  := 0.0;
 
    --  Barometer variables
-   Temperature  : T_Temperature := 0.0; --  Temperature from barometer
+   Temperature  : T_Temperature := 0.0;    --  Temperature from barometer
    Pressure     : T_Pressure    := 1000.0; --  Pressure from barometer
-   Asl          : T_Altitude    := 0.0; --  Smoothed asl
-   Asl_Raw      : T_Altitude    := 0.0; --  Raw asl
-   Asl_Long     : T_Altitude    := 0.0; --  Long term asl
+   Asl          : T_Altitude    := 0.0;    --  Smoothed asl
+   Asl_Raw      : T_Altitude    := 0.0;    --  Raw asl
+   Asl_Long     : T_Altitude    := 0.0;    --  Long term asl
 
    --  Altitude hold variables
    Alt_Hold_PID : Altitude_Pid.Pid_Object;  --  Used for altitute hold mode.
@@ -79,7 +79,7 @@ is
    ALT_HOLD_KP          : constant := 0.5;
    ALT_HOLD_KI          : constant := 0.18;
    ALT_HOLD_KD          : constant := 0.0;
-   Alt_Hold_Change      : T_Altitude := 0.0;     --  Change in target altitude
+   Alt_Hold_Change      : T_Altitude := 0.0;   --  Change in target altitude
    Alt_Hold_Target      : T_Altitude := -1.0;  --  Target altitude
    Alt_Hold_Err_Max     : T_Alpha := 1.0;  --  Max cap on current estimated altitude vs target altitude in meters
    Alt_Hold_Change_SENS : T_Sensitivity := 200.0;  --  Sensitivity of target altitude change (thrust input control) while hovering. Lower = more sensitive & faster changes
@@ -181,9 +181,6 @@ is
    pragma Export (C, Motor_Power_M2, "motorPowerM2");
    pragma Export (C, Motor_Power_M1, "motorPowerM1");
    pragma Export (C, Motor_Power_M3, "motorPowerM3");
-
-   procedure Modif_Variables;
-   pragma Export (C, Modif_Variables, "ada_modif_variables");
 
    --  Procedures and functions
 

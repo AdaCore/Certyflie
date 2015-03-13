@@ -10,14 +10,6 @@ package body Stabilizer_Pack
 with SPARK_Mode
 is
 
-   --  For testing purpose
-   procedure Modif_Variables is
-   begin
-      Gyro.X := 12.0;
-      Acc.Y  := 13.0;
-      Mag.Z  := 14.0;
-   end Modif_Variables;
-
    --  Private procedures and functions
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16 is

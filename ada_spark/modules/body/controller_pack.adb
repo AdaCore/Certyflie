@@ -5,9 +5,13 @@ with Safety_Pack; use Safety_Pack;
 package body Controller_Pack
 with
 SPARK_Mode,
-  Refined_State => (Attitude_PIDs => (Roll_Pid, Pitch_Pid, Yaw_Pid),
-                    Rate_PIDs => (Roll_Rate_Pid, Pitch_Rate_Pid, Yaw_Rate_Pid),
-                    State => Is_Init)
+  Refined_State => (Attitude_PIDs => (Roll_Pid,
+                                      Pitch_Pid,
+                                      Yaw_Pid),
+                    Rate_PIDs     => (Roll_Rate_Pid,
+                                      Pitch_Rate_Pid,
+                                      Yaw_Rate_Pid),
+                    State         =>  Is_Init)
 is
 
    procedure Controller_Init
