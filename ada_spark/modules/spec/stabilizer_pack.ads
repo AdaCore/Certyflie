@@ -13,12 +13,13 @@ package Stabilizer_Pack
 with SPARK_Mode
 is
    --  TODO: change altitude types
-   package Altitude_Pid is new Pid_Pack (T_Altitude'First,
-                                         T_Altitude'Last,
-                                         Float'First / 8.0,
-                                         Float'Last / 8.0,
-                                         MIN_ALTITUDE_COEFF,
-                                         MAX_ALTITUDE_COEFF);
+   package Altitude_Pid is new Pid_Pack
+     (T_Altitude'First,
+      T_Altitude'Last,
+      Float'First / 8.0,
+      Float'Last / 8.0,
+      MIN_ALTITUDE_COEFF,
+      MAX_ALTITUDE_COEFF);
    --  Types
 
    --  Variables and constants
@@ -184,6 +185,8 @@ is
 
    --  Procedures and functions
 
+   --  Main function of the stabilization system. Get the commands, give them
+   --  to the PIDs, and get the output to control the actuators
    procedure Stabilizer_Control_Loop
      (Attitude_Update_Counter : in out T_Uint32;
       Alt_Hold_Update_Counter : in out T_Uint32)
@@ -248,6 +251,8 @@ is
 
 private
 
+   --  Function called when Alt_Hold mode is activated. Holds the drone
+   --  at a target altitude
    procedure Stabilizer_Alt_Hold_Update
      with
        Global => (Input   => (Asl_Alpha,
@@ -282,6 +287,7 @@ private
                               Alt_Hold_Err,
                               Actuator_Thrust));
 
+   --  Update the Attitude PIDs
    procedure Stabilizer_Update_Attitude
      with
        Global => (Input  => (Euler_Roll_Desired,
@@ -302,6 +308,7 @@ private
                   In_Out => (V_Speed,
                              Attitude_PIDs));
 
+   --  Update the Rate PIDs
    procedure Stabilizer_Update_Rate
      with
        Global => (Input  => (Roll_Type,
@@ -319,10 +326,12 @@ private
                              Yaw_Rate_Desired,
                              Rate_PIDs));
 
-   procedure Stabilizer_Distribute_Power (Thrust : T_Uint16;
-                                          Roll   : T_Int16;
-                                          Pitch  : T_Int16;
-                                          Yaw    : T_Int16)
+   --  Distribute power to the actuators with the PIDs outputs
+   procedure Stabilizer_Distribute_Power
+     (Thrust : T_Uint16;
+      Roll   : T_Int16;
+      Pitch  : T_Int16;
+      Yaw    : T_Int16)
      with
        Global => (Output => (Motor_Power_M1,
                              Motor_Power_M2,

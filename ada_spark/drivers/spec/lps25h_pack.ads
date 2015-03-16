@@ -15,13 +15,12 @@ is
 
    --  Procedures and functions
 
-   procedure LPS25h_Get_Data (Pressure    : out T_Pressure;
-                              Temperature : out T_Temperature;
-                              Asl         : out T_Altitude;
-                              Status      : out Boolean)
+   procedure LPS25h_Get_Data
+     (Pressure    : out T_Pressure;
+      Temperature : out T_Temperature;
+      Asl         : out T_Altitude;
+      Status      : out Boolean)
      with
        Global => null;
-
-
 
 end LPS25h_pack;

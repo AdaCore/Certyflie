@@ -40,9 +40,10 @@ is
 
    --  Procedures and functions
 
-   procedure IMU_9_Read (Gyro : in out Gyroscope_Data;
-                         Acc  : in out Accelerometer_Data;
-                         Mag  : in out Magnetometer_Data)
+   procedure IMU_9_Read
+     (Gyro : in out Gyroscope_Data;
+      Acc  : in out Accelerometer_Data;
+      Mag  : in out Magnetometer_Data)
      with
        Global => null;
 

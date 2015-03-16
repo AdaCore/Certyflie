@@ -1,14 +1,16 @@
 package body LPS25h_pack is
 
-   procedure LPS25h_Get_Data (Pressure    : out T_Pressure;
-                              Temperature : out T_Temperature;
-                              Asl         : out T_Altitude;
-                              Status      : out Boolean) is
-      function LPS25h_Get_Data_Wrapper (Pressure    : out T_Pressure;
-                                        Temperature : out T_Temperature;
-                                        Asl         : out T_Altitude)
-                                        return bool;
+   procedure LPS25h_Get_Data
+     (Pressure    : out T_Pressure;
+      Temperature : out T_Temperature;
+      Asl         : out T_Altitude;
+      Status      : out Boolean) is
+      function LPS25h_Get_Data_Wrapper
+        (Pressure    : out T_Pressure;
+         Temperature : out T_Temperature;
+         Asl         : out T_Altitude) return bool;
       pragma Import (C, LPS25h_Get_Data_Wrapper, "lps25hGetData");
+
       Res : bool;
    begin
       Res := LPS25h_Get_Data_Wrapper (Pressure,

@@ -42,8 +42,9 @@ is
       end if;
    end Worker_Loop;
 
-   function Worker_Schedule (Func_ID : Integer;
-                             Arg     : Pvoid) return Integer is
+   function Worker_Schedule
+     (Func_ID : Integer;
+      Arg     : Pvoid) return Integer is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer := 0;
    begin

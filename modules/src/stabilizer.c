@@ -145,19 +145,11 @@ extern void ada_controllerInit(void);
 extern bool ada_controllerTest(void);
 extern void ada_stabilizerControlLoop(uint32_t attitudeCounter, uint32_t altHoldCounter);
 
-/* TEST */
-extern void ada_modif_variables(void);
 
 void stabilizerInit(void)
 {
   if(isInit)
     return;
-  /* TEST */
-  ada_modif_variables();
-  DEBUG_PRINT("gyro.x: %f\n", gyro.x);
-  DEBUG_PRINT("acc.y: %f\n", acc.y);
-  DEBUG_PRINT("mag.z: %f\n", mag.z);
-  DEBUG_PRINT("altHoldPID.dt: %f\n", altHoldPID.dt);
 
   motorsInit();
   imu6Init();

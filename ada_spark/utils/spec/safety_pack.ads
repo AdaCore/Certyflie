@@ -6,23 +6,26 @@ is
 
    --  Procedures and functions
 
-   function Dead_Band (Value     : Float;
-                       Threshold : Positive_Float) return Float
+   function Dead_Band
+     (Value     : Float;
+      Threshold : Positive_Float) return Float
 
      with
        Post => abs Dead_Band'Result <= Value;
    pragma Inline (Dead_Band);
 
-   procedure Constrain (Value     : in out Float;
-                        Min_Value : Float;
-                        Max_Value : Float)
+   procedure Constrain
+     (Value     : in out Float;
+      Min_Value : Float;
+      Max_Value : Float)
      with
        Post => Value in Min_Value .. Max_Value;
    pragma Inline (Constrain);
 
-   procedure Constrain (Value     : in out T_Uint16;
-                        Min_Value : T_Uint16;
-                        Max_Value : T_Uint16)
+   procedure Constrain
+     (Value     : in out T_Uint16;
+      Min_Value : T_Uint16;
+      Max_Value : T_Uint16)
      with
        Post => Value in Min_Value .. Max_Value;
    pragma Inline (Constrain);

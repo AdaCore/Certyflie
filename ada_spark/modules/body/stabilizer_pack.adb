@@ -27,10 +27,11 @@ is
       return Res;
    end Limit_Thrust;
 
-   procedure Stabilizer_Distribute_Power (Thrust : T_Uint16;
-                                          Roll   : T_Int16;
-                                          Pitch  : T_Int16;
-                                          Yaw    : T_Int16) is
+   procedure Stabilizer_Distribute_Power
+     (Thrust : T_Uint16;
+      Roll   : T_Int16;
+      Pitch  : T_Int16;
+      Yaw    : T_Int16) is
       T : T_Int32 := T_Int32 (Thrust);
       R : T_Int32 := T_Int32 (Roll);
       P : T_Int32 := T_Int32 (Pitch);
@@ -257,7 +258,8 @@ is
       end if;
 
       if IMU_Has_Barometer and
-        Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER then
+        Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER
+      then
          --  TODO: Altidude hold mode functions
          Stabilizer_Alt_Hold_Update;
          --  Reset the counter

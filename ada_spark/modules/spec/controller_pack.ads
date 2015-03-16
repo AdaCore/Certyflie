@@ -13,19 +13,21 @@ with SPARK_Mode,
   Abstract_State => (Attitude_PIDs, Rate_PIDs, State)
 is
    --  PID Generic package initizalization
-   package Attitude_Pid is new Pid_Pack (T_Angle'First,
-                                         T_Angle'Last,
-                                         Float'First / 4.0,
-                                         Float'Last / 4.0,
-                                         MIN_ATTITUDE_COEFF,
-                                         MAX_ATTITUDE_COEFF);
+   package Attitude_Pid is new Pid_Pack
+     (T_Angle'First,
+      T_Angle'Last,
+      Float'First / 4.0,
+      Float'Last / 4.0,
+      MIN_ATTITUDE_COEFF,
+      MAX_ATTITUDE_COEFF);
 
-   package Rate_Pid is new Pid_Pack (T_Rate'First,
-                                     T_Rate'Last,
-                                     Float'First / 4.0,
-                                     Float'Last / 4.0,
-                                     MIN_RATE_COEFF,
-                                     MAX_RATE_COEFF);
+   package Rate_Pid is new Pid_Pack
+     (T_Rate'First,
+      T_Rate'Last,
+      Float'First / 4.0,
+      Float'Last / 4.0,
+      MIN_RATE_COEFF,
+      MAX_RATE_COEFF);
 
    --  Procedures and functions
 
@@ -45,12 +47,13 @@ is
    --  given the measured values along each axis and the desired
    --  values retrieved from the corresponding
    --  attitude PID's.
-   procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : T_Rate;
-                                          Pitch_Rate_Actual  : T_Rate;
-                                          Yaw_Rate_Actual    : T_Rate;
-                                          Roll_Rate_Desired  : T_Rate;
-                                          Pitch_Rate_Desired : T_Rate;
-                                          Yaw_Rate_Desired   : T_Rate)
+   procedure Controller_Correct_Rate_PID
+     (Roll_Rate_Actual   : T_Rate;
+      Pitch_Rate_Actual  : T_Rate;
+      Yaw_Rate_Actual    : T_Rate;
+      Roll_Rate_Desired  : T_Rate;
+      Pitch_Rate_Desired : T_Rate;
+      Yaw_Rate_Desired   : T_Rate)
      with
        Global => (In_Out => Rate_PIDs);
 
@@ -74,18 +77,20 @@ is
 
    --  Get the output of the rate PID's.
    --  Must be called after 'Controller_Correct_Rate_Pid' to update the PID's.
-   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out T_Int16;
-                                             Actuator_Pitch : out T_Int16;
-                                             Actuator_Yaw   : out T_Int16)
+   procedure Controller_Get_Actuator_Output
+     (Actuator_Roll  : out T_Int16;
+      Actuator_Pitch : out T_Int16;
+      Actuator_Yaw   : out T_Int16)
      with
        Global => (Input => Rate_PIDs);
 
    --  Get the output of the attitude PID's, which will command the rate PID's.
    --  Must be called after 'Controller_Correct_Attitude_Pid' to update
    --  the PID's.
-   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Float;
-                                          Pitch_Rate_Desired : out Float;
-                                          Yaw_Rate_Desired   : out Float)
+   procedure Controller_Get_Desired_Rate
+     (Roll_Rate_Desired  : out Float;
+      Pitch_Rate_Desired : out Float;
+      Yaw_Rate_Desired   : out Float)
      with
        Global => (Input => Attitude_PIDs);
 
