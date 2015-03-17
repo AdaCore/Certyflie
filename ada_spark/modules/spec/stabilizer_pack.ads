@@ -77,9 +77,9 @@ is
    --  Altitude hold & barometer params
 
    --  PID gain constantsused everytime we reinitialise the PID controller
-   ALT_HOLD_KP          : constant := 0.5;
-   ALT_HOLD_KI          : constant := 0.18;
-   ALT_HOLD_KD          : constant := 0.0;
+   ALT_HOLD_KP          : constant Float := 0.5;
+   ALT_HOLD_KI          : constant Float := 0.18;
+   ALT_HOLD_KD          : constant Float:= 0.0;
    Alt_Hold_Change      : T_Altitude := 0.0;   --  Change in target altitude
    Alt_Hold_Target      : T_Altitude := -1.0;  --  Target altitude
    Alt_Hold_Err_Max     : T_Alpha := 1.0;  --  Max cap on current estimated altitude vs target altitude in meters
@@ -138,6 +138,9 @@ is
    pragma Export (C, Asl_Raw, "aslRaw");
    pragma Export (C, Asl_Long, "aslLong");
 
+   pragma Export (C, ALT_HOLD_KP, "altHoldKp");
+   pragma Export (C, ALT_HOLD_KI, "altHoldKi");
+   pragma Export (C, ALT_HOLD_KD, "altHoldKd");
    pragma Export (C, Alt_Hold_PID, "altHoldPID");
    pragma Export (C, Alt_Hold, "altHold");
    pragma Export (C, Set_Alt_Hold, "setAltHold");
@@ -184,6 +187,10 @@ is
    pragma Export (C, Motor_Power_M3, "motorPowerM3");
 
    --  Procedures and functions
+
+   --  C function for Alt Hold Mode (Test)
+   procedure C_Stabilizer_Alt_Hold_Update;
+   pragma Import (C, C_Stabilizer_Alt_Hold_Update, "stabilizerAltHoldUpdate");
 
    --  Main function of the stabilization system. Get the commands, give them
    --  to the PIDs, and get the output to control the actuators

@@ -260,8 +260,8 @@ is
       if IMU_Has_Barometer and
         Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER
       then
-         --  TODO: Altidude hold mode functions
-         Stabilizer_Alt_Hold_Update;
+         --  Altidude hold mode update
+         C_Stabilizer_Alt_Hold_Update;
          --  Reset the counter
          Alt_Hold_Update_Counter := 0;
          null;

@@ -95,9 +95,9 @@ extern float altHoldPIDVal;                    // Output of the PID controller
 extern float altHoldErr;                       // Different between target and current altitude
 
 // Altitude hold & Baro Params
-extern float altHoldKp;  // PID gain constants, used everytime we reinitialise the PID controller
-extern float altHoldKi;
-extern float altHoldKd;
+extern const float altHoldKp;  // PID gain constants, used everytime we reinitialise the PID controller
+extern const float altHoldKi;
+extern const float altHoldKd;
 extern float altHoldChange;     // Change in target altitude
 extern float altHoldTarget;    // Target altitude
 extern float altHoldErrMax;   // max cap on current estimated altitude vs target altitude in meters
