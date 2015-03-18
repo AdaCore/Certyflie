@@ -131,6 +131,8 @@ extern uint16_t motorPowerM2;
 extern uint16_t motorPowerM1;
 extern uint16_t motorPowerM3;
 
+extern bool isInFreeFall;
+
 static bool isInit;
 
 void stabilizerAltHoldUpdate(void);
@@ -346,6 +348,10 @@ LOG_ADD(LOG_INT16, aroll, &actuatorRoll)
 LOG_ADD(LOG_INT16, apitch, &actuatorPitch)
 LOG_ADD(LOG_INT16, ayaw, &actuatorYaw)
 LOG_GROUP_STOP(actuator)
+
+LOG_GROUP_START(freefall)
+LOG_ADD(LOG_UINT8, isinfreefall, &isInFreeFall)
+LOG_GROUP_STOP(freefall)
 
 LOG_GROUP_START(stabilizer)
 LOG_ADD(LOG_FLOAT, roll, &eulerRollActual)

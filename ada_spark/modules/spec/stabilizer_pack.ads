@@ -79,7 +79,7 @@ is
    --  PID gain constantsused everytime we reinitialise the PID controller
    ALT_HOLD_KP          : constant Float := 0.5;
    ALT_HOLD_KI          : constant Float := 0.18;
-   ALT_HOLD_KD          : constant Float:= 0.0;
+   ALT_HOLD_KD          : constant Float := 0.0;
    Alt_Hold_Change      : T_Altitude := 0.0;   --  Change in target altitude
    Alt_Hold_Target      : T_Altitude := -1.0;  --  Target altitude
    Alt_Hold_Err_Max     : T_Alpha := 1.0;  --  Max cap on current estimated altitude vs target altitude in meters
@@ -115,6 +115,11 @@ is
    Motor_Power_M2  : T_Uint16 := 0;
    Motor_Power_M1  : T_Uint16 := 0;
    Motor_Power_M3  : T_Uint16 := 0;
+
+   --  Use for free fall detection
+   subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
+   FF_Duration_Counter : Natural := 0;
+   Is_In_Free_Fall : bool := 0;
 
    --  Export all of these varaibles frome the C part,
    --  so the C part can debug/log them easily
@@ -186,6 +191,9 @@ is
    pragma Export (C, Motor_Power_M1, "motorPowerM1");
    pragma Export (C, Motor_Power_M3, "motorPowerM3");
 
+   pragma Export (C, Is_In_Free_Fall, "isInFreeFall");
+
+
    --  Procedures and functions
 
    --  C function for Alt Hold Mode (Test)
@@ -214,7 +222,8 @@ is
                              Pid_Alpha,
                              V_Speed_Acc_Fac,
                              V_Speed_ASL_Fac),
-                  In_Out => (Gyro, Acc, Mag,
+                  In_Out => (Is_In_Free_Fall,
+                             Gyro, Acc, Mag,
                              Euler_Roll_Desired,
                              Euler_Pitch_Desired,
                              Euler_Yaw_Desired,
@@ -344,6 +353,11 @@ private
                              Motor_Power_M2,
                              Motor_Power_M3,
                              Motor_Power_M4));
+
+   procedure Stabilizer_Detect_Free_Fall
+     with
+       Global => (Input  => Acc,
+                  Output => Is_In_Free_Fall);
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16;
    pragma Inline (Limit_Thrust);

@@ -58,6 +58,25 @@ is
       Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
    end Stabilizer_Distribute_Power;
 
+   procedure Stabilizer_Detect_Free_Fall is
+   begin
+      if Acc.X in Free_Fall_Threshold and
+         Acc.Y in Free_Fall_Threshold and
+         Acc.Z in Free_Fall_Threshold
+      then
+         FF_Duration_Counter := FF_Duration_Counter + 1;
+      else
+         FF_Duration_Counter := 0;
+      end if;
+
+      if FF_Duration_Counter > 3 then
+         Is_In_Free_Fall := 1;
+      else
+         Is_In_Free_Fall := 0;
+      end if;
+   end Stabilizer_Detect_Free_Fall;
+
+
    procedure Stabilizer_Update_Attitude is
       V_Speed_Tmp : Float;
    begin
@@ -248,6 +267,17 @@ is
                          Euler_Yaw_Desired);
       Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
 
+      --  Detect if the CF is in free fall
+      Stabilizer_Detect_Free_Fall;
+
+      if Is_In_Free_Fall = 1 then
+         Stabilizer_Distribute_Power (T_Uint16'Last,
+                                      0,
+                                      0,
+                                      0);
+         return;
+      end if;
+
       --  Update attitude at IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER
       --  By default the result is 250 Hz
       if Attitude_Update_Counter >= ATTITUDE_UPDATE_RATE_DIVIDER then
@@ -261,7 +291,7 @@ is
         Alt_Hold_Update_Counter >= ALTHOLD_UPDATE_RATE_DIVIDER
       then
          --  Altidude hold mode update
-         C_Stabilizer_Alt_Hold_Update;
+         Stabilizer_Alt_Hold_Update;
          --  Reset the counter
          Alt_Hold_Update_Counter := 0;
          null;
