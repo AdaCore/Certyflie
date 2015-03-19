@@ -116,13 +116,16 @@ is
    Motor_Power_M1  : T_Uint16 := 0;
    Motor_Power_M3  : T_Uint16 := 0;
 
-   --  Use for free fall detection
+   --  Use for free fall detection (FF = Free fall)
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
    subtype Landing_Threshold   is T_Acc range 0.975 .. 0.985;
 
+   Free_Fall_Mode           : bool := 1;
    FF_Duration_Counter      : Natural := 0;
    FF_Recovery_Mode         : bool := 0;
    Landing_Duration_Counter : Natural := 0;
+   Recovery_Thrust          : T_Uint16 := 50000;
+
 
    --  Export all of these varaibles frome the C part,
    --  so the C part can debug/log them easily
@@ -194,6 +197,7 @@ is
    pragma Export (C, Motor_Power_M1, "motorPowerM1");
    pragma Export (C, Motor_Power_M3, "motorPowerM3");
 
+   pragma Export (C, Free_Fall_Mode, "freeFallMode");
    pragma Export (C, FF_Recovery_Mode, "FF_recoveryMode");
 
    --  Procedures and functions
@@ -263,7 +267,10 @@ is
                              Set_Alt_Hold,
                              V_Speed_ASL,
                              V_Speed_Acc,
-                             Alt_Hold_Err));
+                             Alt_Hold_Err,
+                             FF_Recovery_Mode,
+                             Landing_Duration_Counter,
+                             FF_Duration_Counter));
    pragma Export (C, Stabilizer_Control_Loop, "ada_stabilizerControlLoop");
 
 private
@@ -355,13 +362,15 @@ private
                              Motor_Power_M3,
                              Motor_Power_M4));
 
-   function Stabilizer_Detect_Free_Fall return Boolean
+   procedure Stabilizer_Detect_Free_Fall
+     (Counter : in out Natural; FF_Detected : out Boolean)
      with
        Global => (Input  => Acc);
 
-   function Stabilizer_Detect_Landing return Boolean
+   procedure Stabilizer_Detect_Landing
+     (Counter : in out Natural; Landing_Detected : out Boolean)
      with
-       Global => (Input => Acc);
+       Global => (Input  => Acc);
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16;
    pragma Inline (Limit_Thrust);
