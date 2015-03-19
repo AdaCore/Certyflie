@@ -118,8 +118,11 @@ is
 
    --  Use for free fall detection
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
-   FF_Duration_Counter : Natural := 0;
-   FF_Recovery_Mode : bool := 0;
+   subtype Landing_Threshold   is T_Acc range 0.975 .. 0.985;
+
+   FF_Duration_Counter      : Natural := 0;
+   FF_Recovery_Mode         : bool := 0;
+   Landing_Duration_Counter : Natural := 0;
 
    --  Export all of these varaibles frome the C part,
    --  so the C part can debug/log them easily
@@ -355,6 +358,10 @@ private
    function Stabilizer_Detect_Free_Fall return Boolean
      with
        Global => (Input  => Acc);
+
+   function Stabilizer_Detect_Landing return Boolean
+     with
+       Global => (Input => Acc);
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16;
    pragma Inline (Limit_Thrust);

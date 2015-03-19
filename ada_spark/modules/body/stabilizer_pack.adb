@@ -72,6 +72,16 @@ is
       return FF_Duration_Counter > 30;
    end Stabilizer_Detect_Free_Fall;
 
+   function Stabilizer_Detect_Landing return Boolean is
+   begin
+      if Acc.Z in Landing_Threshold then
+         Landing_Duration_Counter := Landing_Duration_Counter + 1;
+      else
+         Landing_Duration_Counter := 0;
+      end if;
+
+      return Landing_Duration_Counter > 30;
+   end Stabilizer_Detect_Landing;
 
    procedure Stabilizer_Update_Attitude is
       V_Speed_Tmp : Float;
@@ -262,6 +272,11 @@ is
                          Euler_Pitch_Desired,
                          Euler_Yaw_Desired);
       Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
+
+      --  Detect if the CF is landed
+      if FF_Recovery_Mode = 1 and Stabilizer_Detect_Landing then
+         FF_Recovery_Mode := 0;
+      end if;
 
       --  Detect if the CF is in free fall
       if Stabilizer_Detect_Free_Fall then
