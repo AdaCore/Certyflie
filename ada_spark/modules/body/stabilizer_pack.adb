@@ -58,7 +58,7 @@ is
       Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
    end Stabilizer_Distribute_Power;
 
-   procedure Stabilizer_Detect_Free_Fall is
+   function Stabilizer_Detect_Free_Fall return Boolean is
    begin
       if Acc.X in Free_Fall_Threshold and
          Acc.Y in Free_Fall_Threshold and
@@ -69,11 +69,7 @@ is
          FF_Duration_Counter := 0;
       end if;
 
-      if FF_Duration_Counter > 3 then
-         Is_In_Free_Fall := 1;
-      else
-         Is_In_Free_Fall := 0;
-      end if;
+      return FF_Duration_Counter > 30;
    end Stabilizer_Detect_Free_Fall;
 
 
@@ -268,9 +264,8 @@ is
       Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
 
       --  Detect if the CF is in free fall
-      Stabilizer_Detect_Free_Fall;
-
-      if Is_In_Free_Fall = 1 then
+      if Stabilizer_Detect_Free_Fall then
+         FF_Recovery_Mode := 1;
          Stabilizer_Distribute_Power (T_Uint16'Last,
                                       0,
                                       0,
