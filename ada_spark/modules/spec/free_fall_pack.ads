@@ -14,12 +14,6 @@ is
    for Free_Fall_Mode use (DISABLED => 0, ENABLED => 1);
    for Free_Fall_Mode'Size use Interfaces.C.int'Size;
 
-   --  Global variables
-
-   MAX_RECOVERY_THRUST : T_Uint16 := 60_000;
-   MIN_RECOVERY_THRUST : T_Uint16 := 35_000;
-   THRUST_DECREMENT    : T_Uint16 := 100;
-
    --  Procedures and functions
 
    procedure FF_Check_Event (Acc         : Accelerometer_Data);
@@ -40,14 +34,28 @@ private
    subtype Landing_Threshold   is T_Acc range 0.975 .. 1.0;
 
    --  Global variables
-   FF_Mode                     : Free_Fall_Mode := ENABLED;
-   FF_Duration_Counter         : Natural := 0;
-   In_Recovery                 : bool := 0;
-   Landing_Duration_Counter    : Natural := 0;
-   Recovery_Thrust             : T_Uint16 := MAX_RECOVERY_THRUST;
 
-   --  Exported variables to log/modify from the client
-   pragma Export (C, FF_Mode, "freeFallMode");
+   FF_MODE                   : Free_Fall_Mode := DISABLED;
+   MAX_RECOVERY_THRUST       : T_Uint16 := 60_000;
+   MIN_RECOVERY_THRUST       : T_Uint16 := 35_000;
+   RECOVERY_THRUST_DECREMENT : T_Uint16 := 100;
+   FF_DURATION               : T_Uint16 := 30;
+   LANDING_DURATION          : T_Uint16 := 15;
+
+   --  Exported variables to modify from the client
+   pragma Export (C, FF_MODE, "freeFallMode");
+   pragma Export (C, MAX_RECOVERY_THRUST, "maxRecoveryThrust");
+   pragma Export (C, MIN_RECOVERY_THRUST, "minRecoveryThrust");
+   pragma Export (C, RECOVERY_THRUST_DECREMENT, "recoveryThrustDecrement");
+   pragma Export (C, FF_DURATION, "ffDuration");
+   pragma Export (C, LANDING_DURATION, "landingDuration");
+
+   FF_Duration_Counter      : T_Uint16 := 0;
+   In_Recovery              : bool := 0;
+   Landing_Duration_Counter : T_Uint16 := 0;
+   Recovery_Thrust          : T_Uint16 := MAX_RECOVERY_THRUST;
+
+   --  Exported variables to log from the client
    pragma Export (C, In_Recovery, "inRecovery");
 
    --  Detect if the drone is ine free fall with accelerometer data

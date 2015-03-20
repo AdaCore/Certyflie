@@ -1,4 +1,8 @@
-package body Free_Fall_Pack is
+with Safety_Pack; use Safety_Pack;
+
+package body Free_Fall_Pack
+with SPARK_Mode
+is
 
    procedure FF_Detect_Free_Fall
      (Acc         :  Accelerometer_Data;
@@ -13,7 +17,7 @@ package body Free_Fall_Pack is
          FF_Duration_Counter := 0;
       end if;
 
-      FF_Detected := FF_Duration_Counter > 30;
+      FF_Detected := FF_Duration_Counter >= FF_DURATION;
    end FF_Detect_Free_Fall;
 
    procedure FF_Detect_Landing
@@ -27,7 +31,7 @@ package body Free_Fall_Pack is
          Landing_Duration_Counter := 0;
       end if;
 
-      Landing_Detected := Landing_Duration_Counter > 15;
+      Landing_Detected := Landing_Duration_Counter >= LANDING_DURATION;
    end FF_Detect_Landing;
 
    procedure FF_Check_Event (Acc         : Accelerometer_Data) is
@@ -35,7 +39,7 @@ package body Free_Fall_Pack is
       Has_Landed      : Boolean;
    begin
       --  Check if FF Detection is disabled
-      if FF_Mode = DISABLED then
+      if FF_MODE = DISABLED then
          In_Recovery := 0;
          return;
       end if;
@@ -91,7 +95,7 @@ package body Free_Fall_Pack is
       --  is called (In the stabilizer loop)
       Thrust := Recovery_Thrust;
       if Recovery_Thrust > MIN_RECOVERY_THRUST then
-         Recovery_Thrust := Recovery_Thrust - THRUST_DECREMENT;
+         Recovery_Thrust := Recovery_Thrust - RECOVERY_THRUST_DECREMENT;
       end if;
    end FF_Get_Recovery_Thrust;
 

@@ -133,6 +133,13 @@ extern uint16_t motorPowerM3;
 
 // Free fall detection variables
 extern uint16_t freeFallMode;
+extern uint16_t maxRecoveryThrust;
+extern uint16_t minRecoveryThrust;
+extern uint16_t recoveryThrustDecrement;
+extern uint16_t ffDuration;
+extern uint16_t landingDuration;
+
+// Free fall detection log variables
 extern bool     inRecovery;
 
 static bool isInit;
@@ -441,4 +448,9 @@ PARAM_GROUP_STOP(altHold)
 
 PARAM_GROUP_START(freefall)
 PARAM_ADD(PARAM_UINT8, freeFallMode, &freeFallMode)
+PARAM_ADD(PARAM_UINT16, maxRecoveryThrust, &maxRecoveryThrust)
+PARAM_ADD(PARAM_UINT16, minRecoveryThrust, &minRecoveryThrust)
+PARAM_ADD(PARAM_UINT16, recoveryThrustDec, &recoveryThrustDecrement)
+PARAM_ADD(PARAM_UINT16, ffDuration, &ffDuration)
+PARAM_ADD(PARAM_UINT16, landingDuration, &landingDuration)
 PARAM_GROUP_STOP(freefall)
