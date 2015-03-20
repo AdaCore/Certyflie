@@ -27,7 +27,7 @@ package body Free_Fall_Pack is
          Landing_Duration_Counter := 0;
       end if;
 
-      Landing_Detected := Landing_Duration_Counter > 30;
+      Landing_Detected := Landing_Duration_Counter > 15;
    end FF_Detect_Landing;
 
    procedure FF_Check_Event (Acc         : Accelerometer_Data) is
@@ -80,7 +80,10 @@ package body Free_Fall_Pack is
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16) is
    begin
       --  If not in recovery, keep the original thrust
-      if In_Recovery = 0 then
+      --  If the pilot has moved his joystick, the drone is no in recovery
+      --  anymore
+      if In_Recovery = 0 or Thrust > 0 then
+         In_Recovery := 0;
          return;
       end if;
 

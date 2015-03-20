@@ -17,8 +17,8 @@ is
    --  Global variables
 
    MAX_RECOVERY_THRUST : T_Uint16 := 60_000;
-   MIN_RECOVERY_THRUST : T_Uint16 := 0;
-   THRUST_DECREMENT    : T_Uint16 := 160;
+   MIN_RECOVERY_THRUST : T_Uint16 := 35_000;
+   THRUST_DECREMENT    : T_Uint16 := 100;
 
    --  Procedures and functions
 
