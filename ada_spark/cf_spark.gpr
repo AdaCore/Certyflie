@@ -33,7 +33,8 @@ library project Cf_Spark is
                               "imu_pack",
                               "lps25h_pack",
                               "pm_pack",
-                              "motors_pack");
+                              "motors_pack",
+                              "free_fall_pack");
 
    case Mode is
 

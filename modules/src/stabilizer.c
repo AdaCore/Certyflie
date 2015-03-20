@@ -132,8 +132,8 @@ extern uint16_t motorPowerM1;
 extern uint16_t motorPowerM3;
 
 // Free fall detection variables
-extern bool freeFallMode;
-extern bool FF_recoveryMode;
+extern uint16_t freeFallMode;
+extern bool     inRecovery;
 
 static bool isInit;
 
@@ -353,16 +353,16 @@ LOG_ADD(LOG_INT16, apitch, &actuatorPitch)
 LOG_ADD(LOG_INT16, ayaw, &actuatorYaw)
 LOG_GROUP_STOP(actuator)
 
+LOG_GROUP_START(freefall)
+LOG_ADD(LOG_UINT8, inRecovery, &inRecovery)
+LOG_GROUP_STOP(freefall)
+
 LOG_GROUP_START(stabilizer)
 LOG_ADD(LOG_FLOAT, roll, &eulerRollActual)
 LOG_ADD(LOG_FLOAT, pitch, &eulerPitchActual)
 LOG_ADD(LOG_FLOAT, yaw, &eulerYawActual)
 LOG_ADD(LOG_UINT16, thrust, &actuatorThrust)
 LOG_GROUP_STOP(stabilizer)
-
-LOG_GROUP_START(freefall)
-LOG_ADD(LOG_UINT8, recoverymode, &FF_recoveryMode)
-LOG_GROUP_STOP(freefall)
 
 LOG_GROUP_START(acc)
 LOG_ADD(LOG_FLOAT, x, &acc.x)

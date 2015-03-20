@@ -5,6 +5,7 @@ with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
 with PM_Pack; use PM_Pack;
+with Free_Fall_Pack; use Free_Fall_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode
@@ -57,34 +58,6 @@ is
       Motor_Set_Ratio (MOTOR_M3, Motor_Power_M3);
       Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
    end Stabilizer_Distribute_Power;
-
-   procedure Stabilizer_Detect_Free_Fall
-     (Counter : in out Natural; FF_Detected : out Boolean) is
-   begin
-      if Acc.X in Free_Fall_Threshold and
-        Acc.Y in Free_Fall_Threshold and
-        Acc.Z in Free_Fall_Threshold
-      then
-         Counter := Counter + 1;
-      else
-         Counter := 0;
-      end if;
-
-      FF_Detected := Counter > 30;
-   end Stabilizer_Detect_Free_Fall;
-
-   procedure Stabilizer_Detect_Landing
-     (Counter : in out Natural; Landing_Detected : out Boolean)
-   is
-   begin
-      if Acc.Z in Landing_Threshold then
-         Counter := Counter + 1;
-      else
-         Counter := 0;
-      end if;
-
-      Landing_Detected := Counter > 30;
-   end Stabilizer_Detect_Landing;
 
    procedure Stabilizer_Update_Attitude is
       V_Speed_Tmp : Float;
@@ -232,7 +205,7 @@ is
          Altitude_Pid.Pid_Update (Alt_Hold_PID, Asl, False);
 
          Baro_V_Speed := (1.0 - Pid_Alpha) * ((V_Speed_Acc * V_Speed_Acc_Fac)
-                                           + (V_Speed_ASL * V_Speed_ASL_Fac));
+                                              + (V_Speed_ASL * V_Speed_ASL_Fac));
          Constrain (Baro_V_Speed, T_Speed'First, T_Speed'Last);
          Alt_Hold_PID_Out := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
          Constrain (Alt_Hold_PID_Out, T_Altitude'First, T_Altitude'Last);
@@ -257,8 +230,6 @@ is
      (Attitude_Update_Counter : in out T_Uint32;
       Alt_Hold_Update_Counter : in out T_Uint32)
    is
-      FF_Detected      : Boolean;
-      Landing_Detected : Boolean;
    begin
       --  Magnetometer not used for the moment
       IMU_9_Read (Gyro, Acc, Mag);
@@ -272,30 +243,25 @@ is
       Attitude_Update_Counter := Attitude_Update_Counter + 1;
       Alt_Hold_Update_Counter := Alt_Hold_Update_Counter + 1;
 
-      --  Detect if the CF is landed and set recovery mode = 0 if true
-      Stabilizer_Detect_Landing (Landing_Duration_Counter, Landing_Detected);
-      if FF_Recovery_Mode = 1 and Landing_Detected then
-         FF_Recovery_Mode := 0;
-      end if;
-
-      --  Detect if the CF is in free fall, and activate recovery mode if true
-      Stabilizer_Detect_Free_Fall (FF_Duration_Counter, FF_Detected);
-      if FF_Detected then
-         FF_Recovery_Mode := 1;
-         Recovery_Thrust := 60000;
-      end if;
+      --  Check if the drone is in Free fall or has landed.
+      --  This check is enabled by default, but can disabled
+      FF_Check_Event (Acc);
 
       --  Get commands from the pilot
-      if FF_Recovery_Mode = 0 then
-         Commander_Get_RPY (Euler_Roll_Desired,
-                            Euler_Pitch_Desired,
-                            Euler_Yaw_Desired);
+      Commander_Get_RPY (Euler_Roll_Desired,
+                         Euler_Pitch_Desired,
+                         Euler_Yaw_Desired);
 
-         Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
-      else
-         Euler_Roll_Desired := 0.0;
-         Euler_Pitch_Desired := 0.0;
-      end if;
+      Commander_Get_RPY_Type (Roll_Type, Pitch_Type, Yaw_Type);
+
+      --  If FF checks are enabled and the drone is in recovery,
+      --  override the pilot commands
+      FF_Get_Recovery_Commands (Euler_Roll_Desired,
+                                Euler_Pitch_Desired,
+                                Euler_Yaw_Desired,
+                                Roll_Type,
+                                Pitch_Type,
+                                Yaw_Type);
 
       --  Update attitude at IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER
       --  By default the result is 250 Hz
@@ -320,15 +286,10 @@ is
 
       if Alt_Hold = 0 or not IMU_Has_Barometer then
          --  Get thrust from the commander if alt hold mode
-         --  not activated/working
-         if FF_Recovery_Mode = 0 then
-            Commander_Get_Thrust (Actuator_Thrust);
-         else
-            Actuator_Thrust := Recovery_Thrust;
-            if Recovery_Thrust > Alt_Hold_Min_Thrust then
-               Recovery_Thrust := Recovery_Thrust - 160;
-            end if;
-         end if;
+         --  not activated
+         Commander_Get_Thrust (Actuator_Thrust);
+         --  Override the thrust if the drone is in freefall
+         FF_Get_Recovery_Thrust (Actuator_Thrust);
       else
          --  Added so thrust can be set to 0 while in altitude hold mode
          --  after disconnect
