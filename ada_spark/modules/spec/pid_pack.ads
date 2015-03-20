@@ -12,7 +12,7 @@ generic
 package Pid_Pack
 with SPARK_Mode
 is
-
+   --  Subtypes for inputs/outputs of the PID
    subtype T_Input  is Float range INPUT_LOW_LIMIT .. INPUT_HIGH_LIMIT;
    subtype T_Output is Float range OUTPUT_LOW_LIMIT .. OUTPUT_HIGH_LIMIT;
    subtype T_Error  is Float range

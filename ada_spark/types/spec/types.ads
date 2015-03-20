@@ -4,7 +4,7 @@ with Interfaces.C.Extensions;
 
 package Types is
 
-   --  General types
+   --  General types used for C Interfacing.
    type T_Int8   is new Interfaces.Integer_8;
    type T_Int16  is new Interfaces.Integer_16;
    type T_Int32  is new Interfaces.Integer_32;

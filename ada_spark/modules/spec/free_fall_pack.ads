@@ -16,8 +16,11 @@ is
 
    --  Procedures and functions
 
+   --  Check if an event (Free fall or Landing) has occured giving it
+   --  accelerometer data.
    procedure FF_Check_Event (Acc         : Accelerometer_Data);
 
+   --  Override the previous commands if in recovery mode.
    procedure FF_Get_Recovery_Commands
      (Euler_Roll_Desired  : in out Float;
       Euler_Pitch_Desired : in out Float;
@@ -26,6 +29,7 @@ is
       Pitch_Type          : in out RPY_Type;
       Yaw_Type            : in out RPY_Type);
 
+   --  Override the previous thrust if in recovery mode.
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16);
 
 private
