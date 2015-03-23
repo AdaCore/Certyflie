@@ -11,7 +11,7 @@ SPARK_Mode,
                     Rate_PIDs     => (Roll_Rate_Pid,
                                       Pitch_Rate_Pid,
                                       Yaw_Rate_Pid),
-                    State         =>  Is_Init)
+                    Controller_State  =>  Is_Init)
 is
 
    procedure Controller_Init

@@ -10,7 +10,7 @@ pragma Elaborate_All (Pid_Pack);
 
 package Controller_Pack
 with SPARK_Mode,
-  Abstract_State => (Attitude_PIDs, Rate_PIDs, State)
+  Abstract_State => (Attitude_PIDs, Rate_PIDs, Controller_State)
 is
    --  PID Generic package initizalization
    package Attitude_Pid is new Pid_Pack
@@ -34,13 +34,13 @@ is
    --  Initalize all the PID's needed for the drone.
    procedure Controller_Init
      with
-       Global => (Output => (Attitude_PIDs, Rate_PIDs, State));
+       Global => (Output => (Attitude_PIDs, Rate_PIDs, Controller_State));
    pragma Export (C, Controller_Init, "ada_controllerInit");
 
    --  Test if the PID's have been initialized.
    function Controller_Test return bool
      with
-       Global => (Input => State);
+       Global => (Input => Controller_State);
    pragma Export (C, Controller_Test, "ada_controllerTest");
 
    --  Update the rate PID's for each axis (Roll, Pitch, Yaw)
@@ -114,6 +114,6 @@ private
    pragma Export (C, Pitch_Rate_Pid, "pidPitchRate");
    pragma Export (C, Yaw_Rate_Pid, "pidYawRate");
 
-   Is_Init : Boolean := False with Part_Of => State;
+   Is_Init : Boolean := False with Part_Of => Controller_State;
 
 end Controller_Pack;

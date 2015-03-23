@@ -1,7 +1,17 @@
 with Safety_Pack; use Safety_Pack;
 
 package body Free_Fall_Pack
-with SPARK_Mode
+with SPARK_Mode,
+  Refined_State => (FF_Parameters => (FF_MODE,
+                                      MAX_RECOVERY_THRUST,
+                                      MIN_RECOVERY_THRUST,
+                                      RECOVERY_THRUST_DECREMENT,
+                                      FF_DURATION,
+                                      LANDING_DURATION),
+                    FF_State => (FF_Duration_Counter,
+                                 In_Recovery,
+                                 Landing_Duration_Counter,
+                                 Recovery_Thrust))
 is
 
    procedure FF_Detect_Free_Fall
@@ -61,10 +71,8 @@ is
    procedure FF_Get_Recovery_Commands
      (Euler_Roll_Desired  : in out Float;
       Euler_Pitch_Desired : in out Float;
-      Euler_Yaw_Desired   : in out Float;
       Roll_Type           : in out RPY_Type;
-      Pitch_Type          : in out RPY_Type;
-      Yaw_Type            : in out RPY_Type) is
+      Pitch_Type          : in out RPY_Type) is
    begin
       --  If not in recovery, keep the original commands
       if In_Recovery = 0 then

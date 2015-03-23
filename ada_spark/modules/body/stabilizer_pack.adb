@@ -244,7 +244,7 @@ is
       Alt_Hold_Update_Counter := Alt_Hold_Update_Counter + 1;
 
       --  Check if the drone is in Free fall or has landed.
-      --  This check is enabled by default, but can disabled
+      --  This check is enabled by default, but can be disabled
       FF_Check_Event (Acc);
 
       --  Get commands from the pilot
@@ -258,10 +258,8 @@ is
       --  override the pilot commands
       FF_Get_Recovery_Commands (Euler_Roll_Desired,
                                 Euler_Pitch_Desired,
-                                Euler_Yaw_Desired,
                                 Roll_Type,
-                                Pitch_Type,
-                                Yaw_Type);
+                                Pitch_Type);
 
       --  Update attitude at IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER
       --  By default the result is 250 Hz
