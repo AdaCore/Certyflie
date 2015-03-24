@@ -12,7 +12,7 @@ is
    function Inv_Sqrt (X : Float) return Float;
 
    function Atan_2 (X : Float; Y : Float) return Float;
-   pragma Import (C, Atan_2, "atan2");
+   pragma Import (C, Atan_2, "atan2f");
 
    function Asin (X : Float) return Float;
    pragma Import (C, Asin, "asin");

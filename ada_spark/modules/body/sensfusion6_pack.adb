@@ -4,7 +4,6 @@ with Safety_Pack; use Safety_Pack;
 package body SensFusion6_Pack
 with SPARK_Mode
 is
-
    procedure SensFusion6_Get_Euler_RPY
      (Euler_Roll_Actual  : out T_Angle;
       Euler_Pitch_Actual : out T_Angle;
