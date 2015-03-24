@@ -1,4 +1,5 @@
 with Types; use Types;
+with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 package SensFusion6_Pack
 with SPARK_Mode
@@ -11,10 +12,14 @@ is
    --  quaternion of sensor frame relative to auxiliary frame
    Q3 : T_Quaternion := 0.0;
 
-   Is_Init : Boolean := False;
+   Is_Init : bool := 0;
 
 
    --  Procedures and functions
+
+   procedure SensFusion6_Init;
+
+   function SensFusion6_Test return bool;
 
    procedure C_SensFusion6_Update_Q
      (Gx : Float;

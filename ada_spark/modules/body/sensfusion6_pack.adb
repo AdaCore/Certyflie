@@ -1,9 +1,26 @@
 with Maths_Pack; use Maths_Pack;
 with Safety_Pack; use Safety_Pack;
 
+with Interfaces.C; use Interfaces.C;
+
 package body SensFusion6_Pack
 with SPARK_Mode
 is
+   procedure SensFusion6_Init is
+   begin
+      if Is_Init = 1 then
+         return;
+      end if;
+
+      Is_Init := 1;
+   end SensFusion6_Init;
+
+   function SensFusion6_Test return bool is
+   begin
+      return Is_Init;
+   end SensFusion6_Test;
+
+
    procedure SensFusion6_Get_Euler_RPY
      (Euler_Roll_Actual  : out T_Angle;
       Euler_Pitch_Actual : out T_Angle;
