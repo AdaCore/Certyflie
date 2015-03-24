@@ -62,17 +62,17 @@ is
    procedure Stabilizer_Update_Attitude is
       V_Speed_Tmp : Float;
    begin
-      SensFusion6_Update_Q (Gyro.X, Gyro.Y, Gyro.Z,
-                            Acc.X, Acc.Y, Acc.Z,
-                            FUSION_UPDATE_DT);
+      C_SensFusion6_Update_Q (Gyro.X, Gyro.Y, Gyro.Z,
+                              Acc.X, Acc.Y, Acc.Z,
+                              FUSION_UPDATE_DT);
       --  Get Euler angles
-      SensFusion6_Get_Euler_RPY (Euler_Roll_Actual,
-                                 Euler_Pitch_Actual,
-                                 Euler_Yaw_Actual);
+      C_SensFusion6_Get_Euler_RPY (Euler_Roll_Actual,
+                                   Euler_Pitch_Actual,
+                                   Euler_Yaw_Actual);
       --  Vertical acceleration woithout gravity
-      Acc_WZ := SensFusion6_Get_AccZ_Without_Gravity (Acc.X,
-                                                      Acc.Y,
-                                                      Acc.Z);
+      Acc_WZ := C_SensFusion6_Get_AccZ_Without_Gravity (Acc.X,
+                                                        Acc.Y,
+                                                        Acc.Z);
       Acc_MAG := (Acc.X * Acc.X) + (Acc.Y * Acc.Y) + (Acc.Z * Acc.Z);
 
       --  Estimate vertical speed from acceleration and constrain

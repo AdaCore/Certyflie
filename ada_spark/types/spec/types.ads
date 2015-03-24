@@ -5,6 +5,7 @@ with Interfaces.C.Extensions;
 package Types is
 
    --  General types used for C Interfacing.
+
    type T_Int8   is new Interfaces.Integer_8;
    type T_Int16  is new Interfaces.Integer_16;
    type T_Int32  is new Interfaces.Integer_32;
@@ -13,6 +14,8 @@ package Types is
    type T_Uint32 is new Interfaces.Unsigned_32;
 
    subtype Positive_Float is Float range 0.0 .. Float'Last;
+
+   --  Types used by the stabilization system
 
    --  Allowed delta time range.
    subtype T_Delta_Time   is Float range IMU_UPDATE_DT .. 1.0;
@@ -33,5 +36,9 @@ package Types is
 
    --  Allowed factor to relate Altitude with Thrust command for motors.
    subtype T_Motor_Fac    is Float range 10_000.0 .. 15_000.0;
+
+   --  Types used for the implementation of Mahony and Madgwick algorithms
+
+   subtype T_Quaternion is Float range 0.0 .. 1.0;
 
 end Types;

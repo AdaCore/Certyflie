@@ -20,9 +20,11 @@ library project Cf_Spark is
    for Library_Dir use "../bin/lib";
    for Library_Kind use "static";
    for Library_Interface use ("config",
+                              "maths_pack",
                               "safety_pack",
                               "worker_pack",
                               "sensfusion6_pack",
+                              "mahony_algorithm",
                               "pid_pack",
                               "controller_pack",
                               "commander_pack",

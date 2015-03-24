@@ -7,8 +7,8 @@ is
    --  These ranges are deduced from the MPU9150 specification.
    --  It corresponds to the maximum range of values that can be output
    --  by the IMU.
-   subtype T_Rate is Float range -150_000.0  .. 150_000.0;
-   subtype T_Acc  is Float range -16_000.0 .. 16_000.0;
+   subtype T_Rate is Float range -3_000.0  .. 3_000.0;
+   subtype T_Acc  is Float range -16.0 .. 16.0;
    subtype T_Mag  is Float range -4_800.0  .. 4_800.0;
 
    type Gyroscope_Data is record

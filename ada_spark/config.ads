@@ -7,4 +7,8 @@ package Config is
 
    QUAD_FORMATION_X : constant Boolean := True;
 
+   --  Two implemented algorithms for quaternions
+   type Quaternion_Algorithm is (MAHONY, MADGWICK);
+   Sensor_Fusion_Algorithm : constant Quaternion_Algorithm := MAHONY;
+
 end Config;
