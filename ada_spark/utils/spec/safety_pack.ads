@@ -14,20 +14,20 @@ is
        Post => abs Dead_Band'Result <= Value;
    pragma Inline (Dead_Band);
 
-   procedure Constrain
-     (Value     : in out Float;
+   Function Constrain
+     (Value     : Float;
       Min_Value : Float;
-      Max_Value : Float)
+      Max_Value : Float) return Float
      with
-       Post => Value in Min_Value .. Max_Value;
+       Post => Constrain'Result in Min_Value .. Max_Value;
    pragma Inline (Constrain);
 
-   procedure Constrain
-     (Value     : in out T_Uint16;
+   function Constrain
+     (Value     : T_Uint16;
       Min_Value : T_Uint16;
-      Max_Value : T_Uint16)
+      Max_Value : T_Uint16) return T_Uint16
      with
-       Post => Value in Min_Value .. Max_Value;
+       Post => Constrain'Result in Min_Value .. Max_Value;
    pragma Inline (Constrain);
 
    --  Truncate a 32-bit Integer into a 16-bit Integer

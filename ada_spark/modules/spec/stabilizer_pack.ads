@@ -240,9 +240,9 @@ private
      with Part_Of => Alt_Hold_Parameters; --  Relates meters asl to thrust
    Alt_Pid_Alpha            : T_Alpha := 0.8
      with Part_Of => Alt_Hold_Parameters; --  PID Smoothing
-   Alt_Hold_Min_Thrust  : T_Uint16 := 00000
+   Alt_Hold_Min_Thrust      : T_Uint16 := 00000
      with Part_Of => Alt_Hold_Parameters; --  Minimum hover thrust
-   Alt_Hold_Base_Thrust : T_Uint16 := 43000
+   Alt_Hold_Base_Thrust     : T_Uint16 := 43000
      with Part_Of => Alt_Hold_Parameters; --  Approximate throttle needed when
    --  in perfect hover.
    --  More weight / older battery can

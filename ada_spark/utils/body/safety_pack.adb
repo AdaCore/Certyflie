@@ -1,27 +1,31 @@
 package body Safety_Pack is
 
-   procedure Constrain
-     (Value     : in out Float;
+   function Constrain
+     (Value     : Float;
       Min_Value : Float;
-      Max_Value : Float) is
+      Max_Value : Float) return Float is
+      Res : Float;
    begin
       if Value < Min_Value then
-         Value := Min_Value;
+         Res := Min_Value;
       elsif Value > Max_Value then
-         Value := Max_Value;
+         Res := Max_Value;
       end if;
+      return Res;
    end Constrain;
 
-   procedure Constrain
-     (Value     : in out T_Uint16;
+   function Constrain
+     (Value     : T_Uint16;
       Min_Value : T_Uint16;
-      Max_Value : T_Uint16) is
+      Max_Value : T_Uint16) return T_Uint16 is
+      Res : T_Uint16;
    begin
       if Value < Min_Value then
-         Value := Min_Value;
+         Res := Min_Value;
       elsif Value > Max_Value then
-         Value := Max_Value;
+         Res := Max_Value;
       end if;
+      return Res;
    end Constrain;
 
    function Dead_Band

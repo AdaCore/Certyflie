@@ -42,7 +42,6 @@ is
      (Pid          : in out Pid_Object;
       Measured     : T_Input;
       Update_Error : Boolean) is
-      Integ : Float;
    begin
       if Update_Error then
          Pid.Error := Pid.Desired - Measured;
@@ -51,10 +50,10 @@ is
       pragma Assert (Pid.Error * Pid.Dt in
                        T_Error'First * 2.0 * T_Delta_Time'Last ..
                          T_Error'Last * 2.0 * T_Delta_Time'Last);
-      Integ := Pid.Integ + Pid.Error * Pid.Dt;
 
-      Constrain (Integ, Pid.I_Limit_Low, Pid.I_Limit_High);
-      Pid.Integ := Integ;
+      Pid.Integ := Constrain (Pid.Integ + Pid.Error * Pid.Dt,
+                              Pid.I_Limit_Low,
+                              Pid.I_Limit_High);
 
       Pid.Deriv := (Pid.Error - Pid.Prev_Error) / Pid.Dt;
 

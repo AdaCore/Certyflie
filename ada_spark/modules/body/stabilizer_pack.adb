@@ -8,38 +8,38 @@ with PM_Pack; use PM_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode,
-  Refined_State => (IMU_Outputs => (Acc,
-                                    Gyro,
-                                    Mag),
-                    Actual_Angles => (Euler_Roll_Actual,
-                                      Euler_Pitch_Actual,
-                                      Euler_Yaw_Actual),
-                    Desired_Angles => (Euler_Roll_Desired,
-                                       Euler_Pitch_Desired,
-                                       Euler_Yaw_Desired),
-                    Desired_Rates => (Roll_Rate_Desired,
-                                      Pitch_Rate_Desired,
-                                      Yaw_Rate_Desired),
-                    Command_Types => (Roll_Type,
-                                      Pitch_Type,
-                                      Yaw_Type),
-                    Actuator_Commands => (Actuator_Thrust,
-                                          Actuator_Roll,
-                                          Actuator_Pitch,
-                                          Actuator_Yaw),
-                    Motor_Powers => (Motor_Power_M1,
-                                     Motor_Power_M2,
-                                     Motor_Power_M3,
-                                     Motor_Power_M4),
-                    V_Speed_Parameters => (V_Speed_ASL_Fac,
-                                           V_Speed_Acc_Fac,
-                                           V_Acc_Deadband,
-                                           V_Speed_ASL_Deadband,
-                                           V_Speed_Limit,
-                                           V_Bias_Alpha),
-                    Asl_Parameters => (Asl_Err_Deadband,
-                                       Asl_Alpha,
-                                       Asl_Alpha_Long),
+  Refined_State => (IMU_Outputs         => (Acc,
+                                            Gyro,
+                                            Mag),
+                    Actual_Angles       => (Euler_Roll_Actual,
+                                            Euler_Pitch_Actual,
+                                            Euler_Yaw_Actual),
+                    Desired_Angles      => (Euler_Roll_Desired,
+                                            Euler_Pitch_Desired,
+                                            Euler_Yaw_Desired),
+                    Desired_Rates       => (Roll_Rate_Desired,
+                                            Pitch_Rate_Desired,
+                                            Yaw_Rate_Desired),
+                    Command_Types       => (Roll_Type,
+                                            Pitch_Type,
+                                            Yaw_Type),
+                    Actuator_Commands   => (Actuator_Thrust,
+                                            Actuator_Roll,
+                                            Actuator_Pitch,
+                                            Actuator_Yaw),
+                    Motor_Powers        => (Motor_Power_M1,
+                                            Motor_Power_M2,
+                                            Motor_Power_M3,
+                                            Motor_Power_M4),
+                    V_Speed_Parameters  => (V_Speed_ASL_Fac,
+                                            V_Speed_Acc_Fac,
+                                            V_Acc_Deadband,
+                                            V_Speed_ASL_Deadband,
+                                            V_Speed_Limit,
+                                            V_Bias_Alpha),
+                    Asl_Parameters      => (Asl_Err_Deadband,
+                                            Asl_Alpha,
+                                            Asl_Alpha_Long),
                     Alt_Hold_Parameters => (Alt_Hold_Err_Max,
                                             Alt_Hold_Change_SENS,
                                             Alt_Pid_Asl_Fac,
@@ -47,23 +47,23 @@ with SPARK_Mode,
                                             Alt_Hold_Base_Thrust,
                                             Alt_Hold_Min_Thrust,
                                             Alt_Hold_Max_Thrust),
-                    V_Speed_Variables => (Acc_WZ,
-                                          Acc_MAG,
-                                          V_Speed,
-                                          V_Speed_Acc,
-                                          V_Speed_ASL),
-                    Asl_Variables => (Temperature,
-                                      Pressure,
-                                      Asl,
-                                      Asl_Raw,
-                                      Asl_Long),
-                    Alt_Hold_Variables => (Alt_Hold_PID,
-                                           Alt_Hold,
-                                           Set_Alt_Hold,
-                                           Alt_Hold_PID_Val,
-                                           Alt_Hold_Err,
-                                           Alt_Hold_Change,
-                                           Alt_Hold_Target))
+                    V_Speed_Variables   => (Acc_WZ,
+                                            Acc_MAG,
+                                            V_Speed,
+                                            V_Speed_Acc,
+                                            V_Speed_ASL),
+                    Asl_Variables       => (Temperature,
+                                            Pressure,
+                                            Asl,
+                                            Asl_Raw,
+                                            Asl_Long),
+                    Alt_Hold_Variables  => (Alt_Hold_PID,
+                                            Alt_Hold,
+                                            Set_Alt_Hold,
+                                            Alt_Hold_PID_Val,
+                                            Alt_Hold_Err,
+                                            Alt_Hold_Change,
+                                            Alt_Hold_Target))
 is
 
    --  Private procedures and functions
@@ -115,7 +115,6 @@ is
    end Stabilizer_Distribute_Power;
 
    procedure Stabilizer_Update_Attitude is
-      V_Speed_Tmp : Float;
    begin
       C_SensFusion6_Update_Q (Gyro.X, Gyro.Y, Gyro.Z,
                               Acc.X, Acc.Y, Acc.Z,
@@ -132,11 +131,11 @@ is
 
       --  Estimate vertical speed from acceleration and constrain
       --  it within a limit
-      V_Speed_Tmp := V_Speed +
-        Dead_Band (Acc_WZ, V_Acc_Deadband) * FUSION_UPDATE_DT;
-
-      Constrain (V_Speed_Tmp, -V_Speed_Limit, V_Speed_Limit);
-      V_Speed := V_Speed_Tmp;
+      V_Speed := Constrain (V_Speed +
+                              Dead_Band (Acc_WZ, V_Acc_Deadband) *
+                              FUSION_UPDATE_DT,
+                            -V_Speed_Limit,
+                            V_Speed_Limit);
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's
       Controller_Correct_Attitude_Pid (Euler_Roll_Actual,
@@ -175,11 +174,6 @@ is
    end Stabilizer_Update_Rate;
 
    procedure Stabilizer_Alt_Hold_Update is
-      Asl_Tmp             : Float;
-      Asl_Long_Tmp        : Float;
-      V_Speed_Tmp         : Float;
-      V_Speed_ASL_Tmp     : Float;
-      Alt_Hold_Target_Tmp : Float;
       LPS25H_Data_Valid   : Boolean;
       Prev_Integ          : Float;
       Baro_V_Speed        : Float;
@@ -192,25 +186,24 @@ is
       --  Get barometer altitude estimations
       LPS25h_Get_Data (Pressure, Temperature, Asl_Raw, LPS25H_Data_Valid);
       if LPS25H_Data_Valid then
-         Asl_Tmp := Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha);
-         Asl_Long_Tmp := Asl_Long * Asl_Alpha_Long
-           + Asl_Raw * (1.0 - Asl_Alpha_Long);
-         Constrain (Asl_Tmp, T_Altitude'First, T_Altitude'Last);
-         Constrain (Asl_Long_Tmp, T_Altitude'First, T_Altitude'Last);
-         Asl := Asl_Tmp;
-         Asl_Long := Asl_Long_Tmp;
+         Asl := Constrain (Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha),
+                           T_Altitude'First,
+                           T_Altitude'Last);
+         Asl_Long := Constrain (Asl_Long * Asl_Alpha_Long
+                                + Asl_Raw * (1.0 - Asl_Alpha_Long),
+                                T_Altitude'First,
+                                T_Altitude'Last);
       end if;
 
       --  Estimate vertical speed based on successive barometer readings
-      V_Speed_ASL_Tmp := Dead_Band (Asl - Asl_Long, V_Speed_ASL_Deadband);
-      Constrain (V_Speed_ASL_Tmp, -V_Speed_Limit, V_Speed_Limit);
-      V_Speed_ASL := V_Speed_ASL_Tmp;
+      V_Speed_ASL := Constrain (Dead_Band (Asl - Asl_Long,
+                                V_Speed_ASL_Deadband),
+                                -V_Speed_Limit, V_Speed_Limit);
       --  Estimate vertical speed based on Acc - fused with baro
       --  to reduce drift
-      V_Speed_Tmp := V_Speed * V_Bias_Alpha +
-        V_Speed_ASL * (1.0 - V_Bias_Alpha);
-      Constrain (V_Speed_Tmp, -V_Speed_Limit, V_Speed_Limit);
-      V_Speed := V_Speed_Tmp;
+      V_Speed := Constrain (V_Speed * V_Bias_Alpha +
+                              V_Speed_ASL * (1.0 - V_Bias_Alpha),
+                            -V_Speed_Limit, V_Speed_Limit);
       V_Speed_Acc := V_Speed;
 
       --  Reset Integral gain of PID controller if being charged
@@ -244,15 +237,17 @@ is
 
       if Alt_Hold = 1 then
          --  Update the target altitude and the PID
-         Alt_Hold_Target_Tmp := Alt_Hold_Target +
-           Alt_Hold_Change / Alt_Hold_Change_SENS;
-         Constrain (Alt_Hold_Target_Tmp, T_Altitude'First, T_Altitude'Last);
-         Alt_Hold_Target := Alt_Hold_Target_Tmp;
+         Alt_Hold_Target := Constrain (Alt_Hold_Target +
+                                         Alt_Hold_Change / Alt_Hold_Change_SENS,
+                                       T_Altitude'First,
+                                       T_Altitude'Last);
          Altitude_Pid.Pid_Set_Desired (Alt_Hold_PID, Alt_Hold_Target);
 
          --  Compute error (current - target), limit the error
-         Alt_Hold_Err := Dead_Band (Asl - Alt_Hold_Target, Asl_Err_Deadband);
-         Constrain (Alt_Hold_Err, -Alt_Hold_Err_Max, Alt_Hold_Err_Max);
+         Alt_Hold_Err := Constrain (Dead_Band (Asl - Alt_Hold_Target,
+                                    Asl_Err_Deadband),
+                                    -Alt_Hold_Err_Max,
+                                    Alt_Hold_Err_Max);
          pragma Assert (Alt_Hold_Err
                         in Altitude_Pid.T_Error'First .. Altitude_Pid.T_Error'Last);
          Altitude_Pid.Pid_Set_Error (Alt_Hold_PID, -Alt_Hold_Err);
@@ -262,20 +257,27 @@ is
          Baro_V_Speed := (1.0 - Alt_Pid_Alpha)
            * ((V_Speed_Acc * V_Speed_Acc_Fac)
               + (V_Speed_ASL * V_Speed_ASL_Fac));
-         Constrain (Baro_V_Speed, T_Speed'First, T_Speed'Last);
+         Baro_V_Speed := Constrain (Baro_V_Speed, T_Speed'First, T_Speed'Last);
          Alt_Hold_PID_Out := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
-         Constrain (Alt_Hold_PID_Out, T_Altitude'First, T_Altitude'Last);
-         Constrain (Alt_Hold_PID_Val, T_Altitude'First, T_Altitude'Last);
+         Alt_Hold_PID_Out := Constrain (Alt_Hold_PID_Out,
+                                        T_Altitude'First,
+                                        T_Altitude'Last);
+         Alt_Hold_PID_Val := Constrain (Alt_Hold_PID_Val,
+                                        T_Altitude'First,
+                                        T_Altitude'Last);
          pragma Assert (Alt_Pid_Alpha in T_Alpha'First * 1.0 .. T_Alpha'Last);
          Alt_Hold_PID_Val := Alt_Pid_Alpha * Alt_Hold_PID_Val +
            Baro_V_Speed + Alt_Hold_PID_Out;
-         Constrain (Alt_Hold_PID_Val, T_Altitude'First, T_Altitude'Last);
+         Alt_Hold_PID_Val := Constrain (Alt_Hold_PID_Val,
+                                        T_Altitude'First,
+                                        T_Altitude'Last);
          pragma Assert (Alt_Pid_Asl_Fac
                         in T_Motor_Fac'First * 1.0 .. T_Motor_Fac'Last);
          Raw_Thrust := Truncate_To_T_Int16 (Alt_Hold_PID_Val * Alt_Pid_Asl_Fac);
-         Actuator_Thrust := Limit_Thrust (T_Int32 (Raw_Thrust)
-                                          + T_Int32 (Alt_Hold_Base_Thrust));
-         Constrain (Actuator_Thrust, Alt_Hold_Min_Thrust, Alt_Hold_Max_Thrust);
+         Actuator_Thrust := Constrain (Limit_Thrust (T_Int32 (Raw_Thrust)
+                                       + T_Int32 (Alt_Hold_Base_Thrust)),
+                                       Alt_Hold_Min_Thrust,
+                                       Alt_Hold_Max_Thrust);
       end if;
 
    end Stabilizer_Alt_Hold_Update;
