@@ -9,12 +9,18 @@ is
    --  Procedures and functions
 
    --  Fast inverse square root
+   --  See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
    function Inv_Sqrt (X : Float) return Float;
 
-   function Atan_2 (X : Float; Y : Float) return Float;
+   --  Imported atan2f function from C
+   function Atan_2 (X : Float; Y : Float) return Float
+     with Global => null;
    pragma Import (C, Atan_2, "atan2f");
 
-   function Asin (X : Float) return Float;
+
+   --  Imported asin function from C
+   function Asin (X : Float) return Float
+     with Global => null;
    pragma Import (C, Asin, "asin");
 
 end Maths_Pack;

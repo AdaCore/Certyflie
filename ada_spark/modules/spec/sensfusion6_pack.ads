@@ -14,7 +14,6 @@ is
 
    Is_Init : bool := 0;
 
-
    --  Procedures and functions
 
    procedure SensFusion6_Init;

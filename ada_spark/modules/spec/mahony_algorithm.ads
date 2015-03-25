@@ -2,6 +2,14 @@ with Types; use Types;
 with IMU_Pack; use IMU_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
 
+--  MAHONY_QUATERNION_IMU
+--  Madgwick's implementation of Mayhony's AHRS algorithm.
+--  See: http:-- www.x-io.co.uk/open-source-ahrs-with-x-imu
+--
+--  Date     Author      Notes
+--  29/09/2011 SOH Madgwick    Initial release
+--  02/10/2011 SOH Madgwick  Optimised for reduced CPU load
+
 package Mahony_Algorithm
   with SPARK_Mode
 is
