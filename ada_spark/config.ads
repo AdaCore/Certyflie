@@ -9,6 +9,6 @@ package Config is
 
    --  Two implemented algorithms for quaternions
    type Quaternion_Algorithm is (MAHONY, MADGWICK);
-   Sensor_Fusion_Algorithm : constant Quaternion_Algorithm := MAHONY;
+   SENSOR_FUSION_ALGORITHM : constant Quaternion_Algorithm := MAHONY;
 
 end Config;

@@ -1,5 +1,6 @@
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
+with IMU_Pack; use IMU_Pack;
 
 package SensFusion6_Pack
 with SPARK_Mode
@@ -49,6 +50,15 @@ is
    pragma Import (C,
                   C_SensFusion6_Get_AccZ_Without_Gravity,
                   "sensfusion6GetAccZWithoutGravity");
+
+   procedure SensFusion6_Update_Q
+     (Gx : T_Rate;
+      Gy : T_Rate;
+      Gz : T_Rate;
+      Ax : T_Acc;
+      Ay : T_Acc;
+      Az : T_Acc;
+      Dt : T_Delta_Time);
 
    procedure SensFusion6_Get_Euler_RPY
      (Euler_Roll_Actual  : out T_Angle;

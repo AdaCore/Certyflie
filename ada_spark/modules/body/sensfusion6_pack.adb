@@ -1,5 +1,7 @@
 with Maths_Pack; use Maths_Pack;
 with Safety_Pack; use Safety_Pack;
+with Mahony_Algorithm; use Mahony_Algorithm;
+with Config; use Config;
 
 with Interfaces.C; use Interfaces.C;
 
@@ -19,6 +21,33 @@ is
    begin
       return Is_Init;
    end SensFusion6_Test;
+
+    procedure SensFusion6_Update_Q
+     (Gx : T_Rate;
+      Gy : T_Rate;
+      Gz : T_Rate;
+      Ax : T_Acc;
+      Ay : T_Acc;
+      Az : T_Acc;
+      Dt : T_Delta_Time) is
+   begin
+      case SENSOR_FUSION_ALGORITHM is
+         when MAHONY => Mahony_Update_Q (Gx,
+                                         Gy,
+                                         Gz,
+                                         Ax,
+                                         Ay,
+                                         Az,
+                                         Dt);
+         when others => Mahony_Update_Q (Gx,
+                                         Gy,
+                                         Gz,
+                                         Ax,
+                                         Ay,
+                                         Az,
+                                         Dt);
+      end case;
+   end;
 
 
    procedure SensFusion6_Get_Euler_RPY
