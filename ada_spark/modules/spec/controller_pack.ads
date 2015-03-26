@@ -14,8 +14,8 @@ with SPARK_Mode,
 is
    --  PID Generic package initizalization
    package Attitude_Pid is new Pid_Pack
-     (T_Angle'First,
-      T_Angle'Last,
+     (T_Degrees'First,
+      T_Degrees'Last,
       Float'First / 4.0,
       Float'Last / 4.0,
       MIN_ATTITUDE_COEFF,
@@ -61,12 +61,12 @@ is
    --  given the measured values along each axis and the
    --  desired values retrieved from the commander.
    procedure Controller_Correct_Attitude_Pid
-     (Euler_Roll_Actual   : T_Angle;
-      Euler_Pitch_Actual  : T_Angle;
-      Euler_Yaw_Actual    : T_Angle;
-      Euler_Roll_Desired  : T_Angle;
-      Euler_Pitch_Desired : T_Angle;
-      Euler_Yaw_Desired   : T_Angle)
+     (Euler_Roll_Actual   : T_Degrees;
+      Euler_Pitch_Actual  : T_Degrees;
+      Euler_Yaw_Actual    : T_Degrees;
+      Euler_Roll_Desired  : T_Degrees;
+      Euler_Pitch_Desired : T_Degrees;
+      Euler_Yaw_Desired   : T_Degrees)
      with
        Global => (In_Out => Attitude_PIDs);
 

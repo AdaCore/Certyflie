@@ -81,12 +81,12 @@ is
    end Controller_Correct_Rate_PID;
 
    procedure Controller_Correct_Attitude_Pid
-     (Euler_Roll_Actual   : T_Angle;
-      Euler_Pitch_Actual  : T_Angle;
-      Euler_Yaw_Actual    : T_Angle;
-      Euler_Roll_Desired  : T_Angle;
-      Euler_Pitch_Desired : T_Angle;
-      Euler_Yaw_Desired   : T_Angle) is
+     (Euler_Roll_Actual   : T_Degrees;
+      Euler_Pitch_Actual  : T_Degrees;
+      Euler_Yaw_Actual    : T_Degrees;
+      Euler_Roll_Desired  : T_Degrees;
+      Euler_Pitch_Desired : T_Degrees;
+      Euler_Yaw_Desired   : T_Degrees) is
       Yaw_Error : Float := Euler_Yaw_Desired - Euler_Yaw_Actual;
    begin
       Attitude_Pid.Pid_Set_Desired (Roll_Pid, Euler_Roll_Desired);

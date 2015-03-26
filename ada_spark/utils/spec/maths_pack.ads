@@ -1,3 +1,5 @@
+with Types; use Types;
+
 package Maths_Pack
   with SPARK_Mode
 is
@@ -6,6 +8,11 @@ is
    PI : constant :=
           3.14159_26535_89793_23846_26433_83279_50288_41971_69399_37511;
 
+   --  Types
+
+   --  Angle range type, in radians.
+   subtype T_Radians is Float range -2.0 * PI .. 2.0 * PI;
+
    --  Procedures and functions
 
    --  Fast inverse square root
@@ -13,13 +20,13 @@ is
    function Inv_Sqrt (X : Float) return Float;
 
    --  Imported atan2f function from C
-   function Atan_2 (X : Float; Y : Float) return Float
+   function Atan_2 (X : Float; Y : Float) return T_Radians
      with Global => null;
    pragma Import (C, Atan_2, "atan2f");
 
 
    --  Imported asin function from C
-   function Asin (X : Float) return Float
+   function Asin (X : Float) return T_Radians
      with Global => null;
    pragma Import (C, Asin, "asinf");
 

@@ -18,7 +18,6 @@ is
    pragma Export (C, Q2, "q2");
    pragma Export (C, Q3, "q3");
 
-
    Is_Init : bool := 0;
 
    --  Procedures and functions
@@ -26,36 +25,6 @@ is
    procedure SensFusion6_Init;
 
    function SensFusion6_Test return bool;
-
-   procedure C_SensFusion6_Update_Q
-     (Gx : Float;
-      Gy : Float;
-      GZ : Float;
-      Ax : Float;
-      Ay : Float;
-      Az : Float;
-      Dt : Float)
-     with
-       Global => null;
-   pragma Import (C, C_SensFusion6_Update_Q, "sensfusion6UpdateQ");
-
-   procedure C_SensFusion6_Get_Euler_RPY
-     (Euler_Roll_Actual  : out T_Angle;
-      Euler_Pitch_Actual : out T_Angle;
-      Euler_Yaw_Actual   : out T_Angle)
-     with
-       Global => null;
-   pragma Import (C, C_SensFusion6_Get_Euler_RPY, "sensfusion6GetEulerRPY");
-
-   function C_SensFusion6_Get_AccZ_Without_Gravity
-     (Ax : Float;
-      Ay : Float;
-      Az : Float) return Float
-     with
-       Global => null;
-   pragma Import (C,
-                  C_SensFusion6_Get_AccZ_Without_Gravity,
-                  "sensfusion6GetAccZWithoutGravity");
 
    procedure SensFusion6_Update_Q
      (Gx : T_Rate;
@@ -67,15 +36,15 @@ is
       Dt : T_Delta_Time);
 
    procedure SensFusion6_Get_Euler_RPY
-     (Euler_Roll_Actual  : out T_Angle;
-      Euler_Pitch_Actual : out T_Angle;
-      Euler_Yaw_Actual   : out T_Angle);
+     (Euler_Roll_Actual  : out T_Degrees;
+      Euler_Pitch_Actual : out T_Degrees;
+      Euler_Yaw_Actual   : out T_Degrees);
 
 
    function SensFusion6_Get_AccZ_Without_Gravity
-     (Ax : Float;
-      Ay : Float;
-      Az : Float) return Float;
+     (Ax : T_Acc;
+      Ay : T_Acc;
+      Az : T_Acc) return Float;
 
 
 end SensFusion6_Pack;

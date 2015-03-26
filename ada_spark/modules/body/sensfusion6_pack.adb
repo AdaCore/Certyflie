@@ -51,9 +51,9 @@ is
 
 
    procedure SensFusion6_Get_Euler_RPY
-     (Euler_Roll_Actual  : out T_Angle;
-      Euler_Pitch_Actual : out T_Angle;
-      Euler_Yaw_Actual   : out T_Angle) is
+     (Euler_Roll_Actual  : out T_Degrees;
+      Euler_Pitch_Actual : out T_Degrees;
+      Euler_Yaw_Actual   : out T_Degrees) is
       Grav_X : Float;
       Grav_Y : Float;
       Grav_Z : Float;
@@ -74,16 +74,19 @@ is
    end SensFusion6_Get_Euler_RPY;
 
    function SensFusion6_Get_AccZ_Without_Gravity
-     (Ax : Float;
-      Ay : Float;
-      Az : Float) return Float is
-      Grav_X : Float;
-      Grav_Y : Float;
-      Grav_Z : Float;
+     (Ax : T_Acc;
+      Ay : T_Acc;
+      Az : T_Acc) return Float is
+      Grav_X : Float range -4.0 .. 4.0;
+      Grav_Y : Float range -4.0 .. 4.0;
+      Grav_Z : Float range -4.0 .. 4.0;
    begin
       --  Estimated gravity direction
+
       Grav_X := 2.0 * (Q1 * Q3 - Q0 * Q2);
+
       Grav_Y := 2.0 * (Q0 * Q1 + Q2 * Q3);
+
       Grav_Z := Q0 * Q0 - Q1 * Q1 - Q2 * Q2 + Q3 * Q3;
 
       --  Feturn vertical acceleration without gravity

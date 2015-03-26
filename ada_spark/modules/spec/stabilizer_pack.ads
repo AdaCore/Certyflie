@@ -137,17 +137,17 @@ private
    Mag  : Magnetometer_Data  := (0.0, 0.0, 0.0)
      with Part_Of => IMU_Outputs; --  Magnetometer axis data in testla
 
-   Euler_Roll_Actual   : T_Angle := 0.0
+   Euler_Roll_Actual   : T_Degrees := 0.0
      with Part_Of => Actual_Angles;
-   Euler_Pitch_Actual  : T_Angle := 0.0
+   Euler_Pitch_Actual  : T_Degrees := 0.0
      with Part_Of => Actual_Angles;
-   Euler_Yaw_Actual    : T_Angle := 0.0
+   Euler_Yaw_Actual    : T_Degrees := 0.0
      with Part_Of => Actual_Angles;
-   Euler_Roll_Desired  : T_Angle := 0.0
+   Euler_Roll_Desired  : T_Degrees := 0.0
      with Part_Of => Desired_Angles;
-   Euler_Pitch_Desired : T_Angle := 0.0
+   Euler_Pitch_Desired : T_Degrees := 0.0
      with Part_Of => Desired_Angles;
-   Euler_Yaw_Desired   : T_Angle := 0.0
+   Euler_Yaw_Desired   : T_Degrees := 0.0
      with Part_Of => Desired_Angles;
    Roll_Rate_Desired   : T_Rate  := 0.0
      with Part_Of => Desired_Rates;

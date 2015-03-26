@@ -25,7 +25,7 @@ package Types is
 
    --  Angle range type, in degrees.
    --  This range is deduced from the MPU9150 Datasheet.
-   subtype T_Angle        is Float range -360.0 .. 360.0;
+   subtype T_Degrees        is Float range -360.0 .. 360.0;
 
    --  Allowed speed range, in m/s.
    --  This range is deduced from the MPU9150 Datasheet.

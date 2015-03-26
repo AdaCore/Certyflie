@@ -2,7 +2,6 @@ with Maths_Pack; use Maths_Pack;
 with Safety_Pack; use Safety_Pack;
 
 package body Mahony_Algorithm
-with SPARK_Mode
 is
 
    procedure Mahony_Update_Q
