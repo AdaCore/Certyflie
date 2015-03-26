@@ -120,7 +120,7 @@ is
                               Acc.X, Acc.Y, Acc.Z,
                               FUSION_UPDATE_DT);
       --  Get Euler angles
-      C_SensFusion6_Get_Euler_RPY (Euler_Roll_Actual,
+      SensFusion6_Get_Euler_RPY (Euler_Roll_Actual,
                                    Euler_Pitch_Actual,
                                    Euler_Yaw_Actual);
       --  Vertical acceleration woithout gravity

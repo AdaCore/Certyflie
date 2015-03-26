@@ -21,6 +21,6 @@ is
    --  Imported asin function from C
    function Asin (X : Float) return Float
      with Global => null;
-   pragma Import (C, Asin, "asin");
+   pragma Import (C, Asin, "asinf");
 
 end Maths_Pack;
