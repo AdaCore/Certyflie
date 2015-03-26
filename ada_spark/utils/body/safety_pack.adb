@@ -1,10 +1,12 @@
-package body Safety_Pack is
+package body Safety_Pack
+  with SPARK_Mode
+is
 
    function Constrain
      (Value     : Float;
       Min_Value : Float;
       Max_Value : Float) return Float is
-      Res : Float;
+      Res : Float := Value;
    begin
       if Value < Min_Value then
          Res := Min_Value;
@@ -18,7 +20,7 @@ package body Safety_Pack is
      (Value     : T_Uint16;
       Min_Value : T_Uint16;
       Max_Value : T_Uint16) return T_Uint16 is
-      Res : T_Uint16;
+      Res : T_Uint16 := Value;
    begin
       if Value < Min_Value then
          Res := Min_Value;

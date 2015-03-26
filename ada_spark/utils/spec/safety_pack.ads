@@ -11,24 +11,38 @@ is
       Threshold : Positive_Float) return Float
 
      with
-       Post => abs Dead_Band'Result <= Value;
+       Contract_Cases => ((Value in -Threshold .. Threshold) =>
+                                Dead_Band'Result = 0.0,
+                          Value > Threshold                  =>
+                            Dead_Band'Result = Value - Threshold,
+                          Value < -Threshold                 =>
+                            Dead_Band'Result = Value + Threshold);
    pragma Inline (Dead_Band);
 
+   --  Saturate a Float value within a given range
    Function Constrain
      (Value     : Float;
       Min_Value : Float;
       Max_Value : Float) return Float
      with
-       Post => Constrain'Result in Min_Value .. Max_Value;
+       Pre => Min_Value < Max_Value,
+       Contract_Cases => (Value < Min_Value => Constrain'Result = Min_Value,
+                          Value > Max_value => Constrain'Result = Max_Value,
+                          others            => Constrain'Result = Value);
+
    pragma Inline (Constrain);
 
+   --  Saturate a T_Uint16 value within a given range
    function Constrain
      (Value     : T_Uint16;
       Min_Value : T_Uint16;
       Max_Value : T_Uint16) return T_Uint16
      with
-       Post => Constrain'Result in Min_Value .. Max_Value;
-   pragma Inline (Constrain);
+       Pre => Min_Value < Max_Value,
+       Contract_Cases => (Value < Min_Value => Constrain'Result = Min_Value,
+                          Value > Max_value => Constrain'Result = Max_Value,
+                          others            => Constrain'Result = Value);
+       pragma Inline (Constrain);
 
    --  Truncate a 32-bit Integer into a 16-bit Integer
    function Truncate_To_T_Int16 (Value : Float) return T_Int16;

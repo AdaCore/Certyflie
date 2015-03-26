@@ -39,6 +39,6 @@ package Types is
 
    --  Types used for the implementation of Mahony and Madgwick algorithms
 
-   subtype T_Quaternion is Float range 0.0 .. 1.0;
+   subtype T_Quaternion is Float range -1.0 .. 1.0;
 
 end Types;
