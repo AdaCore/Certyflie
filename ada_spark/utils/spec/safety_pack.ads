@@ -6,6 +6,7 @@ is
 
    --  Procedures and functions
 
+   --  Deadband function
    function Dead_Band
      (Value     : Float;
       Threshold : Positive_Float) return Float
@@ -20,14 +21,14 @@ is
    pragma Inline (Dead_Band);
 
    --  Saturate a Float value within a given range
-   Function Constrain
+   function Constrain
      (Value     : Float;
       Min_Value : Float;
       Max_Value : Float) return Float
      with
        Pre => Min_Value < Max_Value,
        Contract_Cases => (Value < Min_Value => Constrain'Result = Min_Value,
-                          Value > Max_value => Constrain'Result = Max_Value,
+                          Value > Max_Value => Constrain'Result = Max_Value,
                           others            => Constrain'Result = Value);
 
    pragma Inline (Constrain);
@@ -40,9 +41,9 @@ is
      with
        Pre => Min_Value < Max_Value,
        Contract_Cases => (Value < Min_Value => Constrain'Result = Min_Value,
-                          Value > Max_value => Constrain'Result = Max_Value,
+                          Value > Max_Value => Constrain'Result = Max_Value,
                           others            => Constrain'Result = Value);
-       pragma Inline (Constrain);
+   pragma Inline (Constrain);
 
    --  Truncate a 32-bit Integer into a 16-bit Integer
    function Truncate_To_T_Int16 (Value : Float) return T_Int16;

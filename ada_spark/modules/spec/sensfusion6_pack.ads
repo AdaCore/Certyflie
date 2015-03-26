@@ -13,6 +13,12 @@ is
    --  quaternion of sensor frame relative to auxiliary frame
    Q3 : T_Quaternion := 0.0;
 
+   pragma Export (C, Q0, "q0");
+   pragma Export (C, Q1, "q1");
+   pragma Export (C, Q2, "q2");
+   pragma Export (C, Q3, "q3");
+
+
    Is_Init : bool := 0;
 
    --  Procedures and functions

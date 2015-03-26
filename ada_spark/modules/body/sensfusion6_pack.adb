@@ -22,7 +22,7 @@ is
       return Is_Init;
    end SensFusion6_Test;
 
-    procedure SensFusion6_Update_Q
+   procedure SensFusion6_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
       Gz : T_Rate;
@@ -47,7 +47,7 @@ is
                                          Az,
                                          Dt);
       end case;
-   end;
+   end SensFusion6_Update_Q;
 
 
    procedure SensFusion6_Get_Euler_RPY

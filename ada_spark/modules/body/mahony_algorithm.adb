@@ -1,4 +1,5 @@
 with Maths_Pack; use Maths_Pack;
+with Safety_Pack; use Safety_Pack;
 
 package body Mahony_Algorithm
 with SPARK_Mode
@@ -12,25 +13,30 @@ is
       Ay : T_Acc;
       Az : T_Acc;
       Dt : T_Delta_Time) is
-      Recip_Norm  : Float;
-      Norm_Ax     : T_Acc;
-      Norm_Ay     : T_Acc;
-      Norm_Az     : T_Acc;
+      Recip_Norm    : Float;
+      Norm_Ax       : T_Acc;
+      Norm_Ay       : T_Acc;
+      Norm_Az       : T_Acc;
       --  Conversion from degrees/s to rad/s
       Rad_Gx        : Float := Gx * PI / 180.0;
       Rad_Gy        : Float := Gy * PI / 180.0;
       Rad_Gz        : Float := Gz * PI / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
-      Half_Vx     : Float := Q1 * Q3 - Q0 * Q2;
-      Half_Vy     : Float := Q0 * Q1 + Q2 * Q3;
-      Half_Vz     : Float := Q0 * Q0 - 0.5 + Q3 * Q3;
-      Half_Ex     : Float;
-      Half_Ey     : Float;
-      Half_Ez     : Float;
-      Qa          : T_Quaternion := Q0;
-      Qb          : T_Quaternion := Q1;
-      Qc          : T_Quaternion := Q2;
+      Half_Vx       : Float := Q1 * Q3 - Q0 * Q2;
+      Half_Vy       : Float := Q0 * Q1 + Q2 * Q3;
+      Half_Vz       : Float := Q0 * Q0 - 0.5 + Q3 * Q3;
+      Half_Ex       : Float;
+      Half_Ey       : Float;
+      Half_Ez       : Float;
+      Q0_Tmp        : Float;
+      Q1_Tmp        : Float;
+      Q2_Tmp        : Float;
+      Q3_Tmp        : Float;
+      Qa            : T_Quaternion := Q0;
+      Qb            : T_Quaternion := Q1;
+      Qc            : T_Quaternion := Q2;
+
    begin
       --  Compute feedback only if accelerometer measurement valid
       --  (avoids NaN in accelerometer normalisation)
@@ -72,17 +78,26 @@ is
       Rad_Gy := Rad_Gy * (0.5 * Dt);
       Rad_Gz := Rad_Gz * (0.5 * Dt);
 
-      Q0 := Q0 + (-Qb * Rad_Gx - Qc * Rad_Gy - Q3 * Rad_Gz);
-      Q1 := Q1 + (Qa * Rad_Gx + Qc * Rad_Gz - Q3 * Rad_Gy);
-      Q2 := Q2 + (Qa * Rad_Gy - Qb * Rad_Gz + Q3 * Rad_Gx);
-      Q3 := Q3 + (Qa * Rad_Gz + Qb * Rad_Gy - Qc * Rad_Gx);
+      Q0_Tmp := Q0 + (-Qb * Rad_Gx - Qc * Rad_Gy - Q3 * Rad_Gz);
+      Q1_Tmp := Q1 + (Qa * Rad_Gx + Qc * Rad_Gz - Q3 * Rad_Gy);
+      Q2_Tmp := Q2 + (Qa * Rad_Gy - Qb * Rad_Gz + Q3 * Rad_Gx);
+      Q3_Tmp := Q3 + (Qa * Rad_Gz + Qb * Rad_Gy - Qc * Rad_Gx);
 
       --  Normalize quaternions
-      Recip_Norm := Inv_Sqrt (Q0 * Q0 + Q1 * Q1 + Q2 * Q2 + Q3 * Q3);
-      Q0 := Q0 * Recip_Norm;
-      Q1 := Q1 * Recip_Norm;
-      Q2 := Q2 * Recip_Norm;
-      Q3 := Q3 * Recip_Norm;
+      Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
+                                Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
+      Q0 := Constrain (Q0_Tmp * Recip_Norm,
+                       T_Quaternion'First,
+                       T_Quaternion'Last);
+      Q1 := Constrain (Q1_Tmp * Recip_Norm,
+                       T_Quaternion'First,
+                       T_Quaternion'Last);
+      Q2 := Constrain (Q2_Tmp * Recip_Norm,
+                       T_Quaternion'First,
+                       T_Quaternion'Last);
+      Q3 := Constrain (Q3_Tmp * Recip_Norm,
+                       T_Quaternion'First,
+                       T_Quaternion'Last);
    end Mahony_Update_Q;
 
 end Mahony_Algorithm;

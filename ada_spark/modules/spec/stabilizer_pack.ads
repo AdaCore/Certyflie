@@ -233,9 +233,9 @@ private
    --  vs target altitude in meters
    Alt_Hold_Change_SENS : T_Sensitivity := 200.0
      with Part_Of => Alt_Hold_Parameters; --  Sensitivity of target altitude
-   -- change (thrust input control) while
-   -- hovering. Lower = more sensitive
-   -- & faster changes
+   --  change (thrust input control) while
+   --  hovering. Lower = more sensitive
+   --  & faster changes
    Alt_Pid_Asl_Fac          : T_Motor_Fac := 13000.0
      with Part_Of => Alt_Hold_Parameters; --  Relates meters asl to thrust
    Alt_Pid_Alpha            : T_Alpha := 0.8

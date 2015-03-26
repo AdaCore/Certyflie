@@ -1,3 +1,4 @@
+
 /**
  *    ||          ____  _ __
  * +------+      / __ )(_) /_______________ _____  ___
@@ -48,10 +49,10 @@
   float integralFBz = 0.0f;  // integral error terms scaled by Ki
 #endif
 
-float q0 = 1.0f;
-float q1 = 0.0f;
-float q2 = 0.0f;
-float q3 = 0.0f;  // quaternion of sensor frame relative to auxiliary frame
+extern float q0;
+extern float q1;
+extern float q2;
+extern float q3;  // quaternion of sensor frame relative to auxiliary frame
 
 static bool isInit;
 
