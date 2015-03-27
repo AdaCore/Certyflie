@@ -24,7 +24,6 @@ library project Cf_Spark is
                               "safety_pack",
                               "worker_pack",
                               "sensfusion6_pack",
-                              "mahony_algorithm",
                               "pid_pack",
                               "controller_pack",
                               "commander_pack",
