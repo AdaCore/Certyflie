@@ -9,6 +9,7 @@ with Pid_Parameters; use Pid_Parameters;
 with Commander_Pack; use Commander_Pack;
 with Controller_Pack; use Controller_Pack;
 with Free_Fall_Pack; use Free_Fall_Pack;
+with SensFusion6_Pack; use SensFusion6_Pack;
 
 package Stabilizer_Pack
 with SPARK_Mode,
@@ -65,6 +66,7 @@ is
                              Asl_Parameters,
                              Alt_Hold_Parameters),
                   In_Out => (FF_State,
+                             SensFusion6_State,
                              IMU_Outputs,
                              Desired_Angles,
                              Desired_Rates,
@@ -99,7 +101,8 @@ is
                              V_Speed_Parameters),
                   Output => (Actual_Angles,
                              Desired_Rates),
-                  In_Out => (V_Speed_Variables,
+                  In_Out => (SensFusion6_State,
+                             V_Speed_Variables,
                              Attitude_PIDs));
 
    --  Update the Rate PIDs.
@@ -192,7 +195,7 @@ private
      with Part_Of => Alt_Hold_Variables; --  Currently in altitude hold mode
    Set_Alt_Hold : bool := 0
      with Part_Of => Alt_Hold_Variables; --  Hover mode has just been activated
-   Alt_Hold_PID_Val : Float := 0.0
+   Alt_Hold_PID_Val : T_Altitude := 0.0
      with Part_Of => Alt_Hold_Variables; --  Output of the PID controller
    Alt_Hold_Err     : Float := 0.0
      with Part_Of => Alt_Hold_Variables; --  Altitude error

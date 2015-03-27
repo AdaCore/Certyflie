@@ -3,7 +3,6 @@ with Interfaces.C; use Interfaces.C;
 with Config; use Config;
 with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
-with SensFusion6_Pack; use SensFusion6_Pack;
 with PM_Pack; use PM_Pack;
 
 package body Stabilizer_Pack
@@ -176,8 +175,8 @@ is
    procedure Stabilizer_Alt_Hold_Update is
       LPS25H_Data_Valid   : Boolean;
       Prev_Integ          : Float;
-      Baro_V_Speed        : Float;
-      Alt_Hold_PID_Out    : Float;
+      Baro_V_Speed        : T_Speed;
+      Alt_Hold_PID_Out    : T_Altitude;
       Raw_Thrust          : T_Int16;
    begin
       --  Get altitude hold commands from the pilot
@@ -232,7 +231,10 @@ is
          Alt_Hold_PID.Integ := Prev_Integ;
 
          Altitude_Pid.Pid_Update (Alt_Hold_PID, Asl, False);
-         Alt_Hold_PID_Val := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
+         Alt_Hold_PID_Val := Saturate (Altitude_Pid.Pid_Get_Output
+                                       (Alt_Hold_PID),
+                                       T_Altitude'First,
+                                       T_Altitude'Last);
       end if;
 
       if Alt_Hold = 1 then
@@ -248,32 +250,26 @@ is
                                     Asl_Err_Deadband),
                                     -Alt_Hold_Err_Max,
                                     Alt_Hold_Err_Max);
-         pragma Assert
-           (Alt_Hold_Err
-            in Altitude_Pid.T_Error'First .. Altitude_Pid.T_Error'Last);
+
+         --  Update the Altitude PID
          Altitude_Pid.Pid_Set_Error (Alt_Hold_PID, -Alt_Hold_Err);
-         --  TODO: Pid Update ...
          Altitude_Pid.Pid_Update (Alt_Hold_PID, Asl, False);
 
-         Baro_V_Speed := (1.0 - Alt_Pid_Alpha)
-           * ((V_Speed_Acc * V_Speed_Acc_Fac)
-              + (V_Speed_ASL * V_Speed_ASL_Fac));
-         Baro_V_Speed := Saturate (Baro_V_Speed, T_Speed'First, T_Speed'Last);
-         Alt_Hold_PID_Out := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
-         Alt_Hold_PID_Out := Saturate (Alt_Hold_PID_Out,
-                                        T_Altitude'First,
-                                        T_Altitude'Last);
-         Alt_Hold_PID_Val := Saturate (Alt_Hold_PID_Val,
-                                        T_Altitude'First,
-                                        T_Altitude'Last);
-         pragma Assert (Alt_Pid_Alpha in T_Alpha'First * 1.0 .. T_Alpha'Last);
-         Alt_Hold_PID_Val := Alt_Pid_Alpha * Alt_Hold_PID_Val +
-           Baro_V_Speed + Alt_Hold_PID_Out;
-         Alt_Hold_PID_Val := Saturate (Alt_Hold_PID_Val,
-                                        T_Altitude'First,
-                                        T_Altitude'Last);
-         pragma Assert (Alt_Pid_Asl_Fac
-                        in T_Motor_Fac'First * 1.0 .. T_Motor_Fac'Last);
+         Baro_V_Speed := Saturate ((1.0 - Alt_Pid_Alpha)
+                                   * ((V_Speed_Acc * V_Speed_Acc_Fac)
+                                   + (V_Speed_ASL * V_Speed_ASL_Fac)),
+                                   T_Speed'First,
+                                   T_Speed'Last);
+         Alt_Hold_PID_Out := Saturate (Altitude_Pid.Pid_Get_Output
+                                       (Alt_Hold_PID),
+                                       T_Altitude'First,
+                                       T_Altitude'Last);
+
+         Alt_Hold_PID_Val := Saturate (Alt_Pid_Alpha * Alt_Hold_PID_Val +
+                                         Baro_V_Speed + Alt_Hold_PID_Out,
+                                       T_Altitude'First,
+                                       T_Altitude'Last);
+
          Raw_Thrust := Truncate_To_T_Int16 (Alt_Hold_PID_Val * Alt_Pid_Asl_Fac);
          Actuator_Thrust := Saturate (Limit_Thrust (T_Int32 (Raw_Thrust)
                                        + T_Int32 (Alt_Hold_Base_Thrust)),
