@@ -4,7 +4,8 @@ with IMU_Pack; use IMU_Pack;
 
 package SensFusion6_Pack
 with SPARK_Mode,
-  Abstract_State => SensFusion6_State
+  Abstract_State => (SensFusion6_State),
+  Initializes    => (SensFusion6_State)
 is
 
    --  Procedures and functions

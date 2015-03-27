@@ -35,11 +35,11 @@ is
 private
    --  Types
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
-   subtype Landing_Threshold   is T_Acc range 0.97 .. 1.05;
+   subtype Landing_Threshold   is T_Acc range 0.97 .. 1.1;
 
    --  Global variables
 
-   FF_MODE                   : Free_Fall_Mode := DISABLED
+   FF_MODE                   : Free_Fall_Mode := ENABLED
      with Part_Of => FF_Parameters;
    MAX_RECOVERY_THRUST       : T_Uint16 := 59_000
      with Part_Of => FF_Parameters;
