@@ -63,7 +63,7 @@ is
       Grav_Y := 2.0 * (Q0 * Q1 + Q2 * Q3);
       Grav_Z := Q0 * Q0 - Q1 * Q1 - Q2 * Q2 + Q3 * Q3;
 
-      Grav_X := Constrain (Grav_X, -1.0, 1.0);
+      Grav_X := Saturate (Grav_X, -1.0, 1.0);
 
       Euler_Yaw_Actual :=
         Atan_2 (2.0 * (Q0 * Q3 + Q1 * Q2),

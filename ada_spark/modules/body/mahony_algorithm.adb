@@ -85,16 +85,16 @@ is
       --  Normalize quaternions
       Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
                                 Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
-      Q0 := Constrain (Q0_Tmp * Recip_Norm,
+      Q0 := Saturate (Q0_Tmp * Recip_Norm,
                        T_Quaternion'First,
                        T_Quaternion'Last);
-      Q1 := Constrain (Q1_Tmp * Recip_Norm,
+      Q1 := Saturate (Q1_Tmp * Recip_Norm,
                        T_Quaternion'First,
                        T_Quaternion'Last);
-      Q2 := Constrain (Q2_Tmp * Recip_Norm,
+      Q2 := Saturate (Q2_Tmp * Recip_Norm,
                        T_Quaternion'First,
                        T_Quaternion'Last);
-      Q3 := Constrain (Q3_Tmp * Recip_Norm,
+      Q3 := Saturate (Q3_Tmp * Recip_Norm,
                        T_Quaternion'First,
                        T_Quaternion'Last);
    end Mahony_Update_Q;

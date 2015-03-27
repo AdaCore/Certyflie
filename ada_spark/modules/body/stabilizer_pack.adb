@@ -129,9 +129,9 @@ is
                                                         Acc.Z);
       Acc_MAG := (Acc.X * Acc.X) + (Acc.Y * Acc.Y) + (Acc.Z * Acc.Z);
 
-      --  Estimate vertical speed from acceleration and constrain
+      --  Estimate vertical speed from acceleration and Saturate
       --  it within a limit
-      V_Speed := Constrain (V_Speed +
+      V_Speed := Saturate (V_Speed +
                               Dead_Band (Acc_WZ, V_Acc_Deadband) *
                               FUSION_UPDATE_DT,
                             -V_Speed_Limit,
@@ -186,22 +186,22 @@ is
       --  Get barometer altitude estimations
       LPS25h_Get_Data (Pressure, Temperature, Asl_Raw, LPS25H_Data_Valid);
       if LPS25H_Data_Valid then
-         Asl := Constrain (Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha),
+         Asl := Saturate (Asl * Asl_Alpha + Asl_Raw * (1.0 - Asl_Alpha),
                            T_Altitude'First,
                            T_Altitude'Last);
-         Asl_Long := Constrain (Asl_Long * Asl_Alpha_Long
+         Asl_Long := Saturate (Asl_Long * Asl_Alpha_Long
                                 + Asl_Raw * (1.0 - Asl_Alpha_Long),
                                 T_Altitude'First,
                                 T_Altitude'Last);
       end if;
 
       --  Estimate vertical speed based on successive barometer readings
-      V_Speed_ASL := Constrain (Dead_Band (Asl - Asl_Long,
+      V_Speed_ASL := Saturate (Dead_Band (Asl - Asl_Long,
                                 V_Speed_ASL_Deadband),
                                 -V_Speed_Limit, V_Speed_Limit);
       --  Estimate vertical speed based on Acc - fused with baro
       --  to reduce drift
-      V_Speed := Constrain (V_Speed * V_Bias_Alpha +
+      V_Speed := Saturate (V_Speed * V_Bias_Alpha +
                               V_Speed_ASL * (1.0 - V_Bias_Alpha),
                             -V_Speed_Limit, V_Speed_Limit);
       V_Speed_Acc := V_Speed;
@@ -237,19 +237,20 @@ is
 
       if Alt_Hold = 1 then
          --  Update the target altitude and the PID
-         Alt_Hold_Target := Constrain (Alt_Hold_Target +
-                                         Alt_Hold_Change / Alt_Hold_Change_SENS,
+         Alt_Hold_Target := Saturate (Alt_Hold_Target +
+                                       Alt_Hold_Change / Alt_Hold_Change_SENS,
                                        T_Altitude'First,
                                        T_Altitude'Last);
          Altitude_Pid.Pid_Set_Desired (Alt_Hold_PID, Alt_Hold_Target);
 
          --  Compute error (current - target), limit the error
-         Alt_Hold_Err := Constrain (Dead_Band (Asl - Alt_Hold_Target,
+         Alt_Hold_Err := Saturate (Dead_Band (Asl - Alt_Hold_Target,
                                     Asl_Err_Deadband),
                                     -Alt_Hold_Err_Max,
                                     Alt_Hold_Err_Max);
-         pragma Assert (Alt_Hold_Err
-                        in Altitude_Pid.T_Error'First .. Altitude_Pid.T_Error'Last);
+         pragma Assert
+           (Alt_Hold_Err
+            in Altitude_Pid.T_Error'First .. Altitude_Pid.T_Error'Last);
          Altitude_Pid.Pid_Set_Error (Alt_Hold_PID, -Alt_Hold_Err);
          --  TODO: Pid Update ...
          Altitude_Pid.Pid_Update (Alt_Hold_PID, Asl, False);
@@ -257,24 +258,24 @@ is
          Baro_V_Speed := (1.0 - Alt_Pid_Alpha)
            * ((V_Speed_Acc * V_Speed_Acc_Fac)
               + (V_Speed_ASL * V_Speed_ASL_Fac));
-         Baro_V_Speed := Constrain (Baro_V_Speed, T_Speed'First, T_Speed'Last);
+         Baro_V_Speed := Saturate (Baro_V_Speed, T_Speed'First, T_Speed'Last);
          Alt_Hold_PID_Out := Altitude_Pid.Pid_Get_Output (Alt_Hold_PID);
-         Alt_Hold_PID_Out := Constrain (Alt_Hold_PID_Out,
+         Alt_Hold_PID_Out := Saturate (Alt_Hold_PID_Out,
                                         T_Altitude'First,
                                         T_Altitude'Last);
-         Alt_Hold_PID_Val := Constrain (Alt_Hold_PID_Val,
+         Alt_Hold_PID_Val := Saturate (Alt_Hold_PID_Val,
                                         T_Altitude'First,
                                         T_Altitude'Last);
          pragma Assert (Alt_Pid_Alpha in T_Alpha'First * 1.0 .. T_Alpha'Last);
          Alt_Hold_PID_Val := Alt_Pid_Alpha * Alt_Hold_PID_Val +
            Baro_V_Speed + Alt_Hold_PID_Out;
-         Alt_Hold_PID_Val := Constrain (Alt_Hold_PID_Val,
+         Alt_Hold_PID_Val := Saturate (Alt_Hold_PID_Val,
                                         T_Altitude'First,
                                         T_Altitude'Last);
          pragma Assert (Alt_Pid_Asl_Fac
                         in T_Motor_Fac'First * 1.0 .. T_Motor_Fac'Last);
          Raw_Thrust := Truncate_To_T_Int16 (Alt_Hold_PID_Val * Alt_Pid_Asl_Fac);
-         Actuator_Thrust := Constrain (Limit_Thrust (T_Int32 (Raw_Thrust)
+         Actuator_Thrust := Saturate (Limit_Thrust (T_Int32 (Raw_Thrust)
                                        + T_Int32 (Alt_Hold_Base_Thrust)),
                                        Alt_Hold_Min_Thrust,
                                        Alt_Hold_Max_Thrust);

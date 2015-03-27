@@ -21,29 +21,33 @@ is
    pragma Inline (Dead_Band);
 
    --  Saturate a Float value within a given range
-   function Constrain
+   function Saturate
      (Value     : Float;
       Min_Value : Float;
       Max_Value : Float) return Float
      with
-       Pre => Min_Value < Max_Value,
-       Contract_Cases => (Value < Min_Value => Constrain'Result = Min_Value,
-                          Value > Max_Value => Constrain'Result = Max_Value,
-                          others            => Constrain'Result = Value);
+       Post => (if Value < Min_Value then
+                  Saturate'Result = Min_Value
+                elsif Value > Max_Value then
+                  Saturate'Result = Max_Value
+                else
+                  Saturate'Result = Value);
 
-   pragma Inline (Constrain);
+   pragma Inline (Saturate);
 
    --  Saturate a T_Uint16 value within a given range
-   function Constrain
+   function Saturate
      (Value     : T_Uint16;
       Min_Value : T_Uint16;
       Max_Value : T_Uint16) return T_Uint16
      with
-       Pre => Min_Value < Max_Value,
-       Contract_Cases => (Value < Min_Value => Constrain'Result = Min_Value,
-                          Value > Max_Value => Constrain'Result = Max_Value,
-                          others            => Constrain'Result = Value);
-   pragma Inline (Constrain);
+        Post => (if Value < Min_Value then
+                  Saturate'Result = Min_Value
+                elsif Value > Max_Value then
+                  Saturate'Result = Max_Value
+                else
+                  Saturate'Result = Value);
+   pragma Inline (Saturate);
 
    --  Truncate a 32-bit Integer into a 16-bit Integer
    function Truncate_To_T_Int16 (Value : Float) return T_Int16;

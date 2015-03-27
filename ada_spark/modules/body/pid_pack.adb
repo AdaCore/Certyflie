@@ -51,7 +51,7 @@ is
                        T_Error'First * 2.0 * T_Delta_Time'Last ..
                          T_Error'Last * 2.0 * T_Delta_Time'Last);
 
-      Pid.Integ := Constrain (Pid.Integ + Pid.Error * Pid.Dt,
+      Pid.Integ := Saturate (Pid.Integ + Pid.Error * Pid.Dt,
                               Pid.I_Limit_Low,
                               Pid.I_Limit_High);
 

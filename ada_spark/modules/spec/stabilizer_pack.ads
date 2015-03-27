@@ -217,7 +217,7 @@ private
    V_Speed_ASL_Deadband : Positive_Float := 0.005
      with Part_Of => V_Speed_Parameters; --  Vertical speed based on barometer readings deadband
    V_Speed_Limit        : T_Speed := 0.05
-     with Part_Of => V_Speed_Parameters; --  used to constrain vertical velocity
+     with Part_Of => V_Speed_Parameters; --  used to Saturate vertical velocity
    V_Bias_Alpha         : T_Alpha := 0.98
      with Part_Of => V_Speed_Parameters; --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
 

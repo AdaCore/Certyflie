@@ -2,7 +2,7 @@ package body Safety_Pack
   with SPARK_Mode
 is
 
-   function Constrain
+   function Saturate
      (Value     : Float;
       Min_Value : Float;
       Max_Value : Float) return Float is
@@ -14,9 +14,9 @@ is
          Res := Max_Value;
       end if;
       return Res;
-   end Constrain;
+   end Saturate;
 
-   function Constrain
+   function Saturate
      (Value     : T_Uint16;
       Min_Value : T_Uint16;
       Max_Value : T_Uint16) return T_Uint16 is
@@ -28,7 +28,7 @@ is
          Res := Max_Value;
       end if;
       return Res;
-   end Constrain;
+   end Saturate;
 
    function Dead_Band
      (Value     : Float;
