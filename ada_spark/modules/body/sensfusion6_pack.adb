@@ -5,7 +5,17 @@ with Config; use Config;
 with Interfaces.C; use Interfaces.C;
 
 package body SensFusion6_Pack
-with SPARK_Mode
+with SPARK_Mode,
+  Refined_State => (SensFusion6_State => (Is_Init,
+                                          Q0,
+                                          Q1,
+                                          Q2,
+                                          Q3,
+                                          Two_Kp,
+                                          Two_Ki,
+                                          Integral_FBx,
+                                          Integral_FBy,
+                                          Integral_FBz))
 is
    procedure SensFusion6_Init is
    begin

@@ -3,7 +3,8 @@ with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with IMU_Pack; use IMU_Pack;
 
 package SensFusion6_Pack
-with SPARK_Mode
+with SPARK_Mode,
+  Abstract_State => SensFusion6_State
 is
 
    --  Procedures and functions
@@ -35,18 +36,22 @@ private
 
    --  Global variables and constants
 
-   Q0 : T_Quaternion := 1.0;
-   Q1 : T_Quaternion := 0.0;
-   Q2 : T_Quaternion := 0.0;
+   Is_Init : bool := 0 with Part_Of => SensFusion6_State;
+
+   Q0 : T_Quaternion := 1.0
+     with Part_Of => SensFusion6_State;
+   Q1 : T_Quaternion := 0.0
+     with Part_Of => SensFusion6_State;
+   Q2 : T_Quaternion := 0.0
+     with Part_Of => SensFusion6_State;
    --  quaternion of sensor frame relative to auxiliary frame
-   Q3 : T_Quaternion := 0.0;
+   Q3 : T_Quaternion := 0.0
+     with Part_Of => SensFusion6_State;
 
    pragma Export (C, Q0, "q0");
    pragma Export (C, Q1, "q1");
    pragma Export (C, Q2, "q2");
    pragma Export (C, Q3, "q3");
-
-   Is_Init : bool := 0;
 
    --   Implementation of Madgwick's IMU and AHRS algorithms.
    --   See: http:--  www.x-io.co.uk/open-source-ahrs-with-x-imu
@@ -57,14 +62,21 @@ private
 
    --  Global variables and constants
 
-   TWO_KP_DEF  : constant Float := (2.0 * 0.4);   --  2 * proportional gain
-   TWO_KI_DEF  : constant Float := (2.0 * 0.001); --  2 * integral gain
+   TWO_KP_DEF  : constant Float := (2.0 * 0.4);
+   TWO_KI_DEF  : constant Float := (2.0 * 0.001);
 
-   Two_Kp       : Float := TWO_KP_DEF; --  2 * proportional gain (Kp)
-   Two_Ki       : Float := TWO_KI_DEF; --  2 * integral gain (Ki)
-   Integral_FBx : Float := 0.0;
-   Integral_FBy : Float := 0.0;
-   Integral_FBz : Float := 0.0; --  integral error terms scaled by Ki
+   Two_Kp       : Float := TWO_KP_DEF
+     with Part_Of => SensFusion6_State; --  2 * proportional gain (Kp)
+   Two_Ki       : Float := TWO_KI_DEF
+     with Part_Of => SensFusion6_State; --  2 * integral gain (Ki)
+
+   --  Integral error terms scaled by Ki
+   Integral_FBx : Float := 0.0
+     with Part_Of => SensFusion6_State;
+   Integral_FBy : Float := 0.0
+     with Part_Of => SensFusion6_State;
+   Integral_FBz : Float := 0.0
+     with Part_Of => SensFusion6_State;
 
    --  Procedures and functions
 
