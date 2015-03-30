@@ -62,4 +62,8 @@ library project Cf_Spark is
       for Casing use "mixedcase";
    end Naming;
 
+   package CodePeer is
+      for Switches use ("-no-preconditions");
+   end CodePeer;
+
 end Cf_Spark;

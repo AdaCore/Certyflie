@@ -18,11 +18,6 @@ with SPARK_Mode,
                                           Integral_FBz,
                                           Beta))
 is
-   function Square_Acc (X : T_Acc) return Float
-   is (X * X)
-   with
-   Post => Square_Acc'Result >= 0.0;
-   pragma Inline (Square_Acc);
 
    procedure SensFusion6_Init is
    begin
@@ -71,6 +66,10 @@ is
       Norm_Ax       : T_Acc;
       Norm_Ay       : T_Acc;
       Norm_Az       : T_Acc;
+      Q0_Tmp        : Float;
+      Q1_Tmp        : Float;
+      Q2_Tmp        : Float;
+      Q3_Tmp        : Float;
    begin
       --  Rate of change of quaternion from gyroscope
       Q_Dot1 := 0.5 * (-Q1 * Gx - Q2 * Gy - Q3 * Gz);
@@ -83,10 +82,10 @@ is
       if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
          --  Normalize accelerometer measurement
          Recip_Norm := Inv_Sqrt
-           (Square_Acc (Ax) + Square_Acc (Ay) + Square_Acc (Az));
-         Norm_Ax := Ax * Recip_Norm;
-         Norm_Ay := Ay * Recip_Norm;
-         Norm_Az := Az * Recip_Norm;
+           (Ax * Ax + Ay * Ay + Az * Az);
+         Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
+         Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
+         Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
 
          --  Auxiliary variables to avoid repeated arithmetic
          Q0_X2 := 2.0 * Q0;
@@ -104,12 +103,12 @@ is
          Q3_Q3 := Q3 * Q0;
 
          --  Gradient decent algorithm corrective step
-         S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Ax + Q0_X4 * Q1_Q1 - Q1_X2 * Ay;
-         S1 := Q1_X4 * Q3_Q3 - Q3_X2 * Ax + 4.0 * Q0_Q0 * Q1 -
-           Q0_X2 * Ay - Q1_X4 + Q1_X8 * Q1_Q1 + Q1_X8 * Q2_Q2 + Q1_X4 * Az;
-         S2 := 4.0 * Q0_Q0 * Q2 + Q0_X2 * Ax + Q2_X4 * Q3_Q3 -
-           Q3_X2 * Ay - Q2_X4 + Q2_X8 * Q1_Q1 + Q2_X8 * Q2_Q2 + Q2_X4 * Az;
-         S3 := 4.0 * Q1_Q1 * Q3 - Q1_X2 * Ax + 4.0 * Q2_Q2 * Q3 - Q2_X2 * Ay;
+         S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Norm_Ax + Q0_X4 * Q1_Q1 - Q1_X2 * Norm_Ay;
+         S1 := Q1_X4 * Q3_Q3 - Q3_X2 * Norm_Ax + 4.0 * Q0_Q0 * Q1 -
+           Q0_X2 * Norm_Ay - Q1_X4 + Q1_X8 * Q1_Q1 + Q1_X8 * Q2_Q2 + Q1_X4 * Norm_Az;
+         S2 := 4.0 * Q0_Q0 * Q2 + Q0_X2 * Norm_Ax + Q2_X4 * Q3_Q3 -
+           Q3_X2 * Norm_Ay - Q2_X4 + Q2_X8 * Q1_Q1 + Q2_X8 * Q2_Q2 + Q2_X4 * Norm_Az;
+         S3 := 4.0 * Q1_Q1 * Q3 - Q1_X2 * Norm_Ax + 4.0 * Q2_Q2 * Q3 - Q2_X2 * Norm_Ay;
 
          --  Normalize step magnitudes
          Recip_Norm := Inv_Sqrt (S0 * S0 + S1 * S1 + S2 * S2 + S3 * S3);
@@ -126,17 +125,22 @@ is
       end if;
 
       --  Integrate rate of change of quaternion to yield quatrenion
-      Q0 := Q0 + Q_Dot1 * Dt;
-      Q1 := Q1 + Q_Dot2 * Dt;
-      Q2 := Q2 + Q_Dot3 * Dt;
-      Q3 := Q3 + Q_Dot4 * Dt;
+      Q0_Tmp := Q0 + Q_Dot1 * Dt;
+      Q1_Tmp := Q1 + Q_Dot2 * Dt;
+      Q2_Tmp := Q2 + Q_Dot3 * Dt;
+      Q3_Tmp := Q3 + Q_Dot4 * Dt;
 
       --  Normalize quaternion
-      Recip_Norm := Inv_Sqrt (Q0 * Q0 + Q1 * Q1 + Q2 * Q2 + Q3 * Q3);
-      Q0 := Q0 * Recip_Norm;
-      Q1 := Q1 * Recip_Norm;
-      Q2 := Q2 * Recip_Norm;
-      Q3 := Q3 * Recip_Norm;
+      Recip_Norm := Inv_Sqrt
+        (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp + Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
+      Q0 := Saturate
+        (Q0_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
+      Q1 := Saturate
+        (Q1_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
+      Q2 := Saturate
+        (Q2_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
+      Q3 := Saturate
+        (Q3_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
    end Madgwick_Update_Q;
 
    procedure Mahony_Update_Q
@@ -176,10 +180,10 @@ is
       if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
          --  Normalize accelerometer measurement
          Recip_Norm := Inv_Sqrt
-           (Square_Acc (Ax) + Square_Acc (Ay) + Square_Acc (Az));
-         Norm_Ax := Ax * Recip_Norm;
-         Norm_Ay := Ay * Recip_Norm;
-         Norm_Az := Az * Recip_Norm;
+           (Ax * Ax + Ay * Ay + Az * Az);
+         Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
+         Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
+         Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
 
          --  Error is sum of cross product between estimated
          --  and measured direction of gravity
@@ -251,7 +255,7 @@ is
                                          Ay,
                                          Az,
                                          Dt);
-         when others => Mahony_Update_Q (Gx,
+         when others => Madgwick_Update_Q (Gx,
                                          Gy,
                                          Gz,
                                          Ax,

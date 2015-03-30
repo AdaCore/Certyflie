@@ -11,7 +11,7 @@ package FreeRTOS_Pack is
    --  Functions and procedures
    function XQueue_Create
      (QueueLength : T_Uint32;
-      ItemSize    : Integer) return Pvoid;
+      ItemSize    : T_Uint32) return Pvoid;
    pragma Import (C, XQueue_Create, "w_xQueueCreate");
 
    function XQueue_Receive

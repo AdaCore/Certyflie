@@ -22,7 +22,7 @@ is
    procedure Worker_Loop
    is
       Work : Worker_Work := (None, System.Null_Address);
-      Res : Integer := 0;
+      Res : Integer;
    begin
       if Worker_Queue /= System.Null_Address then
          loop
@@ -46,7 +46,7 @@ is
      (Func_ID : Integer;
       Arg     : Pvoid) return Integer is
       Work : Worker_Work := (None, System.Null_Address);
-      Res : Integer := 0;
+      Res : Integer;
    begin
       Work.Func := Action'Val (Func_ID);
 
