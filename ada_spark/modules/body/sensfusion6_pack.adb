@@ -15,7 +15,8 @@ with SPARK_Mode,
                                           Two_Ki,
                                           Integral_FBx,
                                           Integral_FBy,
-                                          Integral_FBz))
+                                          Integral_FBz,
+                                          Beta))
 is
    function Square_Acc (X : T_Acc) return Float
    is (X * X)
@@ -36,6 +37,107 @@ is
    begin
       return Is_Init;
    end SensFusion6_Test;
+
+   procedure Madgwick_Update_Q
+     (Gx : T_Rate;
+      Gy : T_Rate;
+      Gz : T_Rate;
+      Ax : T_Acc;
+      Ay : T_Acc;
+      Az : T_Acc;
+      Dt : T_Delta_Time) is
+      Recip_Norm : Float;
+      S0         : Float;
+      S1         : Float;
+      S2         : Float;
+      S3         : Float;
+      Q_Dot1     : Float;
+      Q_Dot2     : Float;
+      Q_Dot3     : Float;
+      Q_Dot4     : Float;
+      Q0_X2      : Float;
+      Q1_X2      : Float;
+      Q2_X2      : Float;
+      Q3_X2      : Float;
+      Q0_X4      : Float;
+      Q1_X4      : Float;
+      Q2_X4      : Float;
+      Q1_X8      : Float;
+      Q2_X8      : Float;
+      Q0_Q0      : Float;
+      Q1_Q1      : Float;
+      Q2_Q2      : Float;
+      Q3_Q3      : Float;
+      Norm_Ax       : T_Acc;
+      Norm_Ay       : T_Acc;
+      Norm_Az       : T_Acc;
+   begin
+      --  Rate of change of quaternion from gyroscope
+      Q_Dot1 := 0.5 * (-Q1 * Gx - Q2 * Gy - Q3 * Gz);
+      Q_Dot2 := 0.5 * (Q0 * Gx + Q2 * Gz - Q3 * Gy);
+      Q_Dot3 := 0.5 * (Q0 * Gy - Q1 * Gz + Q3 * Gx);
+      Q_Dot4 := 0.5 * (Q0 * Gz + Q1 * Gy - Q2 * Gx);
+
+      --  Compute feedback only if accelerometer measurement valid
+      --  (avoids NaN in accelerometer normalisation)
+      if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
+         --  Normalize accelerometer measurement
+         Recip_Norm := Inv_Sqrt
+           (Square_Acc (Ax) + Square_Acc (Ay) + Square_Acc (Az));
+         Norm_Ax := Ax * Recip_Norm;
+         Norm_Ay := Ay * Recip_Norm;
+         Norm_Az := Az * Recip_Norm;
+
+         --  Auxiliary variables to avoid repeated arithmetic
+         Q0_X2 := 2.0 * Q0;
+         Q1_X2 := 2.0 * Q1;
+         Q2_X2 := 2.0 * Q2;
+         Q3_X2 := 2.0 * Q3;
+         Q0_X4 := 4.0 * Q0;
+         Q1_X4 := 4.0 * Q1;
+         Q2_X4 := 4.0 * Q2;
+         Q1_X8 := 8.0 * Q1;
+         Q2_X8 := 8.0 * Q2;
+         Q0_Q0 := Q0 * Q0;
+         Q1_Q1 := Q1 * Q0;
+         Q2_Q2 := Q2 * Q0;
+         Q3_Q3 := Q3 * Q0;
+
+         --  Gradient decent algorithm corrective step
+         S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Ax + Q0_X4 * Q1_Q1 - Q1_X2 * Ay;
+         S1 := Q1_X4 * Q3_Q3 - Q3_X2 * Ax + 4.0 * Q0_Q0 * Q1 -
+           Q0_X2 * Ay - Q1_X4 + Q1_X8 * Q1_Q1 + Q1_X8 * Q2_Q2 + Q1_X4 * Az;
+         S2 := 4.0 * Q0_Q0 * Q2 + Q0_X2 * Ax + Q2_X4 * Q3_Q3 -
+           Q3_X2 * Ay - Q2_X4 + Q2_X8 * Q1_Q1 + Q2_X8 * Q2_Q2 + Q2_X4 * Az;
+         S3 := 4.0 * Q1_Q1 * Q3 - Q1_X2 * Ax + 4.0 * Q2_Q2 * Q3 - Q2_X2 * Ay;
+
+         --  Normalize step magnitudes
+         Recip_Norm := Inv_Sqrt (S0 * S0 + S1 * S1 + S2 * S2 + S3 * S3);
+         S0 := S0 * Recip_Norm;
+         S1 := S1 * Recip_Norm;
+         S2 := S2 * Recip_Norm;
+         S3 := S3 * Recip_Norm;
+
+         --  Apply feedback step
+         Q_Dot1 := Q_Dot1 - Beta * S0;
+         Q_Dot2 := Q_Dot2 - Beta * S1;
+         Q_Dot3 := Q_Dot3 - Beta * S2;
+         Q_Dot4 := Q_Dot4 - Beta * S3;
+      end if;
+
+      --  Integrate rate of change of quaternion to yield quatrenion
+      Q0 := Q0 + Q_Dot1 * Dt;
+      Q1 := Q1 + Q_Dot2 * Dt;
+      Q2 := Q2 + Q_Dot3 * Dt;
+      Q3 := Q3 + Q_Dot4 * Dt;
+
+      --  Normalize quaternion
+      Recip_Norm := Inv_Sqrt (Q0 * Q0 + Q1 * Q1 + Q2 * Q2 + Q3 * Q3);
+      Q0 := Q0 * Recip_Norm;
+      Q1 := Q1 * Recip_Norm;
+      Q2 := Q2 * Recip_Norm;
+      Q3 := Q3 * Recip_Norm;
+   end Madgwick_Update_Q;
 
    procedure Mahony_Update_Q
      (Gx : T_Rate;
@@ -73,7 +175,8 @@ is
       --  (avoids NaN in accelerometer normalisation)
       if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
          --  Normalize accelerometer measurement
-         Recip_Norm := Inv_Sqrt (Square_Acc (Ax) + Square_Acc (Ay) + Square_Acc (Az));
+         Recip_Norm := Inv_Sqrt
+           (Square_Acc (Ax) + Square_Acc (Ay) + Square_Acc (Az));
          Norm_Ax := Ax * Recip_Norm;
          Norm_Ay := Ay * Recip_Norm;
          Norm_Az := Az * Recip_Norm;

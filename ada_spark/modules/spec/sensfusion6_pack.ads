@@ -63,6 +63,7 @@ private
 
    --  Global variables and constants
 
+   --  Needed for Mahony algorithm
    TWO_KP_DEF  : constant Float := (2.0 * 0.4);
    TWO_KI_DEF  : constant Float := (2.0 * 0.001);
 
@@ -79,7 +80,22 @@ private
    Integral_FBz : Float := 0.0
      with Part_Of => SensFusion6_State;
 
+   --  Needed for Madgwick algorithm
+   BETA_DEF     : constant Float := 0.01;
+
+   Beta         : T_Alpha := BETA_DEF
+     with Part_Of => SensFusion6_State;
+
    --  Procedures and functions
+
+   procedure Madgwick_Update_Q
+     (Gx : T_Rate;
+      Gy : T_Rate;
+      Gz : T_Rate;
+      Ax : T_Acc;
+      Ay : T_Acc;
+      Az : T_Acc;
+      Dt : T_Delta_Time);
 
    procedure Mahony_Update_Q
      (Gx : T_Rate;

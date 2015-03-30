@@ -270,7 +270,8 @@ is
                                        T_Altitude'First,
                                        T_Altitude'Last);
 
-         Raw_Thrust := Truncate_To_T_Int16 (Alt_Hold_PID_Val * Alt_Pid_Asl_Fac);
+         Raw_Thrust := Truncate_To_T_Int16
+           (Alt_Hold_PID_Val * Alt_Pid_Asl_Fac);
          Actuator_Thrust := Saturate (Limit_Thrust (T_Int32 (Raw_Thrust)
                                        + T_Int32 (Alt_Hold_Base_Thrust)),
                                        Alt_Hold_Min_Thrust,
