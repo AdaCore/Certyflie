@@ -48,9 +48,13 @@ is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer;
    begin
+      --  No worker function registered for this ID
+      if Func_ID not in Action'Pos(Action'First) .. Action'Pos(Action'Last) then
+         return 1;
+      end if;
       Work.Func := Action'Val (Func_ID);
-
       Work.Arg := Arg;
+
       Res := XQueue_Send (Worker_Queue, Work'Address, 0);
 
       if Res = -1 then
