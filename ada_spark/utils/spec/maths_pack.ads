@@ -1,10 +1,13 @@
 with Types; use Types;
-with Ada.Numerics; use Ada.Numerics;
-with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
 package Maths_Pack
   with SPARK_Mode
 is
+   --  Constants
+
+   Pi : constant :=
+          3.14159_26535_89793_23846_26433_83279_50288_41971_69399_37511;
+
    --  Types
 
    --  Angle range type, in radians.

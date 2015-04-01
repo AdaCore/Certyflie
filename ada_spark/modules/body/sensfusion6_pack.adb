@@ -3,7 +3,6 @@ with Safety_Pack; use Safety_Pack;
 with Config; use Config;
 
 with Interfaces.C; use Interfaces.C;
-with Ada.Numerics; use Ada.Numerics;
 
 package body SensFusion6_Pack
 with SPARK_Mode,
