@@ -3,6 +3,7 @@ with Safety_Pack; use Safety_Pack;
 with Config; use Config;
 
 with Interfaces.C; use Interfaces.C;
+with Ada.Numerics; use Ada.Numerics;
 
 package body SensFusion6_Pack
 with SPARK_Mode,
@@ -70,6 +71,10 @@ is
       Q1_Tmp        : Float;
       Q2_Tmp        : Float;
       Q3_Tmp        : Float;
+      Ax_Tmp        : T_Acc_Lifted;
+      Ay_Tmp        : T_Acc_Lifted;
+      Az_Tmp        : T_Acc_Lifted;
+      Square_Sum    : Positive_Float;
    begin
       --  Rate of change of quaternion from gyroscope
       Q_Dot1 := 0.5 * (-Q1 * Gx - Q2 * Gy - Q3 * Gz);
@@ -81,8 +86,11 @@ is
       --  (avoids NaN in accelerometer normalisation)
       if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
          --  Normalize accelerometer measurement
-         Recip_Norm := Inv_Sqrt
-           (Ax * Ax + Ay * Ay + Az * Az);
+         Ax_Tmp := Lift_Away_From_Zero (Ax);
+         Ay_Tmp := Lift_Away_From_Zero (Ay);
+         Az_Tmp := Lift_Away_From_Zero (Az);
+         Square_Sum := Ax_Tmp * Ax_Tmp + Ay_Tmp * Ay_Tmp + Az_Tmp * Az_Tmp;
+         Recip_Norm := Inv_Sqrt (Square_Sum);
          Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
          Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
          Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
@@ -103,12 +111,16 @@ is
          Q3_Q3 := Q3 * Q0;
 
          --  Gradient decent algorithm corrective step
-         S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Norm_Ax + Q0_X4 * Q1_Q1 - Q1_X2 * Norm_Ay;
+         S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Norm_Ax +
+           Q0_X4 * Q1_Q1 - Q1_X2 * Norm_Ay;
          S1 := Q1_X4 * Q3_Q3 - Q3_X2 * Norm_Ax + 4.0 * Q0_Q0 * Q1 -
-           Q0_X2 * Norm_Ay - Q1_X4 + Q1_X8 * Q1_Q1 + Q1_X8 * Q2_Q2 + Q1_X4 * Norm_Az;
+           Q0_X2 * Norm_Ay - Q1_X4 + Q1_X8 * Q1_Q1 +
+             Q1_X8 * Q2_Q2 + Q1_X4 * Norm_Az;
          S2 := 4.0 * Q0_Q0 * Q2 + Q0_X2 * Norm_Ax + Q2_X4 * Q3_Q3 -
-           Q3_X2 * Norm_Ay - Q2_X4 + Q2_X8 * Q1_Q1 + Q2_X8 * Q2_Q2 + Q2_X4 * Norm_Az;
-         S3 := 4.0 * Q1_Q1 * Q3 - Q1_X2 * Norm_Ax + 4.0 * Q2_Q2 * Q3 - Q2_X2 * Norm_Ay;
+           Q3_X2 * Norm_Ay - Q2_X4 + Q2_X8 * Q1_Q1 +
+             Q2_X8 * Q2_Q2 + Q2_X4 * Norm_Az;
+         S3 := 4.0 * Q1_Q1 * Q3 - Q1_X2 * Norm_Ax +
+           4.0 * Q2_Q2 * Q3 - Q2_X2 * Norm_Ay;
 
          --  Normalize step magnitudes
          Recip_Norm := Inv_Sqrt (S0 * S0 + S1 * S1 + S2 * S2 + S3 * S3);
@@ -132,7 +144,8 @@ is
 
       --  Normalize quaternion
       Recip_Norm := Inv_Sqrt
-        (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp + Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
+        (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
+           Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
       Q0 := Saturate
         (Q0_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
       Q1 := Saturate
@@ -156,9 +169,9 @@ is
       Norm_Ay       : T_Acc;
       Norm_Az       : T_Acc;
       --  Conversion from degrees/s to rad/s
-      Rad_Gx        : Float := Gx * PI / 180.0;
-      Rad_Gy        : Float := Gy * PI / 180.0;
-      Rad_Gz        : Float := Gz * PI / 180.0;
+      Rad_Gx        : Float := Gx * Pi / 180.0;
+      Rad_Gy        : Float := Gy * Pi / 180.0;
+      Rad_Gz        : Float := Gz * Pi / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
       Half_Vx       : Float := Q1 * Q3 - Q0 * Q2;
@@ -282,10 +295,10 @@ is
 
       Euler_Yaw_Actual :=
         Atan_2 (2.0 * (Q0 * Q3 + Q1 * Q2),
-                Q0 * Q0 + Q1 * Q1 - Q2 * Q2 - Q3 * Q3) * 180.0 / PI;
+                Q0 * Q0 + Q1 * Q1 - Q2 * Q2 - Q3 * Q3) * 180.0 / Pi;
       --  Pitch seems to be inverted
-      Euler_Pitch_Actual := Asin (Grav_X) * 180.0 / PI;
-      Euler_Roll_Actual := Atan_2 (Grav_Y, Grav_Z) * 180.0 / PI;
+      Euler_Pitch_Actual := Asin (Grav_X) * 180.0 / Pi;
+      Euler_Roll_Actual := Atan_2 (Grav_Y, Grav_Z) * 180.0 / Pi;
    end SensFusion6_Get_Euler_RPY;
 
    function SensFusion6_Get_AccZ_Without_Gravity

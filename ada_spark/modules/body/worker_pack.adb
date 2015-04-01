@@ -49,7 +49,8 @@ is
       Res : Integer;
    begin
       --  No worker function registered for this ID
-      if Func_ID not in Action'Pos(Action'First) .. Action'Pos(Action'Last) then
+      if Func_ID not in Action'Pos (Action'First) .. Action'Pos (Action'Last)
+      then
          return 1;
       end if;
       Work.Func := Action'Val (Func_ID);

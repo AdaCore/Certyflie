@@ -59,4 +59,21 @@ is
 
       return Res;
    end Truncate_To_T_Int16;
+
+   function Lift_Away_From_Zero (X : T_Acc) return T_Acc_Lifted is
+      Res : T_Acc_Lifted;
+   begin
+      if X = 0.0 then
+         Res := 0.0;
+      elsif X in -MIN_NON_ZERO_ACC .. 0.0 then
+         Res := -MIN_NON_ZERO_ACC;
+      elsif X in 0.0 .. MIN_NON_ZERO_ACC then
+         Res := MIN_NON_ZERO_ACC;
+      else
+         Res := X;
+      end if;
+
+      return Res;
+   end Lift_Away_From_Zero;
+
 end Safety_Pack;

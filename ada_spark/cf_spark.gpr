@@ -54,7 +54,7 @@ library project Cf_Spark is
             for Default_Switches ("ada") use ("-gnatp", "-gnaty");
 
          when "Analyze" =>
-            for Default_Switches ("ada") use ("-gnato13");
+            for Default_Switches ("ada") use ("-gnato13", "-gnateF");
       end case;
    end Compiler;
 
