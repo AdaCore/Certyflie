@@ -64,12 +64,15 @@ private
    --  Global variables and constants
 
    --  Needed for Mahony algorithm
-   TWO_KP_DEF  : constant Float := (2.0 * 0.4);
-   TWO_KI_DEF  : constant Float := (2.0 * 0.001);
+   MAX_TWO_KP : constant := (2.0 * 1.0);
+   MAX_TWO_KI : constant := (2.0 * 1.0);
 
-   Two_Kp       : Float := TWO_KP_DEF
+   TWO_KP_DEF  : constant := (2.0 * 0.4);
+   TWO_KI_DEF  : constant := (2.0 * 0.001);
+
+   Two_Kp       : Float range 0.0 .. MAX_TWO_KP := TWO_KP_DEF
      with Part_Of => SensFusion6_State; --  2 * proportional gain (Kp)
-   Two_Ki       : Float := TWO_KI_DEF
+   Two_Ki       : Float range 0.0 .. MAX_TWO_KI := TWO_KI_DEF
      with Part_Of => SensFusion6_State; --  2 * integral gain (Ki)
 
    --  Integral error terms scaled by Ki

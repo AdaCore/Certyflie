@@ -1,6 +1,7 @@
 with Ada.Unchecked_Conversion;
 with Interfaces; use Interfaces;
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
+with Safety_Pack; use Safety_Pack;
 
 package body Maths_Pack
   with SPARK_Mode
@@ -15,5 +16,21 @@ is
    begin
       return 1.0 / Sqrtf (X);
    end Inv_Sqrt;
+
+   function Atan (Y :  Float; X : Float) return T_Radians is
+   begin
+      --  We constrain the return value accordingly to
+      --  the Ada RM specification for Arctan
+      --  (A.5.1 Elementary Functions)
+      return Saturate (Arctan (Y, X), -Pi, Pi);
+   end;
+
+   function Asin (X : Float) return T_Radians is
+   begin
+      --  We constrain the return value accordingly to
+      --  the Ada RM specification for Arcsin
+      --  (A.5.1 Elementary Functions)
+      return Saturate (Arcsin (X), -Pi / 2.0, Pi / 2.0);
+   end;
 
 end Maths_Pack;
