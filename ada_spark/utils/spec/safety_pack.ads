@@ -9,7 +9,7 @@ is
    --  Deadband function
    function Dead_Band
      (Value     : Float;
-      Threshold : Positive_Float) return Float
+      Threshold : Natural_Float) return Float
 
      with
        Contract_Cases => ((Value in -Threshold .. Threshold) =>

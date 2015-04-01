@@ -32,7 +32,7 @@ is
 
    function Dead_Band
      (Value     : Float;
-      Threshold : Positive_Float) return Float is
+      Threshold : Natural_Float) return Float is
       Res : Float := Value;
    begin
       if Value in -Threshold .. Threshold then

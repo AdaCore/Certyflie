@@ -51,7 +51,7 @@ library project Cf_Spark is
 
       case Mode is
          when "Compile" =>
-            for Default_Switches ("ada") use ("-gnatp", "-gnaty");
+            for Default_Switches ("ada") use ("-gnatp", "-gnaty", "-ffast-math");
 
          when "Analyze" =>
             for Default_Switches ("ada") use ("-gnato13", "-gnateF");

@@ -9,8 +9,9 @@ VPATH += wrappers/src
 INCLUDES += -Iwrappers/interface
 
 ADA_LIB_DIR = bin/lib
+ADA_RUNTIME_LIB_DIR = /home/bitcraze/gnatpython_sandbox/arm-elf-linux/gnat/install/arm-eabi/lib/gnat/zfp-stm32f4/adalib
 ADA_LIB = libspark.a
-ADA_LIB_FLAGS = -L$(ADA_LIB_DIR) -lspark
+ADA_LIB_FLAGS = -L$(ADA_RUNTIME_LIB_DIR) -L$(ADA_LIB_DIR) -lspark -lgnat
 
 WRAPPER_OBJ = FreeRTOS_wrapper.o
 

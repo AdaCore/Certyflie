@@ -2,6 +2,7 @@ with Maths_Pack; use Maths_Pack;
 with Safety_Pack; use Safety_Pack;
 with Config; use Config;
 
+with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 with Interfaces.C; use Interfaces.C;
 
 package body SensFusion6_Pack
@@ -73,7 +74,7 @@ is
       Ax_Tmp        : T_Acc_Lifted;
       Ay_Tmp        : T_Acc_Lifted;
       Az_Tmp        : T_Acc_Lifted;
-      Square_Sum    : Positive_Float;
+      Square_Sum    : Natural_Float;
    begin
       --  Rate of change of quaternion from gyroscope
       Q_Dot1 := 0.5 * (-Q1 * Gx - Q2 * Gy - Q3 * Gz);
@@ -186,13 +187,22 @@ is
       Qa            : T_Quaternion := Q0;
       Qb            : T_Quaternion := Q1;
       Qc            : T_Quaternion := Q2;
+      Ax_Tmp        : T_Acc_Lifted;
+      Ay_Tmp        : T_Acc_Lifted;
+      Az_Tmp        : T_Acc_Lifted;
+      Square_Sum    : Natural_Float;
+
    begin
       --  Compute feedback only if accelerometer measurement valid
       --  (avoids NaN in accelerometer normalisation)
       if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
          --  Normalize accelerometer measurement
-         Recip_Norm := Inv_Sqrt
-           (Ax * Ax + Ay * Ay + Az * Az);
+         Ax_Tmp := Lift_Away_From_Zero (Ax);
+         Ay_Tmp := Lift_Away_From_Zero (Ay);
+         Az_Tmp := Lift_Away_From_Zero (Az);
+         pragma Assert (Ax_Tmp * Ax_Tmp > 0.0);
+         Square_Sum := Ax_Tmp * Ax_Tmp + Ay_Tmp * Ay_Tmp + Az_Tmp * Az_Tmp;
+         Recip_Norm := Inv_Sqrt (Square_Sum);
          Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
          Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
          Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
@@ -293,11 +303,11 @@ is
       Grav_X := Saturate (Grav_X, -1.0, 1.0);
 
       Euler_Yaw_Actual :=
-        Atan_2 (2.0 * (Q0 * Q3 + Q1 * Q2),
+        Arctan (2.0 * (Q0 * Q3 + Q1 * Q2),
                 Q0 * Q0 + Q1 * Q1 - Q2 * Q2 - Q3 * Q3) * 180.0 / Pi;
       --  Pitch seems to be inverted
-      Euler_Pitch_Actual := Asin (Grav_X) * 180.0 / Pi;
-      Euler_Roll_Actual := Atan_2 (Grav_Y, Grav_Z) * 180.0 / Pi;
+      Euler_Pitch_Actual := Arcsin (Grav_X) * 180.0 / Pi;
+      Euler_Roll_Actual := Arctan (Grav_Y, Grav_Z) * 180.0 / Pi;
    end SensFusion6_Get_Euler_RPY;
 
    function SensFusion6_Get_AccZ_Without_Gravity

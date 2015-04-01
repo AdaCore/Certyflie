@@ -20,17 +20,6 @@ is
    function Inv_Sqrt (X : Float) return Float
      with
        Pre  => X >= Float'Succ (0.0),
-       Post => Inv_Sqrt'Result > 0.0 and Inv_Sqrt'Result < 2.0E+20;
-
-   --  Imported atan2f function from C
-   function Atan_2 (X : Float; Y : Float) return T_Radians
-     with Global => null;
-   pragma Import (C, Atan_2, "atan2f");
-
-
-   --  Imported asin function from C
-   function Asin (X : Float) return T_Radians
-     with Global => null;
-   pragma Import (C, Asin, "asinf");
+       Post => Inv_Sqrt'Result > 0.0;
 
 end Maths_Pack;
