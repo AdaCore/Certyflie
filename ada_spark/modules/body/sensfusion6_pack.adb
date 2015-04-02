@@ -89,10 +89,6 @@ is
          Ay_Tmp := Lift_Away_From_Zero (Ay);
          Az_Tmp := Lift_Away_From_Zero (Az);
          Square_Sum := Ax_Tmp * Ax_Tmp + Ay_Tmp * Ay_Tmp + Az_Tmp * Az_Tmp;
-         --  We ensured that Ax_Tmp, Ay_Tmp, Az_Tmp are sufficiently far away
-         --  from zero so that the Square_Sum calculation results in a value
-         --  diferent from 0.0 and positive.
-         pragma Assume (Square_Sum >= Float'Succ (0.0));
          Recip_Norm := Inv_Sqrt (Square_Sum);
          Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
          Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
@@ -177,9 +173,9 @@ is
       Rad_Gz        : Float := Gz * Pi / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
-      Half_Vx       : Float := Q1 * Q3 - Q0 * Q2;
-      Half_Vy       : Float := Q0 * Q1 + Q2 * Q3;
-      Half_Vz       : Float := Q0 * Q0 - 0.5 + Q3 * Q3;
+      Half_Vx       : Float range -3.0 .. 3.0 := Q1 * Q3 - Q0 * Q2;
+      Half_Vy       : Float range -3.0 .. 3.0 := Q0 * Q1 + Q2 * Q3;
+      Half_Vz       : Float range -3.0 .. 3.0 := Q0 * Q0 - 0.5 + Q3 * Q3;
       Half_Ex       : Float;
       Half_Ey       : Float;
       Half_Ez       : Float;
@@ -207,9 +203,11 @@ is
          --  We ensured that Ax_Tmp, Ay_Tmp, Az_Tmp are sufficiently far away
          --  from zero so that the Square_Sum calculation results in a value
          --  diferent from 0.0 and positive.
-         pragma Assume (Square_Sum >= Float'Succ (0.0));
          Recip_Norm := Inv_Sqrt (Square_Sum);
-         pragma Assume (Recip_Norm > 0.0 and Recip_Norm <= Inv_Sqrt (Float'Succ (0.0)));
+         pragma Assert (Recip_Norm in 0.0 .. 2.7E+22);
+         pragma Assert (Ax in -16.0 .. 16.0);
+         pragma Assert (Ay in -16.0 .. 16.0);
+         pragma Assert (Az in -16.0 .. 16.0);
          Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
          Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
          Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
