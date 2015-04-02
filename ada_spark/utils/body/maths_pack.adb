@@ -11,7 +11,7 @@ is
       function Sqrtf (X : Float) return Float with
         Global => null,
         Pre    => X >= Float'Succ (0.0),
-        Post   => Sqrtf'Result in 3.75E-23 .. 1.85E+19,
+        Post   => Sqrtf'Result in 3.745E-23 .. 1.85E+19,
         Import, Convention => Intrinsic, External_Name => "__builtin_sqrtf";
    begin
       return 1.0 / Sqrtf (X);

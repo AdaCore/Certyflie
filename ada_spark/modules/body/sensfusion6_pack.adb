@@ -28,7 +28,7 @@ is
       Is_Init := 1;
    end SensFusion6_Init;
 
-   function SensFusion6_Test return bool is
+   function SensFusion6_Test return Bool is
    begin
       return Is_Init;
    end SensFusion6_Test;
@@ -41,28 +41,28 @@ is
       Ay : T_Acc;
       Az : T_Acc;
       Dt : T_Delta_Time) is
-      Recip_Norm : Float;
-      S0         : Float;
-      S1         : Float;
-      S2         : Float;
-      S3         : Float;
-      Q_Dot1     : Float;
-      Q_Dot2     : Float;
-      Q_Dot3     : Float;
-      Q_Dot4     : Float;
-      Q0_X2      : Float;
-      Q1_X2      : Float;
-      Q2_X2      : Float;
-      Q3_X2      : Float;
-      Q0_X4      : Float;
-      Q1_X4      : Float;
-      Q2_X4      : Float;
-      Q1_X8      : Float;
-      Q2_X8      : Float;
-      Q0_Q0      : Float;
-      Q1_Q1      : Float;
-      Q2_Q2      : Float;
-      Q3_Q3      : Float;
+      Recip_Norm    : Float;
+      S0            : Float;
+      S1            : Float;
+      S2            : Float;
+      S3            : Float;
+      Q_Dot1        : Float;
+      Q_Dot2        : Float;
+      Q_Dot3        : Float;
+      Q_Dot4        : Float;
+      Q0_X2         : Float;
+      Q1_X2         : Float;
+      Q2_X2         : Float;
+      Q3_X2         : Float;
+      Q0_X4         : Float;
+      Q1_X4         : Float;
+      Q2_X4         : Float;
+      Q1_X8         : Float;
+      Q2_X8         : Float;
+      Q0_Q0         : Float;
+      Q1_Q1         : Float;
+      Q2_Q2         : Float;
+      Q3_Q3         : Float;
       Norm_Ax       : T_Acc;
       Norm_Ay       : T_Acc;
       Norm_Az       : T_Acc;
@@ -89,6 +89,10 @@ is
          Ay_Tmp := Lift_Away_From_Zero (Ay);
          Az_Tmp := Lift_Away_From_Zero (Az);
          Square_Sum := Ax_Tmp * Ax_Tmp + Ay_Tmp * Ay_Tmp + Az_Tmp * Az_Tmp;
+         --  We ensured that Ax_Tmp, Ay_Tmp, Az_Tmp are sufficiently far away
+         --  from zero so that the Square_Sum calculation results in a value
+         --  diferent from 0.0 and positive.
+         pragma Assume (Square_Sum >= Float'Succ (0.0));
          Recip_Norm := Inv_Sqrt (Square_Sum);
          Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
          Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
@@ -200,7 +204,12 @@ is
          Ay_Tmp := Lift_Away_From_Zero (Ay);
          Az_Tmp := Lift_Away_From_Zero (Az);
          Square_Sum := Ax_Tmp * Ax_Tmp + Ay_Tmp * Ay_Tmp + Az_Tmp * Az_Tmp;
+         --  We ensured that Ax_Tmp, Ay_Tmp, Az_Tmp are sufficiently far away
+         --  from zero so that the Square_Sum calculation results in a value
+         --  diferent from 0.0 and positive.
+         pragma Assume (Square_Sum >= Float'Succ (0.0));
          Recip_Norm := Inv_Sqrt (Square_Sum);
+         pragma Assume (Recip_Norm > 0.0 and Recip_Norm <= Inv_Sqrt (Float'Succ (0.0)));
          Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
          Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
          Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
@@ -213,9 +222,15 @@ is
 
          --  Compute and apply integral feedback if enabled
          if Two_Ki > 0.0 then
-            Integral_FBx := Integral_FBx + Two_Ki * Half_Ex * Dt;
-            Integral_FBy := Integral_FBy + Two_Ki * Half_Ey * Dt;
-            Integral_FBz := Integral_FBz + Two_Ki * Half_Ez * Dt;
+            Integral_FBx := Saturate (Integral_FBx + Two_Ki * Half_Ex * Dt,
+                                      -MAX_INTEGRAL_ERROR,
+                                      MAX_INTEGRAL_ERROR);
+            Integral_FBy := Saturate (Integral_FBy + Two_Ki * Half_Ey * Dt,
+                                      -MAX_INTEGRAL_ERROR,
+                                      MAX_INTEGRAL_ERROR);
+            Integral_FBz := Saturate (Integral_FBz + Two_Ki * Half_Ez * Dt,
+                                      -MAX_INTEGRAL_ERROR,
+                                      MAX_INTEGRAL_ERROR);
             Rad_Gx := Rad_Gx + Integral_FBx;
             Rad_Gy := Rad_Gy + Integral_FBy;
             Rad_Gz := Rad_Gz + Integral_FBz;
@@ -245,17 +260,17 @@ is
       Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
                                 Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
       Q0 := Saturate (Q0_Tmp * Recip_Norm,
-                       T_Quaternion'First,
-                       T_Quaternion'Last);
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
       Q1 := Saturate (Q1_Tmp * Recip_Norm,
-                       T_Quaternion'First,
-                       T_Quaternion'Last);
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
       Q2 := Saturate (Q2_Tmp * Recip_Norm,
-                       T_Quaternion'First,
-                       T_Quaternion'Last);
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
       Q3 := Saturate (Q3_Tmp * Recip_Norm,
-                       T_Quaternion'First,
-                       T_Quaternion'Last);
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
    end Mahony_Update_Q;
 
    procedure SensFusion6_Update_Q
@@ -276,12 +291,12 @@ is
                                          Az,
                                          Dt);
          when others => Madgwick_Update_Q (Gx,
-                                         Gy,
-                                         Gz,
-                                         Ax,
-                                         Ay,
-                                         Az,
-                                         Dt);
+                                           Gy,
+                                           Gz,
+                                           Ax,
+                                           Ay,
+                                           Az,
+                                           Dt);
       end case;
    end SensFusion6_Update_Q;
 
@@ -302,7 +317,7 @@ is
 
       Euler_Yaw_Actual :=
         Atan (2.0 * (Q0 * Q3 + Q1 * Q2),
-                Q0 * Q0 + Q1 * Q1 - Q2 * Q2 - Q3 * Q3) * 180.0 / Pi;
+              Q0 * Q0 + Q1 * Q1 - Q2 * Q2 - Q3 * Q3) * 180.0 / Pi;
       --  Pitch seems to be inverted
       Euler_Pitch_Actual := Asin (Grav_X) * 180.0 / Pi;
       Euler_Roll_Actual := Atan (Grav_Y, Grav_Z) * 180.0 / Pi;

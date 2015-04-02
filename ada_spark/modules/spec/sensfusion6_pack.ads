@@ -70,17 +70,19 @@ private
    TWO_KP_DEF  : constant := (2.0 * 0.4);
    TWO_KI_DEF  : constant := (2.0 * 0.001);
 
+   MAX_INTEGRAL_ERROR : constant := 100.0;
+
    Two_Kp       : Float range 0.0 .. MAX_TWO_KP := TWO_KP_DEF
      with Part_Of => SensFusion6_State; --  2 * proportional gain (Kp)
    Two_Ki       : Float range 0.0 .. MAX_TWO_KI := TWO_KI_DEF
      with Part_Of => SensFusion6_State; --  2 * integral gain (Ki)
 
    --  Integral error terms scaled by Ki
-   Integral_FBx : Float := 0.0
+   Integral_FBx : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
      with Part_Of => SensFusion6_State;
-   Integral_FBy : Float := 0.0
+   Integral_FBy : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
      with Part_Of => SensFusion6_State;
-   Integral_FBz : Float := 0.0
+   Integral_FBz : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
      with Part_Of => SensFusion6_State;
 
    --  Needed for Madgwick algorithm

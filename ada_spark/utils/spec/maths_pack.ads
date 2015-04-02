@@ -20,7 +20,7 @@ is
    function Inv_Sqrt (X : Float) return Float
      with
        Pre  => X >= Float'Succ (0.0),
-     Post => Inv_Sqrt'Result > 0.0;
+       Post => Inv_Sqrt'Result > 0.0;
 
    --  Wrapper for Ada.Numerics.Elementary_Functions.Arctan
    function Atan (Y :  Float; X : Float) return T_Radians;
