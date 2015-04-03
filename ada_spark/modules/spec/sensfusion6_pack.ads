@@ -71,6 +71,7 @@ private
    TWO_KI_DEF  : constant := (2.0 * 0.001);
 
    MAX_INTEGRAL_ERROR : constant := 100.0;
+   MAX_RATE_CHANGE    : constant := 1_000_000.0;
 
    Two_Kp       : Float range 0.0 .. MAX_TWO_KP := TWO_KP_DEF
      with Part_Of => SensFusion6_State; --  2 * proportional gain (Kp)

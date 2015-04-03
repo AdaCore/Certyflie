@@ -1,3 +1,5 @@
+with Ada.Numerics; use Ada.Numerics;
+
 package IMU_Pack
 with SPARK_Mode
 is
@@ -7,9 +9,16 @@ is
    --  These ranges are deduced from the MPU9150 specification.
    --  It corresponds to the maximum range of values that can be output
    --  by the IMU.
+
+   --  Type for angular speed output from gyro, degrees/s
    subtype T_Rate is Float range -3_000.0  .. 3_000.0;
+   --  Type for angular speed output from gyro, rad/s
+   subtype T_Rate_Rad
+     is Float range -3_000.0 * Pi / 180.0 .. 3_000.0 * Pi / 180.0;
+   --  Type for acceleration output from accelerometer, in G
    subtype T_Acc  is Float range -16.0 .. 16.0;
-   subtype T_Mag  is Float range -4_800.0  .. 4_800.0;
+   --  Type for magnetometer output, in micro-Teslas
+   subtype T_Mag  is Float range -1_200.0  .. 1_200.0;
 
    MIN_NON_ZERO_ACC : constant := 2.0 ** (-74);
 
