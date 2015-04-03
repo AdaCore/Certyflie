@@ -1,6 +1,7 @@
 with Maths_Pack; use Maths_Pack;
 with Safety_Pack; use Safety_Pack;
 with Config; use Config;
+with Ada.Numerics; use Ada.Numerics;
 
 with Interfaces.C; use Interfaces.C;
 

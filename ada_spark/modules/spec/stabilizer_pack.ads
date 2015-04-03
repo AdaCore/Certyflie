@@ -129,7 +129,7 @@ private
 
    --  Barometer/ Altitude hold stuff
 
-    --  500hz/5 = 100hz for barometer measurements
+   --  500hz/5 = 100hz for barometer measurements
    ALTHOLD_UPDATE_RATE_DIVIDER   : constant := 5;
    ALTHOLD_UPDATE_RATE_DIVIDER_F : constant := 5.0;
    ALTHOLD_UPDATE_DT : constant Float :=
