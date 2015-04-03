@@ -163,39 +163,45 @@ is
       Ay : T_Acc;
       Az : T_Acc;
       Dt : T_Delta_Time) is
-      Recip_Norm       : Float;
-      Norm_Ax          : Float range -1.0 .. 1.0;
-      Norm_Ay          : T_Acc range -1.0 .. 1.0;
-      Norm_Az          : T_Acc range -1.0 .. 1.0;
+      Recip_Norm                              : Float;
+      Norm_Ax                                 : Float range -1.0 .. 1.0;
+      Norm_Ay                                 : T_Acc range -1.0 .. 1.0;
+      Norm_Az                                 : T_Acc range -1.0 .. 1.0;
       --  Conversion from degrees/s to rad/s
-      Rad_Gx           : T_Rate_Rad := Gx * Pi / 180.0;
-      Rad_Gy           : T_Rate_Rad := Gy * Pi / 180.0;
-      Rad_Gz           : T_Rate_Rad := Gz * Pi / 180.0;
+      Rad_Gx                                  : T_Rate_Rad := Gx * Pi / 180.0;
+      Rad_Gy                                  : T_Rate_Rad := Gy * Pi / 180.0;
+      Rad_Gz                                  : T_Rate_Rad := Gz * Pi / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
-      Half_Vx          : Float range -3.0 .. 3.0 := Q1 * Q3 - Q0 * Q2;
-      Half_Vy          : Float range -3.0 .. 3.0 := Q0 * Q1 + Q2 * Q3;
-      Half_Vz          : Float range -3.0 .. 3.0 := Q0 * Q0 - 0.5 + Q3 * Q3;
-      Half_Ex          : Float range -7.0 .. 7.0;
-      Half_Ey          : Float range -7.0 .. 7.0;
-      Half_Ez          : Float range -7.0 .. 7.0;
-      Q0_Tmp           : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q1_Tmp           : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q2_Tmp           : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q3_Tmp           : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Qa               : T_Quaternion := Q0;
-      Qb               : T_Quaternion := Q1;
-      Qc               : T_Quaternion := Q2;
-      Ax_Lifted        : T_Acc_Lifted;
-      Ay_Lifted        : T_Acc_Lifted;
-      Az_Lifted        : T_Acc_Lifted;
-      Square_Sum       : Natural_Float;
-      Rate_Change_Gx   : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
+      Half_Vx                                 : Float range -3.0 .. 3.0 := Q1 * Q3 - Q0 * Q2;
+      Half_Vy                                 : Float range -3.0 .. 3.0 := Q0 * Q1 + Q2 * Q3;
+      Half_Vz                                 : Float range -3.0 .. 3.0 := Q0 * Q0 - 0.5 + Q3 * Q3;
+      Half_Ex                                 : Float range -7.0 .. 7.0;
+      Half_Ey                                 : Float range -7.0 .. 7.0;
+      Half_Ez                                 : Float range -7.0 .. 7.0;
+      Q0_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q1_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q2_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q3_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Qa                                      : T_Quaternion := Q0;
+      Qb                                      : T_Quaternion := Q1;
+      Qc                                      : T_Quaternion := Q2;
+      Ax_Lifted                               : T_Acc_Lifted;
+      Ay_Lifted                               : T_Acc_Lifted;
+      Az_Lifted                               : T_Acc_Lifted;
+      Square_Sum                              : Natural_Float;
+      Rate_Change_Gx                          : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
         := Rad_Gx;
-      Rate_Change_Gy   : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
+      Rate_Change_Gy                          : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
         := Rad_Gy;
-      Rate_Change_Gz   : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
+      Rate_Change_Gz                          : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
         := Rad_Gy;
+      Integ_FB_Gx                             : Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+        .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gx;
+      Integ_FB_Gy                             : Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+        .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gy;
+      Integ_FB_Gz                             : Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+        .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gz;
    begin
       --  Compute feedback only if accelerometer measurement valid
       --  (avoids NaN in accelerometer normalisation)
@@ -226,14 +232,6 @@ is
 
          --  Compute and apply integral feedback if enabled
          if Two_Ki > 0.0 then
-            pragma Assert
-              (Integral_FBx in -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR);
-            pragma Assert
-              (Integral_FBy in -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR);
-            pragma Assert
-              (Integral_FBz in -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR);
-            pragma Assert (Two_Ki in 0.0 .. MAX_TWO_KI);
-            pragma Assert (Dt in T_Delta_Time'Range);
             Integral_FBx := Saturate (Integral_FBx + Two_Ki * Half_Ex * Dt,
                                       -MAX_INTEGRAL_ERROR,
                                       MAX_INTEGRAL_ERROR);
@@ -244,9 +242,10 @@ is
                                       -MAX_INTEGRAL_ERROR,
                                       MAX_INTEGRAL_ERROR);
             --  Apply integral feedback
-            Rate_Change_Gx := Rad_Gx + Integral_FBx;
-            Rate_Change_Gy := Rad_Gy + Integral_FBy;
-            Rate_Change_Gz := Rad_Gz + Integral_FBz;
+            Integ_FB_Gx := Rad_Gx + Integral_FBx;
+            Integ_FB_Gy := Rad_Gy + Integral_FBy;
+            Integ_FB_Gz := Rad_Gz + Integral_FBz;
+
          else
             Integral_FBx := 0.0;
             Integral_FBy := 0.0;
@@ -254,13 +253,9 @@ is
          end if;
 
          --  Apply proportional feedback
-         Rate_Change_Gx := Rate_Change_Gx + Two_Kp * Half_Ex;
-         Rate_Change_Gy := Rate_Change_Gy + Two_Kp * Half_Ey;
-         Rate_Change_Gz := Rate_Change_Gz + Two_Kp * Half_Ez;
-      else
-         Rate_Change_Gx := Rad_Gx;
-         Rate_Change_Gy := Rad_Gy;
-         Rate_Change_Gz := Rad_Gz;
+         Rate_Change_Gx := Integ_FB_Gx + Two_Kp * Half_Ex;
+         Rate_Change_Gy := Integ_FB_Gy + Two_Kp * Half_Ey;
+         Rate_Change_Gz := Integ_FB_Gz + Two_Kp * Half_Ez;
       end if;
 
       --  Integrate rate of change of quaternion
@@ -281,7 +276,6 @@ is
       --  Normalize quaternions
       Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
                                 Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
-      pragma Assert (Recip_Norm in 0.0 .. 2.7E+22);
       Q0 := Saturate (Q0_Tmp * Recip_Norm,
                       T_Quaternion'First,
                       T_Quaternion'Last);
