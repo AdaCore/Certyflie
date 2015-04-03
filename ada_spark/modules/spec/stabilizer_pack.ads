@@ -128,7 +128,9 @@ private
                         (1.0 / (IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER_F)); --  250hz
 
    --  Barometer/ Altitude hold stuff
-   ALTHOLD_UPDATE_RATE_DIVIDER   : constant := 5; --  500hz/5 = 100hz for barometer measurements
+
+    --  500hz/5 = 100hz for barometer measurements
+   ALTHOLD_UPDATE_RATE_DIVIDER   : constant := 5;
    ALTHOLD_UPDATE_RATE_DIVIDER_F : constant := 5.0;
    ALTHOLD_UPDATE_DT : constant Float :=
                          (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));  -- 100hz

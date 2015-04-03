@@ -56,8 +56,11 @@ is
    --  Round a float value to 2^74 or -2.74 to avoid having zero when doing
    --  a vector normalization (ie: Inv_Sqrt (X*X + Y*Y + Z*Z)
    function Lift_Away_From_Zero (X : T_Acc) return T_Acc_Lifted
-     with Contract_Cases => (X = 0.0 => Lift_Away_From_Zero'Result = 0.0,
-                             X /= 0.0 => Lift_Away_From_Zero'Result /= 0.0);
+     with
+       Contract_Cases =>
+         (X = 0.0 => Lift_Away_From_Zero'Result = 0.0,
+          X < 0.0 => Lift_Away_From_Zero'Result <= -MIN_NON_ZERO_ACC,
+          X > 0.0 => Lift_Away_From_Zero'Result >= MIN_NON_ZERO_ACC);
    pragma Inline (Lift_Away_From_Zero);
 
 end Safety_Pack;

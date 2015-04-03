@@ -28,7 +28,7 @@ is
       Is_Init := 1;
    end SensFusion6_Init;
 
-   function SensFusion6_Test return Bool is
+   function SensFusion6_Test return bool is
    begin
       return Is_Init;
    end SensFusion6_Test;
@@ -173,16 +173,23 @@ is
       Rad_Gz                                  : T_Rate_Rad := Gz * Pi / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
-      Half_Vx                                 : Float range -3.0 .. 3.0 := Q1 * Q3 - Q0 * Q2;
-      Half_Vy                                 : Float range -3.0 .. 3.0 := Q0 * Q1 + Q2 * Q3;
-      Half_Vz                                 : Float range -3.0 .. 3.0 := Q0 * Q0 - 0.5 + Q3 * Q3;
+      Half_Vx                                 : Float range -3.0 .. 3.0
+        := Q1 * Q3 - Q0 * Q2;
+      Half_Vy                                 : Float
+      range -3.0 .. 3.0 := Q0 * Q1 + Q2 * Q3;
+      Half_Vz                                 : Float
+      range -3.0 .. 3.0 := Q0 * Q0 - 0.5 + Q3 * Q3;
       Half_Ex                                 : Float range -7.0 .. 7.0;
       Half_Ey                                 : Float range -7.0 .. 7.0;
       Half_Ez                                 : Float range -7.0 .. 7.0;
-      Q0_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q1_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q2_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q3_Tmp                                  : Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q0_Tmp                                  : Float
+      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q1_Tmp                                  : Float
+      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q2_Tmp                                  : Float
+      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+      Q3_Tmp                                  : Float
+      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
       Qa                                      : T_Quaternion := Q0;
       Qb                                      : T_Quaternion := Q1;
       Qc                                      : T_Quaternion := Q2;
@@ -190,17 +197,23 @@ is
       Ay_Lifted                               : T_Acc_Lifted;
       Az_Lifted                               : T_Acc_Lifted;
       Square_Sum                              : Natural_Float;
-      Rate_Change_Gx                          : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
+      Rate_Change_Gx                          : Float
+      range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
         := Rad_Gx;
-      Rate_Change_Gy                          : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
+      Rate_Change_Gy                          : Float
+      range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
         := Rad_Gy;
-      Rate_Change_Gz                          : Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
+      Rate_Change_Gz                          : Float
+      range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
         := Rad_Gy;
-      Integ_FB_Gx                             : Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+      Integ_FB_Gx                             : Float
+      range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
         .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gx;
-      Integ_FB_Gy                             : Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+      Integ_FB_Gy                             : Float
+      range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
         .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gy;
-      Integ_FB_Gz                             : Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+      Integ_FB_Gz                             : Float
+      range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
         .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gz;
    begin
       --  Compute feedback only if accelerometer measurement valid
@@ -210,6 +223,7 @@ is
          Ax_Lifted := Lift_Away_From_Zero (Ax);
          Ay_Lifted := Lift_Away_From_Zero (Ay);
          Az_Lifted := Lift_Away_From_Zero (Az);
+
          Square_Sum := Ax_Lifted * Ax_Lifted +
            Ay_Lifted * Ay_Lifted + Az_Lifted * Az_Lifted;
          --  We ensured that Ax_Tmp, Ay_Tmp, Az_Tmp are sufficiently far away
@@ -263,15 +277,23 @@ is
       Rate_Change_Gy := Rate_Change_Gy * (0.5 * Dt);
       Rate_Change_Gz := Rate_Change_Gz * (0.5 * Dt);
 
-      Q0_Tmp := Q0 + (-Qb * Rate_Change_Gx - Qc * Rate_Change_Gy - Q3 * Rate_Change_Gz);
-      Q1_Tmp := Q1 + (Qa * Rate_Change_Gx + Qc * Rate_Change_Gz - Q3 * Rate_Change_Gy);
-      Q2_Tmp := Q2 + (Qa * Rate_Change_Gy - Qb * Rate_Change_Gz + Q3 * Rate_Change_Gx);
-      Q3_Tmp := Q3 + (Qa * Rate_Change_Gz + Qb * Rate_Change_Gy - Qc * Rate_Change_Gx);
+      Q0_Tmp := Q0 +
+        (-Qb * Rate_Change_Gx - Qc * Rate_Change_Gy - Q3 * Rate_Change_Gz);
+      Q1_Tmp := Q1 +
+        (Qa * Rate_Change_Gx + Qc * Rate_Change_Gz - Q3 * Rate_Change_Gy);
+      Q2_Tmp := Q2 +
+        (Qa * Rate_Change_Gy - Qb * Rate_Change_Gz + Q3 * Rate_Change_Gx);
+      Q3_Tmp := Q3 +
+        (Qa * Rate_Change_Gz + Qb * Rate_Change_Gy - Qc * Rate_Change_Gx);
 
-      pragma Assert (Q0_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q1_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q2_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q3_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert (Q0_Tmp in
+                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert (Q1_Tmp in
+                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert (Q2_Tmp in
+                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert (Q3_Tmp in
+                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
 
       --  Normalize quaternions
       Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +

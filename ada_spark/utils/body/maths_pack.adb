@@ -23,7 +23,7 @@ is
       --  the Ada RM specification for Arctan
       --  (A.5.1 Elementary Functions)
       return Saturate (Arctan (Y, X), -Pi, Pi);
-   end;
+   end Atan;
 
    function Asin (X : Float) return T_Radians is
    begin
@@ -31,6 +31,6 @@ is
       --  the Ada RM specification for Arcsin
       --  (A.5.1 Elementary Functions)
       return Saturate (Arcsin (X), -Pi / 2.0, Pi / 2.0);
-   end;
+   end Asin;
 
 end Maths_Pack;

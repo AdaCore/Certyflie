@@ -20,6 +20,8 @@ is
    --  Type for magnetometer output, in micro-Teslas
    subtype T_Mag  is Float range -1_200.0  .. 1_200.0;
 
+   --  Type used to ensure that accelation normalization can't lead to a
+   --  division by zero in SensFusion6_Pack algorithms
    MIN_NON_ZERO_ACC : constant := 2.0 ** (-74);
 
    subtype T_Acc_Lifted is T_Acc; -- with
