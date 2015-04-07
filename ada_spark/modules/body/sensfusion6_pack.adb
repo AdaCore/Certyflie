@@ -176,10 +176,10 @@ is
       --  to magnetic flux
       Half_Vx                                 : Float range -3.0 .. 3.0
         := Q1 * Q3 - Q0 * Q2;
-      Half_Vy                                 : Float
-      range -3.0 .. 3.0 := Q0 * Q1 + Q2 * Q3;
-      Half_Vz                                 : Float
-      range -3.0 .. 3.0 := Q0 * Q0 - 0.5 + Q3 * Q3;
+      Half_Vy                                 : Float range -2.0 .. 2.0 :=
+                                                  Q0 * Q1 + Q2 * Q3;
+      Half_Vz                                 : Float range -2.0 .. 2.0 :=
+                                                  Q0 * Q0 - 0.5 + Q3 * Q3;
       Half_Ex                                 : Float range -7.0 .. 7.0;
       Half_Ey                                 : Float range -7.0 .. 7.0;
       Half_Ez                                 : Float range -7.0 .. 7.0;
