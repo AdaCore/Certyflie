@@ -1,43 +1,46 @@
 package body Generic_Queue_Pack is
 
-   function Enqueue
+   procedure Enqueue
      (Queue : in out T_Queue;
-      Item  : T_Element) return Boolean is
+      Item  : T_Element) is
    begin
       if Queue.Count = Queue.Container'Length then
-         return False;
+         return;
       end if;
 
       Queue.Container (Queue.Rear) := Item;
-      Queue.Rear := (if Queue.Rear + 1 = Queue.Container'Length then
-                        0
+      Queue.Rear := (if Queue.Rear = Queue.Container'Length then
+                        1
                      else
                         Queue.Rear + 1);
 
       Queue.Count := Queue.Count + 1;
-      return True;
    end Enqueue;
 
-   function Dequeue
+   procedure Dequeue
      (Queue : in out T_Queue;
-      Item  : out T_Element) return Boolean is
+      Item  : out T_Element) is
    begin
       if Queue.Count = 0 then
-         return False;
+         return;
       end if;
 
       Item := Queue.Container (Queue.Front);
-      Queue.Front := (if Queue.Front + 1 = Queue.Container'Length then
-                         0
+      Queue.Front := (if Queue.Front = Queue.Container'Length then
+                         1
                       else
                          Queue.Front + 1);
       Queue.Count := Queue.Count - 1;
-      return True;
    end Dequeue;
 
    function Is_Empty (Queue : in T_Queue) return Boolean is
    begin
       return Queue.Count = 0;
    end Is_Empty;
+
+   function Is_Full (Queue : in T_Queue) return Boolean is
+   begin
+      return Queue.Count = Queue.Container'Length;
+   end Is_Full;
 
 end Generic_Queue_Pack;

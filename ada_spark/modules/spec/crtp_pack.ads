@@ -1,10 +1,12 @@
 with Types; use Types;
+with Generic_Queue_Pack;
 
 package Crtp_Pack is
 
    --  Constants
-   CRTP_MAX_DATA_SIZE : constant := 30;
 
+   CRTP_MAX_DATA_SIZE : constant := 30;
+   CRTP_TX_QUEUE_SIZE : constant := 60;
    --  Types
 
    --  Type used for representing a CRTP channel, which can be seen
@@ -47,5 +49,22 @@ package Crtp_Pack is
    end record;
    for Crtp_Packet'Size use 256;
    pragma Pack (Crtp_Packet);
+
+   package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
+   use Crtp_Queue;
+
+   --  Tasks and protected objects
+
+   --  Protected object ensuring that nobody tries to enqueue
+   --  a message at the same time
+   protected type Tx_Queue is
+      entry Enqueue_Packet (Packet : Crtp_Packet);
+   private
+      Queue       : T_Queue (CRTP_TX_QUEUE_SIZE);
+      Is_Not_Full : Boolean := False;
+   end Tx_Queue;
+
+
+
 
 end Crtp_Pack;

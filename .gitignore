@@ -1,8 +1,9 @@
-
+version.c
 ^bin/dep/all
 bin/*
 .cproject
 .project
 .settings/*
+ada_spark/test/obj
 *~
 cflie.*
