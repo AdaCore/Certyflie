@@ -251,7 +251,7 @@ PARAM_GROUP_STOP(cpu)
 
 PARAM_GROUP_START(system)
 PARAM_ADD(PARAM_INT8, selftestPassed, &selftestPassed)
-PARAM_GROUP_STOP(sytem)
+PARAM_GROUP_STOP(system)
 
 /* Loggable variables */
 LOG_GROUP_START(sys)
