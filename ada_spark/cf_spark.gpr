@@ -1,5 +1,4 @@
 library project Cf_Spark is
-
    type Modes is
      ("Compile", "Analyze");
    Mode : Modes := external ("MODE", "Compile");
@@ -13,6 +12,7 @@ library project Cf_Spark is
                         "drivers/spec",
                         "drivers/body",
                         "lib/spec",
+                        "lib/body",
                         "hal/spec",
                         "hal/body",
                         "types/spec");
@@ -36,7 +36,8 @@ library project Cf_Spark is
                               "lps25h_pack",
                               "pm_pack",
                               "motors_pack",
-                              "free_fall_pack");
+                              "free_fall_pack",
+                              "generic_queue_pack");
 
    case Mode is
 
@@ -44,7 +45,7 @@ library project Cf_Spark is
          for Target use "arm-eabi";
          for Runtime ("ada") use "ravenscar-sfp-stm32f4";
 
-      when "Analyze" =>
+      when others =>
 
    end case;
 

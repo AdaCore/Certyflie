@@ -1,0 +1,22 @@
+[GENERATED OBJECT FILE]
+b__main.o
+[PROJECT FILES]
+/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/cf_test.gpr
+20150408134005
+[BOUND OBJECT FILES]
+/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/generic_queue_pack.o
+/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/imu_pack.o
+/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/types.o
+/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/crtp_pack.o
+/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/main.o
+[GENERATED SOURCE FILES]
+b__main.ads
+b__main.adb
+b__main.ali
+[RESULTING OPTIONS]
+-L/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/
+-L/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/obj/
+-L/home/bitcraze/gnatpython_sandbox/x86-linux/gnat/install/lib/gcc/i686-pc-linux-gnu/4.9.3/adalib/
+-static
+-static-libgcc
+/home/bitcraze/gnatpython_sandbox/x86-linux/gnat/install/lib/gcc/i686-pc-linux-gnu/4.9.3/adalib/libgnat.a

@@ -1,0 +1,60 @@
+V "GNAT Lib v7.4"
+A -gnatA
+A -mtune=generic
+A -march=pentiumpro
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_IMPLEMENTATION_ASPECT_SPECIFICATIONS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U imu_pack%b		imu_pack.adb		d004d958 NE OO PK
+
+U imu_pack%s		imu_pack.ads		4ce914b0 EE NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.numerics%s	a-numeri.ads		a-numeri.ali
+
+D ada.ads		20060709122605 3ffc8e18 ada%s
+D a-numeri.ads		20080325095905 bb51c45a ada.numerics%s
+D a-unccon.ads		20060709122605 f9eb8f06 ada.unchecked_conversion%s
+D imu_pack.ads		20150407074437 f7b8d0ea imu_pack%s
+D imu_pack.adb		20150408134329 27bc09b2 imu_pack%b
+D system.ads		20141006090418 fb0c3f68 system%s
+D s-exctab.ads		20131225031849 54135002 system.exception_table%s
+D s-stalib.ads		20150124112958 fa0a3617 system.standard_library%s
+X 1 ada.ads
+16K9*Ada 19e8 4|1r6 1r24
+X 2 a-numeri.ads
+16K13*Numerics 32e17 4|1w10 1r28
+21N4*Pi 4|17r32 17r56
+X 4 imu_pack.ads
+3K9*IMU_Pack 73l5 73e13 5|1b14 14l5 14t13
+14F12*T_Rate{float} 32r11 33r11 34r11
+16F12*T_Rate_Rad{float}
+19F12*T_Acc{float} 27r28 38r11 39r11 40r11
+21F12*T_Mag{float} 44r11 45r11 46r11
+25N4*MIN_NON_ZERO_ACC
+27F12*T_Acc_Lifted{19F12}
+31R9*Gyroscope_Data 35e14 49r26 61r21
+32f7*X{14F12}
+33f7*Y{14F12}
+34f7*Z{14F12}
+37R9*Accelerometer_Data 41e14 50r26 62r21
+38f7*X{19F12}
+39f7*Y{19F12}
+40f7*Z{19F12}
+43R9*Magnetometer_Data 47e14 51r26 63r21
+44f7*X{21F12}
+45f7*Y{21F12}
+46f7*Z{21F12}
+55N4*IMU_UPDATE_FREQ 56r40
+56N4*IMU_UPDATE_DT
+60U14*IMU_9_Read 61=7 62=7 63=7 67b<c,imu9Read>22
+61r7 Gyro{31R9}
+62r7 Acc{37R9}
+63r7 Mag{43R9}
+69V13*IMU_6_Calibrated{boolean} 5|3b13 6l8 6t24
+71V13*IMU_Has_Barometer{boolean} 5|9b13 12l8 12t25
+

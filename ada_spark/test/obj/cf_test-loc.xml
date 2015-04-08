@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<Locations >
+  <Project >
+    <file_marker column=" 1" line=" 1" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/cf_test.gpr</vfs_file>
+    </file_marker>
+    <file_marker column=" 38" line=" 8" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/cf_test.gpr</vfs_file>
+    </file_marker>
+    <file_marker column=" 12" line=" 6" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 1" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 54" line=" 22" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 25" line=" 2" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 12" line=" 8" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 19" line=" 13" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 23" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 30" line=" 5" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 27" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 22" line=" 9" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 30" line=" 5" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 6" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 22" line=" 9" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 23" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 37" line=" 10" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/cf_test.gpr</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 1" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/hal/spec/radiolink_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 32" line=" 16" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/lib/spec/generic_queue_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 39" line=" 9" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/cf_test.gpr</vfs_file>
+    </file_marker>
+    <file_marker column=" 31" line=" 3" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/test/src/main.adb</vfs_file>
+    </file_marker>
+    <file_marker column=" 40" line=" 9" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/modules/spec/crtp_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 26" line=" 8" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/modules/spec/crtp_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 1" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/modules/spec/controller_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker column=" 1" line=" 1" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/modules/spec/commander_pack.ads</vfs_file>
+    </file_marker>
+    <file_marker current="true" column=" 27" line=" 23" >
+      <vfs_project />
+      <vfs_file>/home/bitcraze/Development/crazyflie_2.0/crazyflie-firmware/ada_spark/modules/spec/crtp_pack.ads</vfs_file>
+    </file_marker>
+  </Project>
+</Locations>
