@@ -1,7 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Generic_Queue_Pack;
 with Crtp_Pack; use Crtp_Pack;
-with Radio_Link_Pack; use Radio_Link_Pack;
+with RadiolInk_Pack; use RadiolInk_Pack;
 with Ada.Unchecked_Conversion;
 
 package body Test_Pack is
@@ -43,7 +43,7 @@ package body Test_Pack is
       Packet.Port := CRTP_PORT_CONSOLE;
       Packet.Data := String_To_Data (Message);
 
-      Has_Succeed := Radio_Link_Send_Packet (Packet);
+      Has_Succeed := RadiolInk_Send_Packet (Packet);
    end Radio_Link_Test;
 
 end Test_Pack;

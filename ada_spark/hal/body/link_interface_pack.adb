@@ -1,5 +1,5 @@
 with Config; use Config;
-with Radio_Link_Pack; use Radio_Link_Pack;
+with Radiolink_Pack; use Radiolink_Pack;
 
 package body Link_Interface_Pack is
 
@@ -7,7 +7,7 @@ package body Link_Interface_Pack is
    begin
       case Link_Layer_Type is
          when RADIO_LINK =>
-            return Radio_Link_Send_Packet (Packet);
+            return Radiolink_Send_Packet (Packet);
          when others =>
             --  Other link layers not implemented yet
             return False;
@@ -19,7 +19,6 @@ package body Link_Interface_Pack is
       Packet_Received : out Boolean) is
    begin
       null;
-
    end Link_Receive_Packet;
 
 end Link_Interface_Pack;

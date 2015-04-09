@@ -3,7 +3,7 @@ pragma Elaborate (Link_Interface_Pack);
 
 package body Crtp_Pack is
 
-   protected body Tx_Queue is
+   protected body Crtp_Tx_Queue is
       procedure Enqueue_Packet
         (Packet      : Crtp_Packet;
          Has_Succeed : out Boolean) is
@@ -17,21 +17,21 @@ package body Crtp_Pack is
          Has_Succeed := True;
       end Enqueue_Packet;
 
-      entry Dequeue (Packet : out Crtp_Packet)
+      entry Dequeue_Packet (Packet : out Crtp_Packet)
         when Is_Not_Empty
       is
       begin
          Dequeue (Queue, Packet);
          Is_Not_Empty := not Is_Empty (Queue);
-      end Dequeue;
-   end Tx_Queue;
+      end Dequeue_Packet;
+   end Crtp_Tx_Queue;
 
-   task body Tx_Task is
+   task body Crtp_Tx_Task is
       Packet : Crtp_Packet;
       Has_Succeed : Boolean;
    begin
       loop
-         Tx_Queue.Dequeue (Packet);
+         Crtp_Tx_Queue.Dequeue_Packet (Packet);
          Has_Succeed := Link_Send_Packet (Packet);
 
          --  Keep testing, if the link change sto USB it will go through
@@ -39,6 +39,6 @@ package body Crtp_Pack is
             Has_Succeed := Link_Send_Packet (Packet);
          end loop;
       end loop;
-   end Tx_Task;
+   end Crtp_Tx_Task;
 
 end Crtp_Pack;

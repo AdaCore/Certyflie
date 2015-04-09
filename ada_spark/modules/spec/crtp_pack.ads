@@ -41,6 +41,7 @@ package Crtp_Pack is
    --  Type for CRTP packet data
    type Crtp_Data is array (1 .. CRTP_MAX_DATA_SIZE) of T_Uint8;
 
+   --  Type for CRTP packets
    type Crtp_Packet is record
       Size     : T_Uint8;
       Channel  : Crtp_Channel;
@@ -51,6 +52,7 @@ package Crtp_Pack is
    for Crtp_Packet'Size use 256;
    pragma Pack (Crtp_Packet);
 
+private
    package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
    use Crtp_Queue;
 
@@ -58,20 +60,20 @@ package Crtp_Pack is
 
    --  Protected object ensuring that nobody tries to enqueue
    --  a message at the same time
-   protected Tx_Queue is
+   protected Crtp_Tx_Queue is
       procedure Enqueue_Packet
         (Packet      : Crtp_Packet;
          Has_Succeed : out Boolean);
-      entry Dequeue (Packet : out Crtp_Packet);
+      entry Dequeue_Packet (Packet : out Crtp_Packet);
    private
       pragma Priority (System.Priority'Last);
       Queue           : T_Queue (CRTP_TX_QUEUE_SIZE);
       Is_Not_Empty    : Boolean := False;
-   end Tx_Queue;
+   end Crtp_Tx_Queue;
 
    --  Task in charge of transmitting the messages in the Tx Queue
    --  to the link layer.
-   task Tx_Task is
+   task Crtp_Tx_Task is
       pragma Priority (System.Priority'Last - 1);
    end;
 
