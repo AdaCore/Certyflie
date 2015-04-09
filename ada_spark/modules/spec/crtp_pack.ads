@@ -3,11 +3,11 @@ with Generic_Queue_Pack;
 with System;
 
 package Crtp_Pack is
-
    --  Constants
 
    CRTP_MAX_DATA_SIZE : constant := 30;
    CRTP_TX_QUEUE_SIZE : constant := 60;
+
    --  Types
 
    --  Type used for representing a CRTP channel, which can be seen
@@ -65,10 +65,12 @@ package Crtp_Pack is
       entry Dequeue (Packet : out Crtp_Packet);
    private
       pragma Priority (System.Priority'Last);
-      Queue       : T_Queue (CRTP_TX_QUEUE_SIZE);
+      Queue           : T_Queue (CRTP_TX_QUEUE_SIZE);
       Is_Not_Empty    : Boolean := False;
    end Tx_Queue;
 
+   --  Task in charge of transmitting the messages in the Tx Queue
+   --  to the link layer.
    task Tx_Task is
       pragma Priority (System.Priority'Last - 1);
    end;

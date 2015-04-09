@@ -4,11 +4,14 @@ package Config is
 
    --  Crazyflie 2.0 has an SMTM32F4 board
    STM32F4XX : constant Boolean := True;
-
    QUAD_FORMATION_X : constant Boolean := True;
 
    --  Two implemented algorithms for quaternions
    type Quaternion_Algorithm is (MAHONY, MADGWICK);
    SENSOR_FUSION_ALGORITHM : constant Quaternion_Algorithm := MAHONY;
+
+   --  Link layers implemented to communicate via the CRTP protocol
+   type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
+   Link_Layer_Type : constant Link_Layer := RADIO_LINK;
 
 end Config;

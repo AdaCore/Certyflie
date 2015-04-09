@@ -3,6 +3,7 @@ project Cf_Test is
    for Languages use ("Ada");
    for Main use ("main.adb");
    for Source_Dirs use ("src",
+                        "..",
                         "../types/spec",
                         "../lib/spec",
                         "../lib/body",
