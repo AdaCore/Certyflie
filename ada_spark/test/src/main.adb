@@ -6,5 +6,5 @@ with Crtp_Pack; use Crtp_Pack;
 
 procedure Main is
 begin
-   Queue_Test;
+   Radio_Link_Test;
 end Main;

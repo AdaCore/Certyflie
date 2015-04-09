@@ -38,14 +38,14 @@ package Crtp_Pack is
    for Crtp_Reserved'Size use 2;
 
    --  Type for CRTP packet data
-   type Crtp_Data is array (Natural range <>) of T_Uint8;
+   type Crtp_Data is array (1 .. CRTP_MAX_DATA_SIZE) of T_Uint8;
 
    type Crtp_Packet is record
       Size     : T_Uint8;
       Channel  : Crtp_Channel;
       Reserved : Crtp_Reserved;
       Port     : Crtp_Port;
-      Data     : Crtp_Data (0 .. CRTP_MAX_DATA_SIZE - 1);
+      Data     : Crtp_Data;
    end record;
    for Crtp_Packet'Size use 256;
    pragma Pack (Crtp_Packet);
@@ -63,8 +63,5 @@ package Crtp_Pack is
       Queue       : T_Queue (CRTP_TX_QUEUE_SIZE);
       Is_Not_Full : Boolean := False;
    end Tx_Queue;
-
-
-
 
 end Crtp_Pack;
