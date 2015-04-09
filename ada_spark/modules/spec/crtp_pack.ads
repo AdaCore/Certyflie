@@ -1,5 +1,6 @@
 with Types; use Types;
 with Generic_Queue_Pack;
+with System;
 
 package Crtp_Pack is
 
@@ -57,11 +58,19 @@ package Crtp_Pack is
 
    --  Protected object ensuring that nobody tries to enqueue
    --  a message at the same time
-   protected type Tx_Queue is
-      entry Enqueue_Packet (Packet : Crtp_Packet);
+   protected Tx_Queue is
+      procedure Enqueue_Packet
+        (Packet      : Crtp_Packet;
+         Has_Succeed : out Boolean);
+      entry Dequeue (Packet : out Crtp_Packet);
    private
+      pragma Priority (System.Priority'Last);
       Queue       : T_Queue (CRTP_TX_QUEUE_SIZE);
-      Is_Not_Full : Boolean := False;
+      Is_Not_Empty    : Boolean := False;
    end Tx_Queue;
+
+   task Tx_Task is
+      pragma Priority (System.Priority'Last - 1);
+   end;
 
 end Crtp_Pack;
