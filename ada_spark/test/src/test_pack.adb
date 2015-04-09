@@ -28,13 +28,14 @@ package body Test_Pack is
 
 
    procedure Radio_Link_Test is
-      Message : String (1 .. CRTP_MAX_DATA_SIZE) :=
+      Message : constant String (1 .. CRTP_MAX_DATA_SIZE) :=
                   "012345678901234567890123456789";
       Packet  : Crtp_Packet;
       subtype String_30 is String (1 .. Packet.Data'Length);
       function String_To_Data is new Ada.Unchecked_Conversion
         (String_30, Crtp_Data);
       Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
 
    begin
       Packet.Size := 30;
