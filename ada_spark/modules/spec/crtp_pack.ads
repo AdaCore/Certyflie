@@ -54,22 +54,12 @@ package Crtp_Pack is
 
 private
    package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
-   use Crtp_Queue;
 
    --  Tasks and protected objects
 
-   --  Protected object ensuring that nobody tries to enqueue
-   --  a message at the same time
-   protected Crtp_Tx_Queue is
-      procedure Enqueue_Packet
-        (Packet      : Crtp_Packet;
-         Has_Succeed : out Boolean);
-      entry Dequeue_Packet (Packet : out Crtp_Packet);
-   private
-      pragma Priority (System.Priority'Last);
-      Queue           : T_Queue (CRTP_TX_QUEUE_SIZE);
-      Is_Not_Empty    : Boolean := False;
-   end Crtp_Tx_Queue;
+   --  Protected object queue for transmission
+   Tx_Queue : Crtp_Queue.Protected_Queue
+     (System.Priority'Last, CRTP_TX_QUEUE_SIZE);
 
    --  Task in charge of transmitting the messages in the Tx Queue
    --  to the link layer.

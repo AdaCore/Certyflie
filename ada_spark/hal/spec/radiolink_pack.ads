@@ -8,6 +8,7 @@ package Radiolink_Pack is
    --  Constants
 
    RADIOLINK_TX_QUEUE_SIZE : constant := 1;
+   RADIOLINK_RX_QUEUE_SIZE : constant := 5;
 
    --  Procedures and functions
 
@@ -16,21 +17,15 @@ package Radiolink_Pack is
 private
 
    package Syslink_Queue is new Generic_Queue_Pack (Syslink_Packet);
-   use Syslink_Queue;
-
+   package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
    --  Tasks and protected objects
 
-   --  Protected object ensuring that nobody tries to enqueue
-   --  a message at the same time
-   protected Radiolink_Tx_Queue is
-      procedure Enqueue_Packet
-        (Packet      : Syslink_Packet;
-         Has_Succeed : out Boolean);
-      entry Dequeue_Packet (Packet : out Syslink_Packet);
-   private
-      pragma Priority (System.Priority'Last);
-      Queue           : T_Queue (RADIOLINK_TX_QUEUE_SIZE);
-      Is_Not_Empty    : Boolean := False;
-   end Radiolink_Tx_Queue;
+   --  Protected object queue for transmission
+   Tx_Queue : Syslink_Queue.Protected_Queue
+     (System.Priority'Last, RADIOLINK_TX_QUEUE_SIZE);
+
+   --  Protected object queue for reception
+   Rx_Queue : Crtp_Queue.Protected_Queue
+     (System.Priority'Last, RADIOLINK_RX_QUEUE_SIZE);
 
 end RadiolInk_Pack;

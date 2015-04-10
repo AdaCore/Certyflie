@@ -1,30 +1,8 @@
 with Types; use Types;
 with Ada.Unchecked_Conversion;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package body Radiolink_Pack is
-
-   protected body Radiolink_Tx_Queue is
-      procedure Enqueue_Packet
-        (Packet      : Syslink_Packet;
-         Has_Succeed : out Boolean) is
-      begin
-         if Is_Full (Queue) then
-            Has_Succeed := False;
-            return;
-         end if;
-
-         Enqueue (Queue, Packet);
-         Has_Succeed := True;
-      end Enqueue_Packet;
-
-      entry Dequeue_Packet (Packet : out Syslink_Packet)
-        when Is_Not_Empty
-      is
-      begin
-         Dequeue (Queue, Packet);
-         Is_Not_Empty := not Is_Empty (Queue);
-      end Dequeue_Packet;
-   end Radiolink_Tx_Queue;
 
    function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean is
       Sl_Packet : Syslink_Packet;
@@ -37,7 +15,7 @@ package body Radiolink_Pack is
       Sl_Packet.Data := Crtp_To_Syslink_Data (Packet);
 
       --  Try to enqueue the Syslink packet
-      Radiolink_Tx_Queue.Enqueue_Packet (Sl_Packet, Has_Suceed);
+      Tx_Queue.Enqueue_Item (Sl_Packet, Milliseconds (100), Has_Suceed);
       return Has_Suceed;
    end Radiolink_Send_Packet;
 
