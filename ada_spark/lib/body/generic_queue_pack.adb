@@ -43,4 +43,37 @@ package body Generic_Queue_Pack is
       return Queue.Count = Queue.Container'Length;
    end Is_Full;
 
+   protected body Protected_Queue is
+      procedure Enqueue_Item
+        (Item         : T_Element;
+         Time_To_Wait : Time_Span;
+         Has_Succeed  : out Boolean) is
+         Timeout_Time : Time;
+      begin
+         Timeout_Time := Clock + Time_To_Wait;
+
+         while Is_Full (Queue) loop
+            if Clock >= Timeout_Time then
+               Has_Succeed := False;
+               return;
+            end if;
+         end loop;
+
+         if not Is_Full (Queue) then
+            Has_Succeed := True;
+            Enqueue (Queue, Item);
+         else
+            Has_Succeed := False;
+         end if;
+      end Enqueue_Item;
+
+      entry Dequeue_Item (Item : out T_Element)
+        when Is_Not_Empty
+      is
+      begin
+         Dequeue (Queue, Item);
+         Is_Not_Empty := not Is_Empty (Queue);
+      end Dequeue_Item;
+   end Protected_Queue;
+
 end Generic_Queue_Pack;

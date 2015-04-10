@@ -1,3 +1,6 @@
+with System;
+with Ada.Real_Time; use Ada.Real_Time;
+
 generic
    type T_Element is private;
 
@@ -15,6 +18,20 @@ package Generic_Queue_Pack is
    function Is_Empty (Queue : in T_Queue) return Boolean;
 
    function Is_Full (Queue : in T_Queue) return Boolean;
+
+   protected type Protected_Queue
+     (Ceiling    : System.Priority;
+      Queue_Size : Positive)is
+      procedure Enqueue_Item
+        (Item         : T_Element;
+         Time_To_Wait : Time_Span;
+         Has_Succeed  : out Boolean);
+      entry Dequeue_Item (Item : out T_Element);
+   private
+      pragma Priority (Ceiling);
+      Queue           : T_Queue (Queue_Size);
+      Is_Not_Empty    : Boolean := False;
+   end Protected_Queue;
 
 private
    type Element_Array is array (Positive range <>) of T_Element;
