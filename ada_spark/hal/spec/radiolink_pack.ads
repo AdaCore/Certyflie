@@ -14,6 +14,12 @@ package Radiolink_Pack is
 
    function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean;
 
+   procedure Radiolink_Receive_Packet
+     (Packet : out Crtp_Packet;
+      Has_Suceed : out Boolean);
+
+   procedure Radiolink_Syslink_Disptach (Rx_Sl_Packet : Syslink_Packet);
+
 private
 
    package Syslink_Queue is new Generic_Queue_Pack (Syslink_Packet);

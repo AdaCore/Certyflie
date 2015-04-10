@@ -1,3 +1,5 @@
+with Config; use Config;
+with Ada.Real_Time; use Ada.Real_Time;
 with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 
@@ -8,7 +10,9 @@ package body Crtp_Pack is
       Has_Succeed : Boolean;
    begin
       loop
-         Tx_Queue.Dequeue_Item (Packet);
+         Tx_Queue.Dequeue_Item
+           (Packet, Milliseconds (PORT_MAX_DELAY_TIME), Has_Succeed);
+
          Has_Succeed := Link_Send_Packet (Packet);
 
          --  Keep testing, if the link change sto USB it will go through

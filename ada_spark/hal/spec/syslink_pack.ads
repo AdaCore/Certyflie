@@ -76,4 +76,7 @@ package Syslink_Pack is
    --  Test the Syslink protocol
    function Syslink_Test return Bool;
 
+   --  Send a packet to the nrf51 chip
+   procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet);
+
 end Syslink_Pack;

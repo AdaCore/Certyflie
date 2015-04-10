@@ -26,11 +26,13 @@ package Generic_Queue_Pack is
         (Item         : T_Element;
          Time_To_Wait : Time_Span;
          Has_Succeed  : out Boolean);
-      entry Dequeue_Item (Item : out T_Element);
+      procedure Dequeue_Item
+        (Item : out T_Element;
+         Time_To_Wait : Time_Span;
+         Has_Succeed  : out Boolean);
    private
       pragma Priority (Ceiling);
       Queue           : T_Queue (Queue_Size);
-      Is_Not_Empty    : Boolean := False;
    end Protected_Queue;
 
 private
