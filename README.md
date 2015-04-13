@@ -1,6 +1,6 @@
 #Crazyflie 2.0 Firmware
 
-This project contains the source code for the Crazyflie 2.0 firmware. More information can be found on the 
+This project contains the source code for the Crazyflie 2.0 firmware. More information can be found on the
 [Bitcraze wiki](http://wiki.bitcraze.se/projects:crazyflie2:index)
 
 
@@ -28,10 +28,13 @@ This project contains the source code for the Crazyflie 2.0 firmware. More infor
  |  + FreeRTOS  | Source FreeRTOS folder. Cleaned up from the useless files
  |  + STM32...  | Library folders of the ST STM32 peripheral libs
  |  + CMSIS     | Core abstraction layer
+ + ada_spark    | SPARK code replacing the C code to prove absence of runtime errors
+
 ```
 ####Make targets
 ```
 all        : Shortcut for build
+prove      : Prove the Ada code using SPARK 2014
 compile    : Compile cflie.hex. WARNING: Do NOT update version.c
 build      : Update version.c and compile cflie.elf/hex
 clean_o    : Clean only the Objects files, keep the executables (ie .elf, .hex)
