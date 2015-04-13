@@ -2,6 +2,7 @@ with System;
 with Generic_Queue_Pack;
 with Syslink_Pack; use Syslink_Pack;
 with Crtp_Pack; use Crtp_Pack;
+with Types; use Types;
 
 package Radiolink_Pack is
 
@@ -24,6 +25,11 @@ private
 
    package Syslink_Queue is new Generic_Queue_Pack (Syslink_Packet);
    package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
+
+   --  Global variables and constants
+
+   RSSI : T_Uint8;
+
    --  Tasks and protected objects
 
    --  Protected object queue for transmission

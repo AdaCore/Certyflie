@@ -1,4 +1,3 @@
-with Types; use Types;
 with Ada.Unchecked_Conversion;
 with Ada.Real_Time; use Ada.Real_Time;
 
@@ -48,7 +47,8 @@ package body Radiolink_Pack is
             Syslink_Send_Packet (Tx_Sl_Packet);
          end if;
       elsif Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RSSI then
-         null;
+         --  Extract RSSI sample sent from Radio
+         RSSI := Rx_Sl_Packet.Data (1);
       end if ;
    end Radiolink_Syslink_Disptach;
 

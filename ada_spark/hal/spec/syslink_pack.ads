@@ -3,13 +3,21 @@
 
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
+with System;
 
 package Syslink_Pack is
 
    --  Constants
 
    --  Size of Syslink packet data
-   SYSLINK_MTU : constant := 32;
+   SYSLINK_MTU      : constant := 32;
+   --  Size of the transmission buffer
+   SEND_BUFFER_SIZE : constant := 64;
+   --  Synchronization bytes
+   SYSLINK_START_BYTE1 : constant T_Uint8 := 16#BC#;
+   SYSLINK_START_BYTE2 : constant T_Uint8 := 16#CF#;
+   --  Bitwise mask to get the group type of a packet
+   SYSLINK_GROUP_MASK : constant T_Uint8 := 16#F0#;
 
    --  Types
 
@@ -78,5 +86,21 @@ package Syslink_Pack is
 
    --  Send a packet to the nrf51 chip
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet);
+
+private
+
+   --  Global variables
+
+   Send_Buffer : array (1 .. 64) of T_Uint8;
+
+   --  Procedures and functions
+
+   procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet);
+
+   --  Tasks and protected objects
+
+   task Syslink_Task is
+      pragma Priority (System.Priority'Last - 1);
+   end Syslink_Task;
 
 end Syslink_Pack;
