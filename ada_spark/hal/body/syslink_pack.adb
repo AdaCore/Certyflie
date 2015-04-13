@@ -3,6 +3,7 @@ with Ada.Unchecked_Conversion;
 with UART_Syslink; use UART_Syslink;
 pragma Elaborate (UART_Syslink);
 with Radiolink_Pack; use Radiolink_Pack;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package body Syslink_Pack is
 
@@ -12,7 +13,7 @@ package body Syslink_Pack is
       null;
    end Syslink_Init;
 
-   function Syslink_Test return BOol Is
+   function Syslink_Test return BOol is
    begin
       -- TODO
       return 1;
@@ -36,11 +37,11 @@ package body Syslink_Pack is
 
    begin
       Group_Type := Syslink_Packet_Group_Type'Val
-                       (Syslink_Packet_Type'Enum_Rep (Rx_Sl_Packet.Slp_Type)
-                        and SYSLINK_GROUP_MASK);
+        (Syslink_Packet_Type'Enum_Rep (Rx_Sl_Packet.Slp_Type)
+         and SYSLINK_GROUP_MASK);
       case Group_Type is
          when SYSLINK_RADIO_GROUP =>
-            Radiolink_Syslink_Disptach (Rx_Sl_Packet);
+            Radiolink_Syslink_Dispatch (Rx_Sl_Packet);
             --  TODO: Dispatch the syslink packets to teh other modules
             --  when they will be implemented
          when others =>
@@ -48,34 +49,40 @@ package body Syslink_Pack is
       end case;
    end Syslink_Route_Incoming_Packet;
 
-
    task body Syslink_Task is
-      Rx_State : Syslink_Rx_State := WAIT_FOR_FIRST_START;
+      Rx_State     : Syslink_Rx_State := WAIT_FOR_FIRST_START;
       Rx_Sl_Packet : Syslink_Packet;
-      Rx_Byte   : T_Uint8;
-      Data_Index : Positive := 1;
-      Chk_Sum     : array (1 .. 2) of T_Uint8;
-      Has_Succeed : Boolean;
+      Rx_Byte      : T_Uint8;
+      Data_Index   : Positive := 1;
+      Chk_Sum      : array (1 .. 2) of T_Uint8;
+      Has_Succeed  : Boolean;
+      Next_Period  : Time := Clock + Seconds (1);
    begin
+      Put_Line ("Syslink main task is spawned");
       loop
+         delay until Next_Period;
          UART_Get_Data_With_Timeout (Rx_Byte, Has_Succeed);
+         Put_Line ("Rx_Byte: " & T_Uint8'Image (Rx_Byte));
          case Rx_State is
             when WAIT_FOR_FIRST_START =>
+
                Rx_State := (if Rx_Byte = SYSLINK_START_BYTE1 then
                                WAIT_FOR_SECOND_START
                             else
                                WAIT_FOR_FIRST_START);
             when WAIT_FOR_SECOND_START =>
-               Rx_State := (if Rx_Byte = SYSLINK_START_BYTE1 then
+               Rx_State := (if Rx_Byte = SYSLINK_START_BYTE2 then
                                WAIT_FOR_TYPE
                             else
                                WAIT_FOR_FIRST_START);
             when WAIT_FOR_TYPE =>
+               Put_Line ("Wait for type..");
                Chk_Sum (1) := Rx_Byte;
                Chk_Sum (2) := Rx_Byte;
                Rx_Sl_Packet.Slp_Type := Syslink_Packet_Type'Val (Rx_Byte);
                Rx_State := WAIT_FOR_LENGTH;
             when WAIT_FOR_LENGTH =>
+               Put_Line ("Wait for Length..");
                if Rx_Byte <= SYSLINK_MTU then
                   Rx_Sl_Packet.Length := Rx_Byte;
                   Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
@@ -89,12 +96,16 @@ package body Syslink_Pack is
                   Rx_State := WAIT_FOR_FIRST_START;
                end if;
             when WAIT_FOR_DATA =>
+               Put_Line ("Wait for Data..");
                Rx_Sl_Packet.Data (Data_Index) := Rx_Byte;
                Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
                Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
                Data_Index := Data_Index + 1;
                if T_Uint8 (Data_Index) > Rx_Sl_Packet.Length then
-                  Rx_State := WAIT_FOR_CHKSUM_1;
+                  --  TODO: remove this.. Only for testing purpose
+                  Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
+                  Rx_State := WAIT_FOR_FIRST_START;
+                  --Rx_State := WAIT_FOR_CHKSUM_1;
                end if;
             when WAIT_FOR_CHKSUM_1 =>
                Rx_State := (if Chk_Sum (1) = Rx_Byte then
@@ -103,11 +114,11 @@ package body Syslink_Pack is
                                WAIT_FOR_FIRST_START);
             when WAIT_FOR_CHKSUM_2 =>
                if Chk_Sum (2) = Rx_Byte then
-                  --  TODO: route the packet
-                  null;
+                  Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
                end if;
                Rx_State := WAIT_FOR_FIRST_START;
          end case;
+         Next_Period := Next_Period + Seconds (1);
       end loop;
    end Syslink_Task;
 

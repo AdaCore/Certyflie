@@ -1,4 +1,5 @@
 with Ada.Unchecked_Conversion;
+with Syslink_Pack; use Syslink_Pack;
 
 package body UART_Syslink is
 
@@ -8,9 +9,10 @@ package body UART_Syslink is
    begin
       Rx_Byte := Get_Current_Byte (Counter);
       Counter := Counter + 1;
-      if Counter >= 16 then
-         COunter := 5;
+      if Counter >= 17 then
+         COunter := 1;
       end if;
+      Has_Suceed := True;
    end UART_Get_Data_With_Timeout;
 
    function Get_Current_Byte (Counter : Positive) return T_Uint8 is

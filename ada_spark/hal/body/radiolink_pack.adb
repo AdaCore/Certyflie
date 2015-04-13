@@ -1,4 +1,5 @@
 with Ada.Unchecked_Conversion;
+with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Real_Time; use Ada.Real_Time;
 
 package body Radiolink_Pack is
@@ -25,11 +26,15 @@ package body Radiolink_Pack is
       return Has_Suceed;
    end Radiolink_Send_Packet;
 
-   procedure Radiolink_Syslink_Disptach (Rx_Sl_Packet : Syslink_Packet) is
+   procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet) is
       Tx_Sl_Packet : Syslink_Packet;
       Rx_Crtp_Packet : Crtp_Packet;
       Has_Succeed     : Boolean;
+      subtype String_Data is String (1 .. Rx_Sl_Packet.Data'Length);
+      function Sl_Data_To_String is new Ada.Unchecked_Conversion
+        (Syslink_Data, String_Data);
    begin
+      Put_Line ("Rx_Sl_Packet.Data: " & Sl_Data_To_String (Rx_Sl_Packet.Data));
       if Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RAW then
          Rx_Crtp_Packet.Size := Rx_Sl_Packet.Length - 1;
          Rx_Crtp_Packet.Header := Rx_Sl_Packet.Data (1);
@@ -50,7 +55,7 @@ package body Radiolink_Pack is
          --  Extract RSSI sample sent from Radio
          RSSI := Rx_Sl_Packet.Data (1);
       end if ;
-   end Radiolink_Syslink_Disptach;
+   end Radiolink_Syslink_Dispatch;
 
 
 end Radiolink_Pack;

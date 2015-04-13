@@ -19,7 +19,7 @@ package Radiolink_Pack is
      (Packet : out Crtp_Packet;
       Has_Suceed : out Boolean);
 
-   procedure Radiolink_Syslink_Disptach (Rx_Sl_Packet : Syslink_Packet);
+   procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet);
 
 private
 

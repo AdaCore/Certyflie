@@ -1,4 +1,3 @@
-with Syslink_Pack; use Syslink_Pack;
 with Types; use Types;
 
 package UART_Syslink is
