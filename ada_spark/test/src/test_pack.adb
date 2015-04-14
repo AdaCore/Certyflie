@@ -31,9 +31,9 @@ package body Test_Pack is
       Message : constant String (1 .. CRTP_MAX_DATA_SIZE) :=
                   "Hello Syslink!0000000000000000";
       Packet  : Crtp_Packet;
-      subtype String_30 is String (1 .. Packet.Data'Length);
+      subtype Data_String is String (1 .. Packet.Data_1'Length);
       function String_To_Data is new Ada.Unchecked_Conversion
-        (String_30, Crtp_Data);
+        (Data_String, Crtp_Data);
       Has_Succeed : Boolean;
       pragma Unreferenced (Has_Succeed);
 
@@ -42,7 +42,7 @@ package body Test_Pack is
       Packet.Channel := 0;
       Packet.Reserved := 0;
       Packet.Port := CRTP_PORT_CONSOLE;
-      Packet.Data := String_To_Data (Message);
+      Packet.Data_1 := String_To_Data (Message);
 
       Has_Succeed := RadiolInk_Send_Packet (Packet);
    end Radio_Link_Test;

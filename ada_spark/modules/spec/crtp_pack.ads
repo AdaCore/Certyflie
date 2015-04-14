@@ -41,18 +41,24 @@ package Crtp_Pack is
    --  Type for CRTP packet data
    type Crtp_Data is array (1 .. CRTP_MAX_DATA_SIZE) of T_Uint8;
 
-   type Crpt_Packet_Representation is (DETAILED, HEADER_DATA);
+   type Crtp_Raw is array (1 .. CRTP_MAX_DATA_SIZE + 1) of T_Uint8;
+
+   type Crpt_Packet_Representation is (DETAILED, HEADER_DATA, RAW);
    --  Type for CRTP packets
    type Crtp_Packet (Repr : Crpt_Packet_Representation := DETAILED) is record
       Size     : T_Uint8;
-      Data     : Crtp_Data;
+
       case Repr is
          when DETAILED =>
             Channel  : Crtp_Channel;
             Reserved : Crtp_Reserved;
             Port     : Crtp_Port;
+            Data_1     : Crtp_Data;
          when HEADER_DATA =>
             Header   : T_Uint8;
+            Data_2     : Crtp_Data;
+         when RAW =>
+            Raw     : Crtp_Raw;
       end case;
    end record;
 

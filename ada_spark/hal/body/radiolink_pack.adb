@@ -14,12 +14,12 @@ package body Radiolink_Pack is
    function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean is
       Sl_Packet : Syslink_Packet;
       Has_Suceed : Boolean;
-      function Crtp_To_Syslink_Data is new Ada.Unchecked_Conversion
-        (Crtp_Packet, Syslink_Data);
+      function Crtp_Raw_To_Syslink_Data is new Ada.Unchecked_Conversion
+        (Crtp_Raw, Syslink_Data);
    begin
       Sl_Packet.Length := Packet.Size + 1;
       Sl_Packet.Slp_Type := SYSLINK_RADIO_RAW;
-      Sl_Packet.Data := Crtp_To_Syslink_Data (Packet);
+      Sl_Packet.Data := Crtp_Raw_To_Syslink_Data (Packet.Raw);
 
       --  Try to enqueue the Syslink packet
       Tx_Queue.Enqueue_Item (Sl_Packet, Milliseconds (100), Has_Suceed);
@@ -38,8 +38,8 @@ package body Radiolink_Pack is
       if Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RAW then
          Rx_Crtp_Packet.Size := Rx_Sl_Packet.Length - 1;
          Rx_Crtp_Packet.Header := Rx_Sl_Packet.Data (1);
-         Rx_Crtp_Packet.Data :=
-           Crtp_Data (Rx_Sl_Packet.Data (2 .. Rx_Sl_Packet.Data'Length - 1));
+         Rx_Crtp_Packet.Data_2 :=
+           Crtp_Data (Rx_Sl_Packet.Data (2 .. Rx_Sl_Packet.Data'Length));
 
          --  Enqueue the received packet
          Rx_Queue.Enqueue_Item (Rx_Crtp_Packet, Milliseconds (0), Has_Succeed);

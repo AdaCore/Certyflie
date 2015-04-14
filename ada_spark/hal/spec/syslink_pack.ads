@@ -10,7 +10,7 @@ package Syslink_Pack is
    --  Constants
 
    --  Size of Syslink packet data
-   SYSLINK_MTU      : constant := 32;
+   SYSLINK_MTU      : constant := 31;
    --  Size of the transmission buffer
    SEND_BUFFER_SIZE : constant := 64;
    --  Synchronization bytes
