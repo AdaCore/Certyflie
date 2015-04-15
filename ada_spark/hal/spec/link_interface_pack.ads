@@ -16,6 +16,6 @@ package Link_Interface_Pack is
    --  set to 'False' otherwise.
    procedure Link_Receive_Packet
      (Packet          : out Crtp_Packet;
-      Packet_Received : out Boolean);
+      Has_Succeed     : out Boolean);
 
 end Link_Interface_Pack;

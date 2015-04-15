@@ -26,7 +26,7 @@ package body Syslink_Pack is
         (Source => Syslink_Data,
          Target => Sl_Data_String);
    begin
-      --  For testing purpose, just print teh packet data
+      --  For testing purpose, just print the packet data
       Put_Line ("Packet.Length: " & T_Uint8'Image (Sl_Packet.Length));
       Put_Line ("Packet.Header: " & T_Uint8'Image (Sl_Packet.Data (1)));
       Put_Line ("Paket.Data: " & Sl_Data_To_String (Sl_Packet.Data));
@@ -58,7 +58,6 @@ package body Syslink_Pack is
       Has_Succeed  : Boolean;
       Next_Period  : Time := Clock + Seconds (1);
    begin
-      Put_Line ("Syslink main task is spawned");
       loop
          delay until Next_Period;
          UART_Get_Data_With_Timeout (Rx_Byte, Has_Succeed);
@@ -76,13 +75,11 @@ package body Syslink_Pack is
                             else
                                WAIT_FOR_FIRST_START);
             when WAIT_FOR_TYPE =>
-               Put_Line ("Wait for type..");
                Chk_Sum (1) := Rx_Byte;
                Chk_Sum (2) := Rx_Byte;
                Rx_Sl_Packet.Slp_Type := Syslink_Packet_Type'Val (Rx_Byte);
                Rx_State := WAIT_FOR_LENGTH;
             when WAIT_FOR_LENGTH =>
-               Put_Line ("Wait for Length..");
                if Rx_Byte <= SYSLINK_MTU then
                   Rx_Sl_Packet.Length := Rx_Byte;
                   Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
@@ -96,7 +93,6 @@ package body Syslink_Pack is
                   Rx_State := WAIT_FOR_FIRST_START;
                end if;
             when WAIT_FOR_DATA =>
-               Put_Line ("Wait for Data..");
                Rx_Sl_Packet.Data (Data_Index) := Rx_Byte;
                Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
                Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);

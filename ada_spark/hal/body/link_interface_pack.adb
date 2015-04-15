@@ -16,9 +16,15 @@ package body Link_Interface_Pack is
 
    procedure Link_Receive_Packet
      (Packet          : out Crtp_Packet;
-      Packet_Received : out Boolean) is
+      Has_Succeed     : out Boolean) is
    begin
-      null;
+      case Link_Layer_Type is
+         when RADIO_LINK =>
+            Radiolink_Receive_Packet (Packet, Has_Succeed);
+         when others =>
+            --  Other link layers not implemented yet
+            null;
+      end case;
    end Link_Receive_Packet;
 
 end Link_Interface_Pack;

@@ -1,12 +1,15 @@
 with Types; use Types;
 with Generic_Queue_Pack;
 with System;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package Crtp_Pack is
    --  Constants
 
    CRTP_MAX_DATA_SIZE : constant := 30;
    CRTP_TX_QUEUE_SIZE : constant := 60;
+   CRTP_RX_QUEUE_SIZE : constant := 2;
+   CRTP_NBR_OF_PORTS  : constant := 16;
 
    --  Types
 
@@ -39,26 +42,30 @@ package Crtp_Pack is
    for Crtp_Reserved'Size use 2;
 
    --  Type for CRTP packet data
-   type Crtp_Data is array (1 .. CRTP_MAX_DATA_SIZE) of T_Uint8;
+   subtype Crtp_Data is T_Uint8_Array (1 .. CRTP_MAX_DATA_SIZE);
 
+   --  Type used to represenet a raw CRTP Packet (Header + Data)
    type Crtp_Raw is array (1 .. CRTP_MAX_DATA_SIZE + 1) of T_Uint8;
 
+   --  Type listing the different representations for the union type
+   --  CRTP Packet
    type Crpt_Packet_Representation is (DETAILED, HEADER_DATA, RAW);
+
    --  Type for CRTP packets
    type Crtp_Packet (Repr : Crpt_Packet_Representation := DETAILED) is record
       Size     : T_Uint8;
 
       case Repr is
          when DETAILED =>
-            Channel  : Crtp_Channel;
-            Reserved : Crtp_Reserved;
-            Port     : Crtp_Port;
+            Channel    : Crtp_Channel;
+            Reserved   : Crtp_Reserved;
+            Port       : Crtp_Port;
             Data_1     : Crtp_Data;
          when HEADER_DATA =>
-            Header   : T_Uint8;
+            Header     : T_Uint8;
             Data_2     : Crtp_Data;
          when RAW =>
-            Raw     : Crtp_Raw;
+            Raw        : Crtp_Raw;
       end case;
    end record;
 
@@ -66,19 +73,85 @@ package Crtp_Pack is
    for Crtp_Packet'Size use 256;
    pragma Pack (Crtp_Packet);
 
+   --  Type used to easily manipulate Crtp packet
+   type Crtp_Packet_Handler is private;
+
+   --  Procedures and functions
+
+   --  Create a CRTP Packet handler to append/get data
+   function Crtp_Create_Packet
+     (Port    : Crtp_Port;
+      Channel : Crtp_Channel) return Crtp_Packet_Handler;
+
+   --  Return an handler to easily manipulate the CRTP packet
+   function Crtp_Get_Handler (Packet : Crtp_Packet) return Crtp_Packet_Handler;
+
+   --  Return the CRTP Packet contained in the CRTP Packet handler
+   function Crtp_Get_Packet_From_Handler
+     (Handler : Crtp_Packet_Handler) return Crtp_Packet;
+
+   --  Append data to the CRTP Packet
+   generic
+      type T_Data is private;
+   procedure Crtp_Append_Data
+     (Handler        : in out Crtp_Packet_Handler;
+      Data           : T_Data;
+      Has_Succeed    : out Boolean);
+
+   --  Get data at a specified index of the CRTP Packet data field
+   generic
+      type T_Data is private;
+   procedure Crtp_Get_Data
+     (Handler    : Crtp_Packet_Handler;
+      Index      : Integer;
+      Data       : out T_Data;
+      Has_Suceed : out Boolean);
+
+   --  Receive a packet from the port queue, with a given Timeout
+   procedure Crtp_Receive_Packet
+     (Packet           : out Crtp_Packet;
+      Port_ID          : Crtp_Port;
+      Has_Succeed      : out Boolean;
+      Time_To_Wait     :  Time_Span := Milliseconds (0));
+
 private
    package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
+
+   --  Types
+   type Crtp_Packet_Handler is record
+      Packet : Crtp_Packet;
+      Index  : Positive;
+   end record;
 
    --  Tasks and protected objects
 
    --  Protected object queue for transmission
    Tx_Queue : Crtp_Queue.Protected_Queue
-     (System.Priority'Last, CRTP_TX_QUEUE_SIZE);
+     (System.Priority'Last - 1, CRTP_TX_QUEUE_SIZE);
+
+   --  Protected object queue for reception
+   Rx_Queue : Crtp_Queue.Protected_Queue
+     (System.Priority'Last, CRTP_RX_QUEUE_SIZE);
+
+   --  Array of protected object queues, one for each task
+   Port_Queues : array (Crtp_Port) of Crtp_Queue.Protected_Queue
+     (System.Priority'Last, 1);
 
    --  Task in charge of transmitting the messages in the Tx Queue
    --  to the link layer.
    task Crtp_Tx_Task is
       pragma Priority (System.Priority'Last - 1);
    end;
+
+   --  Task in charge of dequeuing the messages in teh Rx_queue
+   --  to put them in the Port_Queues
+   task Crtp_Rx_Task is
+      pragma Priority (System.Priority'Last - 1);
+   end;
+
+   --  Global variables
+
+   --  Number of dropped packets at reception
+   Dropped_Packets : Natural := 0;
 
 end Crtp_Pack;

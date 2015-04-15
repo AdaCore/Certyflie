@@ -12,6 +12,8 @@ package Types is
    type T_Uint16 is new Interfaces.Unsigned_16;
    type T_Uint32 is new Interfaces.Unsigned_32;
 
+   type T_Uint8_Array is array (Integer range <>) of T_Uint8;
+
    subtype Natural_Float is Float range 0.0 .. Float'Last;
 
    --  Types used by the stabilization system

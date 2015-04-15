@@ -24,12 +24,12 @@ package Generic_Queue_Pack is
       Queue_Size : Positive)is
       procedure Enqueue_Item
         (Item         : T_Element;
-         Time_To_Wait : Time_Span;
-         Has_Succeed  : out Boolean);
+         Has_Succeed  : out Boolean;
+         Time_To_Wait : Time_Span := Milliseconds (0));
       procedure Dequeue_Item
         (Item : out T_Element;
-         Time_To_Wait : Time_Span;
-         Has_Succeed  : out Boolean);
+         Has_Succeed  : out Boolean;
+         Time_To_Wait : Time_Span := Milliseconds (0));
    private
       pragma Priority (Ceiling);
       Queue           : T_Queue (Queue_Size);

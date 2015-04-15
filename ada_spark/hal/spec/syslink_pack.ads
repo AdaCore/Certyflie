@@ -61,7 +61,7 @@ package Syslink_Pack is
                                 SYSLINK_OW_WRITE              => 16#23#);
 
    --  Type for Syslink packet data
-   type Syslink_Data is array (1 .. SYSLINK_MTU) of T_Uint8;
+   subtype Syslink_Data is T_Uint8_Array (1 .. SYSLINK_MTU);
 
    --  Type for Syslink packets
    type Syslink_Packet is record

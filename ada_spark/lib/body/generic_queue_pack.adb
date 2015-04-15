@@ -46,8 +46,8 @@ package body Generic_Queue_Pack is
    protected body Protected_Queue is
       procedure Enqueue_Item
         (Item         : T_Element;
-         Time_To_Wait : Time_Span;
-         Has_Succeed  : out Boolean) is
+         Has_Succeed  : out Boolean;
+         Time_To_Wait : Time_Span := Milliseconds (0)) is
          Timeout_Time : Time;
       begin
          Timeout_Time := Clock + Time_To_Wait;
@@ -69,8 +69,8 @@ package body Generic_Queue_Pack is
 
       procedure Dequeue_Item
         (Item : out T_Element;
-         Time_To_Wait : Time_Span;
-         Has_Succeed   : out Boolean) is
+         Has_Succeed   : out Boolean;
+         Time_To_Wait  : Time_Span := Milliseconds (0)) is
          Timeout_Time : Time;
       begin
          Timeout_Time := Clock + Time_To_Wait;

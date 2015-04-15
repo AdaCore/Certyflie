@@ -16,6 +16,10 @@ package body UART_Syslink is
    end UART_Get_Data_With_Timeout;
 
    function Get_Current_Byte (Counter : Positive) return T_Uint8 is
+      Roll   : Float := 20.0;
+      Pitch  : Float := 30.0;
+      Yaw    : Float := 40.0;
+      Thrust : T_Uint16 := 30;
       Message_To_Send : constant String := "Hello World!";
    begin
       case Counter is

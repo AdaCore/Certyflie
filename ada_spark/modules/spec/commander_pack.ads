@@ -1,5 +1,6 @@
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
+with System;
 
 package Commander_Pack
 with SPARK_Mode
@@ -13,7 +14,19 @@ is
    for RPY_Type use (RATE => 0, ANGLE => 1);
    for RPY_Type'Size use Interfaces.C.int'Size;
 
+   type Commander_Crtp_Values is record
+      Roll   : T_Degrees;
+      Pitch  : T_Degrees;
+      Yaw    : T_Degrees;
+      Thrust : T_Uint16;
+   end record;
+   pragma Pack (Commander_Crtp_Values);
+
    --  Procedures and functions
+
+   --  Test function used to test the CRTP Protocol implementation
+   --  using Ravenscar
+   procedure Print_Command;
 
    --  Get the commands from the pilot.
    procedure Commander_Get_RPY
@@ -52,5 +65,13 @@ is
      with
        Global => null;
    pragma Import (C, Commander_Get_Alt_Hold, "commanderGetAltHold");
+
+private
+
+   --  Tasks and protected objects
+
+   task Get_Command_Task is
+      pragma Priority (System.Priority'Last - 1);
+   end Get_Command_Task;
 
 end Commander_Pack;

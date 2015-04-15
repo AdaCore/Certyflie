@@ -1,6 +1,6 @@
 project Cf_Test is
 
-   for Languages use ("Ada");
+   for Languages use ("Ada", "C");
    for Main use ("main.adb");
    for Source_Dirs use ("src",
                         "..",
