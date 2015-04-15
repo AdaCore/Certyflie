@@ -22,14 +22,9 @@ package body Syslink_Pack is
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet) is
       subtype Sl_Data_String is
         String (Syslink_Data'First .. Syslink_Data'Last);
-      function Sl_Data_To_String is new Ada.Unchecked_Conversion
-        (Source => Syslink_Data,
-         Target => Sl_Data_String);
    begin
       --  For testing purpose, just print the packet data
-      Put_Line ("Packet.Length: " & T_Uint8'Image (Sl_Packet.Length));
-      Put_Line ("Packet.Header: " & T_Uint8'Image (Sl_Packet.Data (1)));
-      Put_Line ("Paket.Data: " & Sl_Data_To_String (Sl_Packet.Data));
+      Put_Line ("Syslink_Send_Packet called");
    end Syslink_Send_Packet;
 
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet) is
@@ -39,8 +34,10 @@ package body Syslink_Pack is
       Group_Type := Syslink_Packet_Group_Type'Val
         (Syslink_Packet_Type'Enum_Rep (Rx_Sl_Packet.Slp_Type)
          and SYSLINK_GROUP_MASK);
+
       case Group_Type is
          when SYSLINK_RADIO_GROUP =>
+            Put_Line ("Packet sent to RadioLink");
             Radiolink_Syslink_Dispatch (Rx_Sl_Packet);
             --  TODO: Dispatch the syslink packets to teh other modules
             --  when they will be implemented
@@ -97,7 +94,7 @@ package body Syslink_Pack is
                Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
                Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
                Data_Index := Data_Index + 1;
-               if T_Uint8 (Data_Index) > Rx_Sl_Packet.Length then
+               if T_Uint8 (Data_Index) >= Rx_Sl_Packet.Length then
                   --  TODO: remove this.. Only for testing purpose
                   Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
                   Rx_State := WAIT_FOR_FIRST_START;

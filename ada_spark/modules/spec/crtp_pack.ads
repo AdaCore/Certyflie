@@ -105,7 +105,7 @@ package Crtp_Pack is
      (Handler    : Crtp_Packet_Handler;
       Index      : Integer;
       Data       : out T_Data;
-      Has_Suceed : out Boolean);
+      Has_Succeed : out Boolean);
 
    --  Receive a packet from the port queue, with a given Timeout
    procedure Crtp_Receive_Packet

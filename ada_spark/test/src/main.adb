@@ -1,7 +1,7 @@
 pragma Profile (Ravenscar);
-with Test_Pack; use Test_Pack;
+with Commander_Pack; use Commander_Pack;
 
 procedure Main is
 begin
-   Packet_Handler_Test;
+   null;
 end Main;

@@ -13,12 +13,14 @@ package body Crtp_Pack is
          Tx_Queue.Dequeue_Item
            (Packet, Has_Succeed, Milliseconds (PORT_MAX_DELAY_TIME));
 
-         Has_Succeed := Link_Send_Packet (Packet);
-
-         --  Keep testing, if the link change sto USB it will go through
-         while not Has_Succeed loop
+         if Has_Succeed then
             Has_Succeed := Link_Send_Packet (Packet);
-         end loop;
+
+            --  Keep testing, if the link change sto USB it will go through
+            while not Has_Succeed loop
+               Has_Succeed := Link_Send_Packet (Packet);
+            end loop;
+         end if;
       end loop;
    end Crtp_Tx_Task;
 
@@ -74,7 +76,7 @@ package body Crtp_Pack is
      (Handler    : Crtp_Packet_Handler;
       Index      : Integer;
       Data       : out T_Data;
-      Has_Suceed : out Boolean) is
+      Has_Succeed : out Boolean) is
       Data_Size : constant Natural := T_Data'Size / 8;
       subtype Byte_Array_Data is T_Uint8_Array (1 .. Data_Size);
       function Byte_Array_To_Data is new Ada.Unchecked_Conversion
@@ -85,9 +87,9 @@ package body Crtp_Pack is
       then
          Data := Byte_Array_To_Data
            (Handler.Packet.Data_1 (Index .. Index + Data_Size - 1));
-         Has_Suceed := True;
+         Has_Succeed := True;
       else
-         Has_Suceed := False;
+         Has_Succeed := False;
       end if;
    end Crtp_Get_Data;
 

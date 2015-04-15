@@ -31,32 +31,27 @@ package body Commander_Pack is
 
    procedure Print_Command is
       Packet      : Crtp_Packet;
+      Handler     : Crtp_Packet_Handler;
       Has_Succeed : Boolean;
       Commands    : Commander_Crtp_Values := (0.0, 0.0, 0.0, 0);
-
-      type Four_Bytes_Array is array (1 .. 4) of T_Uint8;
-      type Two_Bytes_Array is array (1 .. 2) of T_Uint8;
-      function Four_Bytes_Array_To_Float is new Ada.Unchecked_Conversion
-        (Four_Bytes_Array, T_Degrees);
-      function Two_Bytes_Array_To_T_Uint16 is new Ada.Unchecked_Conversion
-        (Two_Bytes_Array, T_Uint16);
+      procedure Crtp_Get_Float_Data is new Crtp_Get_Data (Float);
+      procedure Crtp_Get_T_Uint16_Data is new Crtp_Get_Data (T_Uint16);
    begin
       Crtp_Receive_Packet
-        (Packet, CRTP_PORT_COMMANDER, Has_Succeed, Seconds (2));
+        (Packet, CRTP_PORT_COMMANDER, Has_Succeed, Milliseconds (100));
+
       if Has_Succeed then
-         Commands.Roll := Four_Bytes_Array_To_Float
-           (Four_Bytes_Array (Packet.Data_1 (1 .. 4)));
-         Commands.Pitch := Four_Bytes_Array_To_Float
-           (Four_Bytes_Array (Packet.Data_1 (5 .. 8)));
-         Commands.Yaw := Four_Bytes_Array_To_Float
-           (Four_Bytes_Array (Packet.Data_1 (9 .. 12)));
-         Commands.Thrust := Two_Bytes_Array_To_T_Uint16
-           (Two_Bytes_Array (Packet.Data_1 (13 .. 14)));
+         Handler := Crtp_Get_Handler (Packet);
+         Crtp_Get_Float_Data (Handler, 1, Commands.Roll, Has_Succeed);
+         Crtp_Get_Float_Data (Handler, 5, Commands.Pitch, Has_Succeed);
+         Crtp_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);
+         Crtp_Get_T_Uint16_Data (Handler, 13, Commands.Thrust, Has_Succeed);
+
+         Put_Line ("Roll: " & Float'Image (Commands.Roll));
+         Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
+         Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
+         Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
       end if;
-      Put_Line ("Roll: " & Float'Image (Commands.Roll));
-      Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
-      Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
-      Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
    end Print_Command;
 
 end Commander_Pack;
