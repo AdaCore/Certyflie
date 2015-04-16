@@ -6,6 +6,13 @@ with Ada.Unchecked_Conversion;
 
 package body Test_Pack is
 
+    protected body Printer is
+      procedure Printer_Put_Line (Line : String) is
+      begin
+         Put_Line (Line);
+      end Printer_Put_Line;
+   end Printer;
+
    procedure Queue_Test is
       package Integer_Queue_Pack is new Generic_Queue_Pack (Integer);
       use Integer_Queue_Pack;

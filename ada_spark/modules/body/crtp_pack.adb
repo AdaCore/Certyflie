@@ -37,6 +37,7 @@ package body Crtp_Pack is
             Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed, Milliseconds (100));
             Put_Line ("Packet enqueued in port");
             if not Has_Succeed then
+               Put_Line ("Packet dropped");
                Dropped_Packets := Dropped_Packets + 1;
             end if;
          end if;
