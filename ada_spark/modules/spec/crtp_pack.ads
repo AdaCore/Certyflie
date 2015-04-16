@@ -127,7 +127,7 @@ private
 
    --  Protected object queue for transmission
    Tx_Queue : Crtp_Queue.Protected_Queue
-     (System.Priority'Last - 1, CRTP_TX_QUEUE_SIZE);
+     (System.Priority'Last, CRTP_TX_QUEUE_SIZE);
 
    --  Protected object queue for reception
    Rx_Queue : Crtp_Queue.Protected_Queue

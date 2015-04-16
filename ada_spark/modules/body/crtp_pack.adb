@@ -2,6 +2,7 @@ with Config; use Config;
 with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
+with Ada.Text_IO; use Ada.Text_IO;
 
 package body Crtp_Pack is
 
@@ -32,7 +33,9 @@ package body Crtp_Pack is
          Link_Receive_Packet (Packet, Has_Succeed);
 
          if Has_Succeed then
-            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
+            Put_Line ("Packet received in CRTP");
+            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed, Milliseconds (100));
+            Put_Line ("Packet enqueued in port");
             if not Has_Succeed then
                Dropped_Packets := Dropped_Packets + 1;
             end if;
