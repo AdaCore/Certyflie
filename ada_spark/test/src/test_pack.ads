@@ -8,10 +8,5 @@ package Test_Pack is
 
    procedure Packet_Handler_Test;
 
-   --  Used for testing only
-   protected Printer is
-      procedure Printer_Put_Line (Line : String);
-      pragma Priority (System.Priority'Last);
-   end Printer;
 
 end Test_Pack;

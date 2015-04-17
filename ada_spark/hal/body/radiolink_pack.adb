@@ -1,5 +1,4 @@
 with Ada.Unchecked_Conversion;
-with Ada.Real_Time; use Ada.Real_Time;
 
 package body Radiolink_Pack is
 
@@ -7,7 +6,7 @@ package body Radiolink_Pack is
      (Packet : out Crtp_Packet;
       Has_Suceed : out Boolean) is
    begin
-      Rx_Queue.Dequeue_Item (Packet, Has_Suceed, Milliseconds (100));
+      Rx_Queue.Dequeue_Item (Packet, Has_Suceed);
    end Radiolink_Receive_Packet;
 
    function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean is
@@ -21,7 +20,7 @@ package body Radiolink_Pack is
       Sl_Packet.Data := Crtp_Raw_To_Syslink_Data (Packet.Raw);
 
       --  Try to enqueue the Syslink packet
-      Tx_Queue.Enqueue_Item (Sl_Packet, Has_Suceed, Milliseconds (100));
+      Tx_Queue.Enqueue_Item (Sl_Packet, Has_Suceed);
       return Has_Suceed;
    end Radiolink_Send_Packet;
 

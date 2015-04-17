@@ -1,8 +1,7 @@
-with Config; use Config;
 with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
-with Ada.Text_IO; use Ada.Text_IO;
+with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Crtp_Pack is
 
@@ -12,7 +11,7 @@ package body Crtp_Pack is
    begin
       loop
          Tx_Queue.Dequeue_Item
-           (Packet, Has_Succeed, Milliseconds (PORT_MAX_DELAY_TIME));
+           (Packet, Has_Succeed);
 
          if Has_Succeed then
             Has_Succeed := Link_Send_Packet (Packet);
@@ -33,11 +32,10 @@ package body Crtp_Pack is
          Link_Receive_Packet (Packet, Has_Succeed);
 
          if Has_Succeed then
-            Put_Line ("Packet received in CRTP");
-            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed, Milliseconds (100));
-            Put_Line ("Packet enqueued in port");
+            X_Put_Line ("Packet received in CRTP");
+            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
+            X_Put_Line ("Packet enqueued in port");
             if not Has_Succeed then
-               Put_Line ("Packet dropped");
                Dropped_Packets := Dropped_Packets + 1;
             end if;
          end if;
@@ -126,7 +124,7 @@ package body Crtp_Pack is
       Time_To_Wait     :  Time_Span := Milliseconds (0)) is
    begin
       Port_Queues (Port_ID).Dequeue_Item
-        (Packet, Has_Succeed, Time_To_Wait);
+        (Packet, Has_Succeed);
    end Crtp_Receive_Packet;
 
 end Crtp_Pack;

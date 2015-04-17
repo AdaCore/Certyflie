@@ -1,9 +1,9 @@
-with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 with UART_Syslink; use UART_Syslink;
 pragma Elaborate (UART_Syslink);
 with Radiolink_Pack; use Radiolink_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
+with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Syslink_Pack is
 
@@ -24,7 +24,7 @@ package body Syslink_Pack is
         String (Syslink_Data'First .. Syslink_Data'Last);
    begin
       --  For testing purpose, just print the packet data
-      Put_Line ("Syslink_Send_Packet called");
+      X_Put_Line ("Syslink_Send_Packet called");
    end Syslink_Send_Packet;
 
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet) is
@@ -37,7 +37,7 @@ package body Syslink_Pack is
 
       case Group_Type is
          when SYSLINK_RADIO_GROUP =>
-            Put_Line ("Packet sent to RadioLink");
+            X_Put_Line ("Packet sent to RadioLink");
             Radiolink_Syslink_Dispatch (Rx_Sl_Packet);
             --  TODO: Dispatch the syslink packets to teh other modules
             --  when they will be implemented
@@ -58,7 +58,7 @@ package body Syslink_Pack is
       loop
          delay until Next_Period;
          UART_Get_Data_With_Timeout (Rx_Byte, Has_Succeed);
-         Put_Line ("Rx_Byte: " & T_Uint8'Image (Rx_Byte));
+         X_Put_Line ("Rx_Byte: " & T_Uint8'Image (Rx_Byte));
          case Rx_State is
             when WAIT_FOR_FIRST_START =>
 

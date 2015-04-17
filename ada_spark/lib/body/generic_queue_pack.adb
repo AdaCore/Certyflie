@@ -46,21 +46,8 @@ package body Generic_Queue_Pack is
    protected body Protected_Queue is
       procedure Enqueue_Item
         (Item         : T_Element;
-         Has_Succeed  : out Boolean;
-         Time_To_Wait : Time_Span := Milliseconds (0)) is
-         Timeout_Time : Time;
+         Has_Succeed  : out Boolean) is
       begin
-         if Time_To_Wait /= Time_Span_Zero then
-            Timeout_Time := Clock + Time_To_Wait;
-
-            while Is_Full (Queue) loop
-               if Clock >= Timeout_Time then
-                  Has_Succeed := False;
-                  return;
-               end if;
-            end loop;
-         end if;
-
          if not Is_Full (Queue) then
             Has_Succeed := True;
             Enqueue (Queue, Item);
@@ -71,21 +58,8 @@ package body Generic_Queue_Pack is
 
       procedure Dequeue_Item
         (Item          : out T_Element;
-         Has_Succeed   : out Boolean;
-         Time_To_Wait  : Time_Span := Milliseconds (0)) is
-         Timeout_Time : Time;
+         Has_Succeed   : out Boolean) is
       begin
-         if Time_To_Wait /= Time_Span_Zero then
-            Timeout_Time := Clock + Time_To_Wait;
-
-            while Is_Empty (Queue) loop
-               if Clock >= Timeout_Time then
-                  Has_Succeed := False;
-                  return;
-               end if;
-            end loop;
-         end if;
-
          if not Is_Empty (Queue) then
             Has_Succeed := True;
             Dequeue (Queue, Item);

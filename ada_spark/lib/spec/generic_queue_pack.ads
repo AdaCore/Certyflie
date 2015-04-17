@@ -1,5 +1,4 @@
 with System;
-with Ada.Real_Time; use Ada.Real_Time;
 
 generic
    type T_Element is private;
@@ -24,12 +23,10 @@ package Generic_Queue_Pack is
       Queue_Size : Positive)is
       procedure Enqueue_Item
         (Item         : T_Element;
-         Has_Succeed  : out Boolean;
-         Time_To_Wait : Time_Span := Milliseconds (0));
+         Has_Succeed  : out Boolean);
       procedure Dequeue_Item
         (Item : out T_Element;
-         Has_Succeed  : out Boolean;
-         Time_To_Wait : Time_Span := Milliseconds (0));
+         Has_Succeed  : out Boolean);
    private
       pragma Priority (Ceiling);
       Queue           : T_Queue (Queue_Size);

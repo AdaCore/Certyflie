@@ -1,17 +1,10 @@
-with Ada.Text_IO; use Ada.Text_IO;
 with Generic_Queue_Pack;
 with Crtp_Pack; use Crtp_Pack;
 with RadiolInk_Pack; use RadiolInk_Pack;
 with Ada.Unchecked_Conversion;
+with Protected_IO_Pack; Protected_IO_Pack;
 
 package body Test_Pack is
-
-    protected body Printer is
-      procedure Printer_Put_Line (Line : String) is
-      begin
-         Put_Line (Line);
-      end Printer_Put_Line;
-   end Printer;
 
    procedure Queue_Test is
       package Integer_Queue_Pack is new Generic_Queue_Pack (Integer);
@@ -27,9 +20,9 @@ package body Test_Pack is
 
       --  And see what's happening...
       Dequeue (Queue, Item);
-      Put_Line ("1st dequeue: " & Integer'Image (Item));
+      Printer.X_Put_Line ("1st dequeue: " & Integer'Image (Item));
       Dequeue (Queue, Item);
-      Put_Line ("2nd dequeue: " & Integer'Image (Item));
+      Printer.X_Put_Line ("2nd dequeue: " & Integer'Image (Item));
    end Queue_Test;
 
    procedure Radio_Link_Test is
@@ -72,7 +65,7 @@ package body Test_Pack is
       Crtp_Append_Float_Data (Handler, 21.0, Has_Succeed);
 
       Crtp_Get_Float_Data (Handler, 25, Data, Has_Succeed);
-      Put_Line ("Float data: " & Float'Image (Data));
+      Printer.X_Put_Line ("Float data: " & Float'Image (Data));
    end Packet_Handler_Test;
 
 end Test_Pack;

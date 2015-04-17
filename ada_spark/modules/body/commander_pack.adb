@@ -1,6 +1,6 @@
 with Crtp_Pack; use Crtp_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
-with Ada.Text_IO; use Ada.Text_IO;
+with Protected_IO_Pack; use Protected_IO_Pack;
 with Ada.Unchecked_Conversion;
 
 package body Commander_Pack is
@@ -47,10 +47,10 @@ package body Commander_Pack is
          Crtp_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);
          Crtp_Get_T_Uint16_Data (Handler, 13, Commands.Thrust, Has_Succeed);
 
-         Put_Line ("Roll: " & Float'Image (Commands.Roll));
-         Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
-         Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
-         Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
+         X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
+         X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
+         X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
+         X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
       end if;
    end Print_Command;
 
