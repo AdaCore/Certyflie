@@ -9,22 +9,41 @@ package body Syslink_Pack is
 
    procedure Syslink_Init is
    begin
-      --  TODO
-      null;
+      if Is_Init then
+         return;
+      end if;
+
+      Set_True (Syslink_Access);
    end Syslink_Init;
 
-   function Syslink_Test return BOol is
+   function Syslink_Test return Bool is
    begin
-      -- TODO
-      return 1;
+      return (if Is_Init then 1 else 0);
    end Syslink_Test;
 
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet) is
-      subtype Sl_Data_String is
-        String (Syslink_Data'First .. Syslink_Data'Last);
+      Data_Size : Integer range Tx_Buffer'First .. Tx_Buffer'Last;
+      Chk_Sum      : array (1 .. 2) of T_Uint8 := (others => 0);
    begin
-      --  For testing purpose, just print the packet data
-      X_Put_Line ("Syslink_Send_Packet called");
+      Suspend_Until_True (Syslink_Access);
+
+      Tx_Buffer (1) := SYSLINK_START_BYTE1;
+      Tx_Buffer (2) := SYSLINK_START_BYTE2;
+      Tx_Buffer (3) := Syslink_Packet_Type'Enum_Rep (Sl_Packet.Slp_Type);
+      Tx_Buffer (4) := Sl_Packet.Length;
+
+      Data_Size := Integer (Sl_Packet.Length + 6);
+
+      for I in 3 .. Data_Size - 2 loop
+         Chk_Sum (1) := Chk_Sum (1) + Tx_Buffer (I);
+         Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
+      end loop;
+
+      Tx_Buffer (Data_Size - 1) := Chk_Sum (1);
+      Tx_Buffer (Data_Size) := Chk_Sum (2);
+
+      --  TODO: call UART_Send_Data_DMA_Blocking
+      Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet) is

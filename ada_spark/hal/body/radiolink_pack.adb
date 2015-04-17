@@ -2,6 +2,34 @@ with Ada.Unchecked_Conversion;
 
 package body Radiolink_Pack is
 
+   procedure Radiolink_Init is
+   begin
+      if Is_Init then
+         return;
+      end if;
+      --  TODO: Set the right channel parameter
+      Radiolink_Set_Channel (0);
+
+   end Radiolink_Init;
+
+   procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8) is
+      Sl_Packet : Syslink_Packet;
+   begin
+      Sl_Packet.Slp_Type := SYSLINK_RADIO_DATARATE;
+      Sl_Packet.Length := 1;
+      Sl_Packet.Data (1) := Data_Rate;
+      Syslink_Send_Packet (Sl_Packet);
+   end Radiolink_Set_Data_Rate;
+
+   procedure Radiolink_Set_Channel (Channel : T_Uint8) is
+      Sl_Packet : Syslink_Packet;
+   begin
+      Sl_Packet.Slp_Type := SYSLINK_RADIO_CHANNEL;
+      Sl_Packet.Length := 1;
+      Sl_Packet.Data (1) := Channel;
+      Syslink_Send_Packet (Sl_Packet);
+   end Radiolink_Set_Channel;
+
    procedure Radiolink_Receive_Packet
      (Packet : out Crtp_Packet;
       Has_Suceed : out Boolean) is

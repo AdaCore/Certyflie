@@ -3,6 +3,7 @@
 
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
+with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with System;
 
 package Syslink_Pack is
@@ -91,7 +92,9 @@ private
 
    --  Global variables
 
-   Send_Buffer : array (1 .. 64) of T_Uint8;
+   Is_Init : Boolean := False;
+   Tx_Buffer : array (1 .. 64) of T_Uint8;
+   Syslink_Access : Suspension_Object;
 
    --  Procedures and functions
 
