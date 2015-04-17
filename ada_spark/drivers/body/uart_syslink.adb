@@ -8,6 +8,7 @@ package body UART_Syslink is
      (Rx_Byte      : out T_Uint8;
       Has_Suceed   : out Boolean) is
    begin
+      --  TODO: Implement the real function
       Rx_Byte := Get_Current_Byte (Counter);
       Counter := Counter + 1;
       if Counter >= 19 then
@@ -15,6 +16,14 @@ package body UART_Syslink is
       end if;
       Has_Suceed := True;
    end UART_Get_Data_With_Timeout;
+
+   procedure UART_Send_Data_DMA_Blocking
+     (Data_Size : T_Uint32;
+      Data      : UART_TX_Buffer) is
+   begin
+      --  TODO: Implement the real function
+      null;
+   end UART_Send_Data_DMA_Blocking;
 
    function Get_Current_Byte (Counter : Positive) return T_Uint8 is
       Roll   : constant Float := 20.0;

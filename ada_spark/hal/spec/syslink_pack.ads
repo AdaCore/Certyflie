@@ -93,7 +93,6 @@ private
    --  Global variables
 
    Is_Init : Boolean := False;
-   Tx_Buffer : array (1 .. 64) of T_Uint8;
    Syslink_Access : Suspension_Object;
 
    --  Procedures and functions

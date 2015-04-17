@@ -7,6 +7,11 @@ with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Syslink_Pack is
 
+   --  TODO: Move this variable in the private part of the package
+   --  when the with clause for Syslink_Pack won't be needed in the
+   --  UART_Syslink_Pack
+   Tx_Buffer : UART_TX_Buffer;
+
    procedure Syslink_Init is
    begin
       if Is_Init then
