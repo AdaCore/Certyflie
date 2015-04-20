@@ -41,7 +41,7 @@ package body Commander_Pack is
         (Packet, CRTP_PORT_COMMANDER, Has_Succeed, Milliseconds (100));
 
       if Has_Succeed then
-         Handler := Crtp_Get_Handler (Packet);
+         Handler := Crtp_Get_Handler_From_Packet (Packet);
          Crtp_Get_Float_Data (Handler, 1, Commands.Roll, Has_Succeed);
          Crtp_Get_Float_Data (Handler, 5, Commands.Pitch, Has_Succeed);
          Crtp_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);

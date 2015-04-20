@@ -58,7 +58,8 @@ package body Crtp_Pack is
       return Handler;
    end Crtp_Create_Packet;
 
-   function Crtp_Get_Handler (Packet : Crtp_Packet) return Crtp_Packet_Handler
+   function Crtp_Get_Handler_From_Packet
+     (Packet : Crtp_Packet) return Crtp_Packet_Handler
    is
       Handler : Crtp_Packet_Handler;
    begin
@@ -66,7 +67,7 @@ package body Crtp_Pack is
       Handler.Index := Integer (Packet.Size);
 
       return Handler;
-   end Crtp_Get_Handler;
+   end Crtp_Get_Handler_From_Packet;
 
    function Crtp_Get_Packet_From_Handler
      (Handler : Crtp_Packet_Handler) return Crtp_Packet is
@@ -117,6 +118,19 @@ package body Crtp_Pack is
       end if;
    end Crtp_Append_Data;
 
+   procedure Crtp_Reset_Handler (Handler : in out Crtp_Packet_Handler) is
+   begin
+      Handler.Index := 1;
+      Handler.Packet.Size := 1;
+      Handler.Packet.Data_1 := (others => 0);
+   end Crtp_Reset_Handler;
+
+   function Crtp_Get_Packet_Size
+     (Handler : Crtp_Packet_Handler) return T_Uint8 is
+   begin
+      return Handler.Packet.Size;
+   end Crtp_Get_Packet_Size;
+
    procedure Crtp_Receive_Packet
      (Packet           : out Crtp_Packet;
       Port_ID          : Crtp_Port;
@@ -126,5 +140,13 @@ package body Crtp_Pack is
       Port_Queues (Port_ID).Dequeue_Item
         (Packet, Has_Succeed);
    end Crtp_Receive_Packet;
+
+   procedure Crtp_Send_Packet
+     (Packet : Crtp_Packet;
+      Has_Succeed : out Boolean;
+      Time_To_Wait : Time_Span := Milliseconds (0)) is
+   begin
+      Tx_Queue.Enqueue_Item (Packet, Has_Succeed);
+   end Crtp_Send_Packet;
 
 end Crtp_Pack;

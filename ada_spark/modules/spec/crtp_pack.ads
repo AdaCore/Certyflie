@@ -84,7 +84,9 @@ package Crtp_Pack is
       Channel : Crtp_Channel) return Crtp_Packet_Handler;
 
    --  Return an handler to easily manipulate the CRTP packet
-   function Crtp_Get_Handler (Packet : Crtp_Packet) return Crtp_Packet_Handler;
+   function Crtp_Get_Handler_From_Packet
+     (Packet : Crtp_Packet) return Crtp_Packet_Handler;
+
 
    --  Return the CRTP Packet contained in the CRTP Packet handler
    function Crtp_Get_Packet_From_Handler
@@ -107,12 +109,25 @@ package Crtp_Pack is
       Data       : out T_Data;
       Has_Succeed : out Boolean);
 
+   --  Reset the index, the size and the data contained in the handler
+   procedure Crtp_Reset_Handler (Handler : in out Crtp_Packet_Handler);
+
+   --  Get the size of the CRTP packet contained in the handler
+   function Crtp_Get_Packet_Size
+     (Handler : Crtp_Packet_Handler) return T_Uint8;
+
    --  Receive a packet from the port queue, with a given Timeout
    procedure Crtp_Receive_Packet
      (Packet           : out Crtp_Packet;
       Port_ID          : Crtp_Port;
       Has_Succeed      : out Boolean;
       Time_To_Wait     :  Time_Span := Milliseconds (0));
+
+   --  Send a packet, with a given Timeout
+   procedure Crtp_Send_Packet
+     (Packet : Crtp_Packet;
+      Has_Succeed : out Boolean;
+      Time_To_Wait : Time_Span := Milliseconds (0));
 
 private
    package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
