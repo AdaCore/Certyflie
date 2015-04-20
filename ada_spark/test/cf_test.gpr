@@ -17,6 +17,6 @@ project Cf_Test is
    for Exec_Dir use "obj";
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-gnatwa");
+      for Default_Switches ("Ada") use ("-g", "-gnatwa");
    end Compiler;
 end Cf_Test;

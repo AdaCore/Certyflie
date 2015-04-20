@@ -14,12 +14,9 @@ package Console_Pack is
    --  Test if the console module is initialized
    function  Console_Test return Boolean;
 
-   --  Put a character in the console buffer
-   procedure Console_Put_Char (C : Character; Has_Succeed : out Boolean);
-
    --  Put a string in the console buffer, and send it if a newline
    --  character is found
-   procedure Console_Put_String
+   procedure Console_Put_Line
      (Message     : String;
       Has_Succeed : out Boolean);
 

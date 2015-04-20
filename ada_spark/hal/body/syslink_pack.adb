@@ -135,7 +135,7 @@ package body Syslink_Pack is
                end if;
                Rx_State := WAIT_FOR_FIRST_START;
          end case;
-         Next_Period := Next_Period + Seconds (1);
+         Next_Period := Next_Period + Milliseconds (500);
       end loop;
    end Syslink_Task;
 

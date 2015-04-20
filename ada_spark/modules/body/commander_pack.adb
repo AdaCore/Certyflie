@@ -2,6 +2,7 @@ with Crtp_Pack; use Crtp_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
 with Protected_IO_Pack; use Protected_IO_Pack;
 with Ada.Unchecked_Conversion;
+with Console_Pack; use Console_Pack;
 
 package body Commander_Pack is
 
@@ -51,6 +52,7 @@ package body Commander_Pack is
          X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
          X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
          X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
+         Console_Put_Line ("Zizi", Has_Succeed);
       end if;
    end Print_Command;
 

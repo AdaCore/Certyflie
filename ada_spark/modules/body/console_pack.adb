@@ -1,4 +1,5 @@
-with Types; use Types;
+with Ada.Exceptions; use Ada.Exceptions;
+with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Console_Pack is
 
@@ -23,7 +24,7 @@ package body Console_Pack is
    begin
       Crtp_Send_Packet
         (Crtp_Get_Packet_From_Handler (Message_To_Print), Has_Succeed);
-
+      X_Put_Line ("Console Send message has succeed: " & Boolean'Image (Has_Succeed));
       --  Reset the CRTP packet data contained in the handler
       if Has_Succeed then
          Crtp_Reset_Handler (Message_To_Print);
@@ -37,30 +38,22 @@ package body Console_Pack is
       Set_True (Console_Access);
    end Console_Flush;
 
-   procedure Console_Put_Char (C : Character; Has_Succeed : out Boolean) is
-      procedure Crtp_Append_Character_Data is new Crtp_Append_Data (Character);
-      Size_Of_Message : T_Uint8;
-   begin
-      Suspend_Until_True (Console_Access);
-      Size_Of_Message := Crtp_Get_Packet_Size (Message_To_Print);
-      if Size_Of_Message < CRTP_MAX_DATA_SIZE then
-         Crtp_Append_Character_Data (Message_To_Print, C, Has_Succeed);
-      end if;
-
-      if C = ASCII.CR or Size_Of_Message >= CRTP_MAX_DATA_SIZE then
-         Console_Send_Message (Has_Succeed);
-      end if;
-
-      Set_True (Console_Access);
-   end Console_Put_Char;
-
-   procedure Console_Put_String
+   procedure Console_Put_Line
      (Message     : String;
       Has_Succeed : out Boolean) is
+      Free_Bytes_In_Packet : Boolean := True;
+      procedure Crtp_Append_Character_Data is new Crtp_Append_Data (Character);
    begin
       for C of Message loop
-        Console_Put_Char (C, Has_Succeed);
+         Crtp_Append_Character_Data
+           (Message_To_Print, C, Free_Bytes_In_Packet);
+
+         if not Free_Bytes_In_Packet then
+            Console_Send_Message (Has_Succeed);
+         end if;
       end loop;
-   end Console_Put_String;
+
+      Console_Send_Message (Has_Succeed);
+   end Console_Put_Line;
 
 end Console_Pack;

@@ -1,4 +1,5 @@
 with Ada.Unchecked_Conversion;
+with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Radiolink_Pack is
 
@@ -49,6 +50,8 @@ package body Radiolink_Pack is
 
       --  Try to enqueue the Syslink packet
       Tx_Queue.Enqueue_Item (Sl_Packet, Has_Suceed);
+      X_Put_Line ("Radiolink Send Packet called: " & Boolean'Image (Has_Suceed));
+
       return Has_Suceed;
    end Radiolink_Send_Packet;
 

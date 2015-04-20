@@ -1,6 +1,7 @@
 with Ada.Unchecked_Conversion;
 with Syslink_Pack; use Syslink_Pack;
 with Crtp_Pack; use Crtp_Pack;
+with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body UART_Syslink is
 
@@ -20,9 +21,13 @@ package body UART_Syslink is
    procedure UART_Send_Data_DMA_Blocking
      (Data_Size : T_Uint32;
       Data      : UART_TX_Buffer) is
+      subtype UART_Data is T_Uint8_Array (5 .. Integer (Data_Size));
+      subtype Data_String is String (1 .. Integer (Data_Size) - 5);
+      function Data_To_String is new Ada.Unchecked_Conversion
+        (UART_Data, Data_String);
    begin
       --  TODO: Implement the real function
-      null;
+      X_Put_Line (Data_To_String (Data (5 .. Integer (Data_Size))));
    end UART_Send_Data_DMA_Blocking;
 
    function Get_Current_Byte (Counter : Positive) return T_Uint8 is
