@@ -109,6 +109,9 @@ package Crtp_Pack is
       Data       : out T_Data;
       Has_Succeed : out Boolean);
 
+   --  Function pointer type for callbacks
+   type Crtp_Callback is access procedure (Packet : Crtp_Packet);
+
    --  Reset the index, the size and the data contained in the handler
    procedure Crtp_Reset_Handler (Handler : in out Crtp_Packet_Handler);
 
@@ -128,6 +131,12 @@ package Crtp_Pack is
      (Packet : Crtp_Packet;
       Has_Succeed : out Boolean;
       Time_To_Wait : Time_Span := Milliseconds (0));
+
+   --  Register a callback to be called when a packet is received in
+   --  the port queue
+   procedure Crtp_Register_Callback
+     (Port_ID  : Crtp_Port;
+      Callback : Crtp_Callback);
 
 private
    package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
@@ -151,6 +160,9 @@ private
    --  Array of protected object queues, one for each task
    Port_Queues : array (Crtp_Port) of Crtp_Queue.Protected_Queue
      (System.Priority'Last, 1);
+
+   --  Array of callbacks when a packet is received
+   Callbacks : array (Crtp_Port) of Crtp_Callback := (others => null);
 
    --  Task in charge of transmitting the messages in the Tx Queue
    --  to the link layer.

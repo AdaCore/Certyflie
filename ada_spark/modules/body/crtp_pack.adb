@@ -35,6 +35,10 @@ package body Crtp_Pack is
             if not Has_Succeed then
                Dropped_Packets := Dropped_Packets + 1;
             end if;
+
+            if Callbacks (Packet.Port) /= null then
+               Callbacks (Packet.Port) (Packet);
+            end if;
          end if;
       end loop;
    end Crtp_Rx_Task;
@@ -145,5 +149,12 @@ package body Crtp_Pack is
    begin
       Tx_Queue.Enqueue_Item (Packet, Has_Succeed);
    end Crtp_Send_Packet;
+
+   procedure Crtp_Register_Callback
+     (Port_ID  : Crtp_Port;
+      Callback : Crtp_Callback) is
+   begin
+      Callbacks (Port_ID) := Callback;
+   end Crtp_Register_Callback;
 
 end Crtp_Pack;
