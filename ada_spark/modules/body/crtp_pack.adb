@@ -1,7 +1,6 @@
 with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
-with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Crtp_Pack is
 
@@ -32,9 +31,7 @@ package body Crtp_Pack is
          Link_Receive_Packet (Packet, Has_Succeed);
 
          if Has_Succeed then
-            X_Put_Line ("Packet received in CRTP");
             Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
-            X_Put_Line ("Packet enqueued in port");
             if not Has_Succeed then
                Dropped_Packets := Dropped_Packets + 1;
             end if;
@@ -121,7 +118,7 @@ package body Crtp_Pack is
    procedure Crtp_Reset_Handler (Handler : in out Crtp_Packet_Handler) is
    begin
       Handler.Index := 1;
-      Handler.Packet.Size := 1;
+      Handler.Packet.Size := 0;
       Handler.Packet.Data_1 := (others => 0);
    end Crtp_Reset_Handler;
 

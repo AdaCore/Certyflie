@@ -27,8 +27,8 @@ package body Syslink_Pack is
    end Syslink_Test;
 
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet) is
-      Data_Size : Integer range Tx_Buffer'First .. Tx_Buffer'Last;
-      Chk_Sum      : array (1 .. 2) of T_Uint8 := (others => 0);
+      Data_Size : Natural;
+      Chk_Sum   : array (1 .. 2) of T_Uint8 := (others => 0);
    begin
       Suspend_Until_True (Syslink_Access);
 
@@ -37,7 +37,9 @@ package body Syslink_Pack is
       Tx_Buffer (3) := Syslink_Packet_Type'Enum_Rep (Sl_Packet.Slp_Type);
       Tx_Buffer (4) := Sl_Packet.Length;
 
-      Data_Size := Integer (Sl_Packet.Length + 6);
+      Data_Size := Natural (Sl_Packet.Length) + 6;
+      Tx_Buffer (5 .. Data_Size - 2) :=
+        Sl_Packet.Data (1 .. Integer (Sl_Packet.Length));
 
       for I in 3 .. Data_Size - 2 loop
          Chk_Sum (1) := Chk_Sum (1) + Tx_Buffer (I);
@@ -48,6 +50,7 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
       --  TODO: call UART_Send_Data_DMA_Blocking
+      UART_Send_Data_DMA_Blocking (T_Uint32 (Data_Size), Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
@@ -61,7 +64,6 @@ package body Syslink_Pack is
 
       case Group_Type is
          when SYSLINK_RADIO_GROUP =>
-            X_Put_Line ("Packet sent to RadioLink");
             Radiolink_Syslink_Dispatch (Rx_Sl_Packet);
             --  TODO: Dispatch the syslink packets to teh other modules
             --  when they will be implemented

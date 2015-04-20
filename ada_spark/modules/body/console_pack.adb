@@ -1,4 +1,3 @@
-with Ada.Exceptions; use Ada.Exceptions;
 with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Console_Pack is

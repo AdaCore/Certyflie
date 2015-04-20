@@ -50,7 +50,6 @@ package body Radiolink_Pack is
 
       --  Try to enqueue the Syslink packet
       Tx_Queue.Enqueue_Item (Sl_Packet, Has_Suceed);
-      X_Put_Line ("Radiolink Send Packet called: " & Boolean'Image (Has_Suceed));
 
       return Has_Suceed;
    end Radiolink_Send_Packet;
