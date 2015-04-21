@@ -1,6 +1,7 @@
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
-with System;
+with Crtp_Pack; use Crtp_Pack;
+pragma Elaborate_All (Crtp_Pack);
 
 package Commander_Pack
 with SPARK_Mode
@@ -24,9 +25,15 @@ is
 
    --  Procedures and functions
 
-   --  Test function used to test the CRTP Protocol implementation
-   --  using Ravenscar
-   procedure Print_Command;
+   --  Initizalize the Commander module
+   procedure Commander_Init;
+
+   --  Test if the Commander module is initialized
+   function Commander_Test return Boolean;
+
+   --  Handler called when a CRTP packet is received in the commander
+   --  port queue
+   procedure Commander_Crtp_Handler (Packet : Crtp_Packet);
 
    --  Get the commands from the pilot.
    procedure Commander_Get_RPY
@@ -68,10 +75,30 @@ is
 
 private
 
-   --  Tasks and protected objects
+   --  Global variables
 
-   task Get_Command_Task is
-      pragma Priority (System.Priority'Last - 1);
-   end Get_Command_Task;
+   Is_Init       : Boolean := False;
+   Is_Inactive   : Boolean := True;
+   Thrust_Locked : Boolean := True;
+   Side          : Boolean := False;
+
+   --  Container for the commander values received via CRTP
+   Target_Val : array (Boolean) of Commander_Crtp_Values;
+
+   --  Procedures and functions
+
+   --  Get target values from a received CRTP packet
+   function Get_Commands_From_Packet
+     (Packet : Crtp_Packet) return Commander_Crtp_Values;
+
+   --  Get Float data from a CRTP Packet
+   procedure Crtp_Get_Float_Data is new Crtp_Get_Data (Float);
+
+   --  Get T_Uint16 data from a CRTP Packet
+   procedure Crtp_Get_T_Uint16_Data is new Crtp_Get_Data (T_Uint16);
+
+   --  Test function used to test the CRTP Protocol implementation
+   --  using Ravenscar
+   procedure Print_Commands (Commands : Commander_Crtp_Values);
 
 end Commander_Pack;

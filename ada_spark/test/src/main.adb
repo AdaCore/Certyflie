@@ -7,8 +7,12 @@ with Platform_Service_Pack; use Platform_Service_Pack;
 
 procedure Main is
 begin
-   Platform_Service_Init;
+   --  Use for thread safe printing
    Protected_IO_Pack.Initialize;
+
+   --  Module initialization
+   Platform_Service_Init;
+   Commander_Init;
    Syslink_Init;
    Console_Init;
 end Main;

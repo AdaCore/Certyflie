@@ -1,17 +1,35 @@
-with Crtp_Pack; use Crtp_Pack;
-with Ada.Real_Time; use Ada.Real_Time;
 with Protected_IO_Pack; use Protected_IO_Pack;
 with Ada.Unchecked_Conversion;
-with Console_Pack; use Console_Pack;
 
 package body Commander_Pack is
 
-   task body Get_Command_Task is
+   procedure Commander_Init is
    begin
-      loop
-         Print_Command;
-      end loop;
-   end Get_Command_Task;
+      if Is_Init then
+         return;
+      end if;
+
+      Crtp_Register_Callback
+        (CRTP_PORT_COMMANDER, Commander_Crtp_Handler'Access);
+   end Commander_Init;
+
+   function Commander_Test return Boolean is
+   begin
+      return Is_Init;
+   end Commander_Test;
+
+   procedure Commander_Crtp_Handler (Packet : Crtp_Packet) is
+   begin
+      Side := not Side;
+      Target_Val (Side) := Get_Commands_From_Packet (Packet);
+
+      if Target_Val (Side).Thrust = 0 then
+         Thrust_Locked := False;
+      end if;
+
+      --  TODO: reset the watchdog and remove this test function
+      Print_Commands (Target_Val (Side));
+   end Commander_Crtp_Handler;
 
    procedure Commander_Get_RPY
      (Euler_Roll_Desired  : in out T_Degrees;
@@ -30,30 +48,29 @@ package body Commander_Pack is
       --  TODO: Smooth commands to have a better control
    end Commander_Get_RPY;
 
-   procedure Print_Command is
-      Packet      : Crtp_Packet;
-      Handler     : Crtp_Packet_Handler;
-      Has_Succeed : Boolean;
-      Commands    : Commander_Crtp_Values := (0.0, 0.0, 0.0, 0);
-      procedure Crtp_Get_Float_Data is new Crtp_Get_Data (Float);
-      procedure Crtp_Get_T_Uint16_Data is new Crtp_Get_Data (T_Uint16);
+   function Get_Commands_From_Packet
+     (Packet : Crtp_Packet) return Commander_Crtp_Values is
+      Commands     : Commander_Crtp_Values := (0.0, 0.0, 0.0, 0);
+      Handler      : Crtp_Packet_Handler;
+      Has_Succeed  : Boolean;
    begin
-      Crtp_Receive_Packet
-        (Packet, CRTP_PORT_COMMANDER, Has_Succeed, Milliseconds (100));
+      Handler := Crtp_Get_Handler_From_Packet (Packet);
 
-      if Has_Succeed then
-         Handler := Crtp_Get_Handler_From_Packet (Packet);
-         Crtp_Get_Float_Data (Handler, 1, Commands.Roll, Has_Succeed);
-         Crtp_Get_Float_Data (Handler, 5, Commands.Pitch, Has_Succeed);
-         Crtp_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);
-         Crtp_Get_T_Uint16_Data (Handler, 13, Commands.Thrust, Has_Succeed);
+      Crtp_Get_Float_Data (Handler, 1, Commands.Roll, Has_Succeed);
+      Crtp_Get_Float_Data (Handler, 5, Commands.Pitch, Has_Succeed);
+      Crtp_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);
+      Crtp_Get_T_Uint16_Data (Handler, 13, Commands.Thrust, Has_Succeed);
 
-         X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
-         X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
-         X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
-         X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
-         Console_Put_Line ("Zizi", Has_Succeed);
-      end if;
-   end Print_Command;
+      return Commands;
+   end Get_Commands_From_Packet;
+
+   procedure Print_Commands (Commands : Commander_Crtp_Values) is
+
+   begin
+      X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
+      X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
+      X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
+      X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
+   end Print_Commands;
 
 end Commander_Pack;
