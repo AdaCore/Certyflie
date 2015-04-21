@@ -12,8 +12,6 @@ is
 
    --  Procedures and functions
 
-   --  Fast inverse square root
-   --  See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
    function Inv_Sqrt (X : Float) return Float
      with
        Pre  => X >= Float'Succ (0.0),

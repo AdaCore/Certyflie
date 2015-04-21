@@ -40,7 +40,8 @@ is
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
-      Dt : T_Delta_Time) is
+      Dt : T_Delta_Time)
+   is
       Recip_Norm    : Float;
       S0            : Float;
       S1            : Float;
