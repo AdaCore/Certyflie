@@ -5,6 +5,8 @@ project Cf_Test is
    for Source_Dirs use ("src",
                         "..",
                         "../types/spec",
+                        "../utils/spec",
+                        "../utils/body",
                         "../drivers/spec",
                         "../drivers/body",
                         "../lib/spec",

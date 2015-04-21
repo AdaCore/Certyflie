@@ -1,7 +1,10 @@
+with Safety_Pack; use Safety_Pack;
 with Protected_IO_Pack; use Protected_IO_Pack;
 with Ada.Unchecked_Conversion;
 
 package body Commander_Pack is
+
+   --  Public procedures and functions
 
    procedure Commander_Init is
    begin
@@ -9,6 +12,7 @@ package body Commander_Pack is
          return;
       end if;
 
+      Last_Update := Clock;
       Crtp_Register_Callback
         (CRTP_PORT_COMMANDER, Commander_Crtp_Handler'Access);
    end Commander_Init;
@@ -27,7 +31,8 @@ package body Commander_Pack is
          Thrust_Locked := False;
       end if;
 
-      --  TODO: reset the watchdog and remove this test function
+      --  TODO: remove teh call to Print_Caommands when testing done
+      Commander_Watchdog_Reset;
       Print_Commands (Target_Val (Side));
    end Commander_Crtp_Handler;
 
@@ -35,18 +40,89 @@ package body Commander_Pack is
      (Euler_Roll_Desired  : in out T_Degrees;
       Euler_Pitch_Desired : in out T_Degrees;
       Euler_Yaw_Desired   : in out T_Degrees) is
-      procedure Commander_Get_RPY_Wrapper
-        (Euler_Roll_Desired  : in out Float;
-         Euler_Pitch_Desired : in out Float;
-         Euler_Yaw_Desired   : in out Float);
-      pragma Import (C, Commander_Get_RPY_Wrapper, "commanderGetRPY");
+      Used_Side : Boolean;
    begin
-      Commander_Get_RPY_Wrapper
-        (Euler_Roll_Desired,
-         Euler_Pitch_Desired,
-         Euler_Yaw_Desired);
-      --  TODO: Smooth commands to have a better control
+      --  To prevent the change of Side value when this is called
+      Used_Side := Side;
+
+      Euler_Roll_Desired := Target_Val (Used_Side).Roll;
+      Euler_Pitch_Desired := Target_Val (Used_Side).Pitch;
+      Euler_Yaw_Desired := Target_Val (Used_Side).Yaw;
    end Commander_Get_RPY;
+
+   procedure Commander_Get_RPY_Type
+     (Roll_Type  : in out RPY_Type;
+      Pitch_Type : in out RPY_Type;
+      Yaw_Type   : in out RPY_Type) is
+   begin
+      Roll_Type := ANGLE;
+      Pitch_Type := ANGLE;
+      Yaw_Type := RATE;
+   end Commander_Get_RPY_Type;
+
+   procedure Commander_Get_Thrust (Thrust : out T_Uint16) is
+      Raw_Thrust : T_Uint16;
+   begin
+      Raw_Thrust := Target_Val (Side).Thrust;
+
+      if Thrust_Locked then
+         Thrust := 0;
+      else
+         Thrust := Saturate (Raw_Thrust, 0, MAX_THRUST);
+      end if;
+
+      Commander_Watchdog;
+   end Commander_Get_Thrust;
+
+   procedure Commander_Get_Alt_Hold
+     (Alt_Hold        : out bool;
+      Set_Alt_Hold    : out Bool;
+      Alt_Hold_Change : out Float) is
+   begin
+      Alt_Hold := Boolean'Enum_Rep (Alt_Hold_Mode);
+      Set_Alt_Hold :=
+        Boolean'Enum_Rep (Alt_Hold_Mode and not Alt_Hold_Mode_Old);
+      Alt_Hold_Change :=
+        (if Alt_Hold_Mode then
+           (Float (Target_Val (Side).Thrust) - ALT_HOLD_THRUST_F)
+           / ALT_HOLD_THRUST_F
+         else
+            0.0);
+      Alt_Hold_Mode_Old := Alt_Hold_Mode;
+   end Commander_Get_Alt_Hold;
+
+   --  Private procedures and functions
+
+   procedure Commander_Watchdog_Reset is
+   begin
+      Last_Update := Clock;
+   end Commander_Watchdog_Reset;
+
+   procedure Commander_Watchdog is
+      Used_Side : Boolean;
+      Time_Since_Last_Update : Time_Span;
+   begin
+      --  To prevent the change of Side value when this is called
+      Used_Side := Side;
+
+      Time_Since_Last_Update := Commander_Get_Inactivity_Time;
+
+      if Time_Since_Last_Update > COMMANDER_WDT_TIMEOUT_STABILIZE then
+         Target_Val (Used_Side).Roll := 0.0;
+         Target_Val (Used_Side).Pitch := 0.0;
+         Target_Val (Used_Side).Yaw := 0.0;
+      end if;
+
+      if Time_Since_Last_Update > COMMANDER_WDT_TIMEOUT_SHUTDOWN then
+         Target_Val (Used_Side).Thrust := 0;
+         -- TODO: set the alt hold moe variable to false
+         Alt_Hold_Mode := False;
+         Is_Inactive := True;
+         Thrust_Locked := True;
+      else
+         Is_Inactive := False;
+      end if;
+   end Commander_Watchdog;
 
    function Get_Commands_From_Packet
      (Packet : Crtp_Packet) return Commander_Crtp_Values is
@@ -65,7 +141,6 @@ package body Commander_Pack is
    end Get_Commands_From_Packet;
 
    procedure Print_Commands (Commands : Commander_Crtp_Values) is
-
    begin
       X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
       X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
