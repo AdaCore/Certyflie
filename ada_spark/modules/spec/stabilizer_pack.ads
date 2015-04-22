@@ -135,6 +135,8 @@ private
    ALTHOLD_UPDATE_DT : constant Float :=
                          (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));  -- 100hz
 
+   --  IMU outputs. The IMU is composed of an accelerometer, a gyroscope
+   --  and a magnetometer (notused yet)
    Gyro : Gyroscope_Data     := (0.0, 0.0, 0.0)
      with Part_Of => IMU_Outputs; --  Gyrometer axis data in deg/s
    Acc  : Accelerometer_Data := (0.0, 0.0, 0.0)
@@ -142,18 +144,26 @@ private
    Mag  : Magnetometer_Data  := (0.0, 0.0, 0.0)
      with Part_Of => IMU_Outputs; --  Magnetometer axis data in testla
 
+   --  Actual angles. These angles are calculated by fusing
+   --  accelerometer and gyro data in the Sensfusion algorithms.
    Euler_Roll_Actual   : T_Degrees := 0.0
      with Part_Of => Actual_Angles;
    Euler_Pitch_Actual  : T_Degrees := 0.0
      with Part_Of => Actual_Angles;
    Euler_Yaw_Actual    : T_Degrees := 0.0
      with Part_Of => Actual_Angles;
+
+   --  Desired angles. Obtained directly from the pilot.
    Euler_Roll_Desired  : T_Degrees := 0.0
      with Part_Of => Desired_Angles;
    Euler_Pitch_Desired : T_Degrees := 0.0
      with Part_Of => Desired_Angles;
    Euler_Yaw_Desired   : T_Degrees := 0.0
      with Part_Of => Desired_Angles;
+
+   --  Desired rates. Obtained directly from the pilot when
+   --  commands are in RATE mode, or from the rate PIDs when commands
+   --  are in ANGLE mode
    Roll_Rate_Desired   : T_Rate  := 0.0
      with Part_Of => Desired_Rates;
    Pitch_Rate_Desired  : T_Rate  := 0.0
@@ -161,7 +171,7 @@ private
    Yaw_Rate_Desired    : T_Rate  := 0.0
      with Part_Of => Desired_Rates;
 
-   --  Barometer variables
+   --  Variables used to calculate the altitude above see level (ASL)
    Temperature  : T_Temperature := 0.0
      with Part_Of => Asl_Variables; --  Temperature from barometer
    Pressure     : T_Pressure    := 1000.0
@@ -173,6 +183,7 @@ private
    Asl_Long     : T_Altitude    := 0.0
      with Part_Of => Asl_Variables; --  Long term asl
 
+   --  Variables used to calculate the vertical speed
    Acc_WZ       : Float   := 0.0
      with Part_Of => V_Speed_Variables;
    Acc_MAG      : Float   := 0.0
@@ -186,7 +197,7 @@ private
    --  integrated from
    --  vertical acceleration
 
-   --  Altitude hold variables
+   --  Variables used for the Altitude Hold mode
    Alt_Hold_PID : Altitude_Pid.Pid_Object :=
                     (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1)
@@ -213,6 +224,7 @@ private
    ALT_HOLD_KI          : constant Float := 0.18;
    ALT_HOLD_KD          : constant Float := 0.0;
 
+   --  Parameters used to calculate the vertical speed
    V_Speed_ASL_Fac      : T_Speed := 0.0
      with Part_Of => V_Speed_Parameters; --  Multiplier
    V_Speed_Acc_Fac      : T_Speed := -48.0
@@ -226,6 +238,7 @@ private
    V_Bias_Alpha         : T_Alpha := 0.98
      with Part_Of => V_Speed_Parameters; --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
 
+   --  Parameters used to calculate the altitude above see level (ASL)
    Asl_Err_Deadband     : Natural_Float := 0.00
      with Part_Of => Asl_Parameters; --  error (target - altitude) deadband
    Asl_Alpha            : T_Alpha := 0.92
@@ -233,6 +246,7 @@ private
    Asl_Alpha_Long       : T_Alpha := 0.93
      with Part_Of => Asl_Parameters; --  Long term smoothing
 
+   --  Parameters used for the Altitude Hold mode
    Alt_Hold_Err_Max     : T_Alpha := 1.0
      with Part_Of => Alt_Hold_Parameters; --  Max cap on current estimated altitude
    --  vs target altitude in meters
@@ -255,13 +269,15 @@ private
    Alt_Hold_Max_Thrust  : T_Uint16 := 60000
      with Part_Of => Alt_Hold_Parameters; --  Max altitude hold thrust
 
-   Roll_Type            : RPY_Type := RATE
+   --  Command types used to control each angle
+   Roll_Type            : RPY_Type := ANGLE
      with Part_Of => Command_Types;
-   Pitch_Type           : RPY_Type := RATE
+   Pitch_Type           : RPY_Type := ANGLE
      with Part_Of => Command_Types;
    Yaw_Type             : RPY_Type := RATE
      with Part_Of => Command_Types;
 
+   --  Variables output from each rate PID, and from the Pilot (Thrust)
    Actuator_Thrust : T_Uint16 := 0
      with Part_Of => Actuator_Commands;
    Actuator_Roll   : T_Int16  := 0
@@ -271,6 +287,7 @@ private
    Actuator_Yaw    : T_Int16  := 0
      with Part_Of => Actuator_Commands;
 
+   --  Variables used to control each motor's power
    Motor_Power_M4  : T_Uint16 := 0
      with Part_Of => Motor_Powers;
    Motor_Power_M2  : T_Uint16 := 0

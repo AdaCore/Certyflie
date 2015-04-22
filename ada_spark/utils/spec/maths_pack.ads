@@ -1,4 +1,3 @@
-with Types; use Types;
 with Ada.Numerics; use Ada.Numerics;
 
 package Maths_Pack
