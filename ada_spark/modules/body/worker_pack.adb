@@ -43,7 +43,7 @@ is
    function Worker_Schedule
      (Func_ID : Integer;
       Arg     : Pvoid) return Integer is
-      Work : Worker_Work := (None, System.Null_Address);
+      Work : Worker_Work;
       Res : Integer;
    begin
       --  No worker function registered for this ID
