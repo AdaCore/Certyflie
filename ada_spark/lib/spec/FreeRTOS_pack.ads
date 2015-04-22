@@ -1,7 +1,9 @@
 with System; use System;
 with Types; use Types;
 
-package FreeRTOS_Pack is
+package FreeRTOS_Pack
+  with SPARK_Mode
+is
    --  Types
    subtype Pvoid is System.Address;
 
@@ -11,19 +13,25 @@ package FreeRTOS_Pack is
    --  Functions and procedures
    function XQueue_Create
      (QueueLength : T_Uint32;
-      ItemSize    : T_Uint32) return Pvoid;
+      ItemSize    : T_Uint32) return Pvoid
+     with
+       Global => null;
    pragma Import (C, XQueue_Create, "w_xQueueCreate");
 
    function XQueue_Receive
      (XQueue        : Pvoid;
       Buffer        : Pvoid;
-      Ticks_To_wait : T_Uint32) return Integer;
+      Ticks_To_wait : T_Uint32) return Integer
+     with
+       Global => null;
    pragma Import (C, XQueue_Receive, "w_xQueueReceive");
 
    function XQueue_Send
      (XQueue        : Pvoid;
       Item_To_Queue : Pvoid;
-      Ticks_To_wait : T_Uint32) return Integer;
+      Ticks_To_wait : T_Uint32) return Integer
+     with
+       Global => null;
    pragma Import (C, XQueue_Send, "w_xQueueSend");
 
 end FreeRTOS_Pack;

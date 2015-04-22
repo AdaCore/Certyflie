@@ -124,25 +124,25 @@ private
 
    ATTITUDE_UPDATE_RATE_DIVIDER   : constant := 2;
    ATTITUDE_UPDATE_RATE_DIVIDER_F : constant := 2.0;
+   --  500 Hz
    FUSION_UPDATE_DT : constant Float :=
-                        (1.0 / (IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER_F)); --  250hz
-
-   --  Barometer/ Altitude hold stuff
+                        (1.0 / (IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER_F));
 
    --  500hz/5 = 100hz for barometer measurements
    ALTHOLD_UPDATE_RATE_DIVIDER   : constant := 5;
    ALTHOLD_UPDATE_RATE_DIVIDER_F : constant := 5.0;
+   --  200 Hz
    ALTHOLD_UPDATE_DT : constant Float :=
-                         (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));  -- 100hz
+                         (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));
 
    --  IMU outputs. The IMU is composed of an accelerometer, a gyroscope
    --  and a magnetometer (notused yet)
    Gyro : Gyroscope_Data     := (0.0, 0.0, 0.0)
-     with Part_Of => IMU_Outputs; --  Gyrometer axis data in deg/s
+     with Part_Of => IMU_Outputs;
    Acc  : Accelerometer_Data := (0.0, 0.0, 0.0)
-     with Part_Of => IMU_Outputs; --  Accelerometer axis data in mG
+     with Part_Of => IMU_Outputs;
    Mag  : Magnetometer_Data  := (0.0, 0.0, 0.0)
-     with Part_Of => IMU_Outputs; --  Magnetometer axis data in testla
+     with Part_Of => IMU_Outputs;
 
    --  Actual angles. These angles are calculated by fusing
    --  accelerometer and gyro data in the Sensfusion algorithms.
@@ -172,16 +172,16 @@ private
      with Part_Of => Desired_Rates;
 
    --  Variables used to calculate the altitude above see level (ASL)
-   Temperature  : T_Temperature := 0.0
-     with Part_Of => Asl_Variables; --  Temperature from barometer
+   Temperature  : T_Temperature := 0.0 --  Temperature
+     with Part_Of => Asl_Variables;
    Pressure     : T_Pressure    := 1000.0
-     with Part_Of => Asl_Variables; --  Pressure from barometer
+     with Part_Of => Asl_Variables;    --  Pressure from barometer
    Asl          : T_Altitude    := 0.0
-     with Part_Of => Asl_Variables; --  Smoothed asl
+     with Part_Of => Asl_Variables;    --  Smoothed asl
    Asl_Raw      : T_Altitude    := 0.0
-     with Part_Of => Asl_Variables; --  Raw asl
+     with Part_Of => Asl_Variables;    --  Raw asl
    Asl_Long     : T_Altitude    := 0.0
-     with Part_Of => Asl_Variables; --  Long term asl
+     with Part_Of => Asl_Variables;    --  Long term asl
 
    --  Variables used to calculate the vertical speed
    Acc_WZ       : Float   := 0.0
@@ -194,16 +194,16 @@ private
      with Part_Of => V_Speed_Variables;
    V_Speed      : T_Speed := 0.0
      with Part_Of => V_Speed_Variables; --  Vertical speed (world frame)
-   --  integrated from
-   --  vertical acceleration
+                                        --  integrated from vertical
+                                        --  acceleration
 
    --  Variables used for the Altitude Hold mode
    Alt_Hold_PID : Altitude_Pid.Pid_Object :=
                     (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1)
      with Part_Of => Alt_Hold_Variables; --  Used for altitute hold mode.
-   --  It gets reset when the bat status
-   --  changes
+                                         --  It gets reset when the bat status
+                                         --  changes
    Alt_Hold     : bool := 0
      with Part_Of => Alt_Hold_Variables; --  Currently in altitude hold mode
    Set_Alt_Hold : bool := 0
@@ -219,7 +219,7 @@ private
 
    --  Altitude hold & barometer params
 
-   --  PID gain constantsused everytime we reinitialise the PID controller
+   --  PID gain constants used everytime we reinitialise the PID controller
    ALT_HOLD_KP          : constant Float := 0.5;
    ALT_HOLD_KI          : constant Float := 0.18;
    ALT_HOLD_KD          : constant Float := 0.0;
@@ -232,11 +232,13 @@ private
    V_Acc_Deadband       : Natural_Float := 0.05
      with Part_Of => V_Speed_Parameters; --  Vertical acceleration deadband
    V_Speed_ASL_Deadband : Natural_Float := 0.005
-     with Part_Of => V_Speed_Parameters; --  Vertical speed based on barometer readings deadband
+     with Part_Of => V_Speed_Parameters; --  Vertical speed based on barometer
+                                         --  readings deadband
    V_Speed_Limit        : T_Speed := 0.05
      with Part_Of => V_Speed_Parameters; --  used to Saturate vertical velocity
    V_Bias_Alpha         : T_Alpha := 0.98
-     with Part_Of => V_Speed_Parameters; --  Blending factor we use to fuse v_Speed_ASL and v_Speed_Acc
+     with Part_Of => V_Speed_Parameters; --  Blending factor we use to fuse
+                                         --  v_Speed_ASL and v_Speed_Acc
 
    --  Parameters used to calculate the altitude above see level (ASL)
    Asl_Err_Deadband     : Natural_Float := 0.00
@@ -248,12 +250,14 @@ private
 
    --  Parameters used for the Altitude Hold mode
    Alt_Hold_Err_Max     : T_Alpha := 1.0
-     with Part_Of => Alt_Hold_Parameters; --  Max cap on current estimated altitude
-   --  vs target altitude in meters
+     with Part_Of => Alt_Hold_Parameters; --  Max cap on current
+                                          --  estimated altitude
+                                          --  vs target altitude in meters
    Alt_Hold_Change_SENS : T_Sensitivity := 200.0
      with Part_Of => Alt_Hold_Parameters; --  Sensitivity of target altitude
-   --  change (thrust input control) while
-   --  hovering. Lower = more sensitive
+                                          --  change (thrust input control)
+                                          --  while hovering.
+                                          --  Lower = more sensitive
    --  & faster changes
    Alt_Pid_Asl_Fac          : T_Motor_Fac := 13000.0
      with Part_Of => Alt_Hold_Parameters; --  Relates meters asl to thrust
@@ -263,9 +267,9 @@ private
      with Part_Of => Alt_Hold_Parameters; --  Minimum hover thrust
    Alt_Hold_Base_Thrust     : T_Uint16 := 43000
      with Part_Of => Alt_Hold_Parameters; --  Approximate throttle needed when
-   --  in perfect hover.
-   --  More weight / older battery can
-   --  use a higher value
+                                          --  in perfect hover.
+                                          --  More weight / older battery can
+                                          --  use a higher value
    Alt_Hold_Max_Thrust  : T_Uint16 := 60000
      with Part_Of => Alt_Hold_Parameters; --  Max altitude hold thrust
 

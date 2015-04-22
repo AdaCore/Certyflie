@@ -11,6 +11,7 @@ is
 
    --  Procedures and functions
 
+   --  Return the inverse square root using the sqrtf builtin
    function Inv_Sqrt (X : Float) return Float
      with
        Pre  => X >= Float'Succ (0.0),

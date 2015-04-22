@@ -56,7 +56,8 @@ is
            T_Int16 (Value));
    pragma Inline (Truncate_To_T_Int16);
 
-   --  Round a float value to 2^74 or -2.74 to avoid having zero when doing
+   --  Ensure that a Float absolute value can't be inferior that 2^74
+   --  to avoid having zero when doing
    --  a vector normalization (ie: Inv_Sqrt (X*X + Y*Y + Z*Z)
    function Lift_Away_From_Zero (X : T_Acc) return T_Acc_Lifted is
      (if X = 0.0 then

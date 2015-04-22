@@ -57,6 +57,8 @@ is
       Set_Alt_Hold    : out bool;
       Alt_Hold_Change : out Float);
 
+   --  Cut the trust when inactivity time has been during for too long
+   procedure Commander_Watchdog;
 
 private
 
@@ -94,9 +96,6 @@ private
    function Commander_Get_Inactivity_Time return Time_Span is
       (Clock - Last_Update);
    pragma Inline (Commander_Get_Inactivity_Time);
-
-   --  Cut the trust when inactivity time has been during for too long
-   procedure Commander_Watchdog;
 
    --  Get target values from a received CRTP packet
    function Get_Commands_From_Packet
