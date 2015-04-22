@@ -2,7 +2,6 @@ with Maths_Pack; use Maths_Pack;
 with Safety_Pack; use Safety_Pack;
 with Config; use Config;
 with Ada.Numerics; use Ada.Numerics;
-
 with Interfaces.C; use Interfaces.C;
 
 package body SensFusion6_Pack
@@ -41,7 +40,8 @@ is
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
-      Dt : T_Delta_Time) is
+      Dt : T_Delta_Time)
+   is
       Recip_Norm    : Float;
       S0            : Float;
       S1            : Float;
@@ -156,6 +156,18 @@ is
         (Q3_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
    end Madgwick_Update_Q;
 
+   --  Subtypes used to help SPARK proving absence of runtime errors
+   --  in the Mahony algorithm
+
+   subtype T_Norm_Acc is T_Acc range -1.0 .. 1.0;
+   subtype T_Float_1  is Float range -3.0 .. 3.0;
+   subtype T_Float_2  is Float range -7.0 .. 7.0;
+   subtype T_Float_3  is
+     Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+   subtype T_Float_4  is Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE;
+   subtype T_Float_5  is Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+     .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR;
+
    procedure Mahony_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
@@ -164,73 +176,53 @@ is
       Ay : T_Acc;
       Az : T_Acc;
       Dt : T_Delta_Time) is
-      Recip_Norm                              : Float;
-      Norm_Ax                                 : Float range -1.0 .. 1.0;
-      Norm_Ay                                 : T_Acc range -1.0 .. 1.0;
-      Norm_Az                                 : T_Acc range -1.0 .. 1.0;
+      Recip_Norm      : Float;
+      Norm_Ax         : T_Norm_Acc;
+      Norm_Ay         : T_Norm_Acc;
+      Norm_Az         : T_Norm_Acc;
       --  Conversion from degrees/s to rad/s
-      Rad_Gx                                  : T_Rate_Rad := Gx * Pi / 180.0;
-      Rad_Gy                                  : T_Rate_Rad := Gy * Pi / 180.0;
-      Rad_Gz                                  : T_Rate_Rad := Gz * Pi / 180.0;
+      Rad_Gx          : constant T_Rate_Rad := Gx * Pi / 180.0;
+      Rad_Gy          : constant T_Rate_Rad := Gy * Pi / 180.0;
+      Rad_Gz          : constant T_Rate_Rad := Gz * Pi / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
-      Half_Vx                                 : Float range -3.0 .. 3.0
-        := Q1 * Q3 - Q0 * Q2;
-      Half_Vy                                 : Float range -2.0 .. 2.0 :=
-                                                  Q0 * Q1 + Q2 * Q3;
-      Half_Vz                                 : Float range -2.0 .. 2.0 :=
-                                                  Q0 * Q0 - 0.5 + Q3 * Q3;
-      Half_Ex                                 : Float range -7.0 .. 7.0;
-      Half_Ey                                 : Float range -7.0 .. 7.0;
-      Half_Ez                                 : Float range -7.0 .. 7.0;
-      Q0_Tmp                                  : Float
-      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q1_Tmp                                  : Float
-      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q2_Tmp                                  : Float
-      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Q3_Tmp                                  : Float
-      range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-      Qa                                      : T_Quaternion := Q0;
-      Qb                                      : T_Quaternion := Q1;
-      Qc                                      : T_Quaternion := Q2;
-      Ax_Lifted                               : T_Acc_Lifted;
-      Ay_Lifted                               : T_Acc_Lifted;
-      Az_Lifted                               : T_Acc_Lifted;
-      Square_Sum                              : Natural_Float;
-      Rate_Change_Gx                          : Float
-      range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
-        := Rad_Gx;
-      Rate_Change_Gy                          : Float
-      range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
-        := Rad_Gy;
-      Rate_Change_Gz                          : Float
-      range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE
-        := Rad_Gy;
-      Integ_FB_Gx                             : Float
-      range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
-        .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gx;
-      Integ_FB_Gy                             : Float
-      range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
-        .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gy;
-      Integ_FB_Gz                             : Float
-      range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
-        .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR := Rad_Gz;
+      Half_Vx         : constant T_Float_1 := Q1 * Q3 - Q0 * Q2;
+      Half_Vy         : constant T_Float_1 := Q0 * Q1 + Q2 * Q3;
+      Half_Vz         : constant T_Float_1 := Q0 * Q0 - 0.5 + Q3 * Q3;
+      Half_Ex         : T_Float_2;
+      Half_Ey         : T_Float_2;
+      Half_Ez         : T_Float_2;
+      Q0_Tmp          : T_Float_3;
+      Q1_Tmp          : T_Float_3;
+      Q2_Tmp          : T_Float_3;
+      Q3_Tmp          : T_Float_3;
+      Qa              : constant T_Quaternion := Q0;
+      Qb              : constant T_Quaternion := Q1;
+      Qc              : constant T_Quaternion := Q2;
+      Ax_Lifted       : T_Acc_Lifted;
+      Ay_Lifted       : T_Acc_Lifted;
+      Az_Lifted       : T_Acc_Lifted;
+      Square_Sum      : Natural_Float;
+      Rate_Change_Gx  : T_Float_4 := Rad_Gx;
+      Rate_Change_Gy  : T_Float_4 := Rad_Gy;
+      Rate_Change_Gz  : T_Float_4 := Rad_Gy;
+      Integ_FB_Gx     : T_Float_5 := Rad_Gx;
+      Integ_FB_Gy     : T_Float_5 := Rad_Gy;
+      Integ_FB_Gz     : T_Float_5 := Rad_Gz;
    begin
-      --  Compute feedback only if accelerometer measurement valid
-      --  (avoids NaN in accelerometer normalisation)
       if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
          --  Normalize accelerometer measurement
          Ax_Lifted := Lift_Away_From_Zero (Ax);
          Ay_Lifted := Lift_Away_From_Zero (Ay);
          Az_Lifted := Lift_Away_From_Zero (Az);
-
          Square_Sum := Ax_Lifted * Ax_Lifted +
            Ay_Lifted * Ay_Lifted + Az_Lifted * Az_Lifted;
          --  We ensured that Ax_Tmp, Ay_Tmp, Az_Tmp are sufficiently far away
-         --  from zero so that the Square_Sum calculation results in a value
+         --  from zero with 'Lift_Away_From_Zero' function
+         --  so that the Square_Sum calculation results in a value
          --  diferent from 0.0 and positive.
          Recip_Norm := Inv_Sqrt (Square_Sum);
+         --  These asserts are only needed to help SPARK
          pragma Assert (Recip_Norm in 0.0 .. 2.7E+22);
          pragma Assert (Ax in -16.0 .. 16.0);
          pragma Assert (Ay in -16.0 .. 16.0);
@@ -287,14 +279,15 @@ is
       Q3_Tmp := Q3 +
         (Qa * Rate_Change_Gz + Qb * Rate_Change_Gy - Qc * Rate_Change_Gx);
 
-      pragma Assert (Q0_Tmp in
-                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q1_Tmp in
-                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q2_Tmp in
-                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q3_Tmp in
-                     -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      --  These asserts are only needed to help SPARK
+      pragma Assert
+        (Q0_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q1_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q2_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q3_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
 
       --  Normalize quaternions
       Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
@@ -312,6 +305,7 @@ is
                       T_Quaternion'First,
                       T_Quaternion'Last);
    end Mahony_Update_Q;
+
 
    procedure SensFusion6_Update_Q
      (Gx : T_Rate;

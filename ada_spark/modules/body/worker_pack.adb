@@ -1,6 +1,5 @@
-with Debug_Pack; use Debug_Pack;
-
 package body Worker_Pack
+  with SPARK_Mode
 is
    procedure Worker_Init is
    begin
@@ -19,8 +18,7 @@ is
       end if;
    end Worker_Test;
 
-   procedure Worker_Loop
-   is
+   procedure Worker_Loop is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer;
    begin
@@ -45,7 +43,7 @@ is
    function Worker_Schedule
      (Func_ID : Integer;
       Arg     : Pvoid) return Integer is
-      Work : Worker_Work := (None, System.Null_Address);
+      Work : Worker_Work;
       Res : Integer;
    begin
       --  No worker function registered for this ID
@@ -66,14 +64,18 @@ is
    end Worker_Schedule;
 
    procedure Log_Run_Worker (Arg : Pvoid) is
-      procedure Worker_Function (Arg : Pvoid);
+      procedure Worker_Function (Arg : Pvoid)
+        with
+          Global => null;
       pragma Import (C, Worker_Function, "logRunBlock");
    begin
       Worker_Function (Arg);
    end Log_Run_Worker;
 
    procedure Neo_Pixel_Ring_Worker (Arg : Pvoid) is
-      procedure Worker_Function (Arg : Pvoid);
+      procedure Worker_Function (Arg : Pvoid)
+     with
+       Global => null;
       pragma Import (C, Worker_Function, "neopixelringWorker");
    begin
       Worker_Function (Arg);

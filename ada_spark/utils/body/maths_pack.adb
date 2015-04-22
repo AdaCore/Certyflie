@@ -1,5 +1,3 @@
-with Ada.Unchecked_Conversion;
-with Interfaces; use Interfaces;
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 with Safety_Pack; use Safety_Pack;
 

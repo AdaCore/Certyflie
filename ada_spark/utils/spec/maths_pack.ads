@@ -1,4 +1,3 @@
-with Types; use Types;
 with Ada.Numerics; use Ada.Numerics;
 
 package Maths_Pack
@@ -12,8 +11,7 @@ is
 
    --  Procedures and functions
 
-   --  Fast inverse square root
-   --  See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
+   --  Return the inverse square root using the sqrtf builtin
    function Inv_Sqrt (X : Float) return Float
      with
        Pre  => X >= Float'Succ (0.0),
