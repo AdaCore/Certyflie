@@ -4,6 +4,7 @@ bin/*
 .cproject
 .project
 .settings/*
+ada_spark/test/src/stm32f4-drivers
 ada_spark/test/obj
 *~
 cflie.*

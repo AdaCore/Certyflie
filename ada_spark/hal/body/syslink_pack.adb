@@ -3,7 +3,6 @@ with UART_Syslink; use UART_Syslink;
 pragma Elaborate (UART_Syslink);
 with Radiolink_Pack; use Radiolink_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
-with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body Syslink_Pack is
 
@@ -50,7 +49,7 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
       --  TODO: call UART_Send_Data_DMA_Blocking
-      UART_Send_Data_DMA_Blocking (T_Uint32 (Data_Size), Tx_Buffer);
+      UART_Send_Data (T_Uint32 (Data_Size), Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
@@ -83,8 +82,8 @@ package body Syslink_Pack is
    begin
       loop
          delay until Next_Period;
-         UART_Get_Data_With_Timeout (Rx_Byte, Has_Succeed);
-         X_Put_Line ("Rx_Byte: " & T_Uint8'Image (Rx_Byte));
+         UART_Get_Data (Rx_Byte, Has_Succeed);
+
          case Rx_State is
             when WAIT_FOR_FIRST_START =>
 

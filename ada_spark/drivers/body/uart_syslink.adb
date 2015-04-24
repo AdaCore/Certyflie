@@ -5,30 +5,65 @@ with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body UART_Syslink is
 
-   procedure UART_Get_Data_With_Timeout
+   procedure Init_IO is
+      GPIO_Conf : GPIO_Port_Configuration;
+   begin
+      Enable_Clock (UART_GPIO_Port);
+
+      --  Rx/Tx pins
+      Configure_Alternate_Function (UART_GPIO_Port, (Rx_GPIO_Pin, Tx_GPIO_Pin),
+                                    UART_AF);
+      GPIO_Conf.Speed       := Speed_25MHz;
+      GPIO_Conf.Mode        := Mode_AF;
+      GPIO_Conf.Output_Type := Push_Pull;
+      GPIO_Conf.Resistors   := Pull_Up;
+      GPIO_Conf.Locked      := True;
+      Configure_IO (UART_GPIO_Port, (Rx_GPIO_Pin, Tx_GPIO_Pin), GPIO_Conf);
+
+      --  Controll flow pin
+      --  GPIO_Conf.Mode := Mode_In;
+      --  Configure_IO (CF_GPIO_Port, CF_GPIO_Pin, GPIO_Conf);
+   end Init_IO;
+
+   procedure Init_UART is
+   begin
+      Enable_Clock (UART_Port);
+
+      --  TODO: set to Crazyflie spec: 1_000_000
+      Set_Baud_Rate (UART_Port, 115_200);
+
+      --  Crazyflie has CTS flow control
+      --  Set_Flow_Control (UART_Port, CTS_Flow_Control);
+      Set_Flow_Control (UART_Port, No_Flow_Control);
+      Set_Mode (UART_Port, Tx_Rx_Mode);
+      Set_Parity (UART_Port, No_Parity);
+      Set_Stop_Bits (UART_Port, Stopbits_1);
+      Set_Word_Length (UART_Port, Word_Length_8);
+      Enable (UART_Port);
+   end Init_UART;
+
+   procedure UART_Get_Data
      (Rx_Byte      : out T_Uint8;
       Has_Suceed   : out Boolean) is
    begin
-      --  TODO: Implement the real function
-      Rx_Byte := Get_Current_Byte (Counter);
-      Counter := Counter + 1;
-      if Counter >= 19 then
-         Counter := 1;
-      end if;
-      Has_Suceed := True;
-   end UART_Get_Data_With_Timeout;
+      while not Rx_Ready (UART_Port) loop
+         null;
+      end loop;
 
-   procedure UART_Send_Data_DMA_Blocking
+      Receive (UART_Port, Rx_Byte);
+   end UART_Get_Data;
+
+   procedure UART_Send_Data
      (Data_Size : T_Uint32;
       Data      : UART_TX_Buffer) is
-      subtype UART_Data is T_Uint8_Array (1 .. Integer (Data_Size) - 6);
-      subtype Data_String is String (1 .. Integer (Data_Size) - 6);
-      function Data_To_String is new Ada.Unchecked_Conversion
-        (UART_Data, Data_String);
    begin
-      --  TODO: Implement the real function
-      X_Put_Line (Data_To_String (Data (5 .. Integer (Data_Size)- 2)));
-   end UART_Send_Data_DMA_Blocking;
+      for I in 1 .. Data_Size loop
+         while not Tx_Ready (UART_Port) loop
+            null;
+         end loop;
+         Transmit (UART_Port, Data (I));
+      end loop;
+   end UART_Send_Data;
 
    function Get_Current_Byte (Counter : Positive) return T_Uint8 is
       Roll   : constant Float := 20.0;

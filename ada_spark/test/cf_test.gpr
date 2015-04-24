@@ -1,8 +1,12 @@
 project Cf_Test is
+   --  Define if we want to test on the host or the target machine
+   type Modes is ("Native", "Target");
+   Mode : Modes := external ("MODE", "Native");
 
-   for Languages use ("Ada", "C");
+   for Languages use ("Ada");
    for Main use ("main.adb");
    for Source_Dirs use ("src",
+                        "src/stm32f4-drivers",
                         "..",
                         "../types/spec",
                         "../utils/spec",
@@ -19,6 +23,47 @@ project Cf_Test is
    for Exec_Dir use "obj";
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-g", "-gnatwa");
+      case Mode is
+         when "Native" =>
+            for Default_Switches ("Ada") use ("-g", "-gnatwa");
+         when "Target" =>
+            for Default_Switches ("ada") use ("-g", "-gnatwa", "-gnatQ", "-gnatw.X");
+      end case;
    end Compiler;
+
+   case Mode is
+      when "Target" =>
+         for Target use "arm-eabi";
+         for Runtime ("Ada") use "ravenscar-sfp-stm32f4";
+      when others =>
+   end case;
+
+   package Builder is
+      case Mode is
+         when "Target" =>
+            for Default_Switches ("ada") use ("-g");
+         when others =>
+      end case;
+   end Builder;
+
+   package Naming is
+      case Mode is
+         when "Target" =>
+            for Implementation ("last_chance_handler") use "last_chance_handler-stm32f429xx.adb";
+         when others =>
+      end case;
+   end Naming;
+
+   package Ide is
+      case Mode is
+         when "Target" =>
+            for Gnat use "arm-eabi-gnat";
+            for Gnatlist use "arm-eabi-gnatls";
+            for Debugger_Command use "arm-eabi-gdb";
+            for Program_Host use "localhost:4242";
+            for Communication_Protocol use "remote";
+         when others =>
+      end case;
+   end Ide;
+
 end Cf_Test;

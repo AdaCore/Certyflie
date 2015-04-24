@@ -1,5 +1,4 @@
 with Safety_Pack; use Safety_Pack;
-with Protected_IO_Pack; use Protected_IO_Pack;
 with Ada.Unchecked_Conversion;
 
 package body Commander_Pack is
@@ -142,10 +141,11 @@ package body Commander_Pack is
 
    procedure Print_Commands (Commands : Commander_Crtp_Values) is
    begin
-      X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
-      X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
-      X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
-      X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
+--        X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
+--        X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
+--        X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
+--        X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
+      null;
    end Print_Commands;
 
 end Commander_Pack;
