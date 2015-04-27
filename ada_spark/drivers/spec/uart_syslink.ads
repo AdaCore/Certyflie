@@ -1,44 +1,67 @@
 with Types; use Types;
-with STM32F4_Discovery; use STM32F4_Discovery;
+with Generic_Queue_Pack;
+with System;
+with Ada.Unchecked_Conversion;
+with Ada.Interrupts.Names; use Ada.Interrupts.Names;
+with STM32F4; use STM32F4;
+with STM32F4.DMA; use STM32F4.DMA;
 with STM32F4.GPIO; use STM32F4.GPIO;
 with STM32F4.USARTs; use STM32F4.USARTs;
-with STM32F4; use STM32F4;
-with Ada.Unchecked_Conversion;
+with STM32F4_Discovery; use STM32F4_Discovery;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package UART_Syslink is
 
    --  Types
 
-   subtype UART_TX_Buffer is T_Uint8_Array (1 .. 64);
+   subtype DMA_Data is T_Uint8_Array (1 .. 64);
 
    --  Procedures and functions
 
-   --  Initialize the GPIO port for UART
-   procedure Init_IO;
+   --  Initialize the UART Syslink interface
+   procedure UART_Syslink_Init;
 
-   --  Initialize the UART controller
-   procedure Init_UART;
+   --  Get one byte of data from UART, with a defined timeout
+   procedure UART_Get_Data_With_Timeout
+     (Rx_Byte     : out T_Uint8;
+      Has_Succeed : out Boolean);
 
-   --  Get data from UART controller
-   procedure UART_Get_Data
-     (Rx_Byte      : out T_Uint8;
-      Has_Succeed   : out Boolean);
-
-   procedure UART_Send_Data
+   --  Send data to DMA
+   procedure UART_Send_DMA_Data
      (Data_Size : Natural;
-      Data      : UART_TX_Buffer);
+      Data      : DMA_Data);
 
 private
 
+   package Byte_Queue is new Generic_Queue_Pack (T_Uint8);
+
    --  Global variables and constants
 
-   UART_Port      : USART renames STM32F4_Discovery.USART_6;
-   UART_GPIO_Port : GPIO_Port renames STM32F4_Discovery.GPIO_C;
-   Tx_GPIO_Pin : constant GPIO_Pin := Pin_6;
-   Rx_GPIO_Pin : constant GPIO_Pin := Pin_7;
-   UART_AF     : constant GPIO_Alternate_Function := GPIO_AF_USART6;
+   IO_Port : GPIO_Port renames GPIO_C;
 
-   Mask : constant := 16#FF#;
+   Transceiver : USART renames USART_6;
+   Transceiver_AF : constant GPIO_Alternate_Function := GPIO_AF_USART6;
+
+   TX_Pin : constant GPIO_Pin := Pin_6;
+   RX_Pin : constant GPIO_Pin := Pin_7;
+
+   Controller : DMA_Controller renames DMA_2;
+
+   Tx_Channel : constant DMA_Channel_Selector := Channel_5;
+   Tx_Stream : constant DMA_Stream_Selector := Stream_6;
+
+   DMA_Tx_IRQ : constant Ada.Interrupts.Interrupt_Id := DMA2_Stream6_Interrupt;
+   -- must match that of the selected controller and stream number!!!!
+
+   Bytes_To_Transfer : constant := DMA_Data'Length;
+
+   Source_Block  : DMA_Data := (others => 0);
+
+   Event_Kind : DMA_Interrupt;
+
+   UART_RX_QUEUE_SIZE : constant := 40;
+   UART_DATA_TIMEOUT_MS : constant Time_Span :=  Milliseconds (1_000);
+
 
    --  Procedures and functions
 
@@ -50,9 +73,48 @@ private
    function T_Uint8_To_Half_Word is
      new Ada.Unchecked_Conversion (T_Uint8, Half_Word);
 
-   --  For testing purpose
-   Counter : Positive := 1;
+   --  Initialize the HGPIO port and pins used for UART
+   procedure Initialize_GPIO_Port_Pins;
 
-   function Get_Current_Byte (Counter : Positive) return T_Uint8;
+   --  Initialize the USART/UART controller
+   procedure Initialize_USART;
+
+   --  Initialize the DMA for UART
+   procedure Initialize_DMA;
+
+   --  Tasks and protected objects
+
+   Rx_Queue : Byte_Queue.Protected_Queue
+     (System.Interrupt_Priority'Last, UART_RX_QUEUE_SIZE);
+
+   --  DMA Interrupt Handler for transmission
+   protected Tx_IRQ_Handler is
+      pragma Interrupt_Priority;
+
+      entry Await_Event (Occurrence : out DMA_Interrupt);
+
+   private
+
+      Event_Occurred : Boolean := False;
+      Event_Kind     : DMA_Interrupt;
+
+      procedure IRQ_Handler;
+      pragma Attach_Handler (IRQ_Handler, DMA_Tx_IRQ);
+   end Tx_IRQ_Handler;
+
+   --  Interrupt Handler for reception (DMA not used here)
+   protected Rx_IRQ_Handler is
+      pragma Interrupt_Priority;
+
+      entry Await_Event (Occurrence : out USART_Interrupt);
+
+   private
+
+      Event_Occurred : Boolean := False;
+      Event_Kind     : USART_Interrupt;
+
+      procedure IRQ_Handler;
+      pragma Attach_Handler (IRQ_Handler, USART6_Interrupt);
+   end Rx_IRQ_Handler;
 
 end UART_Syslink;

@@ -52,8 +52,8 @@ is
                          T_Error'Last * 2.0 * T_Delta_Time'Last);
 
       Pid.Integ := Saturate (Pid.Integ + Pid.Error * Pid.Dt,
-                              Pid.I_Limit_Low,
-                              Pid.I_Limit_High);
+                             Pid.I_Limit_Low,
+                             Pid.I_Limit_High);
 
       Pid.Deriv := (Pid.Error - Pid.Prev_Error) / Pid.Dt;
 

@@ -1,103 +1,215 @@
-with Syslink_Pack; use Syslink_Pack;
-with Crtp_Pack; use Crtp_Pack;
-
 package body UART_Syslink is
 
-   procedure Init_IO is
-      GPIO_Conf : GPIO_Port_Configuration;
+   --  Public procedures and functions
+
+   procedure UART_Syslink_Init is
    begin
-      Enable_Clock (UART_GPIO_Port);
+      Initialize_GPIO_Port_Pins;
+      Initialize_USART;
+      Initialize_DMA;
 
-      --  Rx/Tx pins
-      Configure_Alternate_Function (UART_GPIO_Port, (Rx_GPIO_Pin, Tx_GPIO_Pin),
-                                    UART_AF);
-      GPIO_Conf.Speed       := Speed_25MHz;
-      GPIO_Conf.Mode        := Mode_AF;
-      GPIO_Conf.Output_Type := Push_Pull;
-      GPIO_Conf.Resistors   := Pull_Up;
-      GPIO_Conf.Locked      := True;
-      Configure_IO (UART_GPIO_Port, (Rx_GPIO_Pin, Tx_GPIO_Pin), GPIO_Conf);
+      Enable (Transceiver);
+   end UART_Syslink_Init;
 
-      --  Controll flow pin
-      --  GPIO_Conf.Mode := Mode_In;
-      --  Configure_IO (CF_GPIO_Port, CF_GPIO_Pin, GPIO_Conf);
-   end Init_IO;
-
-   procedure Init_UART is
+   procedure UART_Get_Data_With_Timeout
+     (Rx_Byte     : out T_Uint8;
+      Has_Succeed : out Boolean) is
+      Timeout_Time : Time;
    begin
-      Enable_Clock (UART_Port);
-
-      --  TODO: set to Crazyflie spec: 1_000_000
-      Set_Baud_Rate (UART_Port, 115_200);
-
-      --  Crazyflie has CTS flow control
-      --  Set_Flow_Control (UART_Port, CTS_Flow_Control);
-      Set_Flow_Control (UART_Port, No_Flow_Control);
-      Set_Mode (UART_Port, Tx_Rx_Mode);
-      Set_Parity (UART_Port, No_Parity);
-      Set_Stop_Bits (UART_Port, Stopbits_1);
-      Set_Word_Length (UART_Port, Word_Length_8);
-      Enable (UART_Port);
-   end Init_UART;
-
-   procedure UART_Get_Data
-     (Rx_Byte      : out T_Uint8;
-      Has_Succeed   : out Boolean) is
-      Rx_Half_Word : Half_Word;
-   begin
-      while not Rx_Ready (UART_Port) loop
-         null;
+      Timeout_Time := Clock + UART_DATA_TIMEOUT_MS;
+      while Clock <= Timeout_Time loop
+         Rx_Queue.Dequeue_Item (Rx_Byte, Has_Succeed);
+         if Has_Succeed then
+            return;
+         end if;
       end loop;
+   end UART_Get_Data_With_Timeout;
 
-      Receive (UART_Port, Rx_Half_Word);
-      Rx_Byte := Half_Word_To_T_Uint8 (Rx_Half_Word and Mask);
-      Has_Succeed := True;
-   end UART_Get_Data;
-
-   procedure UART_Send_Data
+   procedure UART_Send_DMA_Data
      (Data_Size : Natural;
-      Data      : UART_TX_Buffer) is
+      Data      : DMA_Data) is
    begin
-      for I in 1 .. Data_Size loop
-         while not Tx_Ready (UART_Port) loop
-            null;
-         end loop;
-         Transmit (UART_Port, T_Uint8_To_Half_Word (Data (I) and Mask));
+
+   end UART_Send_DMA_Data;
+
+   --  Private procedures and functions
+
+   procedure Initialize_GPIO_Port_Pins is
+      Configuration : GPIO_Port_Configuration;
+   begin
+      Enable_Clock (IO_Port);
+
+      Configuration.Mode := Mode_AF;
+      Configuration.Speed := Speed_50MHz;
+      Configuration.Output_Type := Push_Pull;
+      Configuration.Resistors := Pull_Up;
+
+      Configure_IO
+        (Port   => IO_Port,
+         Pins   => Rx_Pin & Tx_Pin,
+         Config => Configuration);
+
+      Configure_Alternate_Function
+        (Port => IO_Port,
+         Pins => Rx_Pin & Tx_Pin,
+         AF   => Transceiver_AF);
+   end Initialize_GPIO_Port_Pins;
+
+   procedure Initialize_USART is
+   begin
+      Enable_Clock (Transceiver);
+
+      Enable (Transceiver);
+
+      Set_Baud_Rate    (Transceiver, 115_200);
+      Set_Mode         (Transceiver, Tx_Mode);
+      Set_Stop_Bits    (Transceiver, Stopbits_1);
+      Set_Word_Length  (Transceiver, Word_Length_8);
+      Set_Parity       (Transceiver, No_Parity);
+      Set_Flow_Control (Transceiver, No_Flow_Control);
+   end Initialize_USART;
+
+   procedure Initialize_DMA is
+      Configuration : DMA_Stream_Configuration;
+   begin
+      Enable_Clock (Controller);
+
+      Configuration.Channel                      := Tx_Channel;
+      Configuration.Direction                    := Memory_To_Peripheral;
+      Configuration.Increment_Peripheral_Address := False;
+      Configuration.Increment_Memory_Address     := True;
+      Configuration.Peripheral_Data_Format       := Bytes;
+      Configuration.Memory_Data_Format           := Bytes;
+      Configuration.Operation_Mode               := Normal_Mode;
+      Configuration.Priority                     := Priority_Very_High;
+      Configuration.FIFO_Enabled                 := True;
+      Configuration.FIFO_Threshold               := FIFO_Threshold_Full_Configuration;
+      Configuration.Memory_Burst_Size            := Memory_Burst_Inc4;
+      Configuration.Peripheral_Burst_Size        := Peripheral_Burst_Inc4;
+
+      Configure (Controller, Tx_Stream, Configuration);
+      --  note the controller is disabled by the call to Configure
+   end Initialize_DMA;
+
+    -------------------------------
+   -- Finalize_DMA_Transmission --
+   -------------------------------
+
+   procedure Finalize_DMA_Transmission (Transceiver : in out USART) is
+      --  see static void USART_DMATransmitCplt
+   begin
+      loop
+         exit when Status (Transceiver, Transmission_Complete_Indicated);
       end loop;
-   end UART_Send_Data;
+      Clear_Status (Transceiver, Transmission_Complete_Indicated);
+      Disable_DMA_Transmit_Requests (Transceiver);
+   end Finalize_DMA_Transmission;
 
-   function Get_Current_Byte (Counter : Positive) return T_Uint8 is
-      Roll   : constant Float := 20.0;
-      Pitch  : constant Float := 30.0;
-      Yaw    : constant Float := 40.0;
-      Thrust : constant T_Uint16 := 30;
-      Handler : Crtp_Packet_Handler;
-      Packet  : Crtp_Packet;
-      Has_Succeed : Boolean;
-      procedure Crtp_Append_Float_Data is new Crtp_Append_Data (Float);
-      procedure Crtp_Append_T_Uint16_Data is new Crtp_Append_Data (T_Uint16);
-   begin
-      Handler := Crtp_Create_Packet (CRTP_PORT_COMMANDER, 0);
-      Crtp_Append_Float_Data (Handler, Roll, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, Pitch, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, Yaw, Has_Succeed);
-      Crtp_Append_T_Uint16_Data (Handler, Thrust, Has_Succeed);
-      Packet := Crtp_Get_Packet_From_Handler (Handler);
+   --  Tasks and protected objects
 
-      case Counter is
-         when 1 =>
-            return SYSLINK_START_BYTE1;
-         when 2 =>
-            return SYSLINK_START_BYTE2;
-         when 3 =>
-            return Syslink_Packet_Type'Enum_Rep (SYSLINK_RADIO_RAW);
-         when 4 =>
-            return Packet.Size + 1;
-         when 5 =>
-            return Packet.Header;
-         when others =>
-            return Packet.Data_1 (Counter - 5);
-      end case;
-   end Get_Current_Byte;
+   protected body Tx_IRQ_Handler is
+
+      entry Await_Event (Occurrence : out DMA_Interrupt) when Event_Occurred is
+      begin
+         Occurrence := Event_Kind;
+         Event_Occurred := False;
+      end Await_Event;
+
+      procedure IRQ_Handler is
+      begin
+         --  Transfer Error Interrupt management
+         if Status (Controller, Tx_Stream, Transfer_Error_Indicated) then
+            if Interrupt_Enabled (Controller, Tx_Stream, Transfer_Error_Interrupt) then
+               Disable_Interrupt (Controller, Tx_Stream, Transfer_Error_Interrupt);
+               Clear_Status (Controller, Tx_Stream, Transfer_Error_Indicated);
+               Event_Kind := Transfer_Error_Interrupt;
+               Event_Occurred := True;
+               return;
+            end if;
+         end if;
+
+         --  FIFO Error Interrupt management
+         if Status (Controller, Tx_Stream, FIFO_Error_Indicated) then
+            if Interrupt_Enabled (Controller, Tx_Stream, FIFO_Error_Interrupt) then
+               Disable_Interrupt (Controller, Tx_Stream, FIFO_Error_Interrupt);
+               Clear_Status (Controller, Tx_Stream, FIFO_Error_Indicated);
+               Event_Kind := FIFO_Error_Interrupt;
+               Event_Occurred := True;
+               return;
+            end if;
+         end if;
+
+         --  Direct Mode Error Interrupt management
+         if Status (Controller, Tx_Stream, Direct_Mode_Error_Indicated) then
+            if Interrupt_Enabled (Controller, Tx_Stream, Direct_Mode_Error_Interrupt) then
+               Disable_Interrupt (Controller, Tx_Stream, Direct_Mode_Error_Interrupt);
+               Clear_Status (Controller, Tx_Stream, Direct_Mode_Error_Indicated);
+               Event_Kind := Direct_Mode_Error_Interrupt;
+               Event_Occurred := True;
+               return;
+            end if;
+         end if;
+
+         --  Half Transfer Complete Interrupt management
+         if Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated) then
+            if Interrupt_Enabled (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt) then
+               if Double_Buffered (Controller, Tx_Stream) then
+                  Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
+               else -- not double buffered
+                  if not Circular_Mode (Controller, Tx_Stream) then
+                     Disable_Interrupt (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt);
+                  end if;
+                  Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
+               end if;
+--                 Event_Kind := Half_Transfer_Complete_Interrupt;
+--                 Event_Occurred := True;
+            end if;
+         end if;
+
+         --  Transfer Complete Interrupt management
+         if Status (Controller, Tx_Stream, Transfer_Complete_Indicated) then
+            if Interrupt_Enabled (Controller, Tx_Stream, Transfer_Complete_Interrupt) then
+                if Double_Buffered (Controller, Tx_Stream) then
+                   Clear_Status (Controller, Tx_Stream, Transfer_Complete_Indicated);
+                   --  TODO: handle the difference between M0 and M1 callbacks
+                else
+                   if not Circular_Mode (Controller, Tx_Stream) then
+                      Disable_Interrupt (Controller, Tx_Stream, Transfer_Complete_Interrupt);
+                   end if;
+                  Clear_Status (Controller, Tx_Stream, Transfer_Complete_Indicated);
+                end if;
+               Finalize_DMA_Transmission (Transceiver);
+               Event_Kind := Transfer_Complete_Interrupt;
+               Event_Occurred := True;
+            end if;
+         end if;
+      end IRQ_Handler;
+
+   end Tx_IRQ_Handler;
+
+   protected body Rx_IRQ_Handler is
+
+      entry Await_Event (Occurrence : out USART_Interrupt)
+        when Event_Occurred is
+      begin
+         Occurrence := Event_Kind;
+         Event_Occurred := False;
+      end Await_Event;
+
+      procedure IRQ_Handler is
+         Has_Suceed : Boolean;
+      begin
+         --  Received data interrupt management
+         if Status (Transceiver, Read_Data_Register_Not_Empty) then
+            Rx_Queue.Enqueue_Item
+              (Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#),
+               Has_Suceed);
+            Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
+            Event_Kind := Received_Data_Not_Empty;
+            Event_Occurred := True;
+         end if;
+      end IRQ_Handler;
+
+   end Rx_IRQ_Handler;
 
 end UART_Syslink;

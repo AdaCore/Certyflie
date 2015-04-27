@@ -19,7 +19,7 @@ package Generic_Queue_Pack is
    function Is_Full (Queue : in T_Queue) return Boolean;
 
    protected type Protected_Queue
-     (Ceiling    : System.Priority;
+     (Ceiling    : System.Any_Priority;
       Queue_Size : Positive)is
       procedure Enqueue_Item
         (Item         : T_Element;

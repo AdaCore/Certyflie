@@ -16,8 +16,8 @@ package body Syslink_Pack is
          return;
       end if;
 
-      Init_IO;
-      Init_UART;
+      UART_Syslink_Init;
+
       Set_True (Syslink_Access);
       Is_Init := True;
    end Syslink_Init;
@@ -51,7 +51,7 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
       --  TODO: call UART_Send_Data_DMA_Blocking
-      UART_Send_Data (Data_Size, Tx_Buffer);
+      --  UART_Send_Data (Data_Size, Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
@@ -83,11 +83,11 @@ package body Syslink_Pack is
       Has_Succeed  : Boolean;
    begin
       loop
-         UART_Get_Data (Rx_Byte, Has_Succeed);
+         --  UART_Get_Data (Rx_Byte, Has_Succeed);
          --  TODO: remove this after testing the connection
          --  between host and STM32f4
          Tx_Data (1) := Rx_Byte;
-         UART_Send_Data (1, Tx_Data);
+         --  UART_Send_Data (1, Tx_Data);
 
          case Rx_State is
             when WAIT_FOR_FIRST_START =>
