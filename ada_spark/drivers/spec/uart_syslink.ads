@@ -3,6 +3,7 @@ with STM32F4_Discovery; use STM32F4_Discovery;
 with STM32F4.GPIO; use STM32F4.GPIO;
 with STM32F4.USARTs; use STM32F4.USARTs;
 with STM32F4; use STM32F4;
+with Ada.Unchecked_Conversion;
 
 package UART_Syslink is
 
@@ -21,10 +22,10 @@ package UART_Syslink is
    --  Get data from UART controller
    procedure UART_Get_Data
      (Rx_Byte      : out T_Uint8;
-      Has_Suceed   : out Boolean);
+      Has_Succeed   : out Boolean);
 
    procedure UART_Send_Data
-     (Data_Size : T_Uint32;
+     (Data_Size : Natural;
       Data      : UART_TX_Buffer);
 
 private
@@ -36,6 +37,18 @@ private
    Tx_GPIO_Pin : constant GPIO_Pin := Pin_6;
    Rx_GPIO_Pin : constant GPIO_Pin := Pin_7;
    UART_AF     : constant GPIO_Alternate_Function := GPIO_AF_USART6;
+
+   Mask : constant := 16#FF#;
+
+   --  Procedures and functions
+
+   --  Convert 16-Bit word to T_Uint8
+   function Half_Word_To_T_Uint8 is
+     new Ada.Unchecked_Conversion (Half_Word, T_Uint8);
+
+   --  Convert T_Uint8 to 16-Bit words
+   function T_Uint8_To_Half_Word is
+     new Ada.Unchecked_Conversion (T_Uint8, Half_Word);
 
    --  For testing purpose
    Counter : Positive := 1;

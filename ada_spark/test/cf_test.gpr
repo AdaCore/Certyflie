@@ -22,12 +22,16 @@ project Cf_Test is
    for Object_Dir use "obj";
    for Exec_Dir use "obj";
 
+   --  Export run-times's variables
+   type Loaders is ("ROM", "RAM");
+   Loader : Loaders := external ("LOADER", "ROM");
+
    package Compiler is
       case Mode is
          when "Native" =>
             for Default_Switches ("Ada") use ("-g", "-gnatwa");
          when "Target" =>
-            for Default_Switches ("ada") use ("-g", "-gnatwa", "-gnatQ", "-gnatw.X");
+            for Default_Switches ("ada") use ("-g", "-gnatwa", "-gnatQ", "-gnatw.X", "-Os");
       end case;
    end Compiler;
 

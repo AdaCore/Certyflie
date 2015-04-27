@@ -1,7 +1,5 @@
-with Ada.Unchecked_Conversion;
 with Syslink_Pack; use Syslink_Pack;
 with Crtp_Pack; use Crtp_Pack;
-with Protected_IO_Pack; use Protected_IO_Pack;
 
 package body UART_Syslink is
 
@@ -44,24 +42,27 @@ package body UART_Syslink is
 
    procedure UART_Get_Data
      (Rx_Byte      : out T_Uint8;
-      Has_Suceed   : out Boolean) is
+      Has_Succeed   : out Boolean) is
+      Rx_Half_Word : Half_Word;
    begin
       while not Rx_Ready (UART_Port) loop
          null;
       end loop;
 
-      Receive (UART_Port, Rx_Byte);
+      Receive (UART_Port, Rx_Half_Word);
+      Rx_Byte := Half_Word_To_T_Uint8 (Rx_Half_Word and Mask);
+      Has_Succeed := True;
    end UART_Get_Data;
 
    procedure UART_Send_Data
-     (Data_Size : T_Uint32;
+     (Data_Size : Natural;
       Data      : UART_TX_Buffer) is
    begin
       for I in 1 .. Data_Size loop
          while not Tx_Ready (UART_Port) loop
             null;
          end loop;
-         Transmit (UART_Port, Data (I));
+         Transmit (UART_Port, T_Uint8_To_Half_Word (Data (I) and Mask));
       end loop;
    end UART_Send_Data;
 

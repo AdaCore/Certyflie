@@ -2,7 +2,6 @@ with Ada.Unchecked_Conversion;
 with UART_Syslink; use UART_Syslink;
 pragma Elaborate (UART_Syslink);
 with Radiolink_Pack; use Radiolink_Pack;
-with Ada.Real_Time; use Ada.Real_Time;
 
 package body Syslink_Pack is
 
@@ -17,7 +16,10 @@ package body Syslink_Pack is
          return;
       end if;
 
+      Init_IO;
+      Init_UART;
       Set_True (Syslink_Access);
+      Is_Init := True;
    end Syslink_Init;
 
    function Syslink_Test return Bool is
@@ -49,7 +51,7 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
       --  TODO: call UART_Send_Data_DMA_Blocking
-      UART_Send_Data (T_Uint32 (Data_Size), Tx_Buffer);
+      UART_Send_Data (Data_Size, Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
@@ -75,14 +77,17 @@ package body Syslink_Pack is
       Rx_State     : Syslink_Rx_State := WAIT_FOR_FIRST_START;
       Rx_Sl_Packet : Syslink_Packet;
       Rx_Byte      : T_Uint8;
+      Tx_Data      : UART_TX_Buffer;
       Data_Index   : Positive := 1;
       Chk_Sum      : array (1 .. 2) of T_Uint8;
       Has_Succeed  : Boolean;
-      Next_Period  : Time := Clock + Seconds (1);
    begin
       loop
-         delay until Next_Period;
          UART_Get_Data (Rx_Byte, Has_Succeed);
+         --  TODO: remove this after testing the connection
+         --  between host and STM32f4
+         Tx_Data (1) := Rx_Byte;
+         UART_Send_Data (1, Tx_Data);
 
          case Rx_State is
             when WAIT_FOR_FIRST_START =>
@@ -136,7 +141,6 @@ package body Syslink_Pack is
                end if;
                Rx_State := WAIT_FOR_FIRST_START;
          end case;
-         Next_Period := Next_Period + Milliseconds (500);
       end loop;
    end Syslink_Task;
 
