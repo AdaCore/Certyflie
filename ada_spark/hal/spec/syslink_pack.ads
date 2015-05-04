@@ -4,11 +4,12 @@
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
+with UART_Syslink; use UART_Syslink;
 with System;
 
 package Syslink_Pack is
 
-   --  Constants
+   --  Global variables and constants
 
    --  Size of Syslink packet data
    SYSLINK_MTU      : constant := 31;
@@ -19,6 +20,8 @@ package Syslink_Pack is
    SYSLINK_START_BYTE2 : constant T_Uint8 := 16#CF#;
    --  Bitwise mask to get the group type of a packet
    SYSLINK_GROUP_MASK : constant T_Uint8 := 16#F0#;
+
+   Tx_Buffer : DMA_Data;
 
    --  Types
 

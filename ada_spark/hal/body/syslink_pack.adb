@@ -1,14 +1,7 @@
 with Ada.Unchecked_Conversion;
-with UART_Syslink; use UART_Syslink;
-pragma Elaborate (UART_Syslink);
 with Radiolink_Pack; use Radiolink_Pack;
 
 package body Syslink_Pack is
-
-   --  TODO: Move this variable in the private part of the package
-   --  when the with clause for Syslink_Pack won't be needed in the
-   --  UART_Syslink_Pack
-   Tx_Buffer : UART_TX_Buffer;
 
    procedure Syslink_Init is
    begin
@@ -77,17 +70,12 @@ package body Syslink_Pack is
       Rx_State     : Syslink_Rx_State := WAIT_FOR_FIRST_START;
       Rx_Sl_Packet : Syslink_Packet;
       Rx_Byte      : T_Uint8;
-      Tx_Data      : UART_TX_Buffer;
       Data_Index   : Positive := 1;
       Chk_Sum      : array (1 .. 2) of T_Uint8;
       Has_Succeed  : Boolean;
    begin
       loop
-         --  UART_Get_Data (Rx_Byte, Has_Succeed);
-         --  TODO: remove this after testing the connection
-         --  between host and STM32f4
-         Tx_Data (1) := Rx_Byte;
-         --  UART_Send_Data (1, Tx_Data);
+         UART_Get_Data_With_Timeout (Rx_Byte, Has_Succeed);
 
          case Rx_State is
             when WAIT_FOR_FIRST_START =>

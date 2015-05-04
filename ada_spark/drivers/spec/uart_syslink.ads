@@ -16,6 +16,9 @@ package UART_Syslink is
 
    subtype DMA_Data is T_Uint8_Array (1 .. 64);
 
+   type USART_Error is
+     (No_Err, Parity_Err, Framing_Err, Noise_Err, Overrun_Err);
+
    --  Procedures and functions
 
    --  Initialize the UART Syslink interface
@@ -62,7 +65,6 @@ private
    UART_RX_QUEUE_SIZE : constant := 40;
    UART_DATA_TIMEOUT_MS : constant Time_Span :=  Milliseconds (1_000);
 
-
    --  Procedures and functions
 
    --  Convert 16-Bit word to T_Uint8
@@ -79,8 +81,11 @@ private
    --  Initialize the USART/UART controller
    procedure Initialize_USART;
 
-   --  Initialize the DMA for UART
+   --  Initialize the DMA for UART, used for transmission
    procedure Initialize_DMA;
+
+   --  Initialize USART/UART IRQ used for reception
+   procedure Enable_USART_Rx_IRQ;
 
    --  Tasks and protected objects
 
@@ -112,6 +117,7 @@ private
 
       Event_Occurred : Boolean := False;
       Event_Kind     : USART_Interrupt;
+      Rx_Error       : USART_Error := No_Err;
 
       procedure IRQ_Handler;
       pragma Attach_Handler (IRQ_Handler, USART6_Interrupt);

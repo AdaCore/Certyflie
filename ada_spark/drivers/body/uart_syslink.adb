@@ -6,9 +6,8 @@ package body UART_Syslink is
    begin
       Initialize_GPIO_Port_Pins;
       Initialize_USART;
+      Enable_USART_Rx_IRQ;
       Initialize_DMA;
-
-      Enable (Transceiver);
    end UART_Syslink_Init;
 
    procedure UART_Get_Data_With_Timeout
@@ -29,7 +28,33 @@ package body UART_Syslink is
      (Data_Size : Natural;
       Data      : DMA_Data) is
    begin
+      Source_Block (1 .. Data_Size) := Data (1 .. Data_Size);
 
+      Start_Transfer_With_Interrupts
+        (Controller,
+         Tx_Stream,
+         Source      => Source_Block'Address,
+         Destination => Data_Register_Address (Transceiver),
+         Data_Count  => Bytes_To_Transfer);
+      --  also enables the stream
+
+      -- TODO: clear the flags esp the overrun flag   ???
+
+      Enable_DMA_Transmit_Requests (Transceiver);
+
+      Tx_IRQ_Handler.Await_Event (Event_Kind);
+      case Event_Kind is
+         when Direct_Mode_Error_Interrupt      =>
+            null;
+         when FIFO_Error_Interrupt             =>
+            null;
+         when Transfer_Error_Interrupt         =>
+            null;
+         when Half_Transfer_Complete_Interrupt =>
+            null;
+         when Transfer_Complete_Interrupt      =>
+            Source_Block := (others => 0);
+      end case;
    end UART_Send_DMA_Data;
 
    --  Private procedures and functions
@@ -91,7 +116,14 @@ package body UART_Syslink is
       --  note the controller is disabled by the call to Configure
    end Initialize_DMA;
 
-    -------------------------------
+   procedure Enable_USART_Rx_IRQ is
+   begin
+      Enable_Interrupts (Transceiver, Parity_Error);
+      Enable_Interrupts (Transceiver, Error);
+      Enable_Interrupts (Transceiver, Received_Data_Not_Empty);
+   end Enable_USART_Rx_IRQ;
+
+   -------------------------------
    -- Finalize_DMA_Transmission --
    -------------------------------
 
@@ -199,6 +231,38 @@ package body UART_Syslink is
       procedure IRQ_Handler is
          Has_Suceed : Boolean;
       begin
+         --  check for parity error
+         if Status (Transceiver, Parity_Error_Indicated) and
+           Interrupt_Enabled (Transceiver, Parity_Error)
+         then
+            Clear_Status (Transceiver, Parity_Error_Indicated);
+            Rx_Error := Parity_Err;
+         end if;
+
+         --  check for framing error
+         if Status (Transceiver, Framing_Error_Indicated) and
+           Interrupt_Enabled (Transceiver, Error)
+         then
+            Clear_Status (Transceiver, Framing_Error_Indicated);
+            Rx_Error := Framing_Err;
+         end if;
+
+         -- check for noise error
+         if Status (Transceiver, USART_Noise_Error_Indicated) and
+           Interrupt_Enabled (Transceiver, Error)
+         then
+            Clear_Status (Transceiver, USART_Noise_Error_Indicated);
+            Rx_Error := Noise_Err;
+         end if;
+
+         -- check for overrun error
+         if Status (Transceiver, Overrun_Error_Indicated) and
+           Interrupt_Enabled (Transceiver, Error)
+         then
+            Clear_Status (Transceiver, Overrun_Error_Indicated);
+            Rx_Error := Overrun_Err;
+         end if;
+
          --  Received data interrupt management
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
             Rx_Queue.Enqueue_Item
