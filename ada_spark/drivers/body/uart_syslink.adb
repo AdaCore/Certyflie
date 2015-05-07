@@ -4,10 +4,13 @@ package body UART_Syslink is
 
    procedure UART_Syslink_Init is
    begin
-      Initialize_GPIO_Port_Pins;
       Initialize_USART;
-      Enable_USART_Rx_IRQ;
+      Configure_USART;
       Initialize_DMA;
+
+      Enable (Transceiver);
+
+      Enable_USART_Rx_Interrupts;
    end UART_Syslink_Init;
 
    procedure UART_Get_Data_With_Timeout
@@ -59,9 +62,10 @@ package body UART_Syslink is
 
    --  Private procedures and functions
 
-   procedure Initialize_GPIO_Port_Pins is
+   procedure Initialize_USART is
       Configuration : GPIO_Port_Configuration;
    begin
+      Enable_Clock (Transceiver);
       Enable_Clock (IO_Port);
 
       Configuration.Mode := Mode_AF;
@@ -69,30 +73,30 @@ package body UART_Syslink is
       Configuration.Output_Type := Push_Pull;
       Configuration.Resistors := Pull_Up;
 
-      Configure_IO
-        (Port   => IO_Port,
-         Pins   => Rx_Pin & Tx_Pin,
+         Configure_IO
+        (Port => IO_Port,
+         Pins => Rx_Pin & Tx_Pin,
          Config => Configuration);
 
       Configure_Alternate_Function
         (Port => IO_Port,
          Pins => Rx_Pin & Tx_Pin,
          AF   => Transceiver_AF);
-   end Initialize_GPIO_Port_Pins;
+   end Initialize_USART;
 
-   procedure Initialize_USART is
+   procedure Configure_USART is
    begin
-      Enable_Clock (Transceiver);
-
-      Enable (Transceiver);
+      Disable (Transceiver);
 
       Set_Baud_Rate    (Transceiver, 115_200);
-      Set_Mode         (Transceiver, Tx_Mode);
+      Set_Mode         (Transceiver, Tx_Rx_Mode);
       Set_Stop_Bits    (Transceiver, Stopbits_1);
       Set_Word_Length  (Transceiver, Word_Length_8);
       Set_Parity       (Transceiver, No_Parity);
       Set_Flow_Control (Transceiver, No_Flow_Control);
-   end Initialize_USART;
+
+      Enable (Transceiver);
+   end Configure_USART;
 
    procedure Initialize_DMA is
       Configuration : DMA_Stream_Configuration;
@@ -116,16 +120,12 @@ package body UART_Syslink is
       --  note the controller is disabled by the call to Configure
    end Initialize_DMA;
 
-   procedure Enable_USART_Rx_IRQ is
+   procedure Enable_USART_Rx_Interrupts is
    begin
-      Enable_Interrupts (Transceiver, Parity_Error);
-      Enable_Interrupts (Transceiver, Error);
-      Enable_Interrupts (Transceiver, Received_Data_Not_Empty);
-   end Enable_USART_Rx_IRQ;
-
-   -------------------------------
-   -- Finalize_DMA_Transmission --
-   -------------------------------
+      Enable_Interrupts (Transceiver, Source => Parity_Error);
+      Enable_Interrupts (Transceiver, Source => Error);
+      Enable_Interrupts (Transceiver, Source => Received_Data_Not_Empty);
+   end Enable_USART_Rx_Interrupts;
 
    procedure Finalize_DMA_Transmission (Transceiver : in out USART) is
       --  see static void USART_DMATransmitCplt
@@ -193,8 +193,8 @@ package body UART_Syslink is
                   end if;
                   Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
                end if;
---                 Event_Kind := Half_Transfer_Complete_Interrupt;
---                 Event_Occurred := True;
+               Event_Kind := Half_Transfer_Complete_Interrupt;
+               Event_Occurred := True;
             end if;
          end if;
 
@@ -229,7 +229,7 @@ package body UART_Syslink is
       end Await_Event;
 
       procedure IRQ_Handler is
-         Has_Suceed : Boolean;
+         Has_Succeed : Boolean;
       begin
          --  check for parity error
          if Status (Transceiver, Parity_Error_Indicated) and
@@ -267,7 +267,7 @@ package body UART_Syslink is
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
             Rx_Queue.Enqueue_Item
               (Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#),
-               Has_Suceed);
+               Has_Succeed);
             Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
             Event_Kind := Received_Data_Not_Empty;
             Event_Occurred := True;

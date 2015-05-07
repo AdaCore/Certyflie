@@ -107,8 +107,4 @@ private
    --  Get T_Uint16 data from a CRTP Packet
    procedure Crtp_Get_T_Uint16_Data is new Crtp_Get_Data (T_Uint16);
 
-   --  Test function used to test the CRTP Protocol implementation
-   --  using Ravenscar
-   procedure Print_Commands (Commands : Commander_Crtp_Values);
-
 end Commander_Pack;

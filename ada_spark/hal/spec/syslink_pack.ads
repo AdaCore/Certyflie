@@ -4,7 +4,9 @@
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
+with Ada.Unchecked_Conversion;
 with UART_Syslink; use UART_Syslink;
+
 with System;
 
 package Syslink_Pack is
@@ -63,6 +65,7 @@ package Syslink_Pack is
                                 SYSLINK_OW_GETINFO            => 16#21#,
                                 SYSLINK_OW_READ               => 16#22#,
                                 SYSLINK_OW_WRITE              => 16#23#);
+   for Syslink_Packet_Type'Size use 8;
 
    --  Type for Syslink packet data
    subtype Syslink_Data is T_Uint8_Array (1 .. SYSLINK_MTU);
@@ -99,6 +102,9 @@ private
    Syslink_Access : Suspension_Object;
 
    --  Procedures and functions
+
+   function T_Uint8_To_Slp_Type is new Ada.Unchecked_Conversion
+     (T_Uint8, Syslink_Packet_Type);
 
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet);
 

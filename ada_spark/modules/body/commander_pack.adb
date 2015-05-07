@@ -22,6 +22,7 @@ package body Commander_Pack is
    end Commander_Test;
 
    procedure Commander_Crtp_Handler (Packet : Crtp_Packet) is
+      Has_Succeed : Boolean;
    begin
       Side := not Side;
       Target_Val (Side) := Get_Commands_From_Packet (Packet);
@@ -32,7 +33,7 @@ package body Commander_Pack is
 
       --  TODO: remove teh call to Print_Caommands when testing done
       Commander_Watchdog_Reset;
-      Print_Commands (Target_Val (Side));
+      Crtp_Send_Packet (Packet, Has_Succeed);
    end Commander_Crtp_Handler;
 
    procedure Commander_Get_RPY
@@ -138,14 +139,5 @@ package body Commander_Pack is
 
       return Commands;
    end Get_Commands_From_Packet;
-
-   procedure Print_Commands (Commands : Commander_Crtp_Values) is
-   begin
---        X_Put_Line ("Roll: " & Float'Image (Commands.Roll));
---        X_Put_Line ("Pitch: " & Float'Image (Commands.Pitch));
---        X_Put_Line ("Yaw: " & Float'Image (Commands.Yaw));
---        X_Put_Line ("Thrust: " & T_Uint16'Image (Commands.Thrust));
-      null;
-   end Print_Commands;
 
 end Commander_Pack;

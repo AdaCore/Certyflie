@@ -1,4 +1,3 @@
-with Ada.Unchecked_Conversion;
 with Radiolink_Pack; use Radiolink_Pack;
 
 package body Syslink_Pack is
@@ -44,7 +43,7 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
       --  TODO: call UART_Send_Data_DMA_Blocking
-      --  UART_Send_Data (Data_Size, Tx_Buffer);
+      UART_Send_DMA_Data (Data_Size, Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
@@ -59,7 +58,7 @@ package body Syslink_Pack is
       case Group_Type is
          when SYSLINK_RADIO_GROUP =>
             Radiolink_Syslink_Dispatch (Rx_Sl_Packet);
-            --  TODO: Dispatch the syslink packets to teh other modules
+            --  TODO: Dispatch the syslink packets to the other modules
             --  when they will be implemented
          when others =>
             null;
@@ -92,7 +91,7 @@ package body Syslink_Pack is
             when WAIT_FOR_TYPE =>
                Chk_Sum (1) := Rx_Byte;
                Chk_Sum (2) := Rx_Byte;
-               Rx_Sl_Packet.Slp_Type := Syslink_Packet_Type'Val (Rx_Byte);
+               Rx_Sl_Packet.Slp_Type := T_Uint8_To_Slp_Type (Rx_Byte);
                Rx_State := WAIT_FOR_LENGTH;
             when WAIT_FOR_LENGTH =>
                if Rx_Byte <= SYSLINK_MTU then

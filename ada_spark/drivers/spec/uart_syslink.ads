@@ -75,17 +75,17 @@ private
    function T_Uint8_To_Half_Word is
      new Ada.Unchecked_Conversion (T_Uint8, Half_Word);
 
-   --  Initialize the HGPIO port and pins used for UART
-   procedure Initialize_GPIO_Port_Pins;
-
-   --  Initialize the USART/UART controller
+   --  Initialize the STM32F4 USART controller
    procedure Initialize_USART;
 
-   --  Initialize the DMA for UART, used for transmission
+   --  Configure the STM32F4 USART controller
+   procedure Configure_USART;
+
+   --  Initialize the STM32F4 DMA controller
    procedure Initialize_DMA;
 
-   --  Initialize USART/UART IRQ used for reception
-   procedure Enable_USART_Rx_IRQ;
+   --  Enable USART interrupts in reception
+   procedure Enable_USART_Rx_Interrupts;
 
    --  Tasks and protected objects
 
