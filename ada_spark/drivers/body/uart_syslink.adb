@@ -46,6 +46,7 @@ package body UART_Syslink is
       Enable_DMA_Transmit_Requests (Transceiver);
 
       Tx_IRQ_Handler.Await_Event (Event_Kind);
+
       case Event_Kind is
          when Direct_Mode_Error_Interrupt      =>
             null;

@@ -1,6 +1,7 @@
 with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package body Crtp_Pack is
 
@@ -8,41 +9,41 @@ package body Crtp_Pack is
       Packet : Crtp_Packet;
       Has_Succeed : Boolean;
    begin
---        loop
---           Tx_Queue.Dequeue_Item
---             (Packet, Has_Succeed);
---
---           if Has_Succeed then
---              Has_Succeed := Link_Send_Packet (Packet);
---
---              --  Keep testing, if the link changes to USB it will go through
---              while not Has_Succeed loop
---                 Has_Succeed := Link_Send_Packet (Packet);
---              end loop;
---           end if;
---        end loop;
-      null;
+      loop
+         Tx_Queue.Dequeue_Item
+           (Packet, Has_Succeed);
+
+         if Has_Succeed then
+            Has_Succeed := Link_Send_Packet (Packet);
+
+            --  Keep testing, if the link changes to USB it will go through
+            while not Has_Succeed loop
+               Has_Succeed := Link_Send_Packet (Packet);
+            end loop;
+         end if;
+         delay until Time_First;
+      end loop;
    end Crtp_Tx_Task;
 
     task body Crtp_Rx_Task is
       Packet : Crtp_Packet;
       Has_Succeed : Boolean;
    begin
---        loop
---           Link_Receive_Packet (Packet, Has_Succeed);
---
---           if Has_Succeed then
---              Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
---              if not Has_Succeed then
---                 Dropped_Packets := Dropped_Packets + 1;
---              end if;
---
---              if Callbacks (Packet.Port) /= null then
---                 Callbacks (Packet.Port) (Packet);
---              end if;
---           end if;
---        end loop;
-      null;
+      loop
+         Link_Receive_Packet (Packet, Has_Succeed);
+
+         if Has_Succeed then
+            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
+            if not Has_Succeed then
+               Dropped_Packets := Dropped_Packets + 1;
+            end if;
+
+            if Callbacks (Packet.Port) /= null then
+               Callbacks (Packet.Port) (Packet);
+            end if;
+         end if;
+         delay until Time_First;
+      end loop;
    end Crtp_Rx_Task;
 
    function Crtp_Create_Packet
