@@ -21,6 +21,7 @@ package body Crtp_Pack is
                Has_Succeed := Link_Send_Packet (Packet);
             end loop;
          end if;
+
          delay until Time_First;
       end loop;
    end Crtp_Tx_Task;
@@ -42,6 +43,7 @@ package body Crtp_Pack is
                Callbacks (Packet.Port) (Packet);
             end if;
          end if;
+
          delay until Time_First;
       end loop;
    end Crtp_Rx_Task;

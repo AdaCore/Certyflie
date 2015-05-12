@@ -38,7 +38,7 @@ package body UART_Syslink is
          Tx_Stream,
          Source      => Source_Block'Address,
          Destination => Data_Register_Address (Transceiver),
-         Data_Count  => Bytes_To_Transfer);
+         Data_Count  => Half_Word (Data_Size));
       --  also enables the stream
 
       -- TODO: clear the flags esp the overrun flag   ???
@@ -46,19 +46,6 @@ package body UART_Syslink is
       Enable_DMA_Transmit_Requests (Transceiver);
 
       Tx_IRQ_Handler.Await_Event (Event_Kind);
-
-      case Event_Kind is
-         when Direct_Mode_Error_Interrupt      =>
-            null;
-         when FIFO_Error_Interrupt             =>
-            null;
-         when Transfer_Error_Interrupt         =>
-            null;
-         when Half_Transfer_Complete_Interrupt =>
-            null;
-         when Transfer_Complete_Interrupt      =>
-            Source_Block := (others => 0);
-      end case;
    end UART_Send_DMA_Data;
 
    --  Private procedures and functions

@@ -58,7 +58,7 @@ private
 
    Bytes_To_Transfer : constant := DMA_Data'Length;
 
-   Source_Block  : DMA_Data := (others => 0);
+   Source_Block  : aliased DMA_Data := (others => 0);
 
    Event_Kind : DMA_Interrupt;
 
