@@ -61,7 +61,7 @@ package body UART_Syslink is
       Configuration.Output_Type := Push_Pull;
       Configuration.Resistors := Pull_Up;
 
-         Configure_IO
+      Configure_IO
         (Port => IO_Port,
          Pins => Rx_Pin & Tx_Pin,
          Config => Configuration);

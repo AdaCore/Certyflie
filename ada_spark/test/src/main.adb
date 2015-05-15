@@ -7,6 +7,7 @@ with Ada.Real_Time; use Ada.Real_Time;
 with Last_Chance_Handler;
 with System;
 with LEDS_Pack; use LEDS_Pack;
+with Motors_Pack; use Motors_Pack;
 
 procedure Main is
    pragma Priority (System.Priority'Last);
@@ -17,6 +18,9 @@ begin
    Set_LED (LED_Green_L, True);
    Set_LED (LED_Red_R, True);
    Set_LED (LED_Blue_L, True);
+
+   Motors_Init;
+   Motors_Test;
 
    Syslink_Init;
    Platform_Service_Init;
