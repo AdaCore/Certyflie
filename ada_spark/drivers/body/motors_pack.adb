@@ -141,6 +141,12 @@ package body Motors_Pack is
       Enable_Main_Output (MOTORS_TIMER_M3);
       Enable_Main_Output (MOTORS_TIMER_M4);
 
+      --  Test...
+      Enable (MOTORS_TIMER_M1);
+      Enable (MOTORS_TIMER_M2);
+      Enable (MOTORS_TIMER_M3);
+      Enable (MOTORS_TIMER_M4);
+
       --  TODO: enable halt debug
 
    end Motors_Init;
