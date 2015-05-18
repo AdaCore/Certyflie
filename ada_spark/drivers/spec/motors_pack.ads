@@ -37,7 +37,7 @@ private
 
    --  Constants used to configure the proper GPIO Ports and pins
    --  to communicate with the motors
-   MOTORS_GPIO_M1_PORT : GPIO_Port renames GPIO_B;
+   MOTORS_GPIO_M1_PORT : GPIO_Port renames GPIO_A;
    MOTORS_GPIO_M1_PIN  : GPIO_Pin  renames Pin_1;
    MOTORS_GPIO_AF_M1   : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
    MOTORS_TIMER_M1     : Timer renames Timer_2;

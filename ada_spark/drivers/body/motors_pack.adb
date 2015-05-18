@@ -84,6 +84,12 @@ package body Motors_Pack is
          Counter_Mode  => Up,
          Repetitions  => 0);
 
+      --  Test...
+      Enable (MOTORS_TIMER_M1);
+      Enable (MOTORS_TIMER_M2);
+      Enable (MOTORS_TIMER_M3);
+      Enable (MOTORS_TIMER_M4);
+
       --  PWM channels configuration
       Configure_Channel_Output
         (This     => MOTORS_TIMER_M1,
@@ -141,12 +147,6 @@ package body Motors_Pack is
       Enable_Main_Output (MOTORS_TIMER_M3);
       Enable_Main_Output (MOTORS_TIMER_M4);
 
-      --  Test...
-      Enable (MOTORS_TIMER_M1);
-      Enable (MOTORS_TIMER_M2);
-      Enable (MOTORS_TIMER_M3);
-      Enable (MOTORS_TIMER_M4);
-
       --  TODO: enable halt debug
 
    end Motors_Init;
@@ -162,11 +162,11 @@ package body Motors_Pack is
                                Word_Value => Word (Motor_Power));
          when MOTOR_M2 =>
             Set_Compare_Value (This       => MOTORS_TIMER_M2,
-                               Channel    => Channel_1,
+                               Channel    => Channel_4,
                                Word_Value => Word (Motor_Power));
          when MOTOR_M3 =>
             Set_Compare_Value (This       => MOTORS_TIMER_M3,
-                               Channel    => Channel_4,
+                               Channel    => Channel_1,
                                Word_Value => Word (Motor_Power));
          when MOTOR_M4 =>
             Set_Compare_Value (This       => MOTORS_TIMER_M4,
