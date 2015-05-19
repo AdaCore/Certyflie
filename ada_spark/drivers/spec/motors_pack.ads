@@ -1,9 +1,8 @@
 with Types; use Types;
 with STM32F4_Discovery; use STM32F4_Discovery;
 with STM32F4.GPIO; use STM32F4.GPIO;
-with STM32F4.Timers; use STM32F4.Timers;
 with STM32F4; use STM32F4;
-with STM32F4.PWM;
+with STM32F4.PWM; use STM32F4.PWM;
 
 package Motors_Pack is
 
@@ -28,9 +27,8 @@ private
    --  Global variables and constants
 
    --  Constants used to configure PWM
-   MOTOR_PWM_BITS       : constant := 8;
-   MOTORS_PWM_PERIOD    : constant := 0.00000304878;
-   MOTORS_PWM_PRESCALE : constant := 0;
+   MOTORS_PWM_PERIOD    : constant := 1.0 / 328_000.0; --  328 KHz
+   MOTORS_PWM_PRESCALE  : constant := 0;
 
    --  Constants used for testing
    MOTORS_TEST_RATIO         : constant := 13_000;
@@ -39,25 +37,29 @@ private
 
    --  Constants used to configure the proper GPIO Ports and pins
    --  to communicate with the motors
-   MOTORS_GPIO_M1_PORT : GPIO_Port renames GPIO_A;
-   MOTORS_GPIO_M1_PIN  : GPIO_Pin  renames Pin_1;
-   MOTORS_GPIO_AF_M1   : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_TIMER_M1     : Timer renames Timer_2;
+   MOTORS_GPIO_M1_PORT   : GPIO_Port renames GPIO_A;
+   MOTORS_GPIO_M1_PIN    : GPIO_Pin  renames Pin_1;
+   MOTORS_GPIO_AF_M1     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
+   MOTORS_TIMER_M1       : constant Timer := TIM2;
+   MOTORS_TIM_CHANNEL_M1 : constant Channel := CH2;
 
-   MOTORS_GPIO_M2_PORT : GPIO_Port renames GPIO_B;
-   MOTORS_GPIO_M2_PIN  : GPIO_Pin  renames Pin_11;
-   MOTORS_GPIO_AF_M2   : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_TIMER_M2     : Timer renames Timer_2;
+   MOTORS_GPIO_M2_PORT   : GPIO_Port renames GPIO_B;
+   MOTORS_GPIO_M2_PIN    : GPIO_Pin  renames Pin_11;
+   MOTORS_GPIO_AF_M2     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
+   MOTORS_TIMER_M2       : constant Timer := TIM2;
+   MOTORS_TIM_CHANNEL_M2 : constant Channel := CH4;
 
-   MOTORS_GPIO_M3_PORT : GPIO_Port renames GPIO_A;
-   MOTORS_GPIO_M3_PIN  : GPIO_Pin  renames Pin_15;
-   MOTORS_GPIO_AF_M3   : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_TIMER_M3     : Timer renames Timer_2;
+   MOTORS_GPIO_M3_PORT   : GPIO_Port renames GPIO_A;
+   MOTORS_GPIO_M3_PIN    : GPIO_Pin  renames Pin_15;
+   MOTORS_GPIO_AF_M3     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
+   MOTORS_TIMER_M3       : constant Timer := TIM2;
+   MOTORS_TIM_CHANNEL_M3 : constant Channel := CH1;
 
-   MOTORS_GPIO_M4_PORT : GPIO_Port renames GPIO_B;
-   MOTORS_GPIO_M4_PIN  : GPIO_Pin  renames Pin_9;
-   MOTORS_GPIO_AF_M4   : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
-   MOTORS_TIMER_M4     : Timer renames Timer_4;
+   MOTORS_GPIO_M4_PORT   : GPIO_Port renames GPIO_B;
+   MOTORS_GPIO_M4_PIN    : GPIO_Pin  renames Pin_9;
+   MOTORS_GPIO_AF_M4     : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
+   MOTORS_TIMER_M4       : constant Timer := TIM4;
+   MOTORS_TIM_CHANNEL_M4 : constant Channel := CH4;
 
    --  Private procedures and functions
 

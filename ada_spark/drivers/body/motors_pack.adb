@@ -1,5 +1,4 @@
 with Ada.Real_Time; use Ada.Real_Time;
-with STM32F4.PWM; use STM32F4.PWM;
 
 package body Motors_Pack is
 
@@ -51,44 +50,47 @@ package body Motors_Pack is
          AF   => MOTORS_GPIO_AF_M4);
 
       --  Configure the timers
-      Timer_Configuration := (Prescaler => 0,
+      Timer_Configuration := (Prescaler => MOTORS_PWM_PRESCALE,
                               Period => MOTORS_PWM_PERIOD);
 
-      Config_Timer (Tim  => TIM2,
+      Config_Timer (Tim  => MOTORS_TIMER_M1,
                     Conf => Timer_Configuration);
-      Config_Timer (Tim =>  TIM4,
+      Config_Timer (Tim  => MOTORS_TIMER_M2,
+                    Conf => Timer_Configuration);
+      Config_Timer (Tim  => MOTORS_TIMER_M3,
+                    Conf => Timer_Configuration);
+      Config_Timer (Tim =>  MOTORS_TIMER_M4,
                     Conf => Timer_Configuration);
 
       --  Configure the channels
       Channel_Configuration := (Mode => Output);
 
-      Config_Channel (Tim  => TIM2,
-                      Ch   => CH2,
+      Config_Channel (Tim  => MOTORS_TIMER_M1,
+                      Ch   => MOTORS_TIM_CHANNEL_M1,
                       Conf => Channel_Configuration);
-      Config_Channel (Tim  => TIM2,
-                      Ch   => CH4,
+      Config_Channel (Tim  => MOTORS_TIMER_M2,
+                      Ch   => MOTORS_TIM_CHANNEL_M2,
                       Conf => Channel_Configuration);
-      Config_Channel (Tim  => TIM2,
-                      Ch   => CH1,
+      Config_Channel (Tim  => MOTORS_TIMER_M3,
+                      Ch   => MOTORS_TIM_CHANNEL_M3,
                       Conf => Channel_Configuration);
-      Config_Channel (Tim  => TIM4,
-                      Ch   => CH4,
+      Config_Channel (Tim  => MOTORS_TIMER_M4,
+                      Ch   => MOTORS_TIM_CHANNEL_M4,
                       Conf => Channel_Configuration);
 
       --  Enable the channels
-      Set_Channel_State (Tim   => TIM2,
-                         Ch    => CH2,
+      Set_Channel_State (Tim   => MOTORS_TIMER_M1,
+                         Ch    => MOTORS_TIM_CHANNEL_M1,
                          State => Enabled);
-      Set_Channel_State (Tim   => TIM2,
-                         Ch    => CH4,
+      Set_Channel_State (Tim   => MOTORS_TIMER_M2,
+                         Ch    => MOTORS_TIM_CHANNEL_M2,
                          State => Enabled);
-      Set_Channel_State (Tim   => TIM2,
-                         Ch    => CH1,
+      Set_Channel_State (Tim   => MOTORS_TIMER_M3,
+                         Ch    => MOTORS_TIM_CHANNEL_M3,
                          State => Enabled);
-      Set_Channel_State (Tim   => TIM4,
-                         Ch    => CH4,
+      Set_Channel_State (Tim   => MOTORS_TIMER_M4,
+                         Ch    => MOTORS_TIM_CHANNEL_M4,
                          State => Enabled);
-      --  TODO: enable halt debug
    end Motors_Init;
 
    procedure Motor_Set_Ratio
@@ -98,20 +100,20 @@ package body Motors_Pack is
 
       case ID is
          when MOTOR_M1 =>
-            Set_Duty_Percentage (Tim     => TIM2,
-                                 Ch      => CH2,
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
+                                 Ch      => MOTORS_TIM_CHANNEL_M1,
                                  Percent => Motor_Power);
          when MOTOR_M2 =>
-            Set_Duty_Percentage (Tim     => TIM2,
-                                 Ch      => CH4,
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
+                                 Ch      => MOTORS_TIM_CHANNEL_M2,
                                  Percent => Motor_Power);
          when MOTOR_M3 =>
-            Set_Duty_Percentage (Tim     => TIM2,
-                                 Ch      => CH1,
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
+                                 Ch      => MOTORS_TIM_CHANNEL_M3,
                                  Percent => Motor_Power);
          when MOTOR_M4 =>
-            Set_Duty_Percentage (Tim     => TIM4,
-                                 Ch      => CH4,
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
+                                 Ch      => MOTORS_TIM_CHANNEL_M4,
                                  Percent => Motor_Power);
       end case;
    end Motor_Set_Ratio;
