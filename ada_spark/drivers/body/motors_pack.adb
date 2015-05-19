@@ -1,22 +1,18 @@
-with STM32F4; use STM32F4;
 with Ada.Real_Time; use Ada.Real_Time;
+with STM32F4.PWM; use STM32F4.PWM;
 
 package body Motors_Pack is
 
    procedure Motors_Init is
-      GPIO_Configuration : GPIO_Port_Configuration;
+      GPIO_Configuration    : GPIO_Port_Configuration;
+      Timer_Configuration   : Timer_Config;
+      Channel_Configuration : Channel_Config;
    begin
       --  Enable GPIOs
       Enable_Clock (MOTORS_GPIO_M1_PORT);
       Enable_Clock (MOTORS_GPIO_M2_PORT);
       Enable_Clock (MOTORS_GPIO_M3_PORT);
       Enable_Clock (MOTORS_GPIO_M4_PORT);
-
-      --  Enable timers
-      Enable_Clock (MOTORS_TIMER_M1);
-      Enable_Clock (MOTORS_TIMER_M2);
-      Enable_Clock (MOTORS_TIMER_M3);
-      Enable_Clock (MOTORS_TIMER_M4);
 
       --  Configure GPIOs
       GPIO_Configuration.Mode := Mode_AF;
@@ -55,123 +51,68 @@ package body Motors_Pack is
          AF   => MOTORS_GPIO_AF_M4);
 
       --  Configure the timers
-      Configure
-        (This => MOTORS_TIMER_M1,
-         Prescaler => MOTORS_PWM_PRESCALE,
-         Period => MOTORS_PWM_PERIOD,
-         Clock_Divisor => Div1,
-         Counter_Mode  => Up,
-         Repetitions  => 0);
-      Configure
-        (This => MOTORS_TIMER_M2,
-         Prescaler => MOTORS_PWM_PRESCALE,
-         Period => MOTORS_PWM_PERIOD,
-         Clock_Divisor => Div1,
-         Counter_Mode  => Up,
-         Repetitions  => 0);
-      Configure
-        (This => MOTORS_TIMER_M3,
-         Prescaler => MOTORS_PWM_PRESCALE,
-         Period => MOTORS_PWM_PERIOD,
-         Clock_Divisor => Div1,
-         Counter_Mode  => Up,
-         Repetitions  => 0);
-      Configure
-        (This => MOTORS_TIMER_M4,
-         Prescaler => MOTORS_PWM_PRESCALE,
-         Period => MOTORS_PWM_PERIOD,
-         Clock_Divisor => Div1,
-         Counter_Mode  => Up,
-         Repetitions  => 0);
+      Timer_Configuration := (Prescaler => 0,
+                              Period => MOTORS_PWM_PERIOD);
 
-      --  Test...
-      Enable (MOTORS_TIMER_M1);
-      Enable (MOTORS_TIMER_M2);
-      Enable (MOTORS_TIMER_M3);
-      Enable (MOTORS_TIMER_M4);
+      Config_Timer (Tim  => TIM2,
+                    Conf => Timer_Configuration);
+      Config_Timer (Tim =>  TIM4,
+                    Conf => Timer_Configuration);
 
-      --  PWM channels configuration
-      Configure_Channel_Output
-        (This     => MOTORS_TIMER_M1,
-         Channel  => Channel_2,
-         Mode     => PWM1,
-         State    => Enable,
-         Pulse    => 0,
-         Polarity => High);
-      Set_Output_Preload_Enable
-        (This    => MOTORS_TIMER_M1,
-         Channel => Channel_2,
-         Enabled => True);
+      --  Configure the channels
+      Channel_Configuration := (Mode => Output);
 
-      Configure_Channel_Output
-        (This     => MOTORS_TIMER_M2,
-         Channel  => Channel_4,
-         Mode     => PWM1,
-         State    => Enable,
-         Pulse    => 0,
-         Polarity => High);
-      Set_Output_Preload_Enable
-        (This    => MOTORS_TIMER_M2,
-         Channel => Channel_4,
-         Enabled => True);
+      Config_Channel (Tim  => TIM2,
+                      Ch   => CH2,
+                      Conf => Channel_Configuration);
+      Config_Channel (Tim  => TIM2,
+                      Ch   => CH4,
+                      Conf => Channel_Configuration);
+      Config_Channel (Tim  => TIM2,
+                      Ch   => CH1,
+                      Conf => Channel_Configuration);
+      Config_Channel (Tim  => TIM4,
+                      Ch   => CH4,
+                      Conf => Channel_Configuration);
 
-      Configure_Channel_Output
-        (This     => MOTORS_TIMER_M3,
-         Channel  => Channel_1,
-         Mode     => PWM1,
-         State    => Enable,
-         Pulse    => 0,
-         Polarity => High);
-      Set_Output_Preload_Enable
-        (This    => MOTORS_TIMER_M3,
-         Channel => Channel_1,
-         Enabled => True);
-
-      Configure_Channel_Output
-        (This     => MOTORS_TIMER_M4,
-         Channel  => Channel_4,
-         Mode     => PWM1,
-         State    => Enable,
-         Pulse    => 0,
-         Polarity => High);
-      Set_Output_Preload_Enable
-        (This    => MOTORS_TIMER_M4,
-         Channel => Channel_4,
-         Enabled => True);
-
-      --  TODO: enable sync
-
-      --  Enable the timer PWM outputs
-      Enable_Main_Output (MOTORS_TIMER_M1);
-      Enable_Main_Output (MOTORS_TIMER_M2);
-      Enable_Main_Output (MOTORS_TIMER_M3);
-      Enable_Main_Output (MOTORS_TIMER_M4);
-
+      --  Enable the channels
+      Set_Channel_State (Tim   => TIM2,
+                         Ch    => CH2,
+                         State => Enabled);
+      Set_Channel_State (Tim   => TIM2,
+                         Ch    => CH4,
+                         State => Enabled);
+      Set_Channel_State (Tim   => TIM2,
+                         Ch    => CH1,
+                         State => Enabled);
+      Set_Channel_State (Tim   => TIM4,
+                         Ch    => CH4,
+                         State => Enabled);
       --  TODO: enable halt debug
-
    end Motors_Init;
 
    procedure Motor_Set_Ratio
      (ID          : Motor_ID;
-      Motor_Power : T_Uint16) is
+      Motor_Power : Duty_Percentage) is
    begin
+
       case ID is
          when MOTOR_M1 =>
-            Set_Compare_Value (This       => MOTORS_TIMER_M1,
-                               Channel    => Channel_2,
-                               Word_Value => Word (Motor_Power));
+            Set_Duty_Percentage (Tim     => TIM2,
+                                 Ch      => CH2,
+                                 Percent => Motor_Power);
          when MOTOR_M2 =>
-            Set_Compare_Value (This       => MOTORS_TIMER_M2,
-                               Channel    => Channel_4,
-                               Word_Value => Word (Motor_Power));
+            Set_Duty_Percentage (Tim     => TIM2,
+                                 Ch      => CH4,
+                                 Percent => Motor_Power);
          when MOTOR_M3 =>
-            Set_Compare_Value (This       => MOTORS_TIMER_M3,
-                               Channel    => Channel_1,
-                               Word_Value => Word (Motor_Power));
+            Set_Duty_Percentage (Tim     => TIM2,
+                                 Ch      => CH1,
+                                 Percent => Motor_Power);
          when MOTOR_M4 =>
-            Set_Compare_Value (This       => MOTORS_TIMER_M4,
-                               Channel    => Channel_4,
-                               Word_Value => Word (Motor_Power));
+            Set_Duty_Percentage (Tim     => TIM4,
+                                 Ch      => CH4,
+                                 Percent => Motor_Power);
       end case;
    end Motor_Set_Ratio;
 
@@ -181,12 +122,19 @@ package body Motors_Pack is
    begin
       for Motor in Motor_ID loop
          Next_Period_1 := Clock + Milliseconds (MOTORS_TEST_ON_TIME_MS);
-         Motor_Set_Ratio (Motor, MOTORS_TEST_RATIO);
+         Motor_Set_Ratio (Motor, 20);
          delay until (Next_Period_1);
          Next_Period_2 := Clock + Milliseconds (MOTORS_TEST_DELAY_TIME_MS);
-         Motor_Set_Ratio (Motor, 0);
+         Motor_Set_Ratio (Motor, 1);
          delay until (Next_Period_2);
       end loop;
    end Motors_Test;
+
+   function C_16_To_Bits (Ratio : T_Uint16) return Word is
+   begin
+      --  TODO
+      return Word (Ratio);
+   end C_16_To_Bits;
+
 
 end Motors_Pack;

@@ -2,6 +2,8 @@ with Types; use Types;
 with STM32F4_Discovery; use STM32F4_Discovery;
 with STM32F4.GPIO; use STM32F4.GPIO;
 with STM32F4.Timers; use STM32F4.Timers;
+with STM32F4; use STM32F4;
+with STM32F4.PWM;
 
 package Motors_Pack is
 
@@ -17,7 +19,7 @@ package Motors_Pack is
    --  Apply power to the given motor
    procedure Motor_Set_Ratio
      (ID          : Motor_ID;
-      Motor_Power : T_Uint16);
+      Motor_Power : STM32F4.PWM.Duty_Percentage);
 
    --  Test all the Crazyflie motors
    procedure Motors_Test;
@@ -27,7 +29,7 @@ private
 
    --  Constants used to configure PWM
    MOTOR_PWM_BITS       : constant := 8;
-   MOTORS_PWM_PERIOD    : constant := 255;
+   MOTORS_PWM_PERIOD    : constant := 0.00000304878;
    MOTORS_PWM_PRESCALE : constant := 0;
 
    --  Constants used for testing
@@ -56,5 +58,9 @@ private
    MOTORS_GPIO_M4_PIN  : GPIO_Pin  renames Pin_9;
    MOTORS_GPIO_AF_M4   : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
    MOTORS_TIMER_M4     : Timer renames Timer_4;
+
+   --  Private procedures and functions
+
+   function C_16_To_Bits (Ratio : T_Uint16) return Word;
 
 end Motors_Pack;
