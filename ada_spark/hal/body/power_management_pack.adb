@@ -14,6 +14,9 @@ package body Power_Management_Pack is
    begin
       Current_Power_Info :=
         Syslink_Data_To_Power_Syslink_Info (Sl_Packet.Data (1 .. 9));
+
+      --  Set the Power LEDs accordingly
+      Set_Power_LEDs (Power_Management_Get_State);
    end Power_Management_Syslink_Update;
 
    function Power_Management_Get_State return Power_State is
@@ -24,9 +27,9 @@ package body Power_Management_Pack is
       Is_Charging := Current_Power_Info.Charging;
       Is_Pgood := Current_Power_Info.Pgood;
 
-      if Is_Pgood and not Is_Charging then
+      if Is_Pgood and Is_Charging then
          Current_State := Charged;
-      elsif Is_Pgood and Is_Charging then
+      elsif not Is_Pgood and Is_Charging then
          Current_State := Charging;
       else
          Current_State := Battery;
@@ -35,5 +38,24 @@ package body Power_Management_Pack is
       -- TODO: add the restant cases..
       return Current_State;
    end Power_Management_Get_State;
+
+   procedure Set_Power_LEDs (State : Power_State) is
+   begin
+      case State is
+         when Charging =>
+            Set_LED (Charging_LED, True);
+            Set_LED (Charged_LED, False);
+         when Charged =>
+            Set_LED (Charged_LED, True);
+            Set_LED (Charging_LED, False);
+         when Battery =>
+            Set_LED (Charged_LED, False);
+            Set_LED (Charging_LED, False);
+         when others =>
+            null;
+      end case;
+      --  TODO: find other led feedback for teh other power states
+   end Set_Power_LEDs;
+
 
 end Power_Management_Pack;

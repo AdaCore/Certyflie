@@ -14,13 +14,9 @@ procedure Main is
 begin
    --  Module initialization
    LEDS_Init;
-   --  To test the LED drivers..
-   Set_LED (LED_Green_L, True);
-   Set_LED (LED_Red_R, True);
-   Set_LED (LED_Blue_L, True);
 
    Motors_Init;
-   --Motors_Test;
+   Motors_Test;
 
    Syslink_Init;
    Platform_Service_Init;

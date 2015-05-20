@@ -1,5 +1,6 @@
 with Types; use Types;
 with Syslink_Pack; use Syslink_Pack;
+with LEDS_Pack; use LEDS_Pack;
 
 package Power_Management_Pack is
 
@@ -52,6 +53,16 @@ private
 
    --  Global variables and constants
 
+   --  Current power information received from NFR51
    Current_Power_Info : Power_Syslink_Info;
+
+   --  LEDs to switch on according power state
+   Charging_LED : constant Crazyflie_LED := LED_RED_L;
+   Charged_LED  : constant Crazyflie_LED := LED_Green_L;
+
+   --  Prcoedures and functions
+
+   --  Switch on/off the power related leds according to power state
+   procedure Set_Power_LEDs (State : Power_State);
 
 end Power_Management_Pack;

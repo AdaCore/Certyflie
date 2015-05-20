@@ -5,7 +5,7 @@ package LEDS_Pack is
 
    --  Type indexing all the Crazyflie leds
    type Crazyflie_LED is
-     (LED_Blue_L, LED_Green_L, LED_Green_R, LED_RED_L, LED_Red_R);
+     (LED_Blue_L, LED_Green_L, LED_Green_R, LED_Red_L, LED_Red_R);
 
    --  Initizalize the Crazyflie leds
    procedure LEDS_Init;
