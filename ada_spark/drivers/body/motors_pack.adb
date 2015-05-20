@@ -97,7 +97,6 @@ package body Motors_Pack is
      (ID          : Motor_ID;
       Motor_Power : Duty_Percentage) is
    begin
-
       case ID is
          when MOTOR_M1 =>
             Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,

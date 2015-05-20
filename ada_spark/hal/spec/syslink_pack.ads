@@ -35,6 +35,7 @@ package Syslink_Pack is
    for Syslink_Packet_Group_Type use (SYSLINK_RADIO_GROUP => 16#00#,
                                       SYSLINK_PM_GROUP    => 16#10#,
                                       SYSLINK_OW_GROUP    => 16#20#);
+   for Syslink_Packet_Group_Type'Size use 8;
 
    --  Syslink packet types
    type Syslink_Packet_Type is (SYSLINK_RADIO_RAW,

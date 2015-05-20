@@ -76,7 +76,7 @@ package body UART_Syslink is
    begin
       Disable (Transceiver);
 
-      Set_Baud_Rate    (Transceiver, 115_200);
+      Set_Baud_Rate    (Transceiver, 1_000_000);
       Set_Mode         (Transceiver, Tx_Rx_Mode);
       Set_Stop_Bits    (Transceiver, Stopbits_1);
       Set_Word_Length  (Transceiver, Word_Length_8);

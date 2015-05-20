@@ -1,5 +1,6 @@
 with Radiolink_Pack; use Radiolink_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
+with Power_Management_Pack; use Power_Management_Pack;
 
 package body Syslink_Pack is
 
@@ -49,18 +50,23 @@ package body Syslink_Pack is
    end Syslink_Send_Packet;
 
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet) is
-      Group_Type : Syslink_Packet_Group_Type;
+      Group_Type_Raw : T_Uint8;
+      Group_Type     : Syslink_Packet_Group_Type;
+      function T_Uint8_To_Syslink_Packet_Group_Type is
+        new Ada.Unchecked_Conversion (T_Uint8, Syslink_Packet_Group_Type);
 
    begin
-      Group_Type := Syslink_Packet_Group_Type'Val
-        (Syslink_Packet_Type'Enum_Rep (Rx_Sl_Packet.Slp_Type)
-         and SYSLINK_GROUP_MASK);
+      Group_Type_Raw := Syslink_Packet_Type'Enum_Rep (Rx_Sl_Packet.Slp_Type)
+        and SYSLINK_GROUP_MASK;
+      Group_Type := T_Uint8_To_Syslink_Packet_Group_Type (Group_Type_Raw);
 
       case Group_Type is
          when SYSLINK_RADIO_GROUP =>
             Radiolink_Syslink_Dispatch (Rx_Sl_Packet);
             --  TODO: Dispatch the syslink packets to the other modules
             --  when they will be implemented
+         when SYSLINK_PM_GROUP =>
+            Power_Management_Syslink_Update (Rx_Sl_Packet);
          when others =>
             null;
       end case;
