@@ -1,4 +1,5 @@
 with Ada.Unchecked_Conversion;
+with Config; use Config;
 
 package body Radiolink_Pack is
 
@@ -7,9 +8,13 @@ package body Radiolink_Pack is
       if Is_Init then
          return;
       end if;
-      --  TODO: Set the right channel parameter
-      Radiolink_Set_Channel (0);
 
+      Syslink_Init;
+
+      Radiolink_Set_Channel (RADIO_CHANNEL);
+      Radiolink_Set_Data_Rate (RADIO_DATARATE);
+
+      Is_Init := True;
    end Radiolink_Init;
 
    procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8) is

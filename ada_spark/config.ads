@@ -23,4 +23,9 @@ package Config is
 
    PORT_MAX_DELAY_TIME : constant Integer :=
                            Integer (PORT_MAX_DELAY / TICK_RATE_MS);
+
+   --  Radio configuration
+   RADIO_CHANNEL       : constant := 80;
+   RADIO_DATARATE      : constant := 0;
+
 end Config;

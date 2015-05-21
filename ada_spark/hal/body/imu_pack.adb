@@ -1,5 +1,3 @@
-with Filter_Pack; use Filter_Pack;
-
 package body IMU_Pack is
 
    function IMU_6_Calibrated return Boolean is

@@ -7,6 +7,10 @@ package body Platform_Service_Pack is
       if Is_Init then
          return;
       end if;
+
+      Crtp_Register_Callback (CRTP_PORT_PLATFORM,
+                              Platform_Service_Handler'Access);
+
       Is_Init := True;
    end Platform_Service_Init;
 
