@@ -16,7 +16,7 @@ begin
    LEDS_Init;
 
    Motors_Init;
-   Motors_Test;
+   --Motors_Test;
 
    Syslink_Init;
    Platform_Service_Init;

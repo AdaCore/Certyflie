@@ -29,7 +29,7 @@ package body Power_Management_Pack is
 
       if Is_Pgood and Is_Charging then
          Current_State := Charged;
-      elsif not Is_Pgood and Is_Charging then
+      elsif Is_Charging then
          Current_State := Charging;
       else
          Current_State := Battery;
