@@ -45,7 +45,7 @@ package body UART_Syslink is
 
       Enable_DMA_Transmit_Requests (Transceiver);
 
-      Tx_IRQ_Handler.Await_Event (Event_Kind);
+      Tx_IRQ_Handler.Await_Transfer_Complete;
    end UART_Send_DMA_Data;
 
    --  Private procedures and functions
@@ -129,11 +129,11 @@ package body UART_Syslink is
 
    protected body Tx_IRQ_Handler is
 
-      entry Await_Event (Occurrence : out DMA_Interrupt) when Event_Occurred is
+      entry Await_Transfer_Complete when Transfer_Complete is
       begin
-         Occurrence := Event_Kind;
          Event_Occurred := False;
-      end Await_Event;
+         Transfer_Complete := False;
+      end Await_Transfer_Complete;
 
       procedure IRQ_Handler is
       begin
@@ -201,6 +201,7 @@ package body UART_Syslink is
                Finalize_DMA_Transmission (Transceiver);
                Event_Kind := Transfer_Complete_Interrupt;
                Event_Occurred := True;
+               Transfer_Complete := True;
             end if;
          end if;
       end IRQ_Handler;

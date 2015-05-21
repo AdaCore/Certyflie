@@ -96,12 +96,13 @@ private
    protected Tx_IRQ_Handler is
       pragma Interrupt_Priority;
 
-      entry Await_Event (Occurrence : out DMA_Interrupt);
+      entry Await_Transfer_Complete;
 
    private
 
-      Event_Occurred : Boolean := False;
-      Event_Kind     : DMA_Interrupt;
+      Event_Occurred    : Boolean := False;
+      Transfer_Complete : Boolean := False;
+      Event_Kind        : DMA_Interrupt;
 
       procedure IRQ_Handler;
       pragma Attach_Handler (IRQ_Handler, DMA_Tx_IRQ);
