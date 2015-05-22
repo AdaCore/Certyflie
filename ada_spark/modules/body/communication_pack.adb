@@ -6,6 +6,7 @@ with Console_Pack; use Console_Pack;
 package body Communication_Pack is
 
    procedure Communication_Init is
+      Has_Succeed : Boolean;
    begin
       if Is_Init then
          return;
@@ -20,6 +21,9 @@ package body Communication_Pack is
 
       --  Initialize the console module
       Console_Init;
+
+      --  Test
+      Console_Put_Line ("Hello, I'm the Crazyflie!", Has_Succeed);
 
       Is_Init := True;
    end Communication_Init;

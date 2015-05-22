@@ -1,5 +1,3 @@
-with Protected_IO_Pack; use Protected_IO_Pack;
-
 package body Console_Pack is
 
    procedure Console_Init is
@@ -23,7 +21,7 @@ package body Console_Pack is
    begin
       Crtp_Send_Packet
         (Crtp_Get_Packet_From_Handler (Message_To_Print), Has_Succeed);
-      X_Put_Line ("Console Send message has succeed: " & Boolean'Image (Has_Succeed));
+
       --  Reset the CRTP packet data contained in the handler
       if Has_Succeed then
          Crtp_Reset_Handler (Message_To_Print);

@@ -1,7 +1,6 @@
 with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
-with Ada.Real_Time; use Ada.Real_Time;
 
 package body Crtp_Pack is
 

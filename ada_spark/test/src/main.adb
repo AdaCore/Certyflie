@@ -16,6 +16,7 @@ begin
    --  Initialize LEDs, sensors and actuators
    LEDS_Init;
    Motors_Init;
+   Motors_Test;
 
    --  Initialize communication related modules
    Communication_Init;

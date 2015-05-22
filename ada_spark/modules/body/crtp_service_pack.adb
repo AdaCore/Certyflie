@@ -31,7 +31,7 @@ package body CRTP_Service_Pack is
             Crtp_Send_Packet (Tx_Packet, Has_Succeed);
          when others =>
             --  Test
-            null;
+            Crtp_Send_Packet (Tx_Packet, Has_Succeed);
       end case;
    end CRTP_Service_Handler;
 
