@@ -1,4 +1,5 @@
 with Ada.Real_Time; use Ada.Real_Time;
+with Safety_Pack; use Safety_Pack;
 
 package body Motors_Pack is
 
@@ -94,28 +95,60 @@ package body Motors_Pack is
    end Motors_Init;
 
    procedure Motor_Set_Ratio
-     (ID          : Motor_ID;
-      Motor_Power : Duty_Percentage) is
+     (ID               : Motor_ID;
+      Power_Percentage : Duty_Percentage) is
    begin
       case ID is
          when MOTOR_M1 =>
             Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
                                  Ch      => MOTORS_TIM_CHANNEL_M1,
-                                 Percent => Motor_Power);
+                                 Percent => Power_Percentage);
          when MOTOR_M2 =>
             Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
                                  Ch      => MOTORS_TIM_CHANNEL_M2,
-                                 Percent => Motor_Power);
+                                 Percent => Power_Percentage);
          when MOTOR_M3 =>
             Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
                                  Ch      => MOTORS_TIM_CHANNEL_M3,
-                                 Percent => Motor_Power);
+                                 Percent => Power_Percentage);
          when MOTOR_M4 =>
             Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
                                  Ch      => MOTORS_TIM_CHANNEL_M4,
-                                 Percent => Motor_Power);
+                                 Percent => Power_Percentage);
       end case;
    end Motor_Set_Ratio;
+
+   procedure Motor_Set_Power
+     (ID : Motor_ID;
+      Motor_Power : T_Uint16) is
+      Power_Percentage_F : Float;
+      Power_Percentage : Duty_Percentage;
+   begin
+      Power_Percentage_F :=
+        Saturate ((Float (Motor_Power) / Float (T_Uint16'Last)) * 100.0,
+                  1.0,
+                  100.0);
+      Power_Percentage := Duty_Percentage (Power_Percentage_F);
+
+      case ID is
+         when MOTOR_M1 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
+                                 Ch      => MOTORS_TIM_CHANNEL_M1,
+                                 Percent => Power_Percentage);
+         when MOTOR_M2 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
+                                 Ch      => MOTORS_TIM_CHANNEL_M2,
+                                 Percent => Power_Percentage);
+         when MOTOR_M3 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
+                                 Ch      => MOTORS_TIM_CHANNEL_M3,
+                                 Percent => Power_Percentage);
+         when MOTOR_M4 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
+                                 Ch      => MOTORS_TIM_CHANNEL_M4,
+                                 Percent => Power_Percentage);
+      end case;
+   end Motor_Set_Power;
 
    procedure Motors_Test is
       Next_Period_1 : Time;
@@ -123,10 +156,10 @@ package body Motors_Pack is
    begin
       for Motor in Motor_ID loop
          Next_Period_1 := Clock + Milliseconds (MOTORS_TEST_ON_TIME_MS);
-         Motor_Set_Ratio (Motor, 20);
+         Motor_Set_Power (Motor, 13_000);
          delay until (Next_Period_1);
          Next_Period_2 := Clock + Milliseconds (MOTORS_TEST_DELAY_TIME_MS);
-         Motor_Set_Ratio (Motor, 1);
+         Motor_Set_Power (Motor, 0);
          delay until (Next_Period_2);
       end loop;
    end Motors_Test;

@@ -15,10 +15,15 @@ package Motors_Pack is
    --  Initialize the motors
    procedure Motors_Init;
 
-   --  Apply power to the given motor
+   --  Apply a power percentage to the given motor
    procedure Motor_Set_Ratio
-     (ID          : Motor_ID;
-      Motor_Power : STM32F4.PWM.Duty_Percentage);
+     (ID               : Motor_ID;
+      Power_Percentage : Duty_Percentage);
+
+   --  Apply an absolute power to the given motor
+   procedure Motor_Set_Power
+     (ID : Motor_ID;
+      Motor_Power : T_Uint16);
 
    --  Test all the Crazyflie motors
    procedure Motors_Test;
