@@ -3,6 +3,10 @@ package body LEDS_Pack is
    procedure LEDS_Init is
       Configuration : GPIO_Port_Configuration;
    begin
+      if Is_Init then
+         return;
+      end if;
+
       Enable_Clock (GPIO_D);
       Enable_Clock (GPIO_C);
 
@@ -21,7 +25,14 @@ package body LEDS_Pack is
       for LED in Crazyflie_LED loop
          Set_LED (LED, False);
       end loop;
+
+      Is_Init := True;
    end LEDS_Init;
+
+   function LEDS_Test return Boolean is
+   begin
+      return Is_Init;
+   end LEDS_Test;
 
    procedure Set_LED (LED : Crazyflie_LED; Value : Boolean) is
       Set_Value : constant Boolean

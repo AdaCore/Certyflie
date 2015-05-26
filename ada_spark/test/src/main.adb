@@ -1,29 +1,23 @@
 pragma Profile (Ravenscar);
 
-with Ada.Real_Time; use Ada.Real_Time;
 with Last_Chance_Handler;
 with System;
-with LEDS_Pack; use LEDS_Pack;
-with Motors_Pack; use Motors_Pack;
-with Communication_Pack; use Communication_Pack;
-with Commander_Pack; use Commander_Pack;
-with Stabilizer_Pack; use Stabilizer_Pack;
+with System_Pack; use System_Pack;
+with Ada.Real_Time; use Ada.Real_Time;
 
 procedure Main is
    pragma Priority (System.Priority'Last);
+   Self_Test_Passed : Boolean;
 begin
-   --  Module initialization
+   --  System initialization
+   System_Init;
 
-   --  Initialize LEDs, sensors and actuators
-   LEDS_Init;
-   Motors_Init;
-   Motors_Test;
+   --  See if we pass the self test
+   Self_Test_Passed := System_Self_Test;
 
-   --  Initialize communication related modules
-   Communication_Init;
-
-   --  Initialize high level modules
-   Commander_Init;
-
-   delay until (Time_Last);
+   --  Start the main loop if the self test passed
+--     if Self_Test_Passed then
+--        System_Loop;
+--     end if;
+   delay until Time_Last;
 end Main;

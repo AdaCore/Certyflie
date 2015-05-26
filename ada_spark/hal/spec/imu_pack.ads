@@ -52,8 +52,9 @@ is
 
    --  Constants
 
-   IMU_UPDATE_FREQ : constant := 500.0;
-   IMU_UPDATE_DT   : constant := 1.0 / IMU_UPDATE_FREQ;
+   IMU_UPDATE_FREQ  : constant := 500.0;
+   IMU_UPDATE_DT    : constant := 1.0 / IMU_UPDATE_FREQ;
+   IMU_UPDATE_DT_MS : constant Integer := Integer (IMU_UPDATE_DT * 1_000.0);
 
    --  Procedures and functions
 

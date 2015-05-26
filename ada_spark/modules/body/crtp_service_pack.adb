@@ -1,4 +1,5 @@
 with Ada.Unchecked_Conversion;
+with Console_Pack; use Console_Pack;
 
 package body CRTP_Service_Pack is
 
@@ -30,8 +31,12 @@ package body CRTP_Service_Pack is
             Tx_Packet.Size := CRTP_MAX_DATA_SIZE;
             Crtp_Send_Packet (Tx_Packet, Has_Succeed);
          when others =>
-            --  Test
-            Crtp_Send_Packet (Tx_Packet, Has_Succeed);
+            --  Null packets. Echo the first one that we recive to
+            --  so that the client know that we are connected
+            if not Connected_To_Client then
+               Console_Put_Line ("Hello PC Client!", Has_Succeed);
+               Connected_To_Client := True;
+            end if;
       end case;
    end CRTP_Service_Handler;
 

@@ -28,6 +28,7 @@ private
 
    --  Global variable and constants
 
-   Is_Init : Boolean := False;
+   Is_Init             : Boolean := False;
+   Connected_To_Client : Boolean := False;
 
 end CRTP_Service_Pack;

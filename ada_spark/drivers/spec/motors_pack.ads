@@ -26,7 +26,7 @@ package Motors_Pack is
       Motor_Power : T_Uint16);
 
    --  Test all the Crazyflie motors
-   procedure Motors_Test;
+   function Motors_Test return Boolean;
 
 private
    --  Global variables and constants
@@ -65,9 +65,5 @@ private
    MOTORS_GPIO_AF_M4     : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
    MOTORS_TIMER_M4       : constant Timer := TIM4;
    MOTORS_TIM_CHANNEL_M4 : constant Channel := CH4;
-
-   --  Private procedures and functions
-
-   function C_16_To_Bits (Ratio : T_Uint16) return Word;
 
 end Motors_Pack;

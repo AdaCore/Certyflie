@@ -10,10 +10,16 @@ package LEDS_Pack is
    --  Initizalize the Crazyflie leds
    procedure LEDS_Init;
 
+   --  Test if the leds are initialized
+   function LEDS_Test return Boolean;
+
    -- Set the led if Value = True, clear if Value = False
    procedure Set_LED (LED : Crazyflie_LED; Value : Boolean);
 
 private
+   --  Global variables and constants
+
+   Is_Init : Boolean := False;
 
    --  Mapping to get the proper pin of a given led
    LEDs_Pins : constant array (Crazyflie_LED) of GPIO_Pin

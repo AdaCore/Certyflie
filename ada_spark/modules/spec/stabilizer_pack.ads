@@ -51,10 +51,6 @@ is
 
    --  Procedures and functions
 
-   --  C function for Alt Hold Mode (Test)
-   procedure C_Stabilizer_Alt_Hold_Update;
-   pragma Import (C, C_Stabilizer_Alt_Hold_Update, "stabilizerAltHoldUpdate");
-
    --  Main function of the stabilization system. Get the commands, give them
    --  to the PIDs, and get the output to control the actuators.
    procedure Stabilizer_Control_Loop
@@ -79,7 +75,6 @@ is
                              V_Speed_Variables,
                              Asl_Variables,
                              Alt_Hold_Variables));
-   pragma Export (C, Stabilizer_Control_Loop, "ada_stabilizerControlLoop");
 
    --  Function called when Alt_Hold mode is activated. Holds the drone
    --  at a target altitude.
@@ -300,76 +295,6 @@ private
      with Part_Of => Motor_Powers;
    Motor_Power_M3  : T_Uint16 := 0
      with Part_Of => Motor_Powers;
-
-   --  Export all of these varaibles from the C part,
-   --  so the C part can debug/log them easily
-   pragma Export (C, Gyro, "gyro");
-   pragma Export (C, Acc, "acc");
-   pragma Export (C, Mag, "mag");
-
-   pragma Export (C, Euler_Roll_Actual, "eulerRollActual");
-   pragma Export (C, Euler_Pitch_Actual, "eulerPitchActual");
-   pragma Export (C, Euler_Yaw_Actual, "eulerYawActual");
-   pragma Export (C, Euler_Roll_Desired, "eulerRollDesired");
-   pragma Export (C, Euler_Pitch_Desired, "eulerPitchDesired");
-   pragma Export (C, Euler_Yaw_Desired, "eulerYawDesired");
-   pragma Export (C, Roll_Rate_Desired, "rollRateDesired");
-   pragma Export (C, Pitch_Rate_Desired, "pitchRateDesired");
-   pragma Export (C, Yaw_Rate_Desired, "yawRateDesired");
-
-   pragma Export (C, Temperature, "temperature");
-   pragma Export (C, Pressure, "pressure");
-   pragma Export (C, Asl, "asl");
-   pragma Export (C, Asl_Raw, "aslRaw");
-   pragma Export (C, Asl_Long, "aslLong");
-
-   pragma Export (C, ALT_HOLD_KP, "altHoldKp");
-   pragma Export (C, ALT_HOLD_KI, "altHoldKi");
-   pragma Export (C, ALT_HOLD_KD, "altHoldKd");
-   pragma Export (C, Alt_Hold_PID, "altHoldPID");
-   pragma Export (C, Alt_Hold, "altHold");
-   pragma Export (C, Set_Alt_Hold, "setAltHold");
-   pragma Export (C, Acc_WZ, "accWZ");
-   pragma Export (C, Acc_MAG, "accMAG");
-   pragma Export (C, V_Speed_ASL, "vSpeedASL");
-   pragma Export (C, V_Speed_Acc, "vSpeedAcc");
-   pragma Export (C, V_Speed, "vSpeed");
-   pragma Export (C, Alt_Hold_PID_Val, "altHoldPIDVal");
-   pragma Export (C, Alt_Hold_Err, "altHoldErr");
-
-   pragma Export (C, Alt_Hold_Change, "altHoldChange");
-   pragma Export (C, Alt_Hold_Target, "altHoldTarget");
-   pragma Export (C, Alt_Hold_Err_Max, "altHoldErrMax");
-   pragma Export (C, Alt_Hold_Change_SENS, "altHoldChange_SENS");
-   pragma Export (C, Alt_Pid_Asl_Fac, "pidAslFac");
-   pragma Export (C, Alt_Pid_Alpha, "pidAlpha");
-   pragma Export (C, V_Speed_ASL_Fac, "vSpeedASLFac");
-   pragma Export (C, V_Speed_Acc_Fac, "vSpeedAccFac");
-   pragma Export (C, V_Acc_Deadband, "vAccDeadband");
-   pragma Export (C, V_Speed_ASL_Deadband, "vSpeedASLDeadband");
-   pragma Export (C, V_Speed_Limit, "vSpeedLimit");
-   pragma Export (C, Asl_Err_Deadband, "errDeadband");
-   pragma Export (C, V_Bias_Alpha, "vBiasAlpha");
-   pragma Export (C, Asl_Alpha, "aslAlpha");
-   pragma Export (C, Asl_Alpha_Long, "aslAlphaLong");
-
-   pragma Export (C, Alt_Hold_Min_Thrust, "altHoldMinThrust");
-   pragma Export (C, Alt_Hold_Base_Thrust, "altHoldBaseThrust");
-   pragma Export (C, Alt_Hold_Max_Thrust, "altHoldMaxThrust");
-
-   pragma Export (C, Actuator_Thrust, "actuatorThrust");
-   pragma Export (C, Actuator_Roll, "actuatorRoll");
-   pragma Export (C, Actuator_Pitch, "actuatorPitch");
-   pragma Export (C, Actuator_Yaw, "actuatorYaw");
-
-   pragma Export (C, Roll_Type, "rollType");
-   pragma Export (C, Pitch_Type, "pitchType");
-   pragma Export (C, Yaw_Type, "yawType");
-
-   pragma Export (C, Motor_Power_M4, "motorPowerM4");
-   pragma Export (C, Motor_Power_M2, "motorPowerM2");
-   pragma Export (C, Motor_Power_M1, "motorPowerM1");
-   pragma Export (C, Motor_Power_M3, "motorPowerM3");
 
    --  Distribute power to the actuators with the PIDs outputs.
    procedure Stabilizer_Distribute_Power

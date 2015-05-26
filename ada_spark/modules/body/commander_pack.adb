@@ -14,6 +14,8 @@ package body Commander_Pack is
       Last_Update := Clock;
       Crtp_Register_Callback
         (CRTP_PORT_COMMANDER, Commander_Crtp_Handler'Access);
+
+      Is_Init := True;
    end Commander_Init;
 
    function Commander_Test return Boolean is
@@ -31,9 +33,7 @@ package body Commander_Pack is
          Thrust_Locked := False;
       end if;
 
-      --  TODO: remove teh call to Print_Caommands when testing done
       Commander_Watchdog_Reset;
-      Crtp_Send_Packet (Packet, Has_Succeed);
    end Commander_Crtp_Handler;
 
    procedure Commander_Get_RPY

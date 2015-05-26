@@ -150,7 +150,7 @@ package body Motors_Pack is
       end case;
    end Motor_Set_Power;
 
-   procedure Motors_Test is
+   function Motors_Test return Boolean is
       Next_Period_1 : Time;
       Next_Period_2 : Time;
    begin
@@ -162,13 +162,8 @@ package body Motors_Pack is
          Motor_Set_Power (Motor, 0);
          delay until (Next_Period_2);
       end loop;
+
+      return True;
    end Motors_Test;
-
-   function C_16_To_Bits (Ratio : T_Uint16) return Word is
-   begin
-      --  TODO
-      return Word (Ratio);
-   end C_16_To_Bits;
-
 
 end Motors_Pack;
