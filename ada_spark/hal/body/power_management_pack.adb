@@ -54,7 +54,15 @@ package body Power_Management_Pack is
          when others =>
             null;
       end case;
-      --  TODO: find other led feedback for teh other power states
+      --  TODO: find other led feedback for the other power states
    end Set_Power_LEDs;
+
+   function Power_Management_Is_Discharging return Boolean is
+      State : Power_State;
+   begin
+      State := Power_Management_Get_State;
+
+      return State = Battery;
+   end Power_Management_Is_Discharging;
 
 end Power_Management_Pack;

@@ -49,6 +49,9 @@ package Power_Management_Pack is
    --  Get the current power state
    function Power_Management_Get_State return Power_State;
 
+   --  Return True is the Crazyflie is discharging, False when it's charging
+   function Power_Management_Is_Discharging return Boolean;
+
 private
 
    --  Global variables and constants

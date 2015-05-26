@@ -64,8 +64,6 @@ is
      with
        Global => null;
 
-   pragma Import (C, IMU_9_Read, "imu9Read");
-
    function IMU_6_Calibrated return Boolean;
 
    function IMU_Has_Barometer return Boolean;

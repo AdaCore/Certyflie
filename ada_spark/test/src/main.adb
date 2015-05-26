@@ -7,6 +7,7 @@ with LEDS_Pack; use LEDS_Pack;
 with Motors_Pack; use Motors_Pack;
 with Communication_Pack; use Communication_Pack;
 with Commander_Pack; use Commander_Pack;
+with Stabilizer_Pack; use Stabilizer_Pack;
 
 procedure Main is
    pragma Priority (System.Priority'Last);

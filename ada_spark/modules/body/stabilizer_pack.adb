@@ -3,7 +3,7 @@ with Interfaces.C; use Interfaces.C;
 with Config; use Config;
 with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
-with PM_Pack; use PM_Pack;
+with Power_Management_Pack; use Power_Management_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode,
@@ -87,10 +87,10 @@ is
       Roll   : T_Int16;
       Pitch  : T_Int16;
       Yaw    : T_Int16) is
-      T : T_Int32 := T_Int32 (Thrust);
+      T : constant T_Int32 := T_Int32 (Thrust);
       R : T_Int32 := T_Int32 (Roll);
       P : T_Int32 := T_Int32 (Pitch);
-      Y : T_Int32 := T_Int32 (Yaw);
+      Y : constant T_Int32 := T_Int32 (Yaw);
    begin
       if QUAD_FORMATION_X then
          R := R / 2;
@@ -107,10 +107,10 @@ is
          Motor_Power_M4 := Limit_Thrust (T + R - Y);
       end if;
 
-      Motor_Set_Ratio (MOTOR_M1, Motor_Power_M1);
-      Motor_Set_Ratio (MOTOR_M2, Motor_Power_M2);
-      Motor_Set_Ratio (MOTOR_M3, Motor_Power_M3);
-      Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
+      Motor_Set_Power (MOTOR_M1, Motor_Power_M1);
+      Motor_Set_Power (MOTOR_M2, Motor_Power_M2);
+      Motor_Set_Power (MOTOR_M3, Motor_Power_M3);
+      Motor_Set_Power (MOTOR_M4, Motor_Power_M4);
    end Stabilizer_Distribute_Power;
 
    procedure Stabilizer_Update_Attitude is
@@ -206,7 +206,7 @@ is
       V_Speed_Acc := V_Speed;
 
       --  Reset Integral gain of PID controller if being charged
-      if PM_Is_Discharging = 0 then
+      if not Power_Management_Is_Discharging then
          Alt_Hold_PID.Integ := 0.0;
       end if;
 

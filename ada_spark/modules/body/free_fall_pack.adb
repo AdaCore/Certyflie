@@ -1,5 +1,3 @@
-with Safety_Pack; use Safety_Pack;
-
 package body Free_Fall_Pack
 with SPARK_Mode,
   Refined_State => (FF_Parameters => (FF_MODE,
