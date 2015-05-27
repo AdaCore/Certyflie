@@ -4,6 +4,7 @@ with Types; use Types;
 with LEDS_Pack; use LEDS_Pack;
 with IMU_Pack; use IMU_Pack;
 with Motors_Pack; use Motors_Pack;
+with Power_Management_Pack; use Power_Management_Pack;
 with Communication_Pack; use Communication_Pack;
 with Commander_Pack; use Commander_Pack;
 with Stabilizer_Pack; use Stabilizer_Pack;
@@ -18,9 +19,10 @@ package body System_Pack is
       end if;
       --  Module initialization
 
-      --  Initialize LEDs, sensors and actuators
+      --  Initialize LEDs, power management, sensors and actuators
       LEDS_Init;
       Motors_Init;
+      Power_Management_Init;
 
       --  Initialize communication related modules
       Communication_Init;

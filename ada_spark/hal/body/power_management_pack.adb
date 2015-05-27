@@ -4,8 +4,40 @@ package body Power_Management_Pack is
 
    procedure Power_Management_Init is
    begin
-      null;
+      Current_Power_State := Battery;
    end Power_Management_Init;
+
+   procedure Power_Management_Set_Battery_Voltage (Voltage : Float) is
+   begin
+      Battery_Voltage := Voltage;
+
+      if Battery_Voltage_Max < Voltage then
+         Battery_Voltage_Max := Voltage;
+      end if;
+
+      if Battery_Voltage_Min > Voltage then
+         Battery_Voltage_Min := Voltage;
+      end if;
+   end Power_Management_Set_Battery_Voltage;
+
+   function Power_Management_Get_Charge_From_Voltage
+     (Voltage : Float) return Integer is
+      Charge : Integer := 0;
+   begin
+      if Voltage < Bat_671723HS25C (1) then
+         return 0;
+      end if;
+
+      if Voltage > Bat_671723HS25C (9) then
+         return 9;
+      end if;
+
+      while Voltage > Bat_671723HS25C (Charge) loop
+         Charge := Charge + 1;
+      end loop;
+
+      return Charge;
+   end Power_Management_Get_Charge_From_Voltage;
 
    procedure Power_Management_Syslink_Update (Sl_Packet : Syslink_Packet) is
       subtype Power_Data is T_Uint8_Array (1 .. 9);
@@ -14,30 +46,41 @@ package body Power_Management_Pack is
    begin
       Current_Power_Info :=
         Syslink_Data_To_Power_Syslink_Info (Sl_Packet.Data (1 .. 9));
-
-      --  Set the Power LEDs accordingly
-      Set_Power_LEDs (Power_Management_Get_State);
+      Power_Management_Set_Battery_Voltage (Current_Power_Info.V_Bat_1);
    end Power_Management_Syslink_Update;
 
-   function Power_Management_Get_State return Power_State is
-      Current_State : Power_State;
-      Is_Charging   : Boolean;
-      Is_Pgood      : Boolean;
+   function Power_Management_Get_State
+     (Power_Info : Power_Syslink_Info) return Power_State is
+      State : Power_State;
+      Is_Charging      : Boolean;
+      Is_Pgood         : Boolean;
+      Battery_Low_Time : Time_Span;
    begin
-      Is_Charging := Current_Power_Info.Charging;
-      Is_Pgood := Current_Power_Info.Pgood;
+      Is_Charging := Power_Info.Charging;
+      Is_Pgood := Power_Info.Pgood;
+      Battery_Low_Time := Clock - Battery_Low_Time_Stamp;
 
-      if Is_Pgood and Is_Charging then
-         Current_State := Charged;
+      if Is_Pgood and not Is_Charging then
+         State := Charged;
       elsif Is_Charging then
-         Current_State := Charging;
+         State := Charging;
+      elsif not Is_Pgood and not Is_Charging and
+        Battery_Low_Time > PM_BAT_LOW_TIMEOUT then
+         State := Low_Power;
       else
-         Current_State := Battery;
+         State := Battery;
       end if;
 
-      -- TODO: add the restant cases..
-      return Current_State;
+      return State;
    end Power_Management_Get_State;
+
+   function Power_Management_Is_Discharging return Boolean is
+      State : Power_State;
+   begin
+      State := Power_Management_Get_State (Current_Power_Info);
+
+      return State = Battery;
+   end Power_Management_Is_Discharging;
 
    procedure Set_Power_LEDs (State : Power_State) is
    begin
@@ -45,24 +88,50 @@ package body Power_Management_Pack is
          when Charging =>
             Set_LED (Charging_LED, True);
             Set_LED (Charged_LED, False);
+            Set_LED (Low_Power_Led, False);
          when Charged =>
-            Set_LED (Charged_LED, True);
             Set_LED (Charging_LED, False);
+            Set_LED (Charged_LED, True);
+            Set_LED (Low_Power_Led, False);
+         when Low_Power =>
+            Set_LED (Charged_LED, False);
+            Set_LED (Charging_LED, False);
+            Set_LED (Low_Power_Led, True);
          when Battery =>
             Set_LED (Charged_LED, False);
             Set_LED (Charging_LED, False);
+            Set_LED (Low_Power_Led, False);
          when others =>
             null;
       end case;
       --  TODO: find other led feedback for the other power states
    end Set_Power_LEDs;
 
-   function Power_Management_Is_Discharging return Boolean is
-      State : Power_State;
+   task body Power_Management_Task is
+      Next_Period     : Time;
+      New_Power_State : Power_State;
    begin
-      State := Power_Management_Get_State;
+      Next_Period := Clock + Milliseconds (500);
 
-      return State = Battery;
-   end Power_Management_Is_Discharging;
+      Battery_Low_Time_Stamp := Clock;
+
+      loop
+         delay until Next_Period;
+
+         if Battery_Voltage > PM_BAT_LOW_VOLTAGE then
+            Battery_Low_Time_Stamp := Clock;
+         end if;
+
+         New_Power_State := Power_Management_Get_State (Current_Power_Info);
+
+         --  Set the leds accordingly if teh power state has changed
+         if Current_Power_State /= New_Power_State then
+            Set_Power_LEDs (New_Power_State);
+            Current_Power_State := New_Power_State;
+         end if;
+
+         Next_Period := Clock + Milliseconds (500);
+      end loop;
+   end Power_Management_Task;
 
 end Power_Management_Pack;

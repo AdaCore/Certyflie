@@ -1,6 +1,8 @@
 with Types; use Types;
 with Syslink_Pack; use Syslink_Pack;
 with LEDS_Pack; use LEDS_Pack;
+with Ada.Real_Time; use Ada.Real_Time;
+with System;
 
 package Power_Management_Pack is
 
@@ -46,9 +48,6 @@ package Power_Management_Pack is
    --  Update the power state information
    procedure Power_Management_Syslink_Update (Sl_Packet : Syslink_Packet);
 
-   --  Get the current power state
-   function Power_Management_Get_State return Power_State;
-
    --  Return True is the Crazyflie is discharging, False when it's charging
    function Power_Management_Is_Discharging return Boolean;
 
@@ -56,16 +55,63 @@ private
 
    --  Global variables and constants
 
-   --  Current power information received from NFR51
-   Current_Power_Info : Power_Syslink_Info;
+   --  Current power information received from nrf51
+   --  and current power state
+   Current_Power_Info  : Power_Syslink_Info;
+   Current_Power_State : Power_State;
+
+   --  Current battery voltage, and it's min and max values
+   Battery_Voltage          : Float;
+   Battery_Voltage_Min      : Float := 6.0;
+   Battery_Voltage_Max      : Float := 0.0;
+   Battery_Low_Time_Stamp   : Time;
 
    --  LEDs to switch on according power state
-   Charging_LED : constant Crazyflie_LED := LED_RED_L;
-   Charged_LED  : constant Crazyflie_LED := LED_Green_L;
+   Charging_LED  : constant Crazyflie_LED := LED_Blue_L;
+   Charged_LED   : constant Crazyflie_LED := LED_Green_L;
+   Low_Power_Led : constant Crazyflie_LED := LED_Red_L;
 
-   --  Prcoedures and functions
+   --  Constants used to detect when the battery is low
+   PM_BAT_LOW_VOLTAGE : constant := 3.2;
+   PM_BAT_LOW_TIMEOUT : constant Time_Span := Seconds (5);
+
+   --  Constants used to know the charge percentage of the battery
+   Bat_671723HS25C : constant array (1 .. 10) of Float :=
+                       (
+                        3.00, --   00%
+                        3.78, --   10%
+                        3.83, --   20%
+                        3.87, --   30%
+                        3.89, --   40%
+                        3.92, --   50%
+                        3.96, --   60%
+                        4.00, --   70%
+                        4.04, --   80%
+                        4.10  --   90%
+                       );
+
+   --  Procedures and functions
+
+   --  Set the battery voltage and its min and max values
+   procedure Power_Management_Set_Battery_Voltage (Voltage : Float);
+
+   --  Return a number From 0 To 9 Where 0 is completely Discharged
+   --  and 9 is 90% charged.
+   function Power_Management_Get_Charge_From_Voltage
+     (Voltage : Float) return Integer;
+
+   --  Get the power state for the given power information received from
+   --  the nrf51
+   function Power_Management_Get_State
+     (Power_Info : Power_Syslink_Info) return Power_State;
 
    --  Switch on/off the power related leds according to power state
    procedure Set_Power_LEDs (State : Power_State);
+
+   --  Tasks and protected objects
+
+   task Power_Management_Task is
+      pragma Priority (System.Priority'Last - 2);
+   end Power_Management_Task;
 
 end Power_Management_Pack;
