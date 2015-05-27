@@ -110,8 +110,8 @@ private
 
    --  Tasks and protected objects
 
-   task Power_Management_Task is
-      pragma Priority (System.Priority'Last - 2);
-   end Power_Management_Task;
+--     task Power_Management_Task is
+--        pragma Priority (System.Priority'Last - 2);
+--     end Power_Management_Task;
 
 end Power_Management_Pack;

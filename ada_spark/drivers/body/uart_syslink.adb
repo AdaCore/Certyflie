@@ -19,6 +19,7 @@ package body UART_Syslink is
       Timeout_Time : Time;
    begin
       Timeout_Time := Clock + UART_DATA_TIMEOUT_MS;
+
       while Clock <= Timeout_Time loop
          Rx_Queue.Dequeue_Item (Rx_Byte, Has_Succeed);
          if Has_Succeed then

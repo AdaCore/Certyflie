@@ -14,11 +14,6 @@ package body Crtp_Pack is
 
          if Has_Succeed then
             Has_Succeed := Link_Send_Packet (Packet);
-
-            --  Keep testing, if the link changes to USB it will go through
-            while not Has_Succeed loop
-               Has_Succeed := Link_Send_Packet (Packet);
-            end loop;
          end if;
 
          delay until Time_First;

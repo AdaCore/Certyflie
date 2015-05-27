@@ -25,6 +25,7 @@ package body Commander_Pack is
 
    procedure Commander_Crtp_Handler (Packet : Crtp_Packet) is
       Has_Succeed : Boolean;
+      Tx_Packet   : Crtp_Packet;
    begin
       Side := not Side;
       Target_Val (Side) := Get_Commands_From_Packet (Packet);
@@ -34,6 +35,11 @@ package body Commander_Pack is
       end if;
 
       Commander_Watchdog_Reset;
+
+      --  Send a null packet to acknowledge that we are connected
+      Tx_Packet.Port := CRTP_PORT_CONSOLE;
+      Tx_Packet.Size := 0;
+      Crtp_Send_Packet (Tx_Packet, Has_Succeed);
    end Commander_Crtp_Handler;
 
    procedure Commander_Get_RPY

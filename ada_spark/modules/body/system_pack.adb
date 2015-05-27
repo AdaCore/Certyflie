@@ -8,7 +8,6 @@ with Power_Management_Pack; use Power_Management_Pack;
 with Communication_Pack; use Communication_Pack;
 with Commander_Pack; use Commander_Pack;
 with Stabilizer_Pack; use Stabilizer_Pack;
-with Console_Pack; use Console_Pack;
 
 package body System_Pack is
 
@@ -48,14 +47,12 @@ package body System_Pack is
       Attitude_Update_Counter : T_Uint32 := 0;
       Alt_Hold_Update_Counter : T_Uint32 := 0;
       Next_Period             : Time;
-      Has_Succeed             : Boolean;
    begin
       Next_Period := Clock + Milliseconds (IMU_UPDATE_DT_MS);
 
       loop
          delay until Next_Period;
 
-         Console_Put_Line ("Loop called", Has_Succeed);
          Stabilizer_Control_Loop (Attitude_Update_Counter,
                                   Alt_Hold_Update_Counter);
 

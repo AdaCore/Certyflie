@@ -107,31 +107,31 @@ package body Power_Management_Pack is
       --  TODO: find other led feedback for the other power states
    end Set_Power_LEDs;
 
-   task body Power_Management_Task is
-      Next_Period     : Time;
-      New_Power_State : Power_State;
-   begin
-      Next_Period := Clock + Milliseconds (500);
-
-      Battery_Low_Time_Stamp := Clock;
-
-      loop
-         delay until Next_Period;
-
-         if Battery_Voltage > PM_BAT_LOW_VOLTAGE then
-            Battery_Low_Time_Stamp := Clock;
-         end if;
-
-         New_Power_State := Power_Management_Get_State (Current_Power_Info);
-
-         --  Set the leds accordingly if teh power state has changed
-         if Current_Power_State /= New_Power_State then
-            Set_Power_LEDs (New_Power_State);
-            Current_Power_State := New_Power_State;
-         end if;
-
-         Next_Period := Clock + Milliseconds (500);
-      end loop;
-   end Power_Management_Task;
+--     task body Power_Management_Task is
+--        Next_Period     : Time;
+--        New_Power_State : Power_State;
+--     begin
+--        Next_Period := Clock + Milliseconds (500);
+--
+--        Battery_Low_Time_Stamp := Clock;
+--
+--        loop
+--           delay until Next_Period;
+--
+--           if Battery_Voltage > PM_BAT_LOW_VOLTAGE then
+--              Battery_Low_Time_Stamp := Clock;
+--           end if;
+--
+--           New_Power_State := Power_Management_Get_State (Current_Power_Info);
+--
+--           --  Set the leds accordingly if teh power state has changed
+--           if Current_Power_State /= New_Power_State then
+--              Set_Power_LEDs (New_Power_State);
+--              Current_Power_State := New_Power_State;
+--           end if;
+--
+--           Next_Period := Clock + Milliseconds (500);
+--        end loop;
+--     end Power_Management_Task;
 
 end Power_Management_Pack;
