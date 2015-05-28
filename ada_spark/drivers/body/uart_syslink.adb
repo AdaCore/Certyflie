@@ -16,16 +16,9 @@ package body UART_Syslink is
    procedure UART_Get_Data_With_Timeout
      (Rx_Byte     : out T_Uint8;
       Has_Succeed : out Boolean) is
-      Timeout_Time : Time;
    begin
-      Timeout_Time := Clock + UART_DATA_TIMEOUT_MS;
-
-      while Clock <= Timeout_Time loop
-         Rx_Queue.Dequeue_Item (Rx_Byte, Has_Succeed);
-         if Has_Succeed then
-            return;
-         end if;
-      end loop;
+      Rx_Queue.Set_Timeout (UART_DATA_TIMEOUT_MS);
+      Rx_Queue.Dequeue_Item (Rx_Byte, Has_Succeed);
    end UART_Get_Data_With_Timeout;
 
    procedure UART_Send_DMA_Data

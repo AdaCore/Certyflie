@@ -1,4 +1,5 @@
 with Link_Interface_Pack; use Link_Interface_Pack;
+with Config; use Config;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
 
@@ -9,6 +10,7 @@ package body Crtp_Pack is
       Has_Succeed : Boolean;
    begin
       loop
+         Tx_Queue.Set_Timeout (PORT_MAX_DELAY_TIME_MS);
          Tx_Queue.Dequeue_Item
            (Packet, Has_Succeed);
 
@@ -16,7 +18,6 @@ package body Crtp_Pack is
             Has_Succeed := Link_Send_Packet (Packet);
          end if;
 
-         delay until Time_First;
       end loop;
    end Crtp_Tx_Task;
 
@@ -136,6 +137,7 @@ package body Crtp_Pack is
       Port_ID          : Crtp_Port;
       Has_Succeed      : out Boolean;
       Time_To_Wait     :  Time_Span := Milliseconds (0)) is
+      pragma Unreferenced (Time_To_Wait);
    begin
       Port_Queues (Port_ID).Dequeue_Item
         (Packet, Has_Succeed);
@@ -145,6 +147,7 @@ package body Crtp_Pack is
      (Packet : Crtp_Packet;
       Has_Succeed : out Boolean;
       Time_To_Wait : Time_Span := Milliseconds (0)) is
+      pragma Unreferenced (Time_To_Wait);
    begin
       Tx_Queue.Enqueue_Item (Packet, Has_Succeed);
    end Crtp_Send_Packet;

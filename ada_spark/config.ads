@@ -1,3 +1,4 @@
+with Ada.Real_Time; use Ada.Real_Time;
 with Types; use Types;
 
 package Config is
@@ -21,8 +22,8 @@ package Config is
 
    PORT_MAX_DELAY : constant T_Uint16 := T_Uint16'Last;
 
-   PORT_MAX_DELAY_TIME_MS : constant Integer :=
-                              Integer (PORT_MAX_DELAY / TICK_RATE_MS);
+   PORT_MAX_DELAY_TIME_MS : constant Time_Span
+     := Milliseconds (Integer (PORT_MAX_DELAY / TICK_RATE_MS));
 
    --  Radio configuration
    RADIO_CHANNEL       : constant := 80;

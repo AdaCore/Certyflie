@@ -26,6 +26,7 @@ package body Commander_Pack is
    procedure Commander_Crtp_Handler (Packet : Crtp_Packet) is
       Has_Succeed : Boolean;
       Tx_Packet   : Crtp_Packet;
+      pragma Unreferenced (Has_Succeed);
    begin
       Side := not Side;
       Target_Val (Side) := Get_Commands_From_Packet (Packet);

@@ -5,6 +5,8 @@ with System;
 with System_Pack; use System_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
 
+pragma Unreferenced (Last_Chance_Handler);
+
 procedure Main is
    pragma Priority (System.Priority'Last);
    Self_Test_Passed : Boolean;
