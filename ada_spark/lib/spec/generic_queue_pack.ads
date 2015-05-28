@@ -1,9 +1,12 @@
 with System;
+with Ada.Real_Time; use Ada.Real_Time;
+with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
 
 generic
    type T_Element is private;
 
 package Generic_Queue_Pack is
+
    type T_Queue (Length : Positive) is private;
 
    procedure Enqueue
@@ -21,15 +24,28 @@ package Generic_Queue_Pack is
    protected type Protected_Queue
      (Ceiling    : System.Any_Priority;
       Queue_Size : Positive)is
+
       procedure Enqueue_Item
         (Item         : T_Element;
          Has_Succeed  : out Boolean);
-      procedure Dequeue_Item
+
+      entry Dequeue_Item
         (Item : out T_Element;
          Has_Succeed  : out Boolean);
+
+      procedure Timeout (E : in out Timing_Event);
+
+      procedure Set_Timeout (Timeout_Span : Time_Span);
+
    private
       pragma Priority (Ceiling);
-      Queue           : T_Queue (Queue_Size);
+
+      Data_Available : Boolean := False;
+      Timedout       : Boolean := False;
+      Queue          : T_Queue (Queue_Size);
+      Timeout_Event  : Timing_Event;
+      Timeout_Handler_Accces : Timing_Event_Handler := Timeout'Access;
+
    end Protected_Queue;
 
 private

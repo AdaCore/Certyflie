@@ -21,8 +21,8 @@ package Config is
 
    PORT_MAX_DELAY : constant T_Uint16 := T_Uint16'Last;
 
-   PORT_MAX_DELAY_TIME : constant Integer :=
-                           Integer (PORT_MAX_DELAY / TICK_RATE_MS);
+   PORT_MAX_DELAY_TIME_MS : constant Integer :=
+                              Integer (PORT_MAX_DELAY / TICK_RATE_MS);
 
    --  Radio configuration
    RADIO_CHANNEL       : constant := 80;

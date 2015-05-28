@@ -44,29 +44,52 @@ package body Generic_Queue_Pack is
    end Is_Full;
 
    protected body Protected_Queue is
+
       procedure Enqueue_Item
         (Item         : T_Element;
          Has_Succeed  : out Boolean) is
+         Cancelled : Boolean;
+         pragma Unreferenced (Cancelled);
       begin
+         Cancel_Handler (Timeout_Event, Cancelled);
+
          if not Is_Full (Queue) then
             Has_Succeed := True;
             Enqueue (Queue, Item);
+            Data_Available := True;
          else
             Has_Succeed := False;
          end if;
+
+         Timedout := False;
       end Enqueue_Item;
 
-      procedure Dequeue_Item
+      entry Dequeue_Item
         (Item          : out T_Element;
-         Has_Succeed   : out Boolean) is
+         Has_Succeed   : out Boolean) when Data_Available is
+         Cancelled : Boolean;
+         pragma Unreferenced (Cancelled);
       begin
-         if not Is_Empty (Queue) then
-            Has_Succeed := True;
-            Dequeue (Queue, Item);
-         else
-            Has_Succeed := False;
-         end if;
+         Cancel_Handler (Timeout_Event, Cancelled);
+         Dequeue (Queue, Item);
+         Data_Available := not Is_Empty (Queue);
+         Has_Succeed := not Timedout;
+         Timedout := False;
       end Dequeue_Item;
+
+      procedure Timeout (E : in out Timing_Event) is
+         pragma Unreferenced (E);
+      begin
+         Data_Available := True;
+         Timedout := True;
+      end Timeout;
+
+      procedure Set_Timeout (Timeout_Span : Time_Span) is
+      begin
+         Set_Handler
+           (Timeout_Event, Clock + Timeout_Span, Timeout_Handler_Accces);
+      end Set_Timeout;
+
    end Protected_Queue;
 
 end Generic_Queue_Pack;
