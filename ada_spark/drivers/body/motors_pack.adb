@@ -156,7 +156,7 @@ package body Motors_Pack is
    begin
       for Motor in Motor_ID loop
          Next_Period_1 := Clock + Milliseconds (MOTORS_TEST_ON_TIME_MS);
-         Motor_Set_Power (Motor, 13_000);
+         Motor_Set_Power (Motor, 1_000);
          delay until (Next_Period_1);
          Next_Period_2 := Clock + Milliseconds (MOTORS_TEST_DELAY_TIME_MS);
          Motor_Set_Power (Motor, 0);

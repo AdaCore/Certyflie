@@ -1,13 +1,12 @@
 --  Package implementing the link between
 --  the two Crazyflie MCU
 
-with Types; use Types;
-with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with Ada.Unchecked_Conversion;
-with UART_Syslink; use UART_Syslink;
 
-with System;
+with Types; use Types;
+with Config; use Config;
+with UART_Syslink; use UART_Syslink;
 
 package Syslink_Pack is
 
@@ -90,7 +89,7 @@ package Syslink_Pack is
    procedure Syslink_Init;
 
    --  Test the Syslink protocol
-   function Syslink_Test return Bool;
+   function Syslink_Test return Boolean;
 
    --  Send a packet to the nrf51 chip
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet);
@@ -112,7 +111,7 @@ private
    --  Tasks and protected objects
 
    task Syslink_Task is
-      pragma Priority (System.Priority'Last - 1);
+      pragma Priority (SYSLINK_TASK_PRIORITY);
    end Syslink_Task;
 
 end Syslink_Pack;

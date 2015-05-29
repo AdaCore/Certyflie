@@ -1,4 +1,5 @@
 with Ada.Real_Time; use Ada.Real_Time;
+with System;
 with Types; use Types;
 
 package Config is
@@ -11,6 +12,12 @@ package Config is
    CPU_CLOCK_HZ : constant T_Uint32 := 168000000;
    TICK_RATE_HZ : constant T_Uint16 := 1000;
    TICK_RATE_MS : constant T_Uint16 := 1000 / TICK_RATE_HZ;
+
+   --  Task priorities
+   MAIN_TASK_PRIORITY      : constant System.Priority := 4;
+   CRTP_RXTX_TASK_PRIORITY : constant System.Priority := 2;
+   SYSLINK_TASK_PRIORITY   : constant System.Priority := 3;
+   PM_TASK_PRIORITY        : constant System.Priority := 0;
 
    --  Two implemented algorithms for quaternions
    type Quaternion_Algorithm is (MAHONY, MADGWICK);

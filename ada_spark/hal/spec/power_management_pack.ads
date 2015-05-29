@@ -1,8 +1,10 @@
+
+with Ada.Real_Time; use Ada.Real_Time;
+
 with Types; use Types;
+with Config; use Config;
 with Syslink_Pack; use Syslink_Pack;
 with LEDS_Pack; use LEDS_Pack;
-with Ada.Real_Time; use Ada.Real_Time;
-with System;
 
 package Power_Management_Pack is
 
@@ -110,8 +112,8 @@ private
 
    --  Tasks and protected objects
 
---     task Power_Management_Task is
---        pragma Priority (System.Priority'Last - 2);
---     end Power_Management_Task;
+   task Power_Management_Task is
+      pragma Priority (PM_TASK_PRIORITY);
+   end Power_Management_Task;
 
 end Power_Management_Pack;

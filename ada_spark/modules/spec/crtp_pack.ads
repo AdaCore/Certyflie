@@ -1,7 +1,9 @@
-with Types; use Types;
-with Generic_Queue_Pack;
 with System;
 with Ada.Real_Time; use Ada.Real_Time;
+
+with Generic_Queue_Pack;
+with Types; use Types;
+with Config; use Config;
 
 package Crtp_Pack is
    --  Constants
@@ -167,13 +169,13 @@ private
    --  Task in charge of transmitting the messages in the Tx Queue
    --  to the link layer.
    task Crtp_Tx_Task is
-      pragma Priority (System.Priority'Last - 1);
+      pragma Priority (CRTP_RXTX_TASK_PRIORITY);
    end;
 
    --  Task in charge of dequeuing the messages in teh Rx_queue
    --  to put them in the Port_Queues
    task Crtp_Rx_Task is
-      pragma Priority (System.Priority'Last - 1);
+      pragma Priority (CRTP_RXTX_TASK_PRIORITY);
    end;
 
    --  Global variables

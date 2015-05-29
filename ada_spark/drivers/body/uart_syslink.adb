@@ -248,10 +248,10 @@ package body UART_Syslink is
 
          --  Received data interrupt management
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
+            Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
             Rx_Queue.Enqueue_Item
               (Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#),
                Has_Succeed);
-            Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
             Event_Kind := Received_Data_Not_Empty;
             Event_Occurred := True;
          end if;

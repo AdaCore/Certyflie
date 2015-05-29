@@ -1,14 +1,14 @@
 pragma Profile (Ravenscar);
 
 with Last_Chance_Handler;
-with System;
 with System_Pack; use System_Pack;
 with Ada.Real_Time; use Ada.Real_Time;
+with Config; use Config;
 
 pragma Unreferenced (Last_Chance_Handler);
 
 procedure Main is
-   pragma Priority (System.Priority'Last);
+   pragma Priority (MAIN_TASK_PRIORITY);
    Self_Test_Passed : Boolean;
 begin
    --  System initialization
