@@ -18,8 +18,8 @@ begin
    Self_Test_Passed := System_Self_Test;
 
    --  Start the main loop if the self test passed
-   --     if Self_Test_Passed then
-   --        System_Loop;
-   --     end if;
+   if Self_Test_Passed then
+      System_Loop;
+   end if;
    delay until Time_Last;
 end Main;

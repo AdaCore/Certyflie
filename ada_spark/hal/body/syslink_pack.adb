@@ -121,10 +121,7 @@ package body Syslink_Pack is
                   Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
                   Data_Index := Data_Index + 1;
                   if T_Uint8 (Data_Index) > Rx_Sl_Packet.Length then
-                     --  TODO: remove this.. Only for testing purpose
-                     Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
-                     Rx_State := WAIT_FOR_FIRST_START;
-                     --Rx_State := WAIT_FOR_CHKSUM_1;
+                     Rx_State := WAIT_FOR_CHKSUM_1;
                   end if;
                when WAIT_FOR_CHKSUM_1 =>
                   Rx_State := (if Chk_Sum (1) = Rx_Byte then

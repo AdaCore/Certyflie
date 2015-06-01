@@ -1,5 +1,4 @@
 with Link_Interface_Pack; use Link_Interface_Pack;
-with Config; use Config;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
 

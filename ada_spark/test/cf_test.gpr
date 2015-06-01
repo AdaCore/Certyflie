@@ -43,6 +43,8 @@ project Cf_Test is
    end case;
 
    package Builder is
+      for Global_Configuration_Pragmas use "gnat.adc";
+
       case Mode is
          when "Target" =>
             for Default_Switches ("ada") use ("-g");
