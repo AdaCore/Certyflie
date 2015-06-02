@@ -28,6 +28,7 @@ package body System_Pack is
 
       --  Initialize high level modules
       Commander_Init;
+      Stabilizer_Init;
 
       Is_Init := True;
    end System_Init;
@@ -39,6 +40,7 @@ package body System_Pack is
       Self_Test_Passed := Self_Test_Passed and Motors_Test;
       Self_Test_Passed := Self_Test_Passed and Communication_Test;
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
+      Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
 
       return Self_Test_Passed;
    end System_Self_Test;

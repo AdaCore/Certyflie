@@ -50,16 +50,9 @@ is
       Is_Init := True;
    end Controller_Init;
 
-   function Controller_Test return bool is
-      Res : bool;
+   function Controller_Test return Boolean is
    begin
-      if Is_Init then
-         Res := 1;
-      else
-         Res := 0;
-      end if;
-
-      return Res;
+      return Is_Init;
    end Controller_Test;
 
    procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : T_Rate;

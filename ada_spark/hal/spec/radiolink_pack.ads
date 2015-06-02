@@ -48,10 +48,10 @@ private
 
    --  Protected object queue for transmission
    Tx_Queue : Syslink_Queue.Protected_Queue
-     (System.Priority'Last, RADIOLINK_TX_QUEUE_SIZE);
+     (System.Interrupt_Priority'Last, RADIOLINK_TX_QUEUE_SIZE);
 
    --  Protected object queue for reception
    Rx_Queue : Crtp_Queue.Protected_Queue
-     (System.Priority'Last, RADIOLINK_RX_QUEUE_SIZE);
+     (System.Interrupt_Priority'Last, RADIOLINK_RX_QUEUE_SIZE);
 
 end RadiolInk_Pack;

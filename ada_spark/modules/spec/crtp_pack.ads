@@ -153,15 +153,15 @@ private
 
    --  Protected object queue for transmission
    Tx_Queue : Crtp_Queue.Protected_Queue
-     (System.Priority'Last, CRTP_TX_QUEUE_SIZE);
+     (System.Interrupt_Priority'Last, CRTP_TX_QUEUE_SIZE);
 
    --  Protected object queue for reception
    Rx_Queue : Crtp_Queue.Protected_Queue
-     (System.Priority'Last, CRTP_RX_QUEUE_SIZE);
+     (System.Interrupt_Priority'Last, CRTP_RX_QUEUE_SIZE);
 
    --  Array of protected object queues, one for each task
    Port_Queues : array (Crtp_Port) of Crtp_Queue.Protected_Queue
-     (System.Priority'Last, 1);
+     (System.Interrupt_Priority'Last, 1);
 
    --  Array of callbacks when a packet is received
    Callbacks : array (Crtp_Port) of Crtp_Callback := (others => null);

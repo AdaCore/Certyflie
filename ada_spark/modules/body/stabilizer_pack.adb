@@ -7,7 +7,8 @@ with Power_Management_Pack; use Power_Management_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode,
-  Refined_State => (IMU_Outputs         => (Acc,
+  Refined_State => (Stabilizer_State    => Is_Init,
+                    IMU_Outputs         => (Acc,
                                             Gyro,
                                             Mag),
                     Actual_Angles       => (Euler_Roll_Actual,
@@ -66,6 +67,22 @@ with SPARK_Mode,
 is
 
    --  Private procedures and functions
+
+   procedure Stabilizer_Init is
+   begin
+      if Is_Init then
+         return;
+      end if;
+
+      Controller_Init;
+
+      Is_Init := True;
+   end Stabilizer_Init;
+
+   function Stabilizer_Test return Boolean is
+   begin
+      return Is_Init;
+   end Stabilizer_Test;
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16 is
       Res : T_Uint16;

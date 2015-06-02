@@ -16,7 +16,6 @@ package body Crtp_Pack is
          if Has_Succeed then
             Has_Succeed := Link_Send_Packet (Packet);
          end if;
-
       end loop;
    end Crtp_Tx_Task;
 
@@ -38,7 +37,6 @@ package body Crtp_Pack is
             end if;
          end if;
 
-         delay until Time_First;
       end loop;
    end Crtp_Rx_Task;
 
@@ -136,8 +134,8 @@ package body Crtp_Pack is
       Port_ID          : Crtp_Port;
       Has_Succeed      : out Boolean;
       Time_To_Wait     :  Time_Span := Milliseconds (0)) is
-      pragma Unreferenced (Time_To_Wait);
    begin
+      Port_Queues (Port_ID).Set_Timeout (Time_To_Wait);
       Port_Queues (Port_ID).Dequeue_Item
         (Packet, Has_Succeed);
    end Crtp_Receive_Packet;

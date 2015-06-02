@@ -1,4 +1,6 @@
 with Ada.Unchecked_Conversion;
+with Ada.Real_Time; use Ada.Real_Time;
+
 with Config; use Config;
 
 package body Radiolink_Pack is
@@ -39,6 +41,7 @@ package body Radiolink_Pack is
      (Packet : out Crtp_Packet;
       Has_Suceed : out Boolean) is
    begin
+      Rx_Queue.Set_Timeout (Milliseconds (100));
       Rx_Queue.Dequeue_Item (Packet, Has_Suceed);
    end Radiolink_Receive_Packet;
 
@@ -74,6 +77,7 @@ package body Radiolink_Pack is
          -- TODO: led blink
 
          -- If a radio packet is received, one can be sent
+         Tx_Queue.Set_Timeout (Milliseconds (0));
          Tx_Queue.Dequeue_Item (Tx_Sl_Packet, Has_Succeed);
          if Has_Succeed then
             -- TODO: led blink

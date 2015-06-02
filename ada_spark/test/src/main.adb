@@ -21,5 +21,4 @@ begin
    if Self_Test_Passed then
       System_Loop;
    end if;
-   delay until Time_Last;
 end Main;

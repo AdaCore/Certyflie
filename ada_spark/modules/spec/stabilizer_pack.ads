@@ -13,7 +13,8 @@ with SensFusion6_Pack; use SensFusion6_Pack;
 
 package Stabilizer_Pack
 with SPARK_Mode,
-  Abstract_State => (IMU_Outputs,
+  Abstract_State => (Stabilizer_State,
+                     IMU_Outputs,
                      Actual_Angles,
                      Desired_Angles,
                      Desired_Rates,
@@ -50,6 +51,16 @@ is
       MAX_ALTITUDE_COEFF);
 
    --  Procedures and functions
+
+   --  Initialize the stabilizer module.
+   procedure Stabilizer_Init
+     with
+       Global => (In_Out => Stabilizer_State);
+
+   --  Test if stabilizer module is correctly initialized.
+   function Stabilizer_Test return Boolean
+     with
+       Global => (Input => Stabilizer_State);
 
    --  Main function of the stabilization system. Get the commands, give them
    --  to the PIDs, and get the output to control the actuators.
@@ -128,7 +139,10 @@ private
    ALTHOLD_UPDATE_RATE_DIVIDER_F : constant := 5.0;
    --  200 Hz
    ALTHOLD_UPDATE_DT : constant Float :=
-                         (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));
+                                     (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));
+
+   Is_Init : Boolean := False
+     with Part_Of => Stabilizer_State;
 
    --  IMU outputs. The IMU is composed of an accelerometer, a gyroscope
    --  and a magnetometer (notused yet)
