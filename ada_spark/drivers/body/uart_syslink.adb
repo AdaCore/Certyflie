@@ -104,8 +104,6 @@ package body UART_Syslink is
 
    procedure Enable_USART_Rx_Interrupts is
    begin
-      Enable_Interrupts (Transceiver, Source => Parity_Error);
-      Enable_Interrupts (Transceiver, Source => Error);
       Enable_Interrupts (Transceiver, Source => Received_Data_Not_Empty);
    end Enable_USART_Rx_Interrupts;
 
@@ -214,38 +212,6 @@ package body UART_Syslink is
       procedure IRQ_Handler is
          Has_Succeed : Boolean;
       begin
---           --  check for parity error
---           if Status (Transceiver, Parity_Error_Indicated) and
---             Interrupt_Enabled (Transceiver, Parity_Error)
---           then
---              Clear_Status (Transceiver, Parity_Error_Indicated);
---              Rx_Error := Parity_Err;
---           end if;
---
---           --  check for framing error
---           if Status (Transceiver, Framing_Error_Indicated) and
---             Interrupt_Enabled (Transceiver, Error)
---           then
---              Clear_Status (Transceiver, Framing_Error_Indicated);
---              Rx_Error := Framing_Err;
---           end if;
---
---           -- check for noise error
---           if Status (Transceiver, USART_Noise_Error_Indicated) and
---             Interrupt_Enabled (Transceiver, Error)
---           then
---              Clear_Status (Transceiver, USART_Noise_Error_Indicated);
---              Rx_Error := Noise_Err;
---           end if;
---
---           -- check for overrun error
---           if Status (Transceiver, Overrun_Error_Indicated) and
---             Interrupt_Enabled (Transceiver, Error)
---           then
---              Clear_Status (Transceiver, Overrun_Error_Indicated);
---              Rx_Error := Overrun_Err;
---           end if;
-
          --  Received data interrupt management
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
             Rx_Queue.Enqueue_Item
