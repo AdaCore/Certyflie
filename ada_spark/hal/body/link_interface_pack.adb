@@ -31,17 +31,15 @@ package body Link_Interface_Pack is
       end case;
    end Link_Send_Packet;
 
-   procedure Link_Receive_Packet
-     (Packet          : out Crtp_Packet;
-      Has_Succeed     : out Boolean) is
+   procedure Link_Receive_Packet_Blocking (Packet : out Crtp_Packet) is
    begin
       case Link_Layer_Type is
          when RADIO_LINK =>
-            Radiolink_Receive_Packet (Packet, Has_Succeed);
+            Radiolink_Receive_Packet_Blocking (Packet);
          when others =>
             --  Other link layers not implemented yet
             null;
       end case;
-   end Link_Receive_Packet;
+   end Link_Receive_Packet_Blocking;
 
 end Link_Interface_Pack;

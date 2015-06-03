@@ -36,16 +36,14 @@ package body Radiolink_Pack is
       Syslink_Send_Packet (Sl_Packet);
    end Radiolink_Set_Channel;
 
-   procedure Radiolink_Receive_Packet
-     (Packet : out Crtp_Packet;
-      Has_Suceed : out Boolean) is
+   procedure Radiolink_Receive_Packet_Blocking (Packet : out Crtp_Packet) is
    begin
-      Rx_Queue.Dequeue_Item (Packet, Has_Suceed);
-   end Radiolink_Receive_Packet;
+      Rx_Queue.Await_Item_To_Dequeue (Packet);
+   end Radiolink_Receive_Packet_Blocking;
 
    function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean is
       Sl_Packet : Syslink_Packet;
-      Has_Suceed : Boolean;
+      Has_Succeed : Boolean;
       function Crtp_Raw_To_Syslink_Data is new Ada.Unchecked_Conversion
         (Crtp_Raw, Syslink_Data);
    begin
@@ -54,9 +52,9 @@ package body Radiolink_Pack is
       Sl_Packet.Data := Crtp_Raw_To_Syslink_Data (Packet.Raw);
 
       --  Try to enqueue the Syslink packet
-      Tx_Queue.Enqueue_Item (Sl_Packet, Has_Suceed);
+      Tx_Queue.Enqueue_Item (Sl_Packet, Has_Succeed);
 
-      return Has_Suceed;
+      return Has_Succeed;
    end Radiolink_Send_Packet;
 
    procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet) is
@@ -76,6 +74,7 @@ package body Radiolink_Pack is
 
          -- If a radio packet is received, one can be sent
          Tx_Queue.Dequeue_Item (Tx_Sl_Packet, Has_Succeed);
+
          if Has_Succeed then
             -- TODO: led blink
             Syslink_Send_Packet (Tx_Sl_Packet);

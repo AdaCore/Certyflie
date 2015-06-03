@@ -15,11 +15,8 @@ package Link_Interface_Pack is
 
    --  Receive a CRTP packet using the link layer specified in
    --  the 'Config' package.
-   --  'Packet_Received' is set to 'True' if a packet has been received,
-   --  set to 'False' otherwise.
-   procedure Link_Receive_Packet
-     (Packet          : out Crtp_Packet;
-      Has_Succeed     : out Boolean);
+   --  Put the task calling it in sleep mode until a packet is received.
+   procedure Link_Receive_Packet_Blocking (Packet : out Crtp_Packet);
 
 private
 

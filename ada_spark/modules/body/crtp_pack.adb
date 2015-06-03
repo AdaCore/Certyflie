@@ -7,14 +7,13 @@ package body Crtp_Pack is
    task body Crtp_Tx_Task is
       Packet : Crtp_Packet;
       Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
    begin
       loop
-         Tx_Queue.Dequeue_Item
-           (Packet, Has_Succeed);
+         Tx_Queue.Await_Item_To_Dequeue
+           (Packet);
 
-         if Has_Succeed then
-            Has_Succeed := Link_Send_Packet (Packet);
-         end if;
+         Has_Succeed := Link_Send_Packet (Packet);
       end loop;
    end Crtp_Tx_Task;
 
@@ -23,19 +22,13 @@ package body Crtp_Pack is
       Has_Succeed : Boolean;
    begin
       loop
-         Link_Receive_Packet (Packet, Has_Succeed);
+         Link_Receive_Packet_Blocking (Packet);
 
-         if Has_Succeed then
-            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
-            if not Has_Succeed then
-               Dropped_Packets := Dropped_Packets + 1;
-            end if;
+         Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
 
-            if Callbacks (Packet.Port) /= null then
-               Callbacks (Packet.Port) (Packet);
-            end if;
+         if Callbacks (Packet.Port) /= null then
+            Callbacks (Packet.Port) (Packet);
          end if;
-
       end loop;
    end Crtp_Rx_Task;
 
@@ -128,16 +121,13 @@ package body Crtp_Pack is
       return Handler.Packet.Size;
    end Crtp_Get_Packet_Size;
 
-   procedure Crtp_Receive_Packet
+   procedure Crtp_Receive_Packet_Blocking
      (Packet           : out Crtp_Packet;
-      Port_ID          : Crtp_Port;
-      Has_Succeed      : out Boolean;
-      Time_To_Wait     :  Time_Span := Milliseconds (0)) is
-      pragma Unreferenced (Time_To_Wait);
+      Port_ID          : Crtp_Port) is
    begin
-      Port_Queues (Port_ID).Dequeue_Item
-        (Packet, Has_Succeed);
-   end Crtp_Receive_Packet;
+      Port_Queues (Port_ID).Await_Item_To_Dequeue
+        (Packet);
+   end Crtp_Receive_Packet_Blocking;
 
    procedure Crtp_Send_Packet
      (Packet : Crtp_Packet;

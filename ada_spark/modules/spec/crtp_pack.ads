@@ -121,12 +121,11 @@ package Crtp_Pack is
    function Crtp_Get_Packet_Size
      (Handler : Crtp_Packet_Handler) return T_Uint8;
 
-   --  Receive a packet from the port queue, with a given Timeout
-   procedure Crtp_Receive_Packet
+   --  Receive a packet from the port queue, putting the task calling it
+   --  in sleep mode while a packet has not been received
+   procedure Crtp_Receive_Packet_Blocking
      (Packet           : out Crtp_Packet;
-      Port_ID          : Crtp_Port;
-      Has_Succeed      : out Boolean;
-      Time_To_Wait     :  Time_Span := Milliseconds (0));
+      Port_ID          : Crtp_Port);
 
    --  Send a packet, with a given Timeout
    procedure Crtp_Send_Packet

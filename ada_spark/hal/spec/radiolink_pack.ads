@@ -25,10 +25,9 @@ package Radiolink_Pack is
    --  Send a packet to Radiolink layer
    function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean;
 
-   --  Recieve a packet from Radiolink layer
-   procedure Radiolink_Receive_Packet
-     (Packet : out Crtp_Packet;
-      Has_Suceed : out Boolean);
+   --  Receive a packet from Radiolink layer.
+   --  Putting the task calling it in sleep mode until a packet is received.
+   procedure Radiolink_Receive_Packet_Blocking (Packet : out Crtp_Packet);
 
    --  Enqueue a packet in the Radiolink RX_Queue and send one packet
    --  to Syslink if one has been received
