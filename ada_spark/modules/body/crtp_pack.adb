@@ -9,7 +9,6 @@ package body Crtp_Pack is
       Has_Succeed : Boolean;
    begin
       loop
-         Tx_Queue.Set_Timeout (PORT_MAX_DELAY_TIME_MS);
          Tx_Queue.Dequeue_Item
            (Packet, Has_Succeed);
 
@@ -134,8 +133,8 @@ package body Crtp_Pack is
       Port_ID          : Crtp_Port;
       Has_Succeed      : out Boolean;
       Time_To_Wait     :  Time_Span := Milliseconds (0)) is
+      pragma Unreferenced (Time_To_Wait);
    begin
-      Port_Queues (Port_ID).Set_Timeout (Time_To_Wait);
       Port_Queues (Port_ID).Dequeue_Item
         (Packet, Has_Succeed);
    end Crtp_Receive_Packet;

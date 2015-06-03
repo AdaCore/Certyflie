@@ -13,15 +13,12 @@ package body UART_Syslink is
       Enable_USART_Rx_Interrupts;
    end UART_Syslink_Init;
 
-   procedure UART_Get_Data_With_Timeout
-     (Rx_Byte     : out T_Uint8;
-      Has_Succeed : out Boolean) is
+   procedure UART_Get_Data_Blocking (Rx_Byte     : out T_Uint8) is
    begin
-      Rx_Queue.Set_Timeout (UART_DATA_TIMEOUT_MS);
-      Rx_Queue.Dequeue_Item (Rx_Byte, Has_Succeed);
-   end UART_Get_Data_With_Timeout;
+      Rx_IRQ_Handler.Await_Byte_Reception (Rx_Byte);
+   end UART_Get_Data_Blocking;
 
-   procedure UART_Send_DMA_Data
+   procedure UART_Send_DMA_Data_Blocking
      (Data_Size : Natural;
       Data      : DMA_Data) is
    begin
@@ -40,7 +37,7 @@ package body UART_Syslink is
       Enable_DMA_Transmit_Requests (Transceiver);
 
       Tx_IRQ_Handler.Await_Transfer_Complete;
-   end UART_Send_DMA_Data;
+   end UART_Send_DMA_Data_Blocking;
 
    --  Private procedures and functions
 
@@ -202,33 +199,27 @@ package body UART_Syslink is
 
    protected body Rx_IRQ_Handler is
 
-      entry Await_Event (Occurrence : out USART_Interrupt)
-        when Event_Occurred is
+      entry Await_Byte_Reception (Rx_Byte : out T_Uint8)
+        when Byte_Avalaible is
       begin
-         Occurrence := Event_Kind;
-         Event_Occurred := False;
-      end Await_Event;
+         Rx_Byte := Received_Byte;
+         Byte_Avalaible := False;
+      end Await_Byte_Reception;
 
       procedure IRQ_Handler is
-         Has_Succeed : Boolean;
       begin
          --  Received data interrupt management
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
-            Rx_Queue.Enqueue_Item
-              (Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#),
-               Has_Succeed);
-            Event_Kind := Received_Data_Not_Empty;
-            Event_Occurred := True;
+            Received_Byte :=
+              Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#);
             Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
+            Byte_Avalaible := True;
          end if;
       end IRQ_Handler;
 
    end Rx_IRQ_Handler;
 
 begin
-   Disable (Transceiver);
-
-   Disable_Interrupts (Transceiver, Source => Parity_Error);
-   Disable_Interrupts (Transceiver, Source => Error);
    Disable_Interrupts (Transceiver, Source => Received_Data_Not_Empty);
+   Disable_DMA_Transmit_Requests (Transceiver);
 end UART_Syslink;

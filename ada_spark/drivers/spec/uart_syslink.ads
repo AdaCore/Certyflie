@@ -1,6 +1,4 @@
-with Types; use Types;
-with Generic_Queue_Pack;
-with System;
+
 with Ada.Unchecked_Conversion;
 with Ada.Interrupts.Names; use Ada.Interrupts.Names;
 with STM32F4; use STM32F4;
@@ -9,6 +7,9 @@ with STM32F4.GPIO; use STM32F4.GPIO;
 with STM32F4.USARTs; use STM32F4.USARTs;
 with STM32F4_Discovery; use STM32F4_Discovery;
 with Ada.Real_Time; use Ada.Real_Time;
+
+with Types; use Types;
+with Generic_Queue_Pack;
 
 package UART_Syslink is
 
@@ -25,12 +26,10 @@ package UART_Syslink is
    procedure UART_Syslink_Init;
 
    --  Get one byte of data from UART, with a defined timeout
-   procedure UART_Get_Data_With_Timeout
-     (Rx_Byte     : out T_Uint8;
-      Has_Succeed : out Boolean);
+   procedure UART_Get_Data_Blocking (Rx_Byte : out T_Uint8);
 
    --  Send data to DMA
-   procedure UART_Send_DMA_Data
+   procedure UART_Send_DMA_Data_Blocking
      (Data_Size : Natural;
       Data      : DMA_Data);
 
@@ -89,9 +88,6 @@ private
 
    --  Tasks and protected objects
 
-   Rx_Queue : Byte_Queue.Protected_Queue
-     (System.Interrupt_Priority'Last, UART_RX_QUEUE_SIZE);
-
    --  DMA Interrupt Handler for transmission
    protected Tx_IRQ_Handler is
       pragma Interrupt_Priority;
@@ -112,13 +108,12 @@ private
    protected Rx_IRQ_Handler is
       pragma Interrupt_Priority;
 
-      entry Await_Event (Occurrence : out USART_Interrupt);
+      entry Await_Byte_Reception (Rx_Byte : out T_Uint8);
 
    private
 
-      Event_Occurred : Boolean := False;
-      Event_Kind     : USART_Interrupt;
-      Rx_Error       : USART_Error := No_Err;
+      Byte_Avalaible : Boolean := False;
+      Received_Byte  : T_Uint8;
 
       procedure IRQ_Handler;
       pragma Attach_Handler (IRQ_Handler, USART6_Interrupt);

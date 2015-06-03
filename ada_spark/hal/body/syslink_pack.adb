@@ -46,7 +46,7 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
       --  TODO: call UART_Send_Data_DMA_Blocking
-      UART_Send_DMA_Data (Data_Size, Tx_Buffer);
+      UART_Send_DMA_Data_Blocking (Data_Size, Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
@@ -79,13 +79,11 @@ package body Syslink_Pack is
       Rx_Byte      : T_Uint8;
       Data_Index   : Positive := 1;
       Chk_Sum      : array (1 .. 2) of T_Uint8;
-      Has_Succeed  : Boolean;
    begin
       loop
-         UART_Get_Data_With_Timeout (Rx_Byte, Has_Succeed);
+         UART_Get_Data_Blocking (Rx_Byte);
 
-         if Has_Succeed then
-            case Rx_State is
+         case Rx_State is
                when WAIT_FOR_FIRST_START =>
 
                   Rx_State := (if Rx_Byte = SYSLINK_START_BYTE1 then
@@ -133,8 +131,7 @@ package body Syslink_Pack is
                      Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
                   end if;
                   Rx_State := WAIT_FOR_FIRST_START;
-            end case;
-         end if;
+         end case;
 
          delay until Time_First;
       end loop;
