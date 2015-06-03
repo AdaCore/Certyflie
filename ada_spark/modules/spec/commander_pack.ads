@@ -17,10 +17,10 @@ is
    for RPY_Type'Size use Interfaces.C.int'Size;
 
    type Commander_Crtp_Values is record
-      Roll   : T_Degrees;
-      Pitch  : T_Degrees;
-      Yaw    : T_Degrees;
-      Thrust : T_Uint16;
+      Roll   : T_Degrees := 0.0;
+      Pitch  : T_Degrees := 0.0;
+      Yaw    : T_Degrees := 0.0;
+      Thrust : T_Uint16 := 0;
    end record;
    pragma Pack (Commander_Crtp_Values);
 
