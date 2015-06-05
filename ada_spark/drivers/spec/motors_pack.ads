@@ -66,4 +66,9 @@ private
    MOTORS_TIMER_M4       : constant Timer := TIM4;
    MOTORS_TIM_CHANNEL_M4 : constant Channel := CH4;
 
+   --  Procedures and constanst
+
+   --  Set the power of all the motors to zero
+   procedure Motors_Reset;
+
 end Motors_Pack;

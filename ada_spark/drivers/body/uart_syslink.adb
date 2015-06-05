@@ -32,8 +32,6 @@ package body UART_Syslink is
          Data_Count  => Half_Word (Data_Size));
       --  also enables the stream
 
-      -- TODO: clear the flags esp the overrun flag   ???
-
       Enable_DMA_Transmit_Requests (Transceiver);
 
       Tx_IRQ_Handler.Await_Transfer_Complete;
@@ -207,9 +205,19 @@ package body UART_Syslink is
       end Await_Byte_Reception;
 
       procedure IRQ_Handler is
+         Overrun_Byte : T_Uint8;
+         pragma Unreferenced (Overrun_Byte);
       begin
+         --  Overrun error indicated
+--           if Status (Transceiver, Read_Data_Register_Not_Empty) then
+--              Overrun_Byte := Half_Word_To_T_Uint8
+--                (Current_Input (Transceiver) and 16#FF#);
+--              Clear_Status (Transceiver, Overrun_Error_Indicated);
+--           end if;
+
          --  Received data interrupt management
-         if Status (Transceiver, Read_Data_Register_Not_Empty) then
+         if Status (Transceiver, Read_Data_Register_Not_Empty) or
+           Status (Transceiver, Overrun_Error_Indicated) then
             Received_Byte :=
               Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#);
             Clear_Status (Transceiver, Read_Data_Register_Not_Empty);

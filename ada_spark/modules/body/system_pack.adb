@@ -37,7 +37,6 @@ package body System_Pack is
       Self_Test_Passed : Boolean;
    begin
       Self_Test_Passed := LEDS_Test;
-      Self_Test_Passed := Self_Test_Passed and Motors_Test;
       Self_Test_Passed := Self_Test_Passed and Communication_Test;
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
@@ -49,16 +48,20 @@ package body System_Pack is
       Attitude_Update_Counter : T_Uint32 := 0;
       Alt_Hold_Update_Counter : T_Uint32 := 0;
       Next_Period             : Time;
+      LED_State               : Boolean := True;
    begin
-      Next_Period := Clock + Milliseconds (IMU_UPDATE_DT_MS);
+      Next_Period := Clock + IMU_UPDATE_DT_MS;
 
       loop
          delay until Next_Period;
+--           Stabilizer_Control_Loop (Attitude_Update_Counter,
+--                                    Alt_Hold_Update_Counter);
 
-         Stabilizer_Control_Loop (Attitude_Update_Counter,
-                                  Alt_Hold_Update_Counter);
 
-         Next_Period := Clock + Milliseconds (IMU_UPDATE_DT_MS);
+         Set_LED (LED_Green_R, LED_State);
+         LED_State := not LED_State;
+
+         Next_Period := Next_Period + IMU_UPDATE_DT_MS;
       end loop;
    end System_Loop;
 

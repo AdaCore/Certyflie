@@ -12,8 +12,8 @@ package body Radiolink_Pack is
 
       Syslink_Init;
 
-      Radiolink_Set_Channel (RADIO_CHANNEL);
-      Radiolink_Set_Data_Rate (RADIO_DATARATE);
+      --Radiolink_Set_Channel (RADIO_CHANNEL);
+      --Radiolink_Set_Data_Rate (RADIO_DATARATE);
 
       Is_Init := True;
    end Radiolink_Init;
@@ -58,9 +58,9 @@ package body Radiolink_Pack is
    end Radiolink_Send_Packet;
 
    procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet) is
-      Tx_Sl_Packet : Syslink_Packet;
+      Tx_Sl_Packet   : Syslink_Packet;
       Rx_Crtp_Packet : Crtp_Packet;
-      Has_Succeed     : Boolean;
+      Has_Succeed    : Boolean;
    begin
       if Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RAW then
          Rx_Crtp_Packet.Size := Rx_Sl_Packet.Length - 1;

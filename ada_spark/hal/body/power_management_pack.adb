@@ -130,7 +130,7 @@ package body Power_Management_Pack is
             Current_Power_State := New_Power_State;
          end if;
 
-         Next_Period := Clock + Milliseconds (500);
+         Next_Period := Next_Period + Milliseconds (500);
       end loop;
    end Power_Management_Task;
 

@@ -79,6 +79,9 @@ package body Motors_Pack is
                       Ch   => MOTORS_TIM_CHANNEL_M4,
                       Conf => Channel_Configuration);
 
+      --  Reset all the motors power to zero
+      Motors_Reset;
+
       --  Enable the channels
       Set_Channel_State (Tim   => MOTORS_TIMER_M1,
                          Ch    => MOTORS_TIM_CHANNEL_M1,
@@ -165,5 +168,12 @@ package body Motors_Pack is
 
       return True;
    end Motors_Test;
+
+   procedure Motors_Reset is
+   begin
+      for Motor in Motor_ID loop
+         Motor_Set_Power (Motor, 0);
+      end loop;
+   end Motors_Reset;
 
 end Motors_Pack;

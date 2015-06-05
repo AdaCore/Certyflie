@@ -9,7 +9,6 @@ with STM32F4_Discovery; use STM32F4_Discovery;
 with Ada.Real_Time; use Ada.Real_Time;
 
 with Types; use Types;
-with Generic_Queue_Pack;
 
 package UART_Syslink is
 
@@ -34,8 +33,6 @@ package UART_Syslink is
       Data      : DMA_Data);
 
 private
-
-   package Byte_Queue is new Generic_Queue_Pack (T_Uint8);
 
    --  Global variables and constants
 
