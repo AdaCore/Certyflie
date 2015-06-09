@@ -47,11 +47,9 @@ is
       Z : T_Mag;
    end record;
 
-   pragma Convention (C, Gyroscope_Data);
-   pragma Convention (C, Accelerometer_Data);
-   pragma Convention (C, Magnetometer_Data);
+   --  Global variables and constants
 
-   --  Constants
+   Is_Init : Boolean := False;
 
    IMU_UPDATE_FREQ  : constant := 500.0;
    IMU_UPDATE_DT    : constant := 1.0 / IMU_UPDATE_FREQ;
@@ -59,6 +57,13 @@ is
 
    --  Procedures and functions
 
+   --  Initialize the IMU device/
+   procedure IMU_Init;
+
+   --  Test if the IMU device is initialized/
+   function IMU_Test return Boolean;
+
+   --  Read IMU measurements.
    procedure IMU_9_Read
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data;
@@ -66,8 +71,10 @@ is
      with
        Global => null;
 
+   --  Return True if the IMU is correctly calibrated, False otherwise.
    function IMU_6_Calibrated return Boolean;
 
+   --  Return True if the IMU has an initialized barometer, False otherwise.
    function IMU_Has_Barometer return Boolean;
 
 end IMU_Pack;
