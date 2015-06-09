@@ -1,6 +1,5 @@
 with Ada.Real_Time; use Ada.Real_Time;
 
-with Types; use Types;
 with LEDS_Pack; use LEDS_Pack;
 with IMU_Pack; use IMU_Pack;
 with Motors_Pack; use Motors_Pack;
@@ -45,8 +44,8 @@ package body System_Pack is
    end System_Self_Test;
 
    procedure System_Loop is
-      Attitude_Update_Counter : T_Uint32 := 0;
-      Alt_Hold_Update_Counter : T_Uint32 := 0;
+      --Attitude_Update_Counter : T_Uint32 := 0;
+      --Alt_Hold_Update_Counter : T_Uint32 := 0;
       Next_Period             : Time;
       LED_State               : Boolean := True;
    begin
@@ -64,5 +63,12 @@ package body System_Pack is
          Next_Period := Next_Period + IMU_UPDATE_DT_MS;
       end loop;
    end System_Loop;
+
+   task body System_Task is
+   begin
+      loop
+         null;
+      end loop;
+   end System_Task;
 
 end System_Pack;

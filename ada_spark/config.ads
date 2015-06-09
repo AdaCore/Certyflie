@@ -17,7 +17,7 @@ package Config is
    MAIN_TASK_PRIORITY      : constant System.Priority := 4;
    CRTP_RXTX_TASK_PRIORITY : constant System.Priority := 2;
    SYSLINK_TASK_PRIORITY   : constant System.Priority := 3;
-   PM_TASK_PRIORITY        : constant System.Priority := 0;
+   PM_TASK_PRIORITY        : constant System.Priority := 1;
 
    --  Two implemented algorithms for quaternions
    type Quaternion_Algorithm is (MAHONY, MADGWICK);

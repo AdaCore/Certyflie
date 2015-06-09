@@ -12,8 +12,8 @@ package body Radiolink_Pack is
 
       Syslink_Init;
 
-      --Radiolink_Set_Channel (RADIO_CHANNEL);
-      --Radiolink_Set_Data_Rate (RADIO_DATARATE);
+      Radiolink_Set_Channel (RADIO_CHANNEL);
+      Radiolink_Set_Data_Rate (RADIO_DATARATE);
 
       Is_Init := True;
    end Radiolink_Init;

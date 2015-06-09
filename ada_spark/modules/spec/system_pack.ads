@@ -20,4 +20,10 @@ private
 
    Is_Init : Boolean := False;
 
+   --  Test task
+
+   task System_Task is
+      pragma Priority (0);
+   end System_Task;
+
 end System_Pack;
