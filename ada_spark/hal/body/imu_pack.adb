@@ -1,4 +1,4 @@
-with MPU6500_Pack; use MPU6500_Pack;
+with MPU9250_Pack; use MPU9250_Pack;
 
 package body IMU_Pack is
 
@@ -9,7 +9,7 @@ package body IMU_Pack is
          return;
       end if;
 
-      MPU6500_Init;
+      MPU9250_Init;
 
       Is_Init := True;
    end IMU_Init;
@@ -20,7 +20,7 @@ package body IMU_Pack is
    begin
       --  TODO: implement the complete function
 
-      Is_Connected := MPU6500_Test_Connection;
+      Is_Connected := MPU9250_Test_Connection;
 
       return Is_Init and Is_Connected;
    end IMU_Test;
