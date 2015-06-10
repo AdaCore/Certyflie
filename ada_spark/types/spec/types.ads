@@ -12,7 +12,14 @@ package Types is
    type T_Uint16 is new Interfaces.Unsigned_16;
    type T_Uint32 is new Interfaces.Unsigned_32;
 
-   type T_Uint8_Array is array (Integer range <>) of T_Uint8;
+   subtype T_Bit_Pos_8 is Natural  range 0 .. 7;
+   subtype T_Bit_Pos_16 is Natural range 0 .. 15;
+
+   type T_Uint8_Array  is array (Integer range <>) of T_Uint8;
+   type T_Uint16_Array is array (Integer range <>) of T_Uint16;
+   type T_Int32_Array  is array (Integer range <>) of T_Int32;
+
+   type Float_Array is array (Integer range <>) of Float;
 
    subtype Natural_Float is Float range 0.0 .. Float'Last;
 
