@@ -29,7 +29,7 @@ private
    Is_Init : Boolean := False;
 
    MPU6500_I2C_PORT : I2C_Port renames I2C_3;
-   MPU6500_I2C_OWN_ADDR : constant := 16#74#;
+   MPU6500_I2C_OWN_ADDR : constant := 16#00#;
 
    MPU6500_SCL_GPIO : GPIO_Port renames GPIO_A;
    MPU6500_SCL_Pin  : constant GPIO_Pin := Pin_8;
@@ -43,8 +43,8 @@ private
    MPU6500_ADDRESS_AD0_LOW  : constant := 16#68#;
    --  Address pin high (VCC)
    MPU6500_ADDRESS_AD0_HIGH : constant := 16#69#;
-   --  Defaul address (low)
-   MPU6500_DEFAULT_ADDRESS  : constant := MPU6500_ADDRESS_AD0_LOW;
+   --  Default address (low)
+   MPU6500_DEFAULT_ADDRESS  : constant := MPU6500_ADDRESS_AD0_HIGH;
 
    MPU6500_STARTUP_TIME_MS : constant Time
      := Time_First + Milliseconds (1_000);

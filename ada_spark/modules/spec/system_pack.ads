@@ -22,8 +22,8 @@ private
 
    --  Test task
 
-   task System_Task is
-      pragma Priority (0);
-   end System_Task;
+--     task System_Task is
+--        pragma Priority (0);
+--     end System_Task;
 
 end System_Pack;

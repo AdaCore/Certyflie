@@ -20,7 +20,7 @@ package body System_Pack is
       --  Initialize LEDs, power management, sensors and actuators
       LEDS_Init;
       Motors_Init;
-      IMU_Init;
+      --IMU_Init;
       Power_Management_Init;
 
       --  Initialize communication related modules
@@ -38,7 +38,7 @@ package body System_Pack is
    begin
       Self_Test_Passed := LEDS_Test;
       Self_Test_Passed := Self_Test_Passed and Motors_Test;
-      Self_Test_Passed := Self_Test_Passed and IMU_Test;
+      --Self_Test_Passed := Self_Test_Passed and IMU_Test;
       Self_Test_Passed := Self_Test_Passed and Communication_Test;
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
@@ -66,12 +66,5 @@ package body System_Pack is
          Next_Period := Next_Period + IMU_UPDATE_DT_MS;
       end loop;
    end System_Loop;
-
-   task body System_Task is
-   begin
-      loop
-         null;
-      end loop;
-   end System_Task;
 
 end System_Pack;

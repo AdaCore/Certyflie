@@ -38,7 +38,7 @@ package body MPU6500_Pack is
       GPIO_Conf.Speed       := Speed_25MHz;
       GPIO_Conf.Mode        := Mode_AF;
       GPIO_Conf.Output_Type := Open_Drain;
-      GPIO_Conf.Resistors   := Floating;
+      GPIO_Conf.Resistors   := Pull_Up;
       GPIO_Conf.Locked      := True;
       Configure_IO (MPU6500_SCL_GPIO, MPU6500_SCL_Pin, GPIO_Conf);
       Configure_IO (MPU6500_SDA_GPIO, MPU6500_SDA_Pin, GPIO_Conf);
