@@ -13,7 +13,76 @@ package MPU9250_Pack is
 
    --  Types and subtypes
 
+   --  Type used to represent teh data we want to send via I2C
    type I2C_Data is array (Positive range <>) of Byte;
+
+   --  Type reprensnting all the different clock sources of the MPU9250.
+   --  See the MPU9250 register map section 4.4 for more details.
+   type MPU9250_Clock_Source is
+     (Internal_Clk,
+      X_Gyro_Clk,
+      Y_Gyro_Clk,
+      Z_Gyro_Clk,
+      External_32K_Clk,
+      External_19M_Clk,
+      Reserved_Clk,
+      Stop_Clk);
+   for MPU9250_Clock_Source use
+     (Internal_Clk     => 16#00#,
+      X_Gyro_Clk       => 16#01#,
+      Y_Gyro_Clk       => 16#02#,
+      Z_Gyro_Clk       => 16#03#,
+      External_32K_Clk => 16#04#,
+      External_19M_Clk => 16#05#,
+      Reserved_Clk     => 16#06#,
+      Stop_Clk         => 16#07#);
+   for MPU9250_Clock_Source'Size use 3;
+
+   --  Type representing the allowed full scale ranges
+   --  for MPU9250 gyroscope.
+   type MPU9250_FS_Gyro_Range is
+     (MPU9250_Gyro_FS_250,
+      MPU9250_Gyro_FS_500,
+      MPU9250_Gyro_FS_1000,
+      MPU9250_Gyro_FS_2000);
+   for MPU9250_FS_Gyro_Range use
+     (MPU9250_Gyro_FS_250  => 16#00#,
+      MPU9250_Gyro_FS_500  => 16#01#,
+      MPU9250_Gyro_FS_1000 => 16#02#,
+      MPU9250_Gyro_FS_2000 => 16#03#);
+   for MPU9250_FS_Gyro_Range'Size use 2;
+
+   --  Type representing the allowed full scale ranges
+   --  for MPU9250 accelerometer.
+   type MPU9250_FS_Accel_Range is
+     (MPU9250_Accel_FS_2,
+      MPU9250_Accel_FS_4,
+      MPU9250_Accel_FS_8,
+      MPU9250_Accel_FS_16);
+   for MPU9250_FS_Accel_Range use
+     (MPU9250_Accel_FS_2  => 16#00#,
+      MPU9250_Accel_FS_4  => 16#01#,
+      MPU9250_Accel_FS_8 => 16#02#,
+      MPU9250_Accel_FS_16 => 16#03#);
+   for MPU9250_FS_Accel_Range'Size use 2;
+
+   type MPU9250_DLPF_Bandwidth_Mode is
+     (MPU9250_DLPF_BW_256,
+      MPU9250_DLPF_BW_188,
+      MPU9250_DLPF_BW_98,
+      MPU9250_DLPF_BW_42,
+      MPU9250_DLPF_BW_20,
+      MPU9250_DLPF_BW_10,
+      MPU9250_DLPF_BW_5);
+   for MPU9250_DLPF_Bandwidth_Mode use
+     (MPU9250_DLPF_BW_256 => 16#00#,
+      MPU9250_DLPF_BW_188 => 16#01#,
+      MPU9250_DLPF_BW_98  => 16#02#,
+      MPU9250_DLPF_BW_42  => 16#03#,
+      MPU9250_DLPF_BW_20  => 16#04#,
+      MPU9250_DLPF_BW_10  => 16#05#,
+      MPU9250_DLPF_BW_5   => 16#06#);
+   for MPU9250_DLPF_Bandwidth_Mode'Size use 3;
 
    --  Procedures and functions
 
@@ -32,6 +101,46 @@ package MPU9250_Pack is
    --  Reset the MPU9250 device.
    --  A small delay of ~50ms may be desirable after triggering a reset.
    procedure MPU9250_Reset;
+
+   --  Set clock source setting.
+   --  3 bits allowed to choose the source. The different
+   --  clock sources are enumerated in the MPU9250 register map.
+   procedure MPU9250_Set_Clock_Source (Clock_Source : MPU9250_Clock_Source);
+
+   -- Set digital low-pass filter configuration.
+   procedure MPU9250_Set_DLPF_Mode (DLPF_Mode : MPU9250_DLPF_Bandwidth_Mode);
+
+   --  Set full-scale gyroscope range.
+   procedure MPU9250_Set_Full_Scale_Gyro_Range
+     (FS_Range : MPU9250_FS_Gyro_Range);
+
+   --  Set full-scale acceler range.
+   procedure MPU9250_Set_Full_Scale_Accel_Range
+     (FS_Range : MPU9250_FS_Accel_Range);
+
+   --   Set I2C bypass enabled status.
+   --   When this bit is equal to 1 and I2C_MST_EN (Register 106 bit[5]) is equal to
+   --   0, the host application processor will be able to directly access the
+   --   auxiliary I2C bus of the MPU-60X0. When this bit is equal to 0, the host
+   --   application processor will not be able to directly access the auxiliary I2C
+   --   bus of the MPU-60X0 regardless of the state of I2C_MST_EN (Register 106
+   --   bit[5]).
+   procedure MPU9250_Set_I2C_Bypass_Enabled (Value : Boolean);
+
+   --  Set interrupts enabled status.
+   procedure MPU9250_Set_Int_Enabled (Value : Boolean);
+
+   --  Set gyroscope sample rate divider
+   procedure MPU9250_Set_Rate (Rate_Div : Byte);
+
+   --  Set sleep mode status.
+   procedure MPU9250_Set_Sleep_Enabled (Value : Boolean);
+
+   --  Set temperature sensor enabled status.
+   procedure MPU9250_Set_Temp_Sensor_Enabled (Value : Boolean);
+
+   --  Get temperature sensor enabled status.
+   function MPU9250_Get_Temp_Sensor_Enabled return Boolean;
 
 private
 
@@ -207,24 +316,11 @@ private
    MPU9250_EXT_SYNC_ACCEL_YOUT_L : constant := 16#6#;
    MPU9250_EXT_SYNC_ACCEL_ZOUT_L : constant := 16#7#;
 
-   MPU9250_DLPF_BW_256 : constant := 16#00#;
-   MPU9250_DLPF_BW_188 : constant := 16#01#;
-   MPU9250_DLPF_BW_98  : constant := 16#02#;
-   MPU9250_DLPF_BW_42  : constant := 16#03#;
-   MPU9250_DLPF_BW_20  : constant := 16#04#;
-   MPU9250_DLPF_BW_10  : constant := 16#05#;
-   MPU9250_DLPF_BW_5   : constant := 16#06#;
-
    MPU9250_GCONFIG_XG_ST_BIT     : constant := 7;
    MPU9250_GCONFIG_YG_ST_BIT     : constant := 6;
    MPU9250_GCONFIG_ZG_ST_BIT     : constant := 5;
    MPU9250_GCONFIG_FS_SEL_BIT    : constant := 4;
    MPU9250_GCONFIG_FS_SEL_LENGTH : constant := 2;
-
-   MPU9250_GYRO_FS_250  : constant := 16#00#;
-   MPU9250_GYRO_FS_500  : constant := 16#01#;
-   MPU9250_GYRO_FS_1000 : constant := 16#02#;
-   MPU9250_GYRO_FS_2000 : constant := 16#03#;
 
    MPU9250_ACONFIG_XA_ST_BIT        : constant := 7;
    MPU9250_ACONFIG_YA_ST_BIT        : constant := 6;
@@ -233,11 +329,6 @@ private
    MPU9250_ACONFIG_AFS_SEL_LENGTH   : constant := 2;
    MPU9250_ACONFIG_ACCEL_HPF_BIT    : constant := 2;
    MPU9250_ACONFIG_ACCEL_HPF_LENGTH : constant := 3;
-
-   MPU9250_ACCEL_FS_2  : constant := 16#00#;
-   MPU9250_ACCEL_FS_4  : constant := 16#01#;
-   MPU9250_ACCEL_FS_8  : constant := 16#02#;
-   MPU9250_ACCEL_FS_16 : constant := 16#03#;
 
    MPU9250_DHPF_RESET : constant := 16#00#;
    MPU9250_DHPF_5     : constant := 16#01#;
@@ -439,40 +530,41 @@ private
    MPU9250_ST_ACCEL_LOW          : constant := (-14.0);
    MPU9250_ST_ACCEL_HIGH         : constant := 14.0;
 
-    MPU9250_ST_TB : constant T_Uint16_Array (1 .. 256) := (
-  2620,2646,2672,2699,2726,2753,2781,2808,
-  2837,2865,2894,2923,2952,2981,3011,3041,
-  3072,3102,3133,3165,3196,3228,3261,3293,
-  3326,3359,3393,3427,3461,3496,3531,3566,
-  3602,3638,3674,3711,3748,3786,3823,3862,
-  3900,3939,3979,4019,4059,4099,4140,4182,
-  4224,4266,4308,4352,4395,4439,4483,4528,
-  4574,4619,4665,4712,4759,4807,4855,4903,
-  4953,5002,5052,5103,5154,5205,5257,5310,
-  5363,5417,5471,5525,5581,5636,5693,5750,
-  5807,5865,5924,5983,6043,6104,6165,6226,
-  6289,6351,6415,6479,6544,6609,6675,6742,
-  6810,6878,6946,7016,7086,7157,7229,7301,
-  7374,7448,7522,7597,7673,7750,7828,7906,
-  7985,8065,8145,8227,8309,8392,8476,8561,
-  8647,8733,8820,8909,8998,9088,9178,9270,
-  9363,9457,9551,9647,9743,9841,9939,10038,
-  10139,10240,10343,10446,10550,10656,10763,10870,
-  10979,11089,11200,11312,11425,11539,11654,11771,
-  11889,12008,12128,12249,12371,12495,12620,12746,
-  12874,13002,13132,13264,13396,13530,13666,13802,
-  13940,14080,14221,14363,14506,14652,14798,14946,
-  15096,15247,15399,15553,15709,15866,16024,16184,
-  16346,16510,16675,16842,17010,17180,17352,17526,
-  17701,17878,18057,18237,18420,18604,18790,18978,
-  19167,19359,19553,19748,19946,20145,20347,20550,
-  20756,20963,21173,21385,21598,21814,22033,22253,
-  22475,22700,22927,23156,23388,23622,23858,24097,
-  24338,24581,24827,25075,25326,25579,25835,26093,
-  26354,26618,26884,27153,27424,27699,27976,28255,
-  28538,28823,29112,29403,29697,29994,30294,30597,
-  30903,31212,31524,31839,32157,32479,32804,33132
-);
+   MPU9250_ST_TB : constant T_Uint16_Array (1 .. 256)
+     := (
+         2620, 2646, 2672, 2699, 2726, 2753, 2781, 2808,
+         2837, 2865, 2894, 2923, 2952, 2981, 3011, 3041,
+         3072, 3102, 3133, 3165, 3196, 3228, 3261, 3293,
+         3326, 3359, 3393, 3427, 3461, 3496, 3531, 3566,
+         3602, 3638, 3674, 3711, 3748, 3786, 3823, 3862,
+         3900, 3939, 3979, 4019, 4059, 4099, 4140, 4182,
+         4224, 4266, 4308, 4352, 4395, 4439, 4483, 4528,
+         4574, 4619, 4665, 4712, 4759, 4807, 4855, 4903,
+         4953, 5002, 5052, 5103, 5154, 5205, 5257, 5310,
+         5363, 5417, 5471, 5525, 5581, 5636, 5693, 5750,
+         5807, 5865, 5924, 5983, 6043, 6104, 6165, 6226,
+         6289, 6351, 6415, 6479, 6544, 6609, 6675, 6742,
+         6810, 6878, 6946, 7016, 7086, 7157, 7229, 7301,
+         7374, 7448, 7522, 7597, 7673, 7750, 7828, 7906,
+         7985, 8065, 8145, 8227, 8309, 8392, 8476, 8561,
+         8647, 8733, 8820, 8909, 8998, 9088, 9178, 9270,
+         9363, 9457, 9551, 9647, 9743, 9841, 9939, 10038,
+         10139, 10240, 10343, 10446, 10550, 10656, 10763, 10870,
+         10979, 11089, 11200, 11312, 11425, 11539, 11654, 11771,
+         11889, 12008, 12128, 12249, 12371, 12495, 12620, 12746,
+         12874, 13002, 13132, 13264, 13396, 13530, 13666, 13802,
+         13940, 14080, 14221, 14363, 14506, 14652, 14798, 14946,
+         15096, 15247, 15399, 15553, 15709, 15866, 16024, 16184,
+         16346, 16510, 16675, 16842, 17010, 17180, 17352, 17526,
+         17701, 17878, 18057, 18237, 18420, 18604, 18790, 18978,
+         19167, 19359, 19553, 19748, 19946, 20145, 20347, 20550,
+         20756, 20963, 21173, 21385, 21598, 21814, 22033, 22253,
+         22475, 22700, 22927, 23156, 23388, 23622, 23858, 24097,
+         24338, 24581, 24827, 25075, 25326, 25579, 25835, 26093,
+         26354, 26618, 26884, 27153, 27424, 27699, 27976, 28255,
+         28538, 28823, 29112, 29403, 29697, 29994, 30294, 30597,
+         30903, 31212, 31524, 31839, 32157, 32479, 32804, 33132
+        );
 
    --  Procedures and functions
 
@@ -490,11 +582,6 @@ private
    --  Configure I2C for MPU9250
    procedure MPU9250_Configure_I2C;
 
-   --  Write data to the specified MPU9250 register
-   procedure MPU9250_Write_Register
-     (Reg_Addr    : Byte;
-      Data        : I2C_Data);
-
    --  Read data to the specified MPU9250 register
    procedure MPU9250_Read_Register
      (Reg_Addr    : Byte;
@@ -505,15 +592,33 @@ private
      (Reg_Addr : Byte;
       Data     : out Byte);
 
+   --  Read one but at the specified MPU9250 register
+   function MPU9250_Read_Bit_At_Register
+     (Reg_Addr  : Byte;
+      Bit_Pos   : T_Bit_Pos_8) return Boolean;
+
+   --  Write data to the specified MPU9250 register
+   procedure MPU9250_Write_Register
+     (Reg_Addr    : Byte;
+      Data        : I2C_Data);
+
    --  Write one byte at the specified MPU9250 register
    procedure MPU9250_Write_Byte_At_Register
      (Reg_Addr : Byte;
       Data     : Byte);
 
-   --  Write one but at the specified MPU9250 register
+   --  Write one bit at the specified MPU9250 register
    procedure MPU9250_Write_Bit_At_Register
      (Reg_Addr  : Byte;
       Bit_Pos   : T_Bit_Pos_8;
-      Bit_Value : Bits_1);
+      Bit_Value : Boolean);
+
+   --  Write data in the specified register, starting from the
+   --  bit specified in Start_Bit_Pos
+   procedure MPU9250_Write_Bits_At_Register
+     (Reg_Addr      : Byte;
+      Start_Bit_Pos : T_Bit_Pos_8;
+      Data          : Byte;
+      Length        : T_Bit_Pos_8);
 
 end MPU9250_Pack;

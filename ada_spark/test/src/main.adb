@@ -1,6 +1,8 @@
 pragma Profile (Ravenscar);
 
 with Last_Chance_Handler;
+with Ada.Real_Time; use Ada.Real_Time;
+
 with System_Pack; use System_Pack;
 with Config; use Config;
 
@@ -19,5 +21,7 @@ begin
    --  Start the main loop if the self test passed
    if Self_Test_Passed then
       System_Loop;
+   else
+      delay until Time_Last;
    end if;
 end Main;

@@ -1,6 +1,7 @@
 with Ada.Real_Time; use Ada.Real_Time;
 with System;
 with Types; use Types;
+with MPU9250_Pack; use MPU9250_Pack;
 
 package Config is
 
@@ -35,5 +36,11 @@ package Config is
    --  Radio configuration
    RADIO_CHANNEL       : constant := 80;
    RADIO_DATARATE      : constant := 0;
+
+   --  IMU configuration
+   IMU_GYRO_FS_CONFIG  : constant MPU9250_FS_Gyro_Range
+     := MPU9250_Gyro_FS_2000;
+   IMU_ACCEL_FS_CONFIG : constant MPU9250_FS_Accel_Range
+     := MPU9250_Accel_FS_8;
 
 end Config;

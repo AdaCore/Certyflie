@@ -105,9 +105,9 @@ package body MPU9250_Pack is
       Gyro_ST_Avg : T_Int32_Array_3 := (others => 0);
 
       Factory_Trim : T_Int32_Array_6 := (others => 0);
-      Acc_Diff    : Float_Array_3;
-      Gyro_Diff   : Float_Array_3;
-      FS          : constant Natural := 0;
+      Acc_Diff     : Float_Array_3;
+      Gyro_Diff    : Float_Array_3;
+      FS           : constant Natural := 0;
 
       Next_Period : Time;
       Test_Status : Boolean;
@@ -213,7 +213,7 @@ package body MPU9250_Pack is
       for I in 1 .. 6 loop
          if Self_Test (I) /= 0 then
             Factory_Trim (I) := T_Int32
-              (MPU9250_ST_TB (Integer (Self_Test (I) - 1)));
+              (MPU9250_ST_TB (Integer (Self_Test (I))));
          else
             Factory_Trim (I) := 0;
          end if;
@@ -260,125 +260,250 @@ package body MPU9250_Pack is
           (MPU9250_ST_ACCEL_LOW, MPU9250_ST_ACCEL_HIGH, Acc_Diff (3), "acc Z");
 
       return Test_Status;
-
    end MPU9250_Self_Test;
 
+   procedure MPU9250_Reset is
+   begin
+      MPU9250_Write_Bit_At_Register
+        (Reg_Addr  => MPU9250_RA_PWR_MGMT_1,
+         Bit_Pos   => MPU9250_PWR1_DEVICE_RESET_BIT,
+         Bit_Value => True);
+   end MPU9250_Reset;
 
-           procedure MPU9250_Reset is
-           begin
-           MPU9250_Write_Bit_At_Register
-             (Reg_Addr  => MPU9250_RA_PWR_MGMT_1,
-              Bit_Pos   => MPU9250_PWR1_DEVICE_RESET_BIT,
-              Bit_Value => 1);
-           end MPU9250_Reset;
+   procedure MPU9250_Set_Clock_Source (Clock_Source : MPU9250_Clock_Source) is
+   begin
+      MPU9250_Write_Bits_At_Register
+        (Reg_Addr      => MPU9250_RA_PWR_MGMT_1,
+         Start_Bit_Pos => MPU9250_PWR1_CLKSEL_BIT,
+         Data          => MPU9250_Clock_Source'Enum_Rep (Clock_Source),
+         Length        => MPU9250_PWR1_CLKSEL_LENGTH);
+   end MPU9250_Set_Clock_Source;
 
-           --  Private procedures and functions
+   procedure MPU9250_Set_DLPF_Mode (DLPF_Mode : MPU9250_DLPF_Bandwidth_Mode) is
+   begin
+      MPU9250_Write_Bits_At_Register
+        (Reg_Addr      => MPU9250_RA_CONFIG,
+         Start_Bit_Pos => MPU9250_CFG_DLPF_CFG_BIT,
+         Data          => MPU9250_DLPF_Bandwidth_Mode'Enum_Rep (DLPF_Mode),
+         Length        => MPU9250_CFG_DLPF_CFG_LENGTH);
+   end MPU9250_Set_DLPF_Mode;
 
-           function MPU9250_Evaluate_Self_Test
-             (Low          : Float;
-              High         : Float;
-              Value        : Float;
-              Debug_String : String) return Boolean is
-           Has_Succeed : Boolean;
-           pragma Unreferenced (Has_Succeed);
-           begin
-           if Value not in Low .. High then
-           if Console_Test then
-           Console_Put_Line
-             ("Self test " & Debug_String & "[FAIL]" & ASCII.LF,
-              Has_Succeed);
-           end if;
-           return False;
-           end if;
 
-           return True;
-           end MPU9250_Evaluate_Self_Test;
+   procedure MPU9250_Set_Full_Scale_Gyro_Range
+     (FS_Range : MPU9250_FS_Gyro_Range) is
+   begin
+      MPU9250_Write_Bits_At_Register
+        (Reg_Addr      => MPU9250_RA_GYRO_CONFIG,
+         Start_Bit_Pos => MPU9250_GCONFIG_FS_SEL_BIT,
+         Data          => MPU9250_FS_Gyro_Range'Enum_Rep (FS_Range),
+         Length        => MPU9250_GCONFIG_FS_SEL_LENGTH);
+   end MPU9250_Set_Full_Scale_Gyro_Range;
 
-           procedure MPU9250_Write_Register
-             (Reg_Addr    : Byte;
-              Data        : I2C_Data) is
-           begin
-           Start (MPU9250_I2C_PORT,
-                  Device_Address,
-                  Transmitter);
-           Write (MPU9250_I2C_PORT, Reg_Addr);
+   procedure MPU9250_Set_Full_Scale_Accel_Range
+           (FS_Range : MPU9250_FS_Accel_Range) is
+   begin
+      MPU9250_Write_Bits_At_Register
+        (Reg_Addr      => MPU9250_RA_ACCEL_CONFIG,
+         Start_Bit_Pos => MPU9250_ACONFIG_AFS_SEL_BIT,
+         Data          => MPU9250_FS_Accel_Range'Enum_Rep (FS_Range),
+         Length        => MPU9250_ACONFIG_AFS_SEL_LENGTH);
+   end MPU9250_Set_Full_Scale_Accel_Range;
 
-           for Data_Byte of Data loop
-           Write (MPU9250_I2C_PORT, Data_Byte);
-           end loop;
+   procedure MPU9250_Set_I2C_Bypass_Enabled (Value : Boolean) is
+   begin
+      MPU9250_Write_Bit_At_Register
+        (Reg_Addr  => MPU9250_RA_INT_PIN_CFG,
+         Bit_Pos   => MPU9250_INTCFG_I2C_BYPASS_EN_BIT,
+         Bit_Value => Value);
+   end MPU9250_Set_I2C_Bypass_Enabled;
 
-           Stop (MPU9250_I2C_PORT);
-           end MPU9250_Write_Register;
+   procedure MPU9250_Set_Int_Enabled (Value : Boolean) is
+   begin
+      --  Full register byte for all interrupts, for quick reading.
+      --  Each bit should be set 0 for disabled, 1 for enabled.
+      if Value then
+         MPU9250_Write_Byte_At_Register
+           (Reg_Addr => MPU9250_RA_INT_ENABLE,
+            Data     => 16#FF#);
+      else
+         MPU9250_Write_Byte_At_Register
+           (Reg_Addr => MPU9250_RA_INT_ENABLE,
+            Data     => 16#00#);
+      end if;
+   end MPU9250_Set_Int_Enabled;
 
-           procedure MPU9250_Read_Register
-             (Reg_Addr    : Byte;
-              Data        : in out I2C_Data) is
-           begin
-           Start (MPU9250_I2C_PORT,
-                  Device_Address,
-                  Transmitter);
-           Write (MPU9250_I2C_PORT, Reg_Addr);
-           Stop (MPU9250_I2C_PORT);
+   procedure MPU9250_Set_Rate (Rate_Div : Byte) is
+   begin
+      MPU9250_Write_Byte_At_Register
+        (Reg_Addr => MPU9250_RA_SMPLRT_DIV,
+         Data     => Rate_Div);
+   end MPU9250_Set_Rate;
 
-           Start (MPU9250_I2C_PORT,
-                  Device_Address,
-                  Receiver);
 
-           for I in Data'Range loop
-           if I = Data'Last then
-           Data (I) := Read_Nack (MPU9250_I2C_PORT);
-           else
-           Data (I) := Read_Ack (MPU9250_I2C_PORT);
-           end if;
-           end loop;
-           end MPU9250_Read_Register;
+   procedure MPU9250_Set_Sleep_Enabled (Value : Boolean) is
+   begin
+      MPU9250_Write_Bit_At_Register
+        (Reg_Addr  => MPU9250_RA_PWR_MGMT_1,
+         Bit_Pos   => MPU9250_PWR1_SLEEP_BIT,
+         Bit_Value => Value);
+   end MPU9250_Set_Sleep_Enabled;
 
-           procedure MPU9250_Read_Byte_At_Register
-             (Reg_Addr : Byte;
-              Data     : out Byte) is
-           begin
-           Start (MPU9250_I2C_PORT,
-                  Device_Address,
-                  Transmitter);
-           Write (MPU9250_I2C_PORT, Reg_Addr);
-           Stop (MPU9250_I2C_PORT);
+   procedure MPU9250_Set_Temp_Sensor_Enabled (Value : Boolean) is
+   begin
+      --  True value for this bit actually disables it.
+      MPU9250_Write_Bit_At_Register
+        (Reg_Addr  => MPU9250_RA_PWR_MGMT_1,
+         Bit_Pos   => MPU9250_PWR1_TEMP_DIS_BIT,
+         Bit_Value => not Value);
+   end MPU9250_Set_Temp_Sensor_Enabled;
 
-           Start (MPU9250_I2C_PORT,
-                  Device_Address,
-                  Receiver);
+   function MPU9250_Get_Temp_Sensor_Enabled return Boolean is
+   begin
+      --  False value for this bit means that it is enabled
+      return not MPU9250_Read_Bit_At_Register
+        (Reg_Addr  => MPU9250_RA_PWR_MGMT_1,
+         Bit_Pos   => MPU9250_PWR1_TEMP_DIS_BIT);
+   end MPU9250_Get_Temp_Sensor_Enabled;
 
-           Data := Read_Nack (MPU9250_I2C_PORT);
-           end MPU9250_Read_Byte_At_Register;
+   --  Private procedures and functions
 
-           procedure MPU9250_Write_Byte_At_Register
-             (Reg_Addr : Byte;
-              Data     : Byte) is
-           begin
-           Start (MPU9250_I2C_PORT,
-                  Device_Address,
-                  Transmitter);
-           Write (MPU9250_I2C_PORT, Reg_Addr);
+   function MPU9250_Evaluate_Self_Test
+     (Low          : Float;
+      High         : Float;
+      Value        : Float;
+      Debug_String : String) return Boolean is
+      Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
+   begin
+      if Value not in Low .. High then
+         if Console_Test then
+            Console_Put_Line
+              ("Self test " & Debug_String & "[FAIL]" & ASCII.LF,
+               Has_Succeed);
+         end if;
+         return False;
+      end if;
 
-           Write (MPU9250_I2C_PORT, Data);
-           end MPU9250_Write_Byte_At_Register;
+      return True;
+   end MPU9250_Evaluate_Self_Test;
 
-           procedure MPU9250_Write_Bit_At_Register
-             (Reg_Addr  : Byte;
-              Bit_Pos   : T_Bit_Pos_8;
-              Bit_Value : Bits_1) is
-           Register_Data  : I2C_Data (1 .. 1);
-           Register_Value : Byte;
-           begin
-           MPU9250_Read_Register (Reg_Addr, Register_Data);
-           Register_Value := Register_Data (1);
+   procedure MPU9250_Read_Register
+     (Reg_Addr    : Byte;
+      Data        : in out I2C_Data) is
+   begin
+      Start (MPU9250_I2C_PORT,
+             Device_Address,
+             Transmitter);
+      Write (MPU9250_I2C_PORT, Reg_Addr);
 
-           Register_Value := (if Bit_Value = 1 then
-                                     Register_Value or (Shift_Left (1, Bit_Pos))
-                              else
-                                 Register_Value and not (Shift_Left (1, Bit_Pos)));
+      Start (MPU9250_I2C_PORT,
+             Device_Address,
+             Receiver);
 
-           Register_Data (1) := Register_Value;
-           MPU9250_Write_Register (Reg_Addr, Register_Data);
-           end MPU9250_Write_Bit_At_Register;
+      for I in Data'Range loop
+         if I = Data'Last then
+            Data (I) := Read_Nack (MPU9250_I2C_PORT);
+         else
+            Data (I) := Read_Ack (MPU9250_I2C_PORT);
+         end if;
+      end loop;
 
-           end MPU9250_Pack;
+      Stop (MPU9250_I2C_PORT);
+   end MPU9250_Read_Register;
+
+   procedure MPU9250_Read_Byte_At_Register
+     (Reg_Addr : Byte;
+      Data     : out Byte) is
+   begin
+      Start (MPU9250_I2C_PORT,
+             Device_Address,
+             Transmitter);
+      Write (MPU9250_I2C_PORT, Reg_Addr);
+
+      Start (MPU9250_I2C_PORT,
+             Device_Address,
+             Receiver);
+
+      Data := Read_Nack (MPU9250_I2C_PORT);
+      Stop (MPU9250_I2C_PORT);
+   end MPU9250_Read_Byte_At_Register;
+
+   function MPU9250_Read_Bit_At_Register
+     (Reg_Addr  : Byte;
+      Bit_Pos   : T_Bit_Pos_8) return Boolean is
+      Register_Value : Byte;
+   begin
+      MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
+      return (if (Register_Value and Shift_Left (1, Bit_Pos)) /= 0 then
+                 True
+              else
+                 False);
+   end MPU9250_Read_Bit_At_Register;
+
+   procedure MPU9250_Write_Register
+     (Reg_Addr    : Byte;
+      Data        : I2C_Data) is
+   begin
+      Start (MPU9250_I2C_PORT,
+             Device_Address,
+             Transmitter);
+      Write (MPU9250_I2C_PORT, Reg_Addr);
+
+      for Data_Byte of Data loop
+         Write (MPU9250_I2C_PORT, Data_Byte);
+      end loop;
+
+      Stop (MPU9250_I2C_PORT);
+   end MPU9250_Write_Register;
+
+   procedure MPU9250_Write_Byte_At_Register
+     (Reg_Addr : Byte;
+      Data     : Byte) is
+   begin
+      Start (MPU9250_I2C_PORT,
+             Device_Address,
+             Transmitter);
+      Write (MPU9250_I2C_PORT, Reg_Addr);
+
+      Write (MPU9250_I2C_PORT, Data);
+   end MPU9250_Write_Byte_At_Register;
+
+   procedure MPU9250_Write_Bit_At_Register
+     (Reg_Addr  : Byte;
+      Bit_Pos   : T_Bit_Pos_8;
+      Bit_Value : Boolean) is
+      Register_Value : Byte;
+   begin
+      MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
+
+      Register_Value := (if Bit_Value then
+                            Register_Value or (Shift_Left (1, Bit_Pos))
+                         else
+                            Register_Value and not (Shift_Left (1, Bit_Pos)));
+
+      MPU9250_Write_Byte_At_Register (Reg_Addr, Register_Value);
+   end MPU9250_Write_Bit_At_Register;
+
+   procedure MPU9250_Write_Bits_At_Register
+     (Reg_Addr      : Byte;
+      Start_Bit_Pos : T_Bit_Pos_8;
+      Data          : Byte;
+      Length        : T_Bit_Pos_8) is
+      Register_Value : Byte;
+      Mask           : Byte;
+      Data_Aux       : Byte := Data;
+   begin
+      MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
+
+      Mask := Shift_Left
+        ((Shift_Left (1, Length) - 1), Start_Bit_Pos - Length + 1);
+      Data_Aux := Shift_Left
+        (Data_Aux, Start_Bit_Pos - Length + 1);
+      Data_Aux := Data_Aux and Mask;
+      Register_Value := Register_Value and not Mask;
+      Register_Value := Register_Value or Data_Aux;
+
+      MPU9250_Write_Byte_At_Register (Reg_Addr, Register_Value);
+   end MPU9250_Write_Bits_At_Register;
+
+end MPU9250_Pack;
