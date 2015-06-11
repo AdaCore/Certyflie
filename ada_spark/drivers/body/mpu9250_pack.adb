@@ -464,8 +464,8 @@ package body MPU9250_Pack is
              Device_Address,
              Transmitter);
       Write (MPU9250_I2C_PORT, Reg_Addr);
-
       Write (MPU9250_I2C_PORT, Data);
+      Stop (MPU9250_I2C_PORT);
    end MPU9250_Write_Byte_At_Register;
 
    procedure MPU9250_Write_Bit_At_Register
