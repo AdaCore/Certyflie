@@ -2,6 +2,10 @@ with Types; use Types;
 
 package Filter_Pack is
 
+   --  Global variables and constants
+
+   IIR_SHIFT : constant := 8;
+
    --  Procedures and functions
 
    --  IIR filter the samples.
@@ -9,11 +13,5 @@ package Filter_Pack is
      (Input       : T_Uint32;
       Attenuation : T_Uint32;
       Filter      : in out T_Uint32) return T_Uint32;
-
-private
-
-   --  Global variables and constants
-
-   IIR_SHIFT : constant := 8;
 
 end Filter_Pack;

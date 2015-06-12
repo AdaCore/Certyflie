@@ -1,4 +1,3 @@
-with IMU_Pack; use IMU_Pack;
 with Interfaces;
 
 package Types is
@@ -26,7 +25,7 @@ package Types is
    --  Types used by the stabilization system
 
    --  Allowed delta time range.
-   subtype T_Delta_Time   is Float range IMU_UPDATE_DT .. 1.0;
+   subtype T_Delta_Time   is Float range 0.001 .. 1.0;
 
    --  Smoothing terms. Used for barycentric expressions.
    subtype T_Alpha        is Float range 0.0 .. 1.0;

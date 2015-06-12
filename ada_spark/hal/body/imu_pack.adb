@@ -1,3 +1,5 @@
+with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
+
 with MPU9250_Pack; use MPU9250_Pack;
 with Config; use Config;
 
@@ -38,6 +40,14 @@ package body IMU_Pack is
       --  Set digital low-pass bandwidth
       MPU9250_Set_DLPF_Mode (MPU9250_DLPF_BW_98);
 
+      Variance_Sample_Time := Milliseconds (0);
+      IMU_Acc_Lp_Att_Factor := IMU_ACC_IIR_LPF_ATT_FACTOR;
+
+      Cos_Pitch := Cos (0.0);
+      Sin_Pitch := Sin (0.0);
+      Cos_Roll := Cos (0.0);
+      Sin_Roll := Sin (0.0);
+
       Is_Init := True;
    end IMU_Init;
 
@@ -60,8 +70,16 @@ package body IMU_Pack is
 
    function IMU_Has_Barometer return Boolean is
    begin
-      return True;
+      return Is_Barometer_Avalaible;
    end IMU_Has_Barometer;
+
+   procedure IMU_6_Read
+     (Gyro : in out Gyroscope_Data;
+      Acc  : in out Accelerometer_Data) is
+   begin
+      --  TODO
+      null;
+   end IMU_6_Read;
 
    procedure IMU_9_Read
      (Gyro : in out Gyroscope_Data;
