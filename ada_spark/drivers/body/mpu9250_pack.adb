@@ -9,6 +9,7 @@ package body MPU9250_Pack is
    --  Public procedures and functions
 
    procedure MPU9250_Init is
+      Delay_Time : Time;
    begin
       if Is_Init then
          return;
@@ -24,6 +25,11 @@ package body MPU9250_Pack is
 
       --  Init and configure GPIO pins and I2C
       MPU9250_Init_Control_Lines;
+
+      --  Delay to wait for the state initialization of SCL and SDA
+      Delay_Time := Clock + Milliseconds (2);
+      delay until Delay_Time;
+
       MPU9250_Configure_I2C;
    end MPU9250_Init;
 
@@ -93,8 +99,6 @@ package body MPU9250_Pack is
 
       function I2C_Data_2_To_T_Int16 is new Ada.Unchecked_Conversion
         (I2C_Data_2, T_Int16);
-      function T_Int16_To_T_Int32 is new Ada.Unchecked_Conversion
-        (T_Int16, T_Int32);
 
       Raw_Data    : I2C_Data (1 .. 6) := (others => 0);
       Saved_Reg   : I2C_Data (1 .. 5) := (others => 0);
@@ -109,6 +113,8 @@ package body MPU9250_Pack is
       Gyro_Diff    : Float_Array_3;
       FS           : constant Natural := 0;
 
+      --  TODO: remove after test
+      Acc_Avg_1 : T_Int16;
       Next_Period : Time;
       Test_Status : Boolean;
    begin
@@ -131,26 +137,21 @@ package body MPU9250_Pack is
       --  Get average current values of gyro and accelerometer
       for I in 1 .. 200 loop
          MPU9250_Read_Register (MPU9250_RA_ACCEL_XOUT_H, Raw_Data);
+         Acc_Avg_1 := I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2));
          Acc_Avg (1) :=
-           Acc_Avg (1) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
+           Acc_Avg (1) + T_Int32 (Acc_Avg_1);
          Acc_Avg (2) :=
-           Acc_Avg (2) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
+           Acc_Avg (2) + T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
          Acc_Avg (3) :=
-           Acc_Avg (3) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
+           Acc_Avg (3) + T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
 
          MPU9250_Read_Register (MPU9250_RA_GYRO_XOUT_H, Raw_Data);
          Gyro_Avg (1) :=
-           Gyro_Avg (1) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
+           Gyro_Avg (1) + T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
          Gyro_Avg (2) :=
-           Gyro_Avg (2) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
+           Gyro_Avg (2) + T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
          Gyro_Avg (3) :=
-           Gyro_Avg (3) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
+           Gyro_Avg (3) + T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
       end loop;
 
       --  Get average of 200 values and store as average current readings
@@ -170,26 +171,20 @@ package body MPU9250_Pack is
       --  Get average self-test values of gyro and accelerometer
       for I in 1 .. 200 loop
          MPU9250_Read_Register (MPU9250_RA_ACCEL_XOUT_H, Raw_Data);
-         Acc_ST_Avg (1) :=
-           Acc_ST_Avg (1) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
-         Acc_ST_Avg (2) :=
-           Acc_ST_Avg (2) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
-         Acc_ST_Avg (3) :=
-           Acc_ST_Avg (3) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
+         Acc_ST_Avg (1) := Acc_ST_Avg (1) +
+           T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
+         Acc_ST_Avg (2) := Acc_ST_Avg (2) +
+           T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
+         Acc_ST_Avg (3) := Acc_ST_Avg (3) +
+           T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
 
          MPU9250_Read_Register (MPU9250_RA_GYRO_XOUT_H, Raw_Data);
-         Gyro_ST_Avg (1) :=
-           Gyro_ST_Avg (1) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
-         Gyro_ST_Avg (2) :=
-           Gyro_ST_Avg (2) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
-         Gyro_ST_Avg (3) :=
-           Gyro_ST_Avg (3) + T_Int16_To_T_Int32
-           (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
+         Gyro_ST_Avg (1) := Gyro_ST_Avg (1) +
+           T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (1 .. 2)));
+         Gyro_ST_Avg (2) := Gyro_ST_Avg (2) +
+           T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (3 .. 4)));
+         Gyro_ST_Avg (3) := Gyro_ST_Avg (3) +
+           T_Int32 (I2C_Data_2_To_T_Int16 (Raw_Data (5 .. 6)));
       end loop;
 
       --  Get average of 200 values and store as average self-test readings
@@ -201,6 +196,10 @@ package body MPU9250_Pack is
       --  Configure the gyro and accelerometer for normal operation
       MPU9250_Write_Byte_At_Register (MPU9250_RA_ACCEL_CONFIG, 16#00#);
       MPU9250_Write_Byte_At_Register (MPU9250_RA_GYRO_CONFIG, 16#00#);
+
+      --  Delay a while to let the device stabilize
+      Next_Period := Clock + Milliseconds (25);
+      delay until Next_Period;
 
       --  Retrieve Accelerometer and Gyro Factory Self - Test Code From USR_Reg
       MPU9250_Read_Byte_At_Register (MPU9250_RA_ST_X_ACCEL, Self_Test (1));
@@ -287,7 +286,6 @@ package body MPU9250_Pack is
          Data          => MPU9250_DLPF_Bandwidth_Mode'Enum_Rep (DLPF_Mode),
          Length        => MPU9250_CFG_DLPF_CFG_LENGTH);
    end MPU9250_Set_DLPF_Mode;
-
 
    procedure MPU9250_Set_Full_Scale_Gyro_Range
      (FS_Range : MPU9250_FS_Gyro_Range) is

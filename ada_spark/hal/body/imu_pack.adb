@@ -44,13 +44,13 @@ package body IMU_Pack is
    --  Test if the IMU device is initialized/
    function IMU_Test return Boolean is
       Is_Connected : Boolean;
-      Temp_Sensor_Activated : Boolean;
+      Self_Test_Passed : Boolean;
    begin
       --  TODO: implement the complete function
       Is_Connected := MPU9250_Test_Connection;
-      Temp_Sensor_Activated := MPU9250_Get_Temp_Sensor_Enabled;
+      Self_Test_Passed := MPU9250_Self_Test;
 
-      return Is_Init and Is_Connected and Temp_Sensor_Activated;
+      return Is_Init and Is_Connected and Self_Test_Passed;
    end IMU_Test;
 
    function IMU_6_Calibrated return Boolean is
