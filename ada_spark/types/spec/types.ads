@@ -7,6 +7,8 @@ package Types is
    type T_Int8   is new Interfaces.Integer_8;
    type T_Int16  is new Interfaces.Integer_16;
    type T_Int32  is new Interfaces.Integer_32;
+   type T_Int64  is new Interfaces.Integer_64;
+
    type T_Uint8  is new Interfaces.Unsigned_8;
    type T_Uint16 is new Interfaces.Unsigned_16;
    type T_Uint32 is new Interfaces.Unsigned_32;
@@ -16,7 +18,9 @@ package Types is
 
    type T_Uint8_Array  is array (Integer range <>) of T_Uint8;
    type T_Uint16_Array is array (Integer range <>) of T_Uint16;
+
    type T_Int32_Array  is array (Integer range <>) of T_Int32;
+   type T_Int64_Array  is array (Integer range <>) of T_Int64;
 
    type Float_Array is array (Integer range <>) of Float;
 

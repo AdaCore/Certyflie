@@ -102,6 +102,16 @@ package MPU9250_Pack is
    --  A small delay of ~50ms may be desirable after triggering a reset.
    procedure MPU9250_Reset;
 
+  --  Get raw 6-axis motion sensor readings (accel/gyro).
+  --  Retrieves all currently available motion sensor values.
+   procedure MPU9250_Get_Motion_6
+     (Acc_X  : out T_Int16;
+      Acc_Y  : out T_Int16;
+      Acc_Z  : out T_Int16;
+      Gyro_X : out T_Int16;
+      Gyro_Y : out T_Int16;
+      Gyro_Z : out T_Int16);
+
    --  Set clock source setting.
    --  3 bits allowed to choose the source. The different
    --  clock sources are enumerated in the MPU9250 register map.

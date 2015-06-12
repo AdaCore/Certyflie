@@ -1,5 +1,6 @@
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
+with Safety_Pack; use Safety_Pack;
 with MPU9250_Pack; use MPU9250_Pack;
 with Config; use Config;
 
@@ -77,8 +78,9 @@ package body IMU_Pack is
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data) is
    begin
-      --  TODO
-      null;
+      MPU9250_Get_Motion_6 (Accel_IMU.X, Accel_IMU.Y, Accel_IMU.Z,
+                            Gyro_IMU.X, Gyro_IMU.Y, Gyro_IMU.Z);
+
    end IMU_6_Read;
 
    procedure IMU_9_Read
@@ -99,5 +101,52 @@ package body IMU_Pack is
       Mag.Y := 0.0;
       Mag.Z := 0.0;
    end IMU_9_Read;
+
+   procedure IMU_Add_Bias_Value
+     (Bias_Obj : in out Bias_Object;
+      Value    : Axis3_T_Int16) is
+   begin
+      Bias_Obj.Buffer (Bias_Obj.Buffer_Index) := Value;
+
+      Bias_Obj.Buffer_Index := Bias_Obj.Buffer_Index + 1;
+
+      if Bias_Obj.Buffer_Index > Bias_Obj.Buffer'Last then
+         Bias_Obj.Is_Buffer_Filled := True;
+         Bias_Obj.Buffer_Index := Bias_Obj.Buffer'First;
+      end if;
+   end IMU_Add_Bias_Value;
+
+   procedure IMU_Find_Bias_Value (Bias_Obj : Bias_Object) is
+      Bias_Found : Boolean := False;
+    begin
+      if Bias_Obj.Is_Buffer_Filled then
+         declare
+            Variance : Axis3_T_Int16;
+            Mean     : Axis3_T_Int16;
+         begin
+            null;
+         end;
+      end if;
+   end IMU_Find_Bias_Value;
+
+   procedure IMU_Calculate_Variance_And_Mean
+     (Bias_Obj : Bias_Object;
+      Variance : out Axis3_T_Int16;
+      Mean     : out Axis3_T_Int16) is
+      Sum : T_Int32_Array (1 .. 3) := (others => 0);
+      Sum_Square : T_Int64_Array (1 .. 3) := (others => 0);
+   begin
+      for Value of Bias_Obj.Buffer loop
+         Sum (1) := Sum (1) + T_Int32 (Value.X);
+         Sum (2) := Sum (2) + T_Int32 (Value.Y);
+         Sum (3) := Sum (3) + T_Int32 (Value.Z);
+
+         Sum_Square (1) := Sum_Square (1) + T_Int64 (Value.X * Value.X);
+         Sum_Square (2) := Sum_Square (2) + T_Int64 (Value.Y * Value.Y);
+         Sum_Square (3) := Sum_Square (3) + T_Int64 (Value.Z * Value.Z);
+      end loop;
+
+      --  TODO: the rest of the function, in a safe way
+   end IMU_Calculate_Variance_And_Mean;
 
 end IMU_Pack;

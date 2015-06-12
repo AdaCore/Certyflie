@@ -56,6 +56,22 @@ is
    IMU_UPDATE_DT    : constant := 1.0 / IMU_UPDATE_FREQ;
    IMU_UPDATE_DT_MS : constant Time_Span := Milliseconds (200);
 
+   --  Number of samples used for bias calculation
+   IMU_NBR_OF_BIAS_SAMPLES      : constant := 32;
+   GYRO_MIN_BIAS_TIMEOUT_MS     : constant Time_Span := Milliseconds (1_000);
+
+   --  Set ACC_WANTED_LPF1_CUTOFF_HZ to the wanted cut-off freq in Hz.
+   --  The highest cut-off freq that will have any affect is fs /(2*pi).
+   --  E.g. fs = 350 Hz -> highest cut-off = 350/(2*pi) = 55.7 Hz -> 55 Hz
+   IMU_ACC_WANTED_LPF_CUTOFF_HZ : constant := 4.0;
+   --  Attenuation should be between 1 to 256.
+   --  F0 = fs / 2*pi*attenuation ->
+   --  Attenuation = fs / 2*pi*f0
+   IMU_ACC_IIR_LPF_ATTENUATION : constant Float
+     := Float (IMU_UPDATE_FREQ) / (2.0 * Pi * IMU_ACC_WANTED_LPF_CUTOFF_HZ);
+   IMU_ACC_IIR_LPF_ATT_FACTOR  : constant T_Uint8
+     := T_Uint8 (Float (2 ** IIR_SHIFT) / IMU_ACC_IIR_LPF_ATTENUATION + 0.5);
+
    --  Procedures and functions
 
    --  Initialize the IMU device/
@@ -85,39 +101,6 @@ is
    function IMU_Has_Barometer return Boolean;
 
 private
-
-   --  Global variables and constants
-
-   Is_Init : Boolean := False;
-   --  Barometer and magnetometr not avalaible for now.
-   --  TODO: add the code to manipulate them
-   Is_Barometer_Avalaible   : Boolean := False;
-   Is_Magnetomer_Availaible : Boolean := False;
-
-   --  Number of samples used for bias calculation
-   IMU_NBR_OF_BIAS_SAMPLES      : constant := 32;
-   GYRO_MIN_BIAS_TIMEOUT_MS     : constant Time_Span := Milliseconds (1_000);
-
-   --  Set ACC_WANTED_LPF1_CUTOFF_HZ to the wanted cut-off freq in Hz.
-   --  The highest cut-off freq that will have any affect is fs /(2*pi).
-   --  E.g. fs = 350 Hz -> highest cut-off = 350/(2*pi) = 55.7 Hz -> 55 Hz
-   IMU_ACC_WANTED_LPF_CUTOFF_HZ : constant := 4.0;
-   --  Attenuation should be between 1 to 256.
-   --  F0 = fs / 2*pi*attenuation ->
-   --  Attenuation = fs / 2*pi*f0
-   IMU_ACC_IIR_LPF_ATTENUATION : constant Float
-     := Float (IMU_UPDATE_FREQ) / (2.0 * Pi * IMU_ACC_WANTED_LPF_CUTOFF_HZ);
-   IMU_ACC_IIR_LPF_ATT_FACTOR  : constant T_Uint8
-     := T_Uint8 (Float (2 ** IIR_SHIFT) / IMU_ACC_IIR_LPF_ATTENUATION + 0.5);
-
-   Variance_Sample_Time  : Time_Span;
-   IMU_Acc_Lp_Att_Factor : T_Uint8;
-
-   Cos_Pitch : Float;
-   Sin_Pitch : Float;
-   Cos_Roll  : Float;
-   Sin_Roll  : Float;
-
    --  Types
 
    type Axis3_T_Int16 is record
@@ -137,5 +120,43 @@ private
       Is_Bias_Value_Found : Boolean  := False;
       Is_Buffer_Filled    : Boolean  := False;
    end record;
+
+   --  Global variables and constants
+
+   Is_Init : Boolean := False;
+   --  Barometer and magnetometr not avalaible for now.
+   --  TODO: add the code to manipulate them
+   Is_Barometer_Avalaible   : Boolean := False;
+   Is_Magnetomer_Availaible : Boolean := False;
+
+   Variance_Sample_Time  : Time_Span;
+   IMU_Acc_Lp_Att_Factor        : T_Uint8;
+
+   --  Raw values retrieved from IMU
+   Accel_IMU : Axis3_T_Int16;
+   Gyro_IMU  : Axis3_T_Int16;
+
+   Cos_Pitch : Float;
+   Sin_Pitch : Float;
+   Cos_Roll  : Float;
+   Sin_Roll  : Float;
+
+   --  Procedures and functions
+
+   --  Add a new value to the variance buffer and if it is full
+   --  replace the oldest one. Thus a circular buffer.
+   procedure IMU_Add_Bias_Value
+     (Bias_Obj : in out Bias_Object;
+      Value    : Axis3_T_Int16);
+
+   --  Check if the variances is below the predefined thresholds.
+   --  The bias value should have been added before calling this.
+   procedure IMU_Find_Bias_Value (Bias_Obj : Bias_Object);
+
+   --  Calculate the variance and mean for the bias buffer.
+   procedure IMU_Calculate_Variance_And_Mean
+     (Bias_Obj : Bias_Object;
+      Variance : out Axis3_T_Int16;
+      Mean     : out Axis3_T_Int16);
 
 end IMU_Pack;

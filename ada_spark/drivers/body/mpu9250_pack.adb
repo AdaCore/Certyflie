@@ -287,6 +287,34 @@ package body MPU9250_Pack is
          Bit_Value => True);
    end MPU9250_Reset;
 
+   procedure MPU9250_Get_Motion_6
+     (Acc_X  : out T_Int16;
+      Acc_Y  : out T_Int16;
+      Acc_Z  : out T_Int16;
+      Gyro_X : out T_Int16;
+      Gyro_Y : out T_Int16;
+      Gyro_Z : out T_Int16) is
+      Raw_Data : I2C_Data (1 .. 14);
+   begin
+      MPU9250_Read_Register
+        (Reg_Addr => MPU9250_RA_ACCEL_XOUT_H,
+         Data     => Raw_Data);
+
+      Acc_X :=
+        Fuse_Low_And_High_Register_Parts (Raw_Data (1), Raw_Data (2));
+      Acc_Y :=
+        Fuse_Low_And_High_Register_Parts (Raw_Data (3), Raw_Data (4));
+      Acc_Z :=
+        Fuse_Low_And_High_Register_Parts (Raw_Data (5), Raw_Data (6));
+
+      Gyro_X :=
+        Fuse_Low_And_High_Register_Parts (Raw_Data (9), Raw_Data (10));
+      Gyro_Y :=
+        Fuse_Low_And_High_Register_Parts (Raw_Data (11), Raw_Data (12));
+      Gyro_Z :=
+        Fuse_Low_And_High_Register_Parts (Raw_Data (13), Raw_Data (14));
+   end MPU9250_Get_Motion_6;
+
    procedure MPU9250_Set_Clock_Source (Clock_Source : MPU9250_Clock_Source) is
    begin
       MPU9250_Write_Bits_At_Register
