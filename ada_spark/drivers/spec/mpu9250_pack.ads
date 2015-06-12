@@ -621,4 +621,8 @@ private
       Data          : Byte;
       Length        : T_Bit_Pos_8);
 
+   function Fuse_Low_And_High_Register_Parts
+     (High : Byte;
+      Low  : Byte) return T_Int16;
+   pragma Inline (Fuse_Low_And_High_Register_Parts);
 end MPU9250_Pack;
