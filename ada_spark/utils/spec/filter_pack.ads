@@ -10,8 +10,8 @@ package Filter_Pack is
 
    --  IIR filter the samples.
    function IIR_LP_Filter_Single
-     (Input       : T_Uint32;
-      Attenuation : T_Uint32;
-      Filter      : in out T_Uint32) return T_Uint32;
+     (Input       : T_Int32;
+      Attenuation : T_Int32;
+      Filter      : in out T_Int32) return T_Int32;
 
 end Filter_Pack;

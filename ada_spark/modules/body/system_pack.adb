@@ -7,6 +7,7 @@ with Power_Management_Pack; use Power_Management_Pack;
 with Communication_Pack; use Communication_Pack;
 with Commander_Pack; use Commander_Pack;
 with Stabilizer_Pack; use Stabilizer_Pack;
+with Types; use Types;
 
 package body System_Pack is
 
@@ -47,21 +48,17 @@ package body System_Pack is
    end System_Self_Test;
 
    procedure System_Loop is
-      --Attitude_Update_Counter : T_Uint32 := 0;
-      --Alt_Hold_Update_Counter : T_Uint32 := 0;
+      Attitude_Update_Counter : T_Uint32 := 0;
+      Alt_Hold_Update_Counter : T_Uint32 := 0;
       Next_Period             : Time;
-      LED_State               : Boolean := True;
    begin
       Next_Period := Clock + IMU_UPDATE_DT_MS;
 
       loop
          delay until Next_Period;
---           Stabilizer_Control_Loop (Attitude_Update_Counter,
---                                    Alt_Hold_Update_Counter);
+         Stabilizer_Control_Loop (Attitude_Update_Counter,
+                                  Alt_Hold_Update_Counter);
 
-
-         Set_LED (LED_Green_R, LED_State);
-         LED_State := not LED_State;
 
          Next_Period := Next_Period + IMU_UPDATE_DT_MS;
       end loop;

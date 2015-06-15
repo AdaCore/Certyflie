@@ -62,7 +62,7 @@ package MPU9250_Pack is
    for MPU9250_FS_Accel_Range use
      (MPU9250_Accel_FS_2  => 16#00#,
       MPU9250_Accel_FS_4  => 16#01#,
-      MPU9250_Accel_FS_8 => 16#02#,
+      MPU9250_Accel_FS_8  => 16#02#,
       MPU9250_Accel_FS_16 => 16#03#);
    for MPU9250_FS_Accel_Range'Size use 2;
 
@@ -84,6 +84,16 @@ package MPU9250_Pack is
       MPU9250_DLPF_BW_5   => 16#06#);
    for MPU9250_DLPF_Bandwidth_Mode'Size use 3;
 
+   --  Use to convert MPU9250 registers in degrees (gyro) and G (acc).
+   MPU9250_DEG_PER_LSB_250  : constant := (2.0 * 250.0) / 65536.0;
+   MPU9250_DEG_PER_LSB_500  : constant := (2.0 * 500.0) / 65536.0;
+   MPU9250_DEG_PER_LSB_1000 : constant := (2.0 * 1000.0) / 65536.0;
+   MPU9250_DEG_PER_LSB_2000 : constant := (2.0 * 2000.0) / 65536.0;
+   MPU9250_G_PER_LSB_2      : constant := (2.0 * 2.0) / 65536.0;
+   MPU9250_G_PER_LSB_4      : constant := (2.0 * 4.0) / 65536.0;
+   MPU9250_G_PER_LSB_8      : constant := (2.0 * 8.0) / 65536.0;
+   MPU9250_G_PER_LSB_16     : constant := (2.0 * 16.0) / 65536.0;
+
    --  Procedures and functions
 
    --  Initialize the MPU9250 Device via I2C.
@@ -102,8 +112,8 @@ package MPU9250_Pack is
    --  A small delay of ~50ms may be desirable after triggering a reset.
    procedure MPU9250_Reset;
 
-  --  Get raw 6-axis motion sensor readings (accel/gyro).
-  --  Retrieves all currently available motion sensor values.
+   --  Get raw 6-axis motion sensor readings (accel/gyro).
+   --  Retrieves all currently available motion sensor values.
    procedure MPU9250_Get_Motion_6
      (Acc_X  : out T_Int16;
       Acc_Y  : out T_Int16;
@@ -525,15 +535,6 @@ private
    MPU9250_DMP_MEMORY_BANKS      : constant := 8;
    MPU9250_DMP_MEMORY_BANK_SIZE  : constant := 256;
    MPU9250_DMP_MEMORY_CHUNK_SIZE : constant := 16;
-
-   --  unsupported macro: MPU9250_DEG_PER_LSB_250 (float)((2 * 250.0) / 65536.0)
-   --  unsupported macro: MPU9250_DEG_PER_LSB_500 (float)((2 * 500.0) / 65536.0)
-   --  unsupported macro: MPU9250_DEG_PER_LSB_1000 (float)((2 * 1000.0) / 65536.0)
-   --  unsupported macro: MPU9250_DEG_PER_LSB_2000 (float)((2 * 2000.0) / 65536.0)
-   --  unsupported macro: MPU9250_G_PER_LSB_2 (float)((2 * 2) / 65536.0)
-   --  unsupported macro: MPU9250_G_PER_LSB_4 (float)((2 * 4) / 65536.0)
-   --  unsupported macro: MPU9250_G_PER_LSB_8 (float)((2 * 8) / 65536.0)
-   --  unsupported macro: MPU9250_G_PER_LSB_16 (float)((2 * 16) / 65536.0)
 
    MPU9250_ST_GYRO_LOW           : constant := (-14.0);
    MPU9250_ST_GYRO_HIGH          : constant := 14.0;
