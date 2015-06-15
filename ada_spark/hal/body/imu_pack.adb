@@ -57,7 +57,7 @@ package body IMU_Pack is
    begin
       --  TODO: implement the complete function
       Is_Connected := MPU9250_Test_Connection;
-      Self_Test_Passed := MPU9250_Self_Test;
+      Self_Test_Passed := IMU_6_Manufacturing_Test;
 
       return Is_Init and Is_Connected and Self_Test_Passed;
    end IMU_Test;
@@ -69,8 +69,8 @@ package body IMU_Pack is
       Pitch, Roll : T_Degrees;
       Start_Time  : Time;
    begin
-      Start_Time := Clock;
       Test_Status := MPU9250_Self_Test;
+      Start_Time := Clock;
 
       if Test_Status then
          while Clock < Start_Time + IMU_VARIANCE_MAN_TEST_TIMEOUT loop

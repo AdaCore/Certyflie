@@ -26,10 +26,10 @@ package body Filter_Pack is
       In_Scaled := Shift_Left (Tmp_Input, IIR_SHIFT);
       --  Calculate IIR filter
       Tmp_Filter := Tmp_Filter +
-        (Shift_Right (In_Scaled - Tmp_Filter, IIR_SHIFT) * Tmp_Attenuation);
+        (Shift_Right_Arithmetic (In_Scaled - Tmp_Filter, IIR_SHIFT) * Tmp_Attenuation);
       --  Scale and round
-      Output := Shift_Right (Tmp_Filter, IIR_SHIFT) +
-        Shift_Right
+      Output := Shift_Right_Arithmetic (Tmp_Filter, IIR_SHIFT) +
+        Shift_Right_Arithmetic
           (Tmp_Filter and Shift_Left (1, IIR_SHIFT - 1), IIR_SHIFT - 1);
       Filter := T_UiNt32_To_T_INt32 (Tmp_Filter);
 
