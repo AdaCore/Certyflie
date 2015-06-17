@@ -1,14 +1,15 @@
-
 with Ada.Unchecked_Conversion;
 with Ada.Interrupts.Names; use Ada.Interrupts.Names;
+with Ada.Real_Time; use Ada.Real_Time;
+
 with STM32F4; use STM32F4;
 with STM32F4.DMA; use STM32F4.DMA;
 with STM32F4.GPIO; use STM32F4.GPIO;
 with STM32F4.USARTs; use STM32F4.USARTs;
 with STM32F4_Discovery; use STM32F4_Discovery;
-with Ada.Real_Time; use Ada.Real_Time;
 
 with Types; use Types;
+with Generic_Queue_Pack;
 
 package UART_Syslink is
 
@@ -33,6 +34,9 @@ package UART_Syslink is
       Data      : DMA_Data);
 
 private
+
+   package T_Uint8_Queue is new Generic_Queue_Pack (T_Uint8);
+   use T_Uint8_Queue;
 
    --  Global variables and constants
 
@@ -109,8 +113,8 @@ private
 
    private
 
-      Byte_Avalaible : Boolean := False;
-      Received_Byte  : T_Uint8;
+      Byte_Avalaible  : Boolean := False;
+      Rx_Queue        : T_Queue (UART_RX_QUEUE_SIZE);
 
       procedure IRQ_Handler;
       pragma Attach_Handler (IRQ_Handler, USART6_Interrupt);

@@ -200,27 +200,18 @@ package body UART_Syslink is
       entry Await_Byte_Reception (Rx_Byte : out T_Uint8)
         when Byte_Avalaible is
       begin
-         Rx_Byte := Received_Byte;
-         Byte_Avalaible := False;
+         Dequeue (Rx_Queue, Rx_Byte);
+         Byte_Avalaible := not Is_Empty (Rx_Queue);
       end Await_Byte_Reception;
 
       procedure IRQ_Handler is
-         Overrun_Byte : T_Uint8;
-         pragma Unreferenced (Overrun_Byte);
+         Received_Byte : T_Uint8;
       begin
-         --  Overrun error indicated
---           if Status (Transceiver, Read_Data_Register_Not_Empty) then
---              Overrun_Byte := Half_Word_To_T_Uint8
---                (Current_Input (Transceiver) and 16#FF#);
---              Clear_Status (Transceiver, Overrun_Error_Indicated);
---           end if;
-
-         --  Received data interrupt management
-         if Status (Transceiver, Read_Data_Register_Not_Empty) or
-           Status (Transceiver, Overrun_Error_Indicated) then
+         if Status (Transceiver, Read_Data_Register_Not_Empty) then
             Received_Byte :=
               Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#);
             Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
+            Enqueue (Rx_Queue, Received_Byte);
             Byte_Avalaible := True;
          end if;
       end IRQ_Handler;
