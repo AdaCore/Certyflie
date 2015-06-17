@@ -98,8 +98,9 @@ private
 
    --  Global variables
 
-   Is_Init : Boolean := False;
-   Syslink_Access : Suspension_Object;
+   Is_Init         : Boolean := False;
+   Syslink_Access  : Suspension_Object;
+   Dropped_Packets : Natural := 0;
 
    --  Procedures and functions
 

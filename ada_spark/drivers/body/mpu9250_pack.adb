@@ -27,6 +27,7 @@ package body MPU9250_Pack is
       MPU9250_Init_Control_Lines;
 
       --  Delay to wait for the state initialization of SCL and SDA
+      Stop (MPU9250_I2C_PORT);
       Delay_Time := Clock + Milliseconds (50);
       delay until Delay_Time;
 

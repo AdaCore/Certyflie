@@ -84,53 +84,58 @@ package body Syslink_Pack is
          UART_Get_Data_Blocking (Rx_Byte);
 
          case Rx_State is
-               when WAIT_FOR_FIRST_START =>
+            when WAIT_FOR_FIRST_START =>
 
-                  Rx_State := (if Rx_Byte = SYSLINK_START_BYTE1 then
-                                  WAIT_FOR_SECOND_START
-                               else
-                                  WAIT_FOR_FIRST_START);
-               when WAIT_FOR_SECOND_START =>
-                  Rx_State := (if Rx_Byte = SYSLINK_START_BYTE2 then
-                                  WAIT_FOR_TYPE
-                               else
-                                  WAIT_FOR_FIRST_START);
-               when WAIT_FOR_TYPE =>
-                  Chk_Sum (1) := Rx_Byte;
-                  Chk_Sum (2) := Rx_Byte;
-                  Rx_Sl_Packet.Slp_Type := T_Uint8_To_Slp_Type (Rx_Byte);
-                  Rx_State := WAIT_FOR_LENGTH;
-               when WAIT_FOR_LENGTH =>
-                  if Rx_Byte <= SYSLINK_MTU then
-                     Rx_Sl_Packet.Length := Rx_Byte;
-                     Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
-                     Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
-                     Data_Index := 1;
-                     Rx_State := (if Rx_Byte > 0 then
-                                     WAIT_FOR_DATA
-                                  else
-                                     WAIT_FOR_CHKSUM_1);
-                  else
-                     Rx_State := WAIT_FOR_FIRST_START;
-                  end if;
-               when WAIT_FOR_DATA =>
-                  Rx_Sl_Packet.Data (Data_Index) := Rx_Byte;
+               Rx_State := (if Rx_Byte = SYSLINK_START_BYTE1 then
+                               WAIT_FOR_SECOND_START
+                            else
+                               WAIT_FOR_FIRST_START);
+            when WAIT_FOR_SECOND_START =>
+               Rx_State := (if Rx_Byte = SYSLINK_START_BYTE2 then
+                               WAIT_FOR_TYPE
+                            else
+                               WAIT_FOR_FIRST_START);
+            when WAIT_FOR_TYPE =>
+               Chk_Sum (1) := Rx_Byte;
+               Chk_Sum (2) := Rx_Byte;
+               Rx_Sl_Packet.Slp_Type := T_Uint8_To_Slp_Type (Rx_Byte);
+               Rx_State := WAIT_FOR_LENGTH;
+            when WAIT_FOR_LENGTH =>
+               if Rx_Byte <= SYSLINK_MTU then
+                  Rx_Sl_Packet.Length := Rx_Byte;
                   Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
                   Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
-                  Data_Index := Data_Index + 1;
-                  if T_Uint8 (Data_Index) > Rx_Sl_Packet.Length then
-                     Rx_State := WAIT_FOR_CHKSUM_1;
-                  end if;
-               when WAIT_FOR_CHKSUM_1 =>
-                  Rx_State := (if Chk_Sum (1) = Rx_Byte then
-                                  WAIT_FOR_CHKSUM_2
+                  Data_Index := 1;
+                  Rx_State := (if Rx_Byte > 0 then
+                                  WAIT_FOR_DATA
                                else
-                                  WAIT_FOR_FIRST_START);
-               when WAIT_FOR_CHKSUM_2 =>
-                  if Chk_Sum (2) = Rx_Byte then
-                     Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
-                  end if;
+                                  WAIT_FOR_CHKSUM_1);
+               else
                   Rx_State := WAIT_FOR_FIRST_START;
+               end if;
+            when WAIT_FOR_DATA =>
+               Rx_Sl_Packet.Data (Data_Index) := Rx_Byte;
+               Chk_Sum (1) := Chk_Sum (1) + Rx_Byte;
+               Chk_Sum (2) := Chk_Sum (2) + Chk_Sum (1);
+               Data_Index := Data_Index + 1;
+               if T_Uint8 (Data_Index) > Rx_Sl_Packet.Length then
+                  Rx_State := WAIT_FOR_CHKSUM_1;
+               end if;
+            when WAIT_FOR_CHKSUM_1 =>
+
+               if Chk_Sum (1) = Rx_Byte then
+                  Rx_State := WAIT_FOR_CHKSUM_2;
+               else
+                  Dropped_Packets := Dropped_Packets + 1;
+                  Rx_State := WAIT_FOR_FIRST_START;
+               end if;
+            when WAIT_FOR_CHKSUM_2 =>
+               if Chk_Sum (2) = Rx_Byte then
+                  Syslink_Route_Incoming_Packet (Rx_Sl_Packet);
+               else
+                  Dropped_Packets := Dropped_Packets + 1;
+               end if;
+               Rx_State := WAIT_FOR_FIRST_START;
          end case;
 
          delay until Time_First;

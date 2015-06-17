@@ -78,7 +78,7 @@ package body Commander_Pack is
          Thrust := Saturate (Raw_Thrust, 0, MAX_THRUST);
       end if;
 
-      --Commander_Watchdog;
+      Commander_Watchdog;
    end Commander_Get_Thrust;
 
    procedure Commander_Get_Alt_Hold
