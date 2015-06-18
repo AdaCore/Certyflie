@@ -1,5 +1,4 @@
 with Radiolink_Pack; use Radiolink_Pack;
-with Ada.Real_Time; use Ada.Real_Time;
 with Power_Management_Pack; use Power_Management_Pack;
 
 package body Syslink_Pack is
