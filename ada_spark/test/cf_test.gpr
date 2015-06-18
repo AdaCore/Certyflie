@@ -29,9 +29,9 @@ project Cf_Test is
    package Compiler is
       case Mode is
          when "Native" =>
-            for Default_Switches ("Ada") use ("-g", "-gnatwa");
+            for Default_Switches ("Ada") use ("-gnatwa");
          when "Target" =>
-            for Default_Switches ("ada") use ("-g", "-gnatwa", "-gnatQ", "-gnatw.X", "-Os");
+            for Default_Switches ("Ada") use ("-gnatwa", "-gnatQ", "-gnatw.X");
       end case;
    end Compiler;
 

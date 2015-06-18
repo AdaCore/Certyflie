@@ -55,7 +55,7 @@ is
 
    IMU_UPDATE_FREQ  : constant := 500.0;
    IMU_UPDATE_DT    : constant := 1.0 / IMU_UPDATE_FREQ;
-   IMU_UPDATE_DT_MS : constant Time_Span := Milliseconds (5);
+   IMU_UPDATE_DT_MS : constant Time_Span := Milliseconds (2);
 
    --  Number of samples used for bias calculation
    IMU_NBR_OF_BIAS_SAMPLES      : constant := 32;

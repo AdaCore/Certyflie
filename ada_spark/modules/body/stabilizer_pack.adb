@@ -133,24 +133,24 @@ is
    procedure Stabilizer_Update_Attitude is
    begin
       SensFusion6_Update_Q (Gyro.X, Gyro.Y, Gyro.Z,
-                              Acc.X, Acc.Y, Acc.Z,
-                              FUSION_UPDATE_DT);
+                            Acc.X, Acc.Y, Acc.Z,
+                            FUSION_UPDATE_DT);
       --  Get Euler angles
       SensFusion6_Get_Euler_RPY (Euler_Roll_Actual,
-                                   Euler_Pitch_Actual,
-                                   Euler_Yaw_Actual);
+                                 Euler_Pitch_Actual,
+                                 Euler_Yaw_Actual);
       --  Vertical acceleration woithout gravity
       Acc_WZ := SensFusion6_Get_AccZ_Without_Gravity (Acc.X,
-                                                        Acc.Y,
-                                                        Acc.Z);
+                                                      Acc.Y,
+                                                      Acc.Z);
       Acc_MAG := (Acc.X * Acc.X) + (Acc.Y * Acc.Y) + (Acc.Z * Acc.Z);
 
       --  Estimate vertical speed from acceleration and Saturate
       --  it within a limit
       V_Speed := Saturate (V_Speed +
-                              Dead_Band (Acc_WZ, V_Acc_Deadband) *
-                              FUSION_UPDATE_DT,
-                            -V_Speed_Limit,
+                             Dead_Band (Acc_WZ, V_Acc_Deadband) *
+                             FUSION_UPDATE_DT,
+                           -V_Speed_Limit,
                             V_Speed_Limit);
 
       --  Get the rate commands from the roll, pitch, yaw attitude PID's

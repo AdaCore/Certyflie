@@ -137,8 +137,6 @@ package body Syslink_Pack is
                end if;
                Rx_State := WAIT_FOR_FIRST_START;
          end case;
-
-         delay until Time_First;
       end loop;
    end Syslink_Task;
 
