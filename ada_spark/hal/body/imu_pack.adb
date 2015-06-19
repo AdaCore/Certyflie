@@ -1,7 +1,6 @@
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
 with Config; use Config;
-with Log_Pack; use Log_Pack;
 
 package body IMU_Pack is
 

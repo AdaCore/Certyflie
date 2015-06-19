@@ -44,6 +44,14 @@ package body System_Pack is
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
 
+      if not Self_Test_Passed then
+         Set_LED (LED   => LED_Red_R,
+                  Value => True);
+      else
+         Set_LED (LED   => LED_Green_R,
+                  Value => True);
+      end if;
+
       return Self_Test_Passed;
    end System_Self_Test;
 
