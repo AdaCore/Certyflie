@@ -10,6 +10,7 @@ with Commander_Pack; use Commander_Pack;
 with Controller_Pack; use Controller_Pack;
 with Free_Fall_Pack; use Free_Fall_Pack;
 with SensFusion6_Pack; use SensFusion6_Pack;
+with Log_Pack; use Log_Pack;
 
 package Stabilizer_Pack
 with SPARK_Mode,

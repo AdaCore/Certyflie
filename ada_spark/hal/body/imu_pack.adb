@@ -114,8 +114,9 @@ package body IMU_Pack is
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data) is
    begin
-      MPU9250_Get_Motion_6 (Accel_IMU.X, Accel_IMU.Y, Accel_IMU.Z,
-                            Gyro_IMU.X, Gyro_IMU.Y, Gyro_IMU.Z);
+      --  We invert X and Y because the chip is almso inverted.
+      MPU9250_Get_Motion_6 (Accel_IMU.Y, Accel_IMU.X, Accel_IMU.Z,
+                            Gyro_IMU.Y, Gyro_IMU.X, Gyro_IMU.Z);
       IMU_Add_Bias_Value (Gyro_Bias, Gyro_IMU);
 
       if not Gyro_Bias.Is_Bias_Value_Found then

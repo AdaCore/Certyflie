@@ -1,3 +1,6 @@
+with System;
+with Config; use Config;
+
 package Log_Pack is
    --  Types
 
@@ -61,5 +64,74 @@ package Log_Pack is
       CONTROL_STOP_BLOCK   => 4,
       CONTROL_RESET        => 5);
    for Log_Control_Command'Size use 8;
+
+   -- Global variables and constants
+
+   --  Limitation of the variable/group name size.
+   MAX_LOG_VARIABLE_NAME_LENGTH : constant := 16;
+
+   --  Maximum number of groups we can log.
+   MAX_LOG_NUMBER_OF_GROUPS          : constant := 8;
+   --  Maximum number of variables we can log inside a group.
+   MAX_LOG_NUMBER_OF_VARIABLES       : constant := 4;
+
+   --  Procedures and functions
+
+   --  Initialize the log subsystem.
+   procedure Log_Init;
+
+   --  Create a log group if there is any space left and if the name
+   --  is not too long.
+   procedure Create_Log_Group
+     (Name        : String;
+      Has_Succeed : out Boolean);
+
+   --  Append a variable to a log group.
+   procedure Append_Log_Variable_To_Group
+     (Group_ID : Natural;
+      Name     : String;
+      Storage_Type : Log_Variable_Type;
+      Log_Type     : Log_Variable_Type;
+      Variable     : System.Address;
+      Has_Succeed  : out Boolean);
+
+private
+
+   --  Types
+
+   --  Type representing a log variable. Log variables
+   --  can be chained together inside a same block.
+   type Log_Variable is record
+      Next         : access Log_Variable := null;
+      Name         : String (1 .. MAX_LOG_VARIABLE_NAME_LENGTH);
+      ID           : Natural;
+      Storage_Type : Log_Variable_Type;
+      Log_Type     : Log_Variable_Type;
+      Variable     : System.Address := System.Null_Address;
+   end record;
+
+   --  Type representing a log group.
+   --  Log groups can contain several log variables.
+   type Log_Group is record
+      Next                : access Log_Group := null;
+      Name                : String (1 .. MAX_LOG_VARIABLE_NAME_LENGTH);
+      ID                  : Natural;
+      Log_Variables       : access Log_Variable := null;
+      Log_Variables_Count : Natural := 0;
+   end record;
+
+   --  Global variables and constants
+
+   Is_Init : Boolean := False;
+
+   --  Head of the log groups list.
+   Log_Groups       : access Log_Group;
+   Log_Groups_Count : Natural := 0;
+
+   --  Tasks and protected objects
+
+   task Log_Task is
+      pragma Priority (LOG_TASK_PRIORITY);
+   end Log_Task;
 
 end Log_Pack;
