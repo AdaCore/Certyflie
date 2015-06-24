@@ -8,7 +8,7 @@ package body Platform_Service_Pack is
          return;
       end if;
 
-      Crtp_Register_Callback (CRTP_PORT_PLATFORM,
+      CRTP_Register_Callback (CRTP_PORT_PLATFORM,
                               Platform_Service_Handler'Access);
 
       Is_Init := True;
@@ -20,14 +20,14 @@ package body Platform_Service_Pack is
       return Is_Init;
    end Platform_Service_Test;
 
-   procedure Platform_Service_Handler (Packet : Crtp_Packet) is
+   procedure Platform_Service_Handler (Packet : CRTP_Packet) is
       Has_Succeed : Boolean;
    begin
       case Packet.Channel is
          when Platform_Channel'Enum_Rep (PLAT_COMMAND) =>
             Platform_Command_Process
               (Packet.Data_1 (1), Packet.Data_1 (2 .. Packet.Data_1'Last));
-            Crtp_Send_Packet (Packet, Has_Succeed);
+            CRTP_Send_Packet (Packet, Has_Succeed);
          when others =>
             null;
       end case;

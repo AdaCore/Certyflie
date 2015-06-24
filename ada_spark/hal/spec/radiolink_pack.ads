@@ -1,7 +1,7 @@
 with System;
 with Generic_Queue_Pack;
 with Syslink_Pack; use Syslink_Pack;
-with Crtp_Pack; use Crtp_Pack;
+with CRTP_Pack; use CRTP_Pack;
 with Types; use Types;
 
 package Radiolink_Pack is
@@ -23,11 +23,11 @@ package Radiolink_Pack is
    procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8);
 
    --  Send a packet to Radiolink layer
-   function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean;
+   function Radiolink_Send_Packet (Packet : CRTP_Packet) return Boolean;
 
    --  Receive a packet from Radiolink layer.
    --  Putting the task calling it in sleep mode until a packet is received.
-   procedure Radiolink_Receive_Packet_Blocking (Packet : out Crtp_Packet);
+   procedure Radiolink_Receive_Packet_Blocking (Packet : out CRTP_Packet);
 
    --  Enqueue a packet in the Radiolink RX_Queue and send one packet
    --  to Syslink if one has been received
@@ -36,7 +36,7 @@ package Radiolink_Pack is
 private
 
    package Syslink_Queue is new Generic_Queue_Pack (Syslink_Packet);
-   package Crtp_Queue is new Generic_Queue_Pack (Crtp_Packet);
+   package CRTP_Queue is new Generic_Queue_Pack (CRTP_Packet);
 
    --  Global variables and constants
 
@@ -50,7 +50,7 @@ private
      (System.Interrupt_Priority'Last, RADIOLINK_TX_QUEUE_SIZE);
 
    --  Protected object queue for reception
-   Rx_Queue : Crtp_Queue.Protected_Queue
+   Rx_Queue : CRTP_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, RADIOLINK_RX_QUEUE_SIZE);
 
 end RadiolInk_Pack;

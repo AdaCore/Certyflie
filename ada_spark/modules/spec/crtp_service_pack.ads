@@ -1,4 +1,4 @@
-with Crtp_Pack; use Crtp_Pack;
+with CRTP_Pack; use CRTP_Pack;
 
 package CRTP_Service_Pack is
 
@@ -22,7 +22,7 @@ package CRTP_Service_Pack is
 
    --  Handler called when a CRTP packet is received in the CRTP Service
    --  port queue
-   procedure CRTP_Service_Handler (Packet : Crtp_Packet);
+   procedure CRTP_Service_Handler (Packet : CRTP_Packet);
 
 private
 

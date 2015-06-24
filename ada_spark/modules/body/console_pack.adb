@@ -7,7 +7,7 @@ package body Console_Pack is
       end if;
 
       Set_True (Console_Access);
-      Message_To_Print := Crtp_Create_Packet (CRTP_PORT_CONSOLE, 0);
+      Message_To_Print := CRTP_Create_Packet (CRTP_PORT_CONSOLE, 0);
 
       Is_Init := True;
    end Console_Init;
@@ -19,12 +19,12 @@ package body Console_Pack is
 
    procedure Console_Send_Message (Has_Succeed : out Boolean) is
    begin
-      Crtp_Send_Packet
-        (Crtp_Get_Packet_From_Handler (Message_To_Print), Has_Succeed);
+      CRTP_Send_Packet
+        (CRTP_Get_Packet_From_Handler (Message_To_Print), Has_Succeed);
 
       --  Reset the CRTP packet data contained in the handler
       if Has_Succeed then
-         Crtp_Reset_Handler (Message_To_Print);
+         CRTP_Reset_Handler (Message_To_Print);
       end if;
    end Console_Send_Message;
 
@@ -39,10 +39,10 @@ package body Console_Pack is
      (Message     : String;
       Has_Succeed : out Boolean) is
       Free_Bytes_In_Packet : Boolean := True;
-      procedure Crtp_Append_Character_Data is new Crtp_Append_Data (Character);
+      procedure CRTP_Append_Character_Data is new CRTP_Append_Data (Character);
    begin
       for C of Message loop
-         Crtp_Append_Character_Data
+         CRTP_Append_Character_Data
            (Message_To_Print, C, Free_Bytes_In_Packet);
 
          if not Free_Bytes_In_Packet then

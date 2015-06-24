@@ -1,5 +1,5 @@
 with Types; use Types;
-with Crtp_Pack; use Crtp_Pack;
+with CRTP_Pack; use CRTP_Pack;
 
 package Platform_Service_Pack is
 
@@ -25,7 +25,7 @@ package Platform_Service_Pack is
 
    --  Handler called when a CRTP packet is received in the
    --  platform service port
-   procedure Platform_Service_Handler (Packet : Crtp_Packet);
+   procedure Platform_Service_Handler (Packet : CRTP_Packet);
 
    --  Process a given command by sending a CRTP packet
    procedure Platform_Command_Process

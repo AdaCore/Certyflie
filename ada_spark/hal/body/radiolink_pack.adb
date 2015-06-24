@@ -36,20 +36,20 @@ package body Radiolink_Pack is
       Syslink_Send_Packet (Sl_Packet);
    end Radiolink_Set_Channel;
 
-   procedure Radiolink_Receive_Packet_Blocking (Packet : out Crtp_Packet) is
+   procedure Radiolink_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
    begin
       Rx_Queue.Await_Item_To_Dequeue (Packet);
    end Radiolink_Receive_Packet_Blocking;
 
-   function Radiolink_Send_Packet (Packet : Crtp_Packet) return Boolean is
+   function Radiolink_Send_Packet (Packet : CRTP_Packet) return Boolean is
       Sl_Packet : Syslink_Packet;
       Has_Succeed : Boolean;
-      function Crtp_Raw_To_Syslink_Data is new Ada.Unchecked_Conversion
-        (Crtp_Raw, Syslink_Data);
+      function CRTP_Raw_To_Syslink_Data is new Ada.Unchecked_Conversion
+        (CRTP_Raw, Syslink_Data);
    begin
       Sl_Packet.Length := Packet.Size + 1;
       Sl_Packet.Slp_Type := SYSLINK_RADIO_RAW;
-      Sl_Packet.Data := Crtp_Raw_To_Syslink_Data (Packet.Raw);
+      Sl_Packet.Data := CRTP_Raw_To_Syslink_Data (Packet.Raw);
 
       --  Try to enqueue the Syslink packet
       Tx_Queue.Enqueue_Item (Sl_Packet, Has_Succeed);
@@ -59,17 +59,17 @@ package body Radiolink_Pack is
 
    procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet) is
       Tx_Sl_Packet   : Syslink_Packet;
-      Rx_Crtp_Packet : Crtp_Packet;
+      Rx_CRTP_Packet : CRTP_Packet;
       Has_Succeed    : Boolean;
    begin
       if Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RAW then
-         Rx_Crtp_Packet.Size := Rx_Sl_Packet.Length - 1;
-         Rx_Crtp_Packet.Header := Rx_Sl_Packet.Data (1);
-         Rx_Crtp_Packet.Data_2 :=
-           Crtp_Data (Rx_Sl_Packet.Data (2 .. Rx_Sl_Packet.Data'Length));
+         Rx_CRTP_Packet.Size := Rx_Sl_Packet.Length - 1;
+         Rx_CRTP_Packet.Header := Rx_Sl_Packet.Data (1);
+         Rx_CRTP_Packet.Data_2 :=
+           CRTP_Data (Rx_Sl_Packet.Data (2 .. Rx_Sl_Packet.Data'Length));
 
          --  Enqueue the received packet
-         Rx_Queue.Enqueue_Item (Rx_Crtp_Packet, Has_Succeed);
+         Rx_Queue.Enqueue_Item (Rx_CRTP_Packet, Has_Succeed);
          -- TODO: led blink
 
          -- If a radio packet is received, one can be sent

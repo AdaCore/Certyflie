@@ -2,10 +2,10 @@ with Link_Interface_Pack; use Link_Interface_Pack;
 pragma Elaborate (Link_Interface_Pack);
 with Ada.Unchecked_Conversion;
 
-package body Crtp_Pack is
+package body CRTP_Pack is
 
-   task body Crtp_Tx_Task is
-      Packet : Crtp_Packet;
+   task body CRTP_Tx_Task is
+      Packet : CRTP_Packet;
       Has_Succeed : Boolean;
       pragma Unreferenced (Has_Succeed);
    begin
@@ -15,10 +15,10 @@ package body Crtp_Pack is
 
          Has_Succeed := Link_Send_Packet (Packet);
       end loop;
-   end Crtp_Tx_Task;
+   end CRTP_Tx_Task;
 
-    task body Crtp_Rx_Task is
-      Packet : Crtp_Packet;
+    task body CRTP_Rx_Task is
+      Packet : CRTP_Packet;
       Has_Succeed : Boolean;
    begin
       loop
@@ -30,13 +30,13 @@ package body Crtp_Pack is
             Callbacks (Packet.Port) (Packet);
          end if;
       end loop;
-   end Crtp_Rx_Task;
+   end CRTP_Rx_Task;
 
-   function Crtp_Create_Packet
-     (Port : Crtp_Port;
-      Channel : Crtp_Channel) return Crtp_Packet_Handler is
-      Packet : Crtp_Packet;
-      Handler : Crtp_Packet_Handler;
+   function CRTP_Create_Packet
+     (Port : CRTP_Port;
+      Channel : CRTP_Channel) return CRTP_Packet_Handler is
+      Packet : CRTP_Packet;
+      Handler : CRTP_Packet_Handler;
    begin
       Packet.Size := 0;
       Packet.Port := Port;
@@ -46,27 +46,27 @@ package body Crtp_Pack is
       Handler.Packet := Packet;
 
       return Handler;
-   end Crtp_Create_Packet;
+   end CRTP_Create_Packet;
 
-   function Crtp_Get_Handler_From_Packet
-     (Packet : Crtp_Packet) return Crtp_Packet_Handler
+   function CRTP_Get_Handler_From_Packet
+     (Packet : CRTP_Packet) return CRTP_Packet_Handler
    is
-      Handler : Crtp_Packet_Handler;
+      Handler : CRTP_Packet_Handler;
    begin
       Handler.Packet := Packet;
       Handler.Index := Integer (Packet.Size);
 
       return Handler;
-   end Crtp_Get_Handler_From_Packet;
+   end CRTP_Get_Handler_From_Packet;
 
-   function Crtp_Get_Packet_From_Handler
-     (Handler : Crtp_Packet_Handler) return Crtp_Packet is
+   function CRTP_Get_Packet_From_Handler
+     (Handler : CRTP_Packet_Handler) return CRTP_Packet is
    begin
       return Handler.Packet;
-   end Crtp_Get_Packet_From_Handler;
+   end CRTP_Get_Packet_From_Handler;
 
-   procedure Crtp_Get_Data
-     (Handler    : Crtp_Packet_Handler;
+   procedure CRTP_Get_Data
+     (Handler    : CRTP_Packet_Handler;
       Index      : Integer;
       Data       : out T_Data;
       Has_Succeed : out Boolean) is
@@ -84,10 +84,10 @@ package body Crtp_Pack is
       else
          Has_Succeed := False;
       end if;
-   end Crtp_Get_Data;
+   end CRTP_Get_Data;
 
-   procedure Crtp_Append_Data
-     (Handler : in out Crtp_Packet_Handler;
+   procedure CRTP_Append_Data
+     (Handler : in out CRTP_Packet_Handler;
       Data           : T_Data;
       Has_Succeed     : out Boolean) is
       Data_Size : constant Natural := T_Data'Size / 8;
@@ -106,43 +106,43 @@ package body Crtp_Pack is
       else
          Has_Succeed := False;
       end if;
-   end Crtp_Append_Data;
+   end CRTP_Append_Data;
 
-   procedure Crtp_Reset_Handler (Handler : in out Crtp_Packet_Handler) is
+   procedure CRTP_Reset_Handler (Handler : in out CRTP_Packet_Handler) is
    begin
       Handler.Index := 1;
       Handler.Packet.Size := 0;
       Handler.Packet.Data_1 := (others => 0);
-   end Crtp_Reset_Handler;
+   end CRTP_Reset_Handler;
 
-   function Crtp_Get_Packet_Size
-     (Handler : Crtp_Packet_Handler) return T_Uint8 is
+   function CRTP_Get_Packet_Size
+     (Handler : CRTP_Packet_Handler) return T_Uint8 is
    begin
       return Handler.Packet.Size;
-   end Crtp_Get_Packet_Size;
+   end CRTP_Get_Packet_Size;
 
-   procedure Crtp_Receive_Packet_Blocking
-     (Packet           : out Crtp_Packet;
-      Port_ID          : Crtp_Port) is
+   procedure CRTP_Receive_Packet_Blocking
+     (Packet           : out CRTP_Packet;
+      Port_ID          : CRTP_Port) is
    begin
       Port_Queues (Port_ID).Await_Item_To_Dequeue
         (Packet);
-   end Crtp_Receive_Packet_Blocking;
+   end CRTP_Receive_Packet_Blocking;
 
-   procedure Crtp_Send_Packet
-     (Packet : Crtp_Packet;
+   procedure CRTP_Send_Packet
+     (Packet : CRTP_Packet;
       Has_Succeed : out Boolean;
       Time_To_Wait : Time_Span := Milliseconds (0)) is
       pragma Unreferenced (Time_To_Wait);
    begin
       Tx_Queue.Enqueue_Item (Packet, Has_Succeed);
-   end Crtp_Send_Packet;
+   end CRTP_Send_Packet;
 
-   procedure Crtp_Register_Callback
-     (Port_ID  : Crtp_Port;
-      Callback : Crtp_Callback) is
+   procedure CRTP_Register_Callback
+     (Port_ID  : CRTP_Port;
+      Callback : CRTP_Callback) is
    begin
       Callbacks (Port_ID) := Callback;
-   end Crtp_Register_Callback;
+   end CRTP_Register_Callback;
 
-end Crtp_Pack;
+end CRTP_Pack;

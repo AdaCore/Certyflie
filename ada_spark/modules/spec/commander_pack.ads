@@ -1,7 +1,7 @@
 with Types; use Types;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
-with Crtp_Pack; use Crtp_Pack;
-pragma Elaborate_All (Crtp_Pack);
+with CRTP_Pack; use CRTP_Pack;
+pragma Elaborate_All (CRTP_Pack);
 with Ada.Real_Time; use Ada.Real_Time;
 
 package Commander_Pack
@@ -16,13 +16,13 @@ is
    for RPY_Type use (RATE => 0, ANGLE => 1);
    for RPY_Type'Size use Interfaces.C.int'Size;
 
-   type Commander_Crtp_Values is record
+   type Commander_CRTP_Values is record
       Roll   : T_Degrees := 0.0;
       Pitch  : T_Degrees := 0.0;
       Yaw    : T_Degrees := 0.0;
       Thrust : T_Uint16 := 0;
    end record;
-   pragma Pack (Commander_Crtp_Values);
+   pragma Pack (Commander_CRTP_Values);
 
    --  Procedures and functions
 
@@ -34,7 +34,7 @@ is
 
    --  Handler called when a CRTP packet is received in the commander
    --  port queue
-   procedure Commander_Crtp_Handler (Packet : Crtp_Packet);
+   procedure Commander_CRTP_Handler (Packet : CRTP_Packet);
 
    --  Get the commands from the pilot.
    procedure Commander_Get_RPY
@@ -81,7 +81,7 @@ private
    Side              : Boolean := False;
 
    --  Container for the commander values received via CRTP
-   Target_Val : array (Boolean) of Commander_Crtp_Values;
+   Target_Val : array (Boolean) of Commander_CRTP_Values;
 
    Last_Update : Time;
 
@@ -99,12 +99,12 @@ private
 
    --  Get target values from a received CRTP packet
    function Get_Commands_From_Packet
-     (Packet : Crtp_Packet) return Commander_Crtp_Values;
+     (Packet : CRTP_Packet) return Commander_CRTP_Values;
 
    --  Get Float data from a CRTP Packet
-   procedure Crtp_Get_Float_Data is new Crtp_Get_Data (Float);
+   procedure CRTP_Get_Float_Data is new CRTP_Get_Data (Float);
 
    --  Get T_Uint16 data from a CRTP Packet
-   procedure Crtp_Get_T_Uint16_Data is new Crtp_Get_Data (T_Uint16);
+   procedure CRTP_Get_T_Uint16_Data is new CRTP_Get_Data (T_Uint16);
 
 end Commander_Pack;

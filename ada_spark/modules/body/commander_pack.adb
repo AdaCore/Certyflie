@@ -12,8 +12,8 @@ package body Commander_Pack is
       end if;
 
       Last_Update := Clock;
-      Crtp_Register_Callback
-        (CRTP_PORT_COMMANDER, Commander_Crtp_Handler'Access);
+      CRTP_Register_Callback
+        (CRTP_PORT_COMMANDER, Commander_CRTP_Handler'Access);
 
       Is_Init := True;
    end Commander_Init;
@@ -23,9 +23,9 @@ package body Commander_Pack is
       return Is_Init;
    end Commander_Test;
 
-   procedure Commander_Crtp_Handler (Packet : Crtp_Packet) is
+   procedure Commander_CRTP_Handler (Packet : CRTP_Packet) is
       Has_Succeed : Boolean;
-      Tx_Packet   : Crtp_Packet;
+      Tx_Packet   : CRTP_Packet;
       pragma Unreferenced (Has_Succeed);
    begin
       Side := not Side;
@@ -40,8 +40,8 @@ package body Commander_Pack is
       --  Send a null packet to acknowledge that we are connected
       Tx_Packet.Port := CRTP_PORT_CONSOLE;
       Tx_Packet.Size := 0;
-      Crtp_Send_Packet (Tx_Packet, Has_Succeed);
-   end Commander_Crtp_Handler;
+      CRTP_Send_Packet (Tx_Packet, Has_Succeed);
+   end Commander_CRTP_Handler;
 
    procedure Commander_Get_RPY
      (Euler_Roll_Desired  : in out T_Degrees;
@@ -132,17 +132,17 @@ package body Commander_Pack is
    end Commander_Watchdog;
 
    function Get_Commands_From_Packet
-     (Packet : Crtp_Packet) return Commander_Crtp_Values is
-      Commands     : Commander_Crtp_Values := (0.0, 0.0, 0.0, 0);
-      Handler      : Crtp_Packet_Handler;
+     (Packet : CRTP_Packet) return Commander_CRTP_Values is
+      Commands     : Commander_CRTP_Values := (0.0, 0.0, 0.0, 0);
+      Handler      : CRTP_Packet_Handler;
       Has_Succeed  : Boolean;
    begin
-      Handler := Crtp_Get_Handler_From_Packet (Packet);
+      Handler := CRTP_Get_Handler_From_Packet (Packet);
 
-      Crtp_Get_Float_Data (Handler, 1, Commands.Roll, Has_Succeed);
-      Crtp_Get_Float_Data (Handler, 5, Commands.Pitch, Has_Succeed);
-      Crtp_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);
-      Crtp_Get_T_Uint16_Data (Handler, 13, Commands.Thrust, Has_Succeed);
+      CRTP_Get_Float_Data (Handler, 1, Commands.Roll, Has_Succeed);
+      CRTP_Get_Float_Data (Handler, 5, Commands.Pitch, Has_Succeed);
+      CRTP_Get_Float_Data (Handler, 9, Commands.Yaw, Has_Succeed);
+      CRTP_Get_T_Uint16_Data (Handler, 13, Commands.Thrust, Has_Succeed);
 
       return Commands;
    end Get_Commands_From_Packet;

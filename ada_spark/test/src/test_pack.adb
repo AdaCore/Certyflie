@@ -1,5 +1,5 @@
 with Generic_Queue_Pack;
-with Crtp_Pack; use Crtp_Pack;
+with CRTP_Pack; use CRTP_Pack;
 with RadiolInk_Pack; use RadiolInk_Pack;
 with Ada.Unchecked_Conversion;
 with Protected_IO_Pack; Protected_IO_Pack;
@@ -28,10 +28,10 @@ package body Test_Pack is
    procedure Radio_Link_Test is
       Message : constant String (1 .. CRTP_MAX_DATA_SIZE) :=
                   "Hello Syslink!0000000000000000";
-      Packet  : Crtp_Packet;
+      Packet  : CRTP_Packet;
       subtype Data_String is String (1 .. Packet.Data_1'Length);
       function String_To_Data is new Ada.Unchecked_Conversion
-        (Data_String, Crtp_Data);
+        (Data_String, CRTP_Data);
       Has_Succeed : Boolean;
       pragma Unreferenced (Has_Succeed);
 
@@ -46,25 +46,25 @@ package body Test_Pack is
    end Radio_Link_Test;
 
    procedure Packet_Handler_Test is
-      Handler : Crtp_Packet_Handler;
+      Handler : CRTP_Packet_Handler;
       Has_Succeed : Boolean;
-      procedure Crtp_Append_Float_Data is new Crtp_Append_Data (Float);
-      procedure Crtp_Get_Float_Data is new Crtp_Get_Data (Float);
+      procedure CRTP_Append_Float_Data is new CRTP_Append_Data (Float);
+      procedure CRTP_Get_Float_Data is new CRTP_Get_Data (Float);
       Data : Float;
    begin
-      Handler := Crtp_Create_Packet (CRTP_PORT_COMMANDER, 0);
-      Crtp_Append_Float_Data (Handler, 12.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 13.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 14.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 15.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 16.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 17.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 18.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 19.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 20.0, Has_Succeed);
-      Crtp_Append_Float_Data (Handler, 21.0, Has_Succeed);
+      Handler := CRTP_Create_Packet (CRTP_PORT_COMMANDER, 0);
+      CRTP_Append_Float_Data (Handler, 12.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 13.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 14.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 15.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 16.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 17.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 18.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 19.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 20.0, Has_Succeed);
+      CRTP_Append_Float_Data (Handler, 21.0, Has_Succeed);
 
-      Crtp_Get_Float_Data (Handler, 25, Data, Has_Succeed);
+      CRTP_Get_Float_Data (Handler, 25, Data, Has_Succeed);
       Printer.X_Put_Line ("Float data: " & Float'Image (Data));
    end Packet_Handler_Test;
 

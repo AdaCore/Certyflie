@@ -4,6 +4,7 @@ with Config; use Config;
 with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
 with Power_Management_Pack; use Power_Management_Pack;
+with Log_Pack; use Log_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode,
@@ -69,10 +70,39 @@ is
    --  Private procedures and functions
 
    procedure Stabilizer_Init is
+      Group_ID : Natural;
+      Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
    begin
       if Is_Init then
          return;
       end if;
+
+      Create_Log_Group
+        (Name        => "stabilizer",
+         Group_ID    => Group_ID,
+         Has_Succeed => Has_Succeed);
+      Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "pitch",
+         Storage_Type => LOG_FLOAT,
+         Log_Type     => LOG_FLOAT,
+         Variable     => Euler_Pitch_Actual'Address,
+         Has_Succeed  => Has_Succeed);
+      Append_Log_Variable_To_Group
+        (Group_ID     => 0,
+         Name         => "roll",
+         Storage_Type => LOG_FLOAT,
+         Log_Type     => LOG_FLOAT,
+         Variable     => Euler_Roll_Actual'Address,
+         Has_Succeed  => Has_Succeed);
+      Append_Log_Variable_To_Group
+        (Group_ID     => 0,
+         Name         => "yaw",
+         Storage_Type => LOG_FLOAT,
+         Log_Type     => LOG_FLOAT,
+         Variable     => Euler_Yaw_Actual'Address,
+         Has_Succeed  => Has_Succeed);
 
       Controller_Init;
 

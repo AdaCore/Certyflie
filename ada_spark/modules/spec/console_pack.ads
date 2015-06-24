@@ -1,4 +1,4 @@
-with Crtp_Pack; use Crtp_Pack;
+with CRTP_Pack; use CRTP_Pack;
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 
 package Console_Pack is
@@ -26,7 +26,7 @@ private
 
    Is_Init : Boolean := False;
    Console_Access : Suspension_Object;
-   Message_To_Print : Crtp_Packet_Handler;
+   Message_To_Print : CRTP_Packet_Handler;
 
    --  Procedures and functions
 

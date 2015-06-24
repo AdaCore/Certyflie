@@ -20,7 +20,7 @@ package body Link_Interface_Pack is
       Is_Init := True;
    end Link_Init;
 
-   function Link_Send_Packet (Packet : Crtp_Packet) return Boolean is
+   function Link_Send_Packet (Packet : CRTP_Packet) return Boolean is
    begin
       case Link_Layer_Type is
          when RADIO_LINK =>
@@ -31,7 +31,7 @@ package body Link_Interface_Pack is
       end case;
    end Link_Send_Packet;
 
-   procedure Link_Receive_Packet_Blocking (Packet : out Crtp_Packet) is
+   procedure Link_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
    begin
       case Link_Layer_Type is
          when RADIO_LINK =>

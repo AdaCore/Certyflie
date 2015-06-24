@@ -1,5 +1,7 @@
 with System;
-with Config; use Config;
+
+with CRTP_Pack; use CRTP_Pack;
+with Types; use Types;
 
 package Log_Pack is
    --  Types
@@ -68,7 +70,7 @@ package Log_Pack is
    -- Global variables and constants
 
    --  Limitation of the variable/group name size.
-   MAX_LOG_VARIABLE_NAME_LENGTH : constant := 16;
+   MAX_LOG_VARIABLE_NAME_LENGTH : constant := 14;
 
    --  Maximum number of groups we can log.
    MAX_LOG_NUMBER_OF_GROUPS          : constant := 8;
@@ -84,12 +86,13 @@ package Log_Pack is
    --  is not too long.
    procedure Create_Log_Group
      (Name        : String;
+      Group_ID    : out Natural;
       Has_Succeed : out Boolean);
 
    --  Append a variable to a log group.
    procedure Append_Log_Variable_To_Group
-     (Group_ID : Natural;
-      Name     : String;
+     (Group_ID     : Natural;
+      Name         : String;
       Storage_Type : Log_Variable_Type;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address;
@@ -99,25 +102,43 @@ private
 
    --  Types
 
+   subtype Log_Name is String (1 .. MAX_LOG_VARIABLE_NAME_LENGTH);
+
    --  Type representing a log variable. Log variables
    --  can be chained together inside a same block.
    type Log_Variable is record
-      Next         : access Log_Variable := null;
-      Name         : String (1 .. MAX_LOG_VARIABLE_NAME_LENGTH);
-      ID           : Natural;
+      Group_ID     : Natural;
+      Name         : Log_Name;
+      Name_Length  : Natural;
       Storage_Type : Log_Variable_Type;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address := System.Null_Address;
    end record;
 
+   type Log_Group_Variable_Array is
+     array (0 .. MAX_LOG_NUMBER_OF_VARIABLES - 1) of aliased Log_Variable;
+
+   type Log_Variable_Array is
+     array (0 .. MAX_LOG_NUMBER_OF_VARIABLES * MAX_LOG_NUMBER_OF_GROUPS - 1)
+     of access Log_Variable;
+
    --  Type representing a log group.
    --  Log groups can contain several log variables.
    type Log_Group is record
-      Next                : access Log_Group := null;
-      Name                : String (1 .. MAX_LOG_VARIABLE_NAME_LENGTH);
-      ID                  : Natural;
-      Log_Variables       : access Log_Variable := null;
-      Log_Variables_Count : Natural := 0;
+      Name                : Log_Name;
+      Name_Length         : Natural;
+      Log_Variables       : Log_Group_Variable_Array;
+      Log_Variables_Index : Natural := 0;
+   end record;
+
+   type Log_Group_Array is
+     array (0 .. MAX_LOG_NUMBER_OF_GROUPS - 1) of Log_Group;
+
+   type Log_Data_Base is record
+      Log_Groups          : Log_Group_Array;
+      Log_Variables       : Log_Variable_Array := (others => null);
+      Log_Groups_Index    : Natural := 0;
+      Log_Variables_Count : T_Uint8 := 0;
    end record;
 
    --  Global variables and constants
@@ -125,13 +146,34 @@ private
    Is_Init : Boolean := False;
 
    --  Head of the log groups list.
-   Log_Groups       : access Log_Group;
-   Log_Groups_Count : Natural := 0;
+   Log_Data : aliased Log_Data_Base;
+
+
+
+   --  Procedures and functions
+
+   --  Handler called when a CRTP packet is received in the log
+   --  port queue.
+   procedure Log_CRTP_Handler (Packet : CRTP_Packet);
+
+   --  Process a command related to TOC demands from the python client.
+   procedure Log_TOC_Process (Packet : CRTP_Packet);
+
+   --  Convert an unbounded string to a Log_Name, with a fixed size.
+   function String_To_Log_Name (Name : String) return Log_Name;
+   pragma Inline (String_To_Log_Name);
+
+   --  Append raw data from the variable and group name.
+   procedure Append_Raw_Data_Variable_Name_To_Packet
+     (Variable       : Log_Variable;
+      Group          : Log_Group;
+      Packet_Handler : in out CRTP_Packet_Handler;
+      Has_Succeed    : out Boolean);
 
    --  Tasks and protected objects
 
-   task Log_Task is
-      pragma Priority (LOG_TASK_PRIORITY);
-   end Log_Task;
+   --     task Log_Task is
+   --        pragma Priority (LOG_TASK_PRIORITY);
+   --     end Log_Task;
 
 end Log_Pack;
