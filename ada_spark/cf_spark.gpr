@@ -42,7 +42,7 @@ library project Cf_Spark is
 
       when "Compile" =>
          for Target use "arm-eabi";
-         for Runtime ("ada") use "zfp-stm32f4";
+         for Runtime ("ada") use "ravenscar-sfp-stm32f4";
 
       when "Analyze" =>
 
