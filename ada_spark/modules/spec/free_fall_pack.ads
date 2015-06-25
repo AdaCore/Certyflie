@@ -39,7 +39,7 @@ private
 
    --  Global variables
 
-   FF_MODE                   : Free_Fall_Mode := ENABLED
+   FF_MODE                   : Free_Fall_Mode := DISABLED
      with Part_Of => FF_Parameters;
    MAX_RECOVERY_THRUST       : T_Uint16 := 59_000
      with Part_Of => FF_Parameters;
