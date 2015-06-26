@@ -43,11 +43,11 @@ package Log_Pack is
    --  LOG_CMD_GET_ITEM is requested whenever the client wants to
    --  fetch the newest variable data.
    type Log_Command is
-     (LOG_CMD_GET_INFO,
-      LOG_CMD_GET_ITEM);
+     (LOG_CMD_GET_ITEM,
+      LOG_CMD_GET_INFO);
    for Log_Command use
-     (LOG_CMD_GET_INFO => 0,
-      LOG_CMD_GET_ITEM => 1);
+     (LOG_CMD_GET_ITEM => 0,
+      LOG_CMD_GET_INFO => 1);
    for Log_Command'Size use 8;
 
    --  Type representing all the available control commands.
@@ -158,6 +158,9 @@ private
 
    --  Process a command related to TOC demands from the python client.
    procedure Log_TOC_Process (Packet : CRTP_Packet);
+
+   --  Process a command related to log control.
+   procedure Log_Control_Process (Packet : CRTP_Packet);
 
    --  Convert an unbounded string to a Log_Name, with a fixed size.
    function String_To_Log_Name (Name : String) return Log_Name;

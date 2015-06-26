@@ -19,10 +19,7 @@ package Power_Management_Pack is
    --  Types used for Syslink packet translation
    type Power_Syslink_Info_Repr is (Normal, Flags_Detailed);
 
-   type T_Uint6 is mod 2 ** 6;
-   for T_Uint6'Size use 6;
-
-
+   --  Type representing a syslink packet containing power information.
    type Power_Syslink_Info (Repr : Power_Syslink_Info_Repr := Normal) is record
       case Repr is
          when Normal =>

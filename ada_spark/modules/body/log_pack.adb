@@ -22,7 +22,6 @@ package body Log_Pack is
       Is_Init := True;
    end Log_Init;
 
-
    procedure Create_Log_Group
      (Name        : String;
       Group_ID    : out Natural;
@@ -82,10 +81,11 @@ package body Log_Pack is
 
       Log_Data.Log_Groups (Group_ID) := Group;
 
-      Log_Data.Log_Variables_Count := Log_Data.Log_Variables_Count + 1;
       Log_Data.Log_Variables (Integer (Log_Data.Log_Variables_Count))
         := Log_Data.Log_Groups
           (Group_ID).Log_Variables (Log_Variables_Index)'Access;
+
+      Log_Data.Log_Variables_Count := Log_Data.Log_Variables_Count + 1;
       Has_Succeed := True;
    end Append_Log_Variable_To_Group;
 
@@ -102,7 +102,7 @@ package body Log_Pack is
          when TOC_CH =>
             Log_TOC_Process (Packet);
          when CONTROL_CH =>
-            null;
+            Log_Control_Process (Packet);
          when others =>
             null;
       end case;
@@ -178,6 +178,37 @@ package body Log_Pack is
         (CRTP_Get_Packet_From_Handler (Packet_Handler),
          Has_Succeed);
    end Log_TOC_Process;
+
+   procedure Log_Control_Process (Packet : CRTP_Packet) is
+      function T_Uint8_To_Log_Control_Command is new Ada.Unchecked_Conversion
+        (T_Uint8, Log_Control_Command);
+      Tx_Packet   : CRTP_Packet := Packet;
+      Command     : Log_Control_Command;
+      Answer      : T_Uint8;
+      Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
+   begin
+      Command := T_Uint8_To_Log_Control_Command (Packet.Data_1 (1));
+
+      case Command is
+         when CONTROL_CREATE_BLOCK =>
+            null;
+         when CONTROL_APPEND_BLOCK =>
+            null;
+         when CONTROL_DELETE_BLOCK =>
+            null;
+         when CONTROL_START_BLOCK =>
+            null;
+         when CONTROL_STOP_BLOCK =>
+            null;
+         when CONTROL_RESET =>
+            Answer := 0;
+      end case;
+
+      Tx_Packet.Data_1 (3) := Answer;
+      Tx_Packet.Size := 3;
+      CRTP_Send_Packet (Tx_Packet, Has_Succeed);
+   end Log_Control_Process;
 
    function String_To_Log_Name (Name : String) return Log_Name is
       Result : Log_Name := (others => ASCII.NUL);

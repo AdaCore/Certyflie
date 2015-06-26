@@ -9,6 +9,9 @@ package Types is
    type T_Int32  is new Interfaces.Integer_32;
    type T_Int64  is new Interfaces.Integer_64;
 
+   type T_Uint6 is mod 2 ** 6;
+   for T_Uint6'Size use 6;
+
    type T_Uint8  is new Interfaces.Unsigned_8;
    type T_Uint16 is new Interfaces.Unsigned_16;
    type T_Uint32 is new Interfaces.Unsigned_32;

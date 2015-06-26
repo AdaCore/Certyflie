@@ -36,11 +36,6 @@ package body Commander_Pack is
       end if;
 
       Commander_Watchdog_Reset;
-
-      --  Send a null packet to acknowledge that we are connected
-      Tx_Packet.Port := CRTP_PORT_CONSOLE;
-      Tx_Packet.Size := 0;
-      CRTP_Send_Packet (Tx_Packet, Has_Succeed);
    end Commander_CRTP_Handler;
 
    procedure Commander_Get_RPY
