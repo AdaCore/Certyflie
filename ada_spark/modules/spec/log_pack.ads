@@ -42,29 +42,29 @@ package Log_Pack is
    --  LOG_CMD_GET_INFO is requested at connexion to fetch the TOC.
    --  LOG_CMD_GET_ITEM is requested whenever the client wants to
    --  fetch the newest variable data.
-   type Log_Command is
+   type Log_TOC_Command is
      (LOG_CMD_GET_ITEM,
       LOG_CMD_GET_INFO);
-   for Log_Command use
+   for Log_TOC_Command use
      (LOG_CMD_GET_ITEM => 0,
       LOG_CMD_GET_INFO => 1);
-   for Log_Command'Size use 8;
+   for Log_TOC_Command'Size use 8;
 
-   --  Type representing all the available control commands.
+   --  Type representing all the available log control commands.
    type Log_Control_Command is
-     (CONTROL_CREATE_BLOCK,
-      CONTROL_APPEND_BLOCK,
-      CONTROL_DELETE_BLOCK,
-      CONTROL_START_BLOCK,
-      CONTROL_STOP_BLOCK,
-      CONTROL_RESET);
+     (LOG_CONTROL_CREATE_BLOCK,
+      LOG_CONTROL_APPEND_BLOCK,
+      LOG_CONTROL_DELETE_BLOCK,
+      LOG_CONTROL_START_BLOCK,
+      LOG_CONTROL_STOP_BLOCK,
+      LOG_CONTROL_RESET);
    for Log_Control_Command use
-     (CONTROL_CREATE_BLOCK => 0,
-      CONTROL_APPEND_BLOCK => 1,
-      CONTROL_DELETE_BLOCK => 2,
-      CONTROL_START_BLOCK  => 3,
-      CONTROL_STOP_BLOCK   => 4,
-      CONTROL_RESET        => 5);
+     (LOG_CONTROL_CREATE_BLOCK => 0,
+      LOG_CONTROL_APPEND_BLOCK => 1,
+      LOG_CONTROL_DELETE_BLOCK => 2,
+      LOG_CONTROL_START_BLOCK  => 3,
+      LOG_CONTROL_STOP_BLOCK   => 4,
+      LOG_CONTROL_RESET        => 5);
    for Log_Control_Command'Size use 8;
 
    -- Global variables and constants

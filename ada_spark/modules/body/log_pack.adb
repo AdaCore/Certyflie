@@ -115,24 +115,24 @@ package body Log_Pack is
    end Log_CRTP_Handler;
 
    procedure Log_TOC_Process (Packet : CRTP_Packet) is
-      function T_Uint8_To_Log_Command is new Ada.Unchecked_Conversion
-        (T_Uint8, Log_Command);
+      function T_Uint8_To_Log_TOC_Command is new Ada.Unchecked_Conversion
+        (T_Uint8, Log_TOC_Command);
       procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data
         (T_Uint8);
       procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
         (T_Uint32);
 
-      Command        : Log_Command;
+      Command        : Log_TOC_Command;
       Packet_Handler : CRTP_Packet_Handler;
       Has_Succeed    : Boolean;
       pragma Unreferenced (Has_Succeed);
    begin
-      Command := T_Uint8_To_Log_Command (Packet.Data_1 (1));
+      Command := T_Uint8_To_Log_TOC_Command (Packet.Data_1 (1));
       Packet_Handler := CRTP_Create_Packet
         (CRTP_PORT_LOG, Log_Channel'Enum_Rep (TOC_CH));
       CRTP_Append_T_Uint8_Data
         (Packet_Handler,
-         Log_Command'Enum_Rep (Command),
+         Log_TOC_Command'Enum_Rep (Command),
          Has_Succeed);
 
       case Command is
@@ -199,17 +199,17 @@ package body Log_Pack is
       Command := T_Uint8_To_Log_Control_Command (Packet.Data_1 (1));
 
       case Command is
-         when CONTROL_CREATE_BLOCK =>
+         when LOG_CONTROL_CREATE_BLOCK =>
             null;
-         when CONTROL_APPEND_BLOCK =>
+         when LOG_CONTROL_APPEND_BLOCK =>
             null;
-         when CONTROL_DELETE_BLOCK =>
+         when LOG_CONTROL_DELETE_BLOCK =>
             null;
-         when CONTROL_START_BLOCK =>
+         when LOG_CONTROL_START_BLOCK =>
             null;
-         when CONTROL_STOP_BLOCK =>
+         when LOG_CONTROL_STOP_BLOCK =>
             null;
-         when CONTROL_RESET =>
+         when LOG_CONTROL_RESET =>
             Answer := 0;
       end case;
 

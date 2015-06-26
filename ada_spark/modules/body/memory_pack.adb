@@ -68,13 +68,12 @@ package body Memory_Pack is
               (Packet_Handler,
                0,
                Has_Succeed);
+            CRTP_Send_Packet
+              (CRTP_Get_Packet_From_Handler (Packet_Handler),
+               Has_Succeed);
          when MEM_CMD_GET_INFO =>
             null;
       end case;
-
-      CRTP_Send_Packet
-        (CRTP_Get_Packet_From_Handler (Packet_Handler),
-         Has_Succeed);
    end Memory_Settings_Process;
 
 end Memory_Pack;
