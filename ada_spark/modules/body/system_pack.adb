@@ -7,6 +7,7 @@ with Power_Management_Pack; use Power_Management_Pack;
 with Communication_Pack; use Communication_Pack;
 with Commander_Pack; use Commander_Pack;
 with Stabilizer_Pack; use Stabilizer_Pack;
+with Memory_Pack; use Memory_Pack;
 with Types; use Types;
 
 package body System_Pack is
@@ -16,18 +17,21 @@ package body System_Pack is
       if Is_Init then
          return;
       end if;
-      --  Module initialization
+      --  Module initialization.
 
-      --  Initialize LEDs, power management, sensors and actuators
+      --  Initialize LEDs, power management, sensors and actuators.
       LEDS_Init;
       Motors_Init;
       IMU_Init;
       Power_Management_Init;
 
-      --  Initialize communication related modules
+      --  Initialize communication related modules.
       Communication_Init;
 
-      --  Initialize high level modules
+      --  Inialize memory module.
+      Memory_Init;
+
+      --  Initialize high level modules.
       Commander_Init;
       Stabilizer_Init;
 
@@ -41,6 +45,7 @@ package body System_Pack is
       Self_Test_Passed := Self_Test_Passed and Motors_Test;
       Self_Test_Passed := Self_Test_Passed and IMU_Test;
       Self_Test_Passed := Self_Test_Passed and Communication_Test;
+      Self_Test_Passed := Self_Test_Passed and Memory_Test;
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
 

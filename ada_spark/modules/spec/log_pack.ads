@@ -6,7 +6,7 @@ with Types; use Types;
 package Log_Pack is
    --  Types
 
-   --  Type represneting al the variable types we can log.
+   --  Type represneting all the variable types we can log.
    type Log_Variable_Type is
      (LOG_UINT8,
       LOG_UINT16,
@@ -27,7 +27,7 @@ package Log_Pack is
       LOG_FP16   => 8);
    for Log_Variable_Type'Size use 8;
 
-   --  Type representing all the avalaible log channels.
+   --  Type representing all the avalaible log module CRTP channels.
    type Log_Channel is
      (TOC_CH,
       CONTROL_CH,
@@ -81,6 +81,9 @@ package Log_Pack is
 
    --  Initialize the log subsystem.
    procedure Log_Init;
+
+   --  Test if the log subsystem is initialized.
+   function Log_Test return Boolean;
 
    --  Create a log group if there is any space left and if the name
    --  is not too long.
@@ -148,12 +151,10 @@ private
    --  Head of the log groups list.
    Log_Data : aliased Log_Data_Base;
 
-
-
    --  Procedures and functions
 
    --  Handler called when a CRTP packet is received in the log
-   --  port queue.
+   --  port.
    procedure Log_CRTP_Handler (Packet : CRTP_Packet);
 
    --  Process a command related to TOC demands from the python client.

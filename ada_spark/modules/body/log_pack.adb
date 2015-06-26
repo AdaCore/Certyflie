@@ -22,6 +22,12 @@ package body Log_Pack is
       Is_Init := True;
    end Log_Init;
 
+   function Log_Test return Boolean is
+   begin
+      return Is_Init;
+   end Log_Test;
+
+
    procedure Create_Log_Group
      (Name        : String;
       Group_ID    : out Natural;
@@ -115,6 +121,7 @@ package body Log_Pack is
         (T_Uint8);
       procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
         (T_Uint32);
+
       Command        : Log_Command;
       Packet_Handler : CRTP_Packet_Handler;
       Has_Succeed    : Boolean;
@@ -182,6 +189,7 @@ package body Log_Pack is
    procedure Log_Control_Process (Packet : CRTP_Packet) is
       function T_Uint8_To_Log_Control_Command is new Ada.Unchecked_Conversion
         (T_Uint8, Log_Control_Command);
+
       Tx_Packet   : CRTP_Packet := Packet;
       Command     : Log_Control_Command;
       Answer      : T_Uint8;
