@@ -71,7 +71,7 @@ package body MPU9250_Pack is
          Own_Address => MPU9250_I2C_OWN_ADDR,
          Ack         => Ack_Enable,
          Ack_Address => AcknowledgedAddress_7bit,
-         Clock_Speed => 1_000);
+         Clock_Speed => 100_000);
 
       Set_State (MPU9250_I2C_PORT, Enabled);
    end MPU9250_Configure_I2C;
@@ -451,8 +451,6 @@ package body MPU9250_Pack is
             Data (I) := Read_Ack (MPU9250_I2C_PORT);
          end if;
       end loop;
-
-      Stop (MPU9250_I2C_PORT);
    end MPU9250_Read_Register;
 
    procedure MPU9250_Read_Byte_At_Register
@@ -469,7 +467,6 @@ package body MPU9250_Pack is
              Receiver);
 
       Data := Read_Nack (MPU9250_I2C_PORT);
-      Stop (MPU9250_I2C_PORT);
    end MPU9250_Read_Byte_At_Register;
 
    function MPU9250_Read_Bit_At_Register
