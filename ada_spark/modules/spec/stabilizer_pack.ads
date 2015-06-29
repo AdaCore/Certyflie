@@ -1,5 +1,3 @@
-with Interfaces.C.Extensions; use Interfaces.C.Extensions;
-
 with Types; use Types;
 with IMU_Pack; use IMU_Pack;
 with LPS25h_pack; use LPS25h_pack;
@@ -213,17 +211,17 @@ private
      with Part_Of => Alt_Hold_Variables; --  Used for altitute hold mode.
                                          --  It gets reset when the bat status
                                          --  changes
-   Alt_Hold     : bool := 0
+   Alt_Hold     : Boolean := False
      with Part_Of => Alt_Hold_Variables; --  Currently in altitude hold mode
-   Set_Alt_Hold : bool := 0
+   Set_Alt_Hold : Boolean := False
      with Part_Of => Alt_Hold_Variables; --  Hover mode has just been activated
    Alt_Hold_PID_Val : T_Altitude := 0.0
      with Part_Of => Alt_Hold_Variables; --  Output of the PID controller
    Alt_Hold_Err     : Float := 0.0
      with Part_Of => Alt_Hold_Variables; --  Altitude error
-   Alt_Hold_Change      : T_Altitude := 0.0
+   Alt_Hold_Change  : T_Altitude := 0.0
      with Part_Of => Alt_Hold_Variables; --  Change in target altitude
-   Alt_Hold_Target      : T_Altitude := -1.0
+   Alt_Hold_Target  : T_Altitude := -1.0
      with Part_Of => Alt_Hold_Variables; --  Target altitude
 
    --  Altitude hold & barometer params

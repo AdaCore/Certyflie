@@ -1,10 +1,28 @@
 with Ada.Unchecked_Conversion;
 
+with Log_Pack; use Log_Pack;
+
 package body Power_Management_Pack is
 
    procedure Power_Management_Init is
+      Group_ID : Natural;
+      Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
+
    begin
       Current_Power_State := Battery;
+
+      Create_Log_Group
+        (Name        => "pm",
+         Group_ID    => Group_ID,
+         Has_Succeed => Has_Succeed);
+      Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "vbat",
+         Storage_Type => LOG_FLOAT,
+         Log_Type     => LOG_FLOAT,
+         Variable     => Battery_Voltage'Address,
+         Has_Succeed  => Has_Succeed);
    end Power_Management_Init;
 
    procedure Power_Management_Set_Battery_Voltage (Voltage : Float) is

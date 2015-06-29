@@ -23,10 +23,12 @@ package body System_Pack is
       LEDS_Init;
       Motors_Init;
       IMU_Init;
-      Power_Management_Init;
 
       --  Initialize communication related modules.
       Communication_Init;
+
+      --  Initialize power management module.
+      Power_Management_Init;
 
       --  Inialize memory module.
       Memory_Init;

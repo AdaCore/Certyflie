@@ -74,13 +74,12 @@ package body Commander_Pack is
    end Commander_Get_Thrust;
 
    procedure Commander_Get_Alt_Hold
-     (Alt_Hold        : out bool;
-      Set_Alt_Hold    : out Bool;
+     (Alt_Hold        : out Boolean;
+      Set_Alt_Hold    : out Boolean;
       Alt_Hold_Change : out Float) is
    begin
-      Alt_Hold := Boolean'Enum_Rep (Alt_Hold_Mode);
-      Set_Alt_Hold :=
-        Boolean'Enum_Rep (Alt_Hold_Mode and not Alt_Hold_Mode_Old);
+      Alt_Hold := Alt_Hold_Mode;
+      Set_Alt_Hold := Alt_Hold_Mode and not Alt_Hold_Mode_Old;
       Alt_Hold_Change :=
         (if Alt_Hold_Mode then
            (Float (Target_Val (Side).Thrust) - ALT_HOLD_THRUST_F)

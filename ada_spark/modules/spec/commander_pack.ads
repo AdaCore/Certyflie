@@ -1,5 +1,4 @@
 with Types; use Types;
-with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with CRTP_Pack; use CRTP_Pack;
 pragma Elaborate_All (CRTP_Pack);
 with Ada.Real_Time; use Ada.Real_Time;
@@ -14,7 +13,7 @@ is
    --  Can be an angle rate, or an angle.
    type RPY_Type is (RATE, ANGLE);
    for RPY_Type use (RATE => 0, ANGLE => 1);
-   for RPY_Type'Size use Interfaces.C.int'Size;
+   for RPY_Type'Size use Integer'Size;
 
    type Commander_CRTP_Values is record
       Roll   : T_Degrees := 0.0;
@@ -53,8 +52,8 @@ is
 
    --  Get Alt Hold Mode parameters from the pilot.
    procedure Commander_Get_Alt_Hold
-     (Alt_Hold        : out bool;
-      Set_Alt_Hold    : out bool;
+     (Alt_Hold        : out Boolean;
+      Set_Alt_Hold    : out Boolean;
       Alt_Hold_Change : out Float);
 
    --  Cut the trust when inactivity time has been during for too long

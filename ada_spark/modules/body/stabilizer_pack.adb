@@ -1,10 +1,9 @@
-with Interfaces.C; use Interfaces.C;
-
 with Config; use Config;
 with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
 with Power_Management_Pack; use Power_Management_Pack;
 with Log_Pack; use Log_Pack;
+with Parameter_Pack; use Parameter_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode,
@@ -90,19 +89,70 @@ is
          Variable     => Euler_Pitch_Actual'Address,
          Has_Succeed  => Has_Succeed);
       Append_Log_Variable_To_Group
-        (Group_ID     => 0,
+        (Group_ID     => Group_ID,
          Name         => "roll",
          Storage_Type => LOG_FLOAT,
          Log_Type     => LOG_FLOAT,
          Variable     => Euler_Roll_Actual'Address,
          Has_Succeed  => Has_Succeed);
       Append_Log_Variable_To_Group
-        (Group_ID     => 0,
+        (Group_ID     => Group_ID,
          Name         => "yaw",
          Storage_Type => LOG_FLOAT,
          Log_Type     => LOG_FLOAT,
          Variable     => Euler_Yaw_Actual'Address,
          Has_Succeed  => Has_Succeed);
+      Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "thrust",
+         Storage_Type => LOG_UINT16,
+         Log_Type     => LOG_UINT16,
+         Variable     => Actuator_Thrust'Address,
+         Has_Succeed  => Has_Succeed);
+      Create_Log_Group
+        (Name        => "motor",
+         Group_ID    => Group_ID,
+         Has_Succeed => Has_Succeed);
+      Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "m1",
+         Storage_Type => LOG_INT32,
+         Log_Type     => LOG_INT32,
+         Variable     => Motor_Power_M1'Address,
+         Has_Succeed  => Has_Succeed);
+       Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "m2",
+         Storage_Type => LOG_INT32,
+         Log_Type     => LOG_INT32,
+         Variable     => Motor_Power_M2'Address,
+         Has_Succeed  => Has_Succeed);
+       Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "m3",
+         Storage_Type => LOG_INT32,
+         Log_Type     => LOG_INT32,
+         Variable     => Motor_Power_M3'Address,
+         Has_Succeed  => Has_Succeed);
+       Append_Log_Variable_To_Group
+        (Group_ID     => Group_ID,
+         Name         => "m4",
+         Storage_Type => LOG_INT32,
+         Log_Type     => LOG_INT32,
+         Variable     => Motor_Power_M4'Address,
+         Has_Succeed  => Has_Succeed);
+
+      Create_Parameter_Group
+        (Name        => "altHold",
+         Group_ID    => Group_ID,
+         Has_Succeed => Has_Succeed);
+      Append_Parameter_Variable_To_Group
+        (Group_ID       => Group_ID,
+         Name           => "alHoldSens",
+         Storage_Type   => PARAM_4BYTES,
+         Parameter_Type => PARAM_4BYTES,
+         Variable       => Alt_Hold_Change_SENS'Address,
+         Has_Succeed    => Has_Succeed);
 
       Controller_Init;
 
@@ -259,7 +309,7 @@ is
 
       --  Altitude hold mode just activated, set target altitude as current
       --  altitude. Reuse previous integral term as a starting point
-      if Set_Alt_Hold = 1 then
+      if Set_Alt_Hold then
          --  Set target altitude to current altitude
          Alt_Hold_Target := Asl;
          --  Cache last integral term for reuse after PID init
@@ -284,7 +334,7 @@ is
                                        T_Altitude'Last);
       end if;
 
-      if Alt_Hold = 1 then
+      if Alt_Hold then
          --  Update the target altitude and the PID
          Alt_Hold_Target := Saturate (Alt_Hold_Target +
                                        Alt_Hold_Change / Alt_Hold_Change_SENS,
@@ -385,7 +435,7 @@ is
 
       Stabilizer_Update_Rate;
 
-      if Alt_Hold = 0 or not IMU_Has_Barometer then
+      if Alt_Hold or not IMU_Has_Barometer then
          --  Get thrust from the commander if alt hold mode
          --  not activated
          Commander_Get_Thrust (Actuator_Thrust);

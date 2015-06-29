@@ -6,7 +6,7 @@ with Types; use Types;
 package Log_Pack is
    --  Types
 
-   --  Type represneting all the variable types we can log.
+   --  Type representing all the variable types we can log.
    type Log_Variable_Type is
      (LOG_UINT8,
       LOG_UINT16,
@@ -29,13 +29,13 @@ package Log_Pack is
 
    --  Type representing all the avalaible log module CRTP channels.
    type Log_Channel is
-     (TOC_CH,
-      CONTROL_CH,
-      LOG_CH);
+     (LOG_TOC_CH,
+      LOG_CONTROL_CH,
+      LOG_DATA_CH);
    for Log_Channel use
-     (TOC_CH     => 0,
-      CONTROL_CH => 1,
-      LOG_CH     => 2);
+     (LOG_TOC_CH      => 0,
+      LOG_CONTROL_CH  => 1,
+      LOG_DATA_CH     => 2);
    for Log_Channel'Size use 2;
 
    --  Type reprensenting all the log commands.

@@ -24,10 +24,10 @@ package body CRTP_Pack is
       loop
          Link_Receive_Packet_Blocking (Packet);
 
-         Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
-
          if Callbacks (Packet.Port) /= null then
             Callbacks (Packet.Port) (Packet);
+         else
+            Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
          end if;
       end loop;
    end CRTP_Rx_Task;

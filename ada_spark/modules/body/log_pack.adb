@@ -27,7 +27,6 @@ package body Log_Pack is
       return Is_Init;
    end Log_Test;
 
-
    procedure Create_Log_Group
      (Name        : String;
       Group_ID    : out Natural;
@@ -105,9 +104,9 @@ package body Log_Pack is
       Channel := CRTP_Channel_To_Log_Channel (Packet.Channel);
 
       case Channel is
-         when TOC_CH =>
+         when LOG_TOC_CH =>
             Log_TOC_Process (Packet);
-         when CONTROL_CH =>
+         when LOG_CONTROL_CH =>
             Log_Control_Process (Packet);
          when others =>
             null;
@@ -129,7 +128,7 @@ package body Log_Pack is
    begin
       Command := T_Uint8_To_Log_TOC_Command (Packet.Data_1 (1));
       Packet_Handler := CRTP_Create_Packet
-        (CRTP_PORT_LOG, Log_Channel'Enum_Rep (TOC_CH));
+        (CRTP_PORT_LOG, Log_Channel'Enum_Rep (LOG_TOC_CH));
       CRTP_Append_T_Uint8_Data
         (Packet_Handler,
          Log_TOC_Command'Enum_Rep (Command),
@@ -241,8 +240,8 @@ package body Log_Pack is
         CRTP_Append_Data (Log_Complete_Name_Raw);
 
       Complete_Name : constant Log_Complete_Name
-        := Variable.Name (1 .. Variable.Name_Length) &
-                        Group.Name (1 .. Group.Name_Length);
+        := Group.Name (1 .. Group.Name_Length) &
+                        Variable.Name (1 .. Variable.Name_Length);
       Complete_Name_Raw : Log_Complete_Name_Raw;
    begin
       Complete_Name_Raw :=
