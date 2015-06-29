@@ -51,12 +51,10 @@ package body System_Pack is
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
 
-      if not Self_Test_Passed then
-         Set_LED (LED   => LED_Red_R,
-                  Value => True);
+      if Self_Test_Passed then
+         Enable_LED_Status (Ready_To_Fly);
       else
-         Set_LED (LED   => LED_Green_R,
-                  Value => True);
+         Enable_LED_Status (Self_Test_Fail);
       end if;
 
       return Self_Test_Passed;

@@ -62,4 +62,37 @@ package body LEDS_Pack is
       end if;
    end Toggle_LED;
 
+   procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status) is
+      Cancelled            : Boolean;
+      Status_LED_Animation : LED_Animation;
+      pragma Unreferenced (Cancelled);
+   begin
+      Current_LED_Status := LED_Status;
+      Cancel_Handler (Current_LED_Status_Event, Cancelled);
+      Status_LED_Animation := LED_Animations (Current_LED_Status);
+
+      if Status_LED_Animation.Blink_Period > Milliseconds (0) then
+         Set_Handler (Current_LED_Status_Event,
+                      Clock + Status_LED_Animation.Blink_Period,
+                      Current_LED_Status_Event_Handler);
+      else
+         Set_LED (Status_LED_Animation.LED, True);
+      end if;
+   end Enable_LED_Status;
+
+   protected body LED_Status_Event_Handler is
+      procedure Toggle_LED_Status (Event : in out Timing_Event) is
+         Cancelled            : Boolean;
+         Status_LED_Animation : constant LED_Animation
+           := LED_Animations (Current_LED_Status);
+         pragma Unreferenced (Event);
+         pragma Unreferenced (Cancelled);
+      begin
+         Toggle_LED (Status_LED_Animation.LED);
+         Set_Handler (Current_LED_Status_Event,
+                      Clock + Status_LED_Animation.Blink_Period,
+                      Current_LED_Status_Event_Handler);
+      end Toggle_LED_Status;
+   end LED_Status_Event_Handler;
+
 end LEDS_Pack;
