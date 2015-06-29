@@ -53,4 +53,13 @@ package body LEDS_Pack is
       end if;
    end Set_LED;
 
+   procedure Toggle_LED (LED : Crazyflie_LED) is
+   begin
+      if LED = LED_Blue_L then
+         Toggle (GPIO_D, LEDs_Pins (LED));
+      else
+         Toggle (GPIO_C, LEDs_Pins (LED));
+      end if;
+   end Toggle_LED;
+
 end LEDS_Pack;

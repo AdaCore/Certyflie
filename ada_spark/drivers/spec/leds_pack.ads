@@ -3,18 +3,21 @@ with STM32F4_Discovery; use STM32F4_Discovery;
 
 package LEDS_Pack is
 
-   --  Type indexing all the Crazyflie leds
+   --  Type indexing all the Crazyflie leds.
    type Crazyflie_LED is
      (LED_Blue_L, LED_Green_L, LED_Green_R, LED_Red_L, LED_Red_R);
 
-   --  Initizalize the Crazyflie leds
+   --  Initizalize the Crazyflie leds.
    procedure LEDS_Init;
 
-   --  Test if the leds are initialized
+   --  Test if the leds are initialized.
    function LEDS_Test return Boolean;
 
-   -- Set the led if Value = True, clear if Value = False
+   --  Set the led if Value = True, clear if Value = False.
    procedure Set_LED (LED : Crazyflie_LED; Value : Boolean);
+
+   --  Toggle the selected led.
+   procedure Toggle_LED (LED : Crazyflie_LED);
 
 private
    --  Global variables and constants
