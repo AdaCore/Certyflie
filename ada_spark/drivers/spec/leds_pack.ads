@@ -31,6 +31,9 @@ package LEDS_Pack is
    --  Toggle the selected led.
    procedure Toggle_LED (LED : Crazyflie_LED);
 
+   --  Switch off all the crazyflie leds.
+   procedure Reset_All_LEDs;
+
    --  Enable the specified Crazyflie led status.
    procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status);
 

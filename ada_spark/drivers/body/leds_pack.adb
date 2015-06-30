@@ -22,9 +22,7 @@ package body LEDS_Pack is
                     Pins => Red_And_Green_LEDs_Pins,
                     Config => Configuration);
 
-      for LED in Crazyflie_LED loop
-         Set_LED (LED, False);
-      end loop;
+      Reset_All_LEDs;
 
       Is_Init := True;
    end LEDS_Init;
@@ -62,11 +60,20 @@ package body LEDS_Pack is
       end if;
    end Toggle_LED;
 
+   procedure Reset_All_LEDs is
+   begin
+      for LED in Crazyflie_LED loop
+         Set_LED (LED, False);
+      end loop;
+   end Reset_All_LEDs;
+
    procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status) is
       Cancelled            : Boolean;
       Status_LED_Animation : LED_Animation;
       pragma Unreferenced (Cancelled);
    begin
+      Reset_All_LEDs;
+
       Current_LED_Status := LED_Status;
       Cancel_Handler (Current_LED_Status_Event, Cancelled);
       Status_LED_Animation := LED_Animations (Current_LED_Status);

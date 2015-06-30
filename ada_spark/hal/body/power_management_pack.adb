@@ -104,21 +104,13 @@ package body Power_Management_Pack is
    begin
       case State is
          when Charging =>
-            Set_LED (Charging_LED, True);
-            Set_LED (Charged_LED, False);
-            Set_LED (Low_Power_Led, False);
+            Enable_LED_Status (Charging_Battery);
          when Charged =>
-            Set_LED (Charging_LED, False);
-            Set_LED (Charged_LED, True);
-            Set_LED (Low_Power_Led, False);
+            Enable_LED_Status (Ready_To_Fly);
          when Low_Power =>
-            Set_LED (Charged_LED, False);
-            Set_LED (Charging_LED, False);
-            Set_LED (Low_Power_Led, True);
+            Enable_LED_Status (Low_Power_Battery);
          when Battery =>
-            Set_LED (Charged_LED, False);
-            Set_LED (Charging_LED, False);
-            Set_LED (Low_Power_Led, False);
+            Enable_LED_Status (Ready_To_Fly);
          when others =>
             null;
       end case;
