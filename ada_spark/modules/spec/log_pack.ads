@@ -1,4 +1,5 @@
 with System;
+with Ada.Real_Time; use Ada.Real_Time;
 with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
 
 with CRTP_Pack; use CRTP_Pack;
@@ -68,6 +69,8 @@ package Log_Pack is
       LOG_CONTROL_RESET        => 5);
    for Log_Control_Command'Size use 8;
 
+   type Log_Block is limited private;
+
    -- Global variables and constants
 
    --  Constant array registering the length of each log variable type
@@ -86,6 +89,7 @@ package Log_Pack is
    ENOENT : constant := 2;
    E2BIG  : constant := 7;
    ENOMEM : constant := 12;
+   EEXIST : constant := 17;
 
    --  Limitation of the variable/group name size.
    MAX_LOG_VARIABLE_NAME_LENGTH : constant := 14;
@@ -178,23 +182,42 @@ private
    end record;
    for Log_Ops_Setting'Size use 16;
 
+   subtype Log_Block_ID is T_Uint8 range 1 .. MAX_LOG_BLOCKS;
+
+   --  Extension of the Timing_Event tagged type to store an
+   --  additional attribute : the block to log
+   type Log_Block_Timing_Event is new Timing_Event with record
+      Block_ID : Log_Block_ID;
+   end record;
+
    --  Type representing a log block. A log block sends all
    --  its variables data every time the Timing_Event timer expires.
    type Log_Block is record
-      ID        : T_Uint8;
+      ID        : Log_Block_ID;
       Free      : Boolean := True;
-      Timer     : Timing_Event;
+      Timer     : Log_Block_Timing_Event;
+      Period    : Time_Span := Milliseconds (0);
       Variables : access Log_Variable := null;
    end record;
 
+   --  Tasks and protected objects
+
+   protected Log_Block_Timing_Event_Handler is
+      pragma Interrupt_Priority;
+
+      procedure Log_Run_Block (Event : in out Timing_Event);
+   end Log_Block_Timing_Event_Handler;
+
    --  Global variables and constants
+
+   Log_Block_Timer_Handler : constant Timing_Event_Handler
+     := Log_Block_Timing_Event_Handler.Log_Run_Block'Access;
+
 
    Is_Init : Boolean := False;
 
    --  Log TOC
    Log_Data : aliased Log_TOC;
-
-   subtype Log_Block_ID is T_Uint8 range 1 .. MAX_LOG_BLOCKS;
 
    --  Log blocks
    Log_Blocks : array (Log_Block_ID) of aliased Log_Block;
@@ -222,6 +245,14 @@ private
    function Log_Append_To_Block
      (Block_ID         : T_Uint8;
       Ops_Settings_Raw : T_Uint8_Array) return T_Uint8;
+
+   --  Start logging the specified block at each period (in ms).
+   function Log_Start_Block
+     (Block_ID : T_Uint8;
+      Period   : Natural) return T_Uint8;
+
+      --  Stop logging the specified.
+   function Log_Stop_Block (Block_ID : T_Uint8) return T_Uint8;
 
    --  Append a log vraible to the specified block.
    procedure Append_Log_Variable_To_Block

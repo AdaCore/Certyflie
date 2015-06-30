@@ -213,8 +213,22 @@ package body Log_Pack is
    function Log_Create_Block
      (Block_ID         : T_Uint8;
       Ops_Settings_Raw : T_Uint8_Array) return T_Uint8 is
+      Block : access Log_Block;
    begin
-      return 0;
+      --  Not enough memory to create a new block.
+      if Block_ID not in Log_Block_ID then
+         return ENOMEM;
+      end if;
+
+      Block := Log_Blocks (Block_ID)'access;
+      --  Block with the same ID already exists.
+      if not Block.Free then
+         return EEXIST;
+      end if;
+
+      Block.Free := False;
+
+      return Log_Append_To_Block (Block_ID, Ops_Settings_Raw);
    end Log_Create_Block;
 
    function Log_Append_To_Block
@@ -272,6 +286,51 @@ package body Log_Pack is
 
       return 0;
    end Log_Append_To_Block;
+
+   function Log_Start_Block
+     (Block_ID : T_Uint8;
+      Period   : Natural) return T_Uint8 is
+      Block     : access Log_Block;
+      Cancelled : Boolean;
+      pragma Unreferenced (Cancelled);
+   begin
+      --  Block ID doesn't match anything
+      if Block_ID not in Log_Blocks'Range then
+         return ENOENT;
+      end if;
+
+      Block := Log_Blocks (Block_ID)'access;
+
+      if Period > 0 then
+         Cancel_Handler (Block.Timer, Cancelled);
+         Block.Timer.Block_ID := Block_ID;
+         Set_Handler (Event   => Block.Timer,
+                      At_Time => Clock + Milliseconds (Period),
+                      Handler => Log_Block_Timer_Handler);
+      else
+         --  TODO: single shoot run. Use worker task for it.
+         null;
+      end if;
+
+      return 0;
+   end Log_Start_Block;
+
+   function Log_Stop_Block (Block_ID : T_Uint8) return T_Uint8 is
+      Block     : access Log_Block;
+      Cancelled : Boolean;
+      pragma Unreferenced (Cancelled);
+   begin
+      --  Block ID doesn't match anything
+      if Block_ID not in Log_Blocks'Range then
+         return ENOENT;
+      end if;
+
+      Block := Log_Blocks (Block_ID)'access;
+
+      Cancel_Handler (Block.Timer, Cancelled);
+
+      return 0;
+   end Log_Stop_Block;
 
    procedure Append_Log_Variable_To_Block
      (Block    : access Log_Block;
@@ -337,5 +396,16 @@ package body Log_Pack is
 
       return Block_Length;
    end Calculate_Block_Length;
+
+   --  Tasks and protected objects
+
+   protected body Log_Block_Timing_Event_Handler is
+
+      procedure Log_Run_Block (Event : in out Timing_Event) is
+      begin
+         null;
+      end Log_Run_Block;
+
+   end Log_Block_Timing_Event_Handler;
 
 end Log_Pack;
