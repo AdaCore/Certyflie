@@ -2,13 +2,6 @@ with Ada.Unchecked_Conversion;
 
 package body Log_Pack is
 
-   --     task body Log_Task is
-   --     begin
-   --        loop
-   --           null;
-   --        end loop;
-   --     end Log_Task;
-
    --  Public procedures and functions
 
    procedure Log_Init is
@@ -57,7 +50,7 @@ package body Log_Pack is
       Variable     : System.Address;
       Has_Succeed  : out Boolean) is
       Group               : Log_Group;
-      Log_Variables_Index : Natural;
+      Log_Variables_Index : Log_Variable_ID;
    begin
       Has_Succeed := False;
 
@@ -86,7 +79,7 @@ package body Log_Pack is
 
       Log_Data.Log_Groups (Group_ID) := Group;
 
-      Log_Data.Log_Variables (Integer (Log_Data.Log_Variables_Count))
+      Log_Data.Log_Variables (Log_Data.Log_Variables_Count)
         := Log_Data.Log_Groups
           (Group_ID).Log_Variables (Log_Variables_Index)'Access;
 
@@ -151,7 +144,7 @@ package body Log_Pack is
                Has_Succeed);
             CRTP_Append_T_Uint8_Data
               (Packet_Handler,
-               MAX_LOG_NUMBER_OF_GROUPS * MAX_LOG_NUMBER_OF_VARIABLES,
+               MAX_LOG_NUMBER_OF_GROUPS * MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP,
                Has_Succeed);
 
          when LOG_CMD_GET_ITEM =>
@@ -166,7 +159,7 @@ package body Log_Pack is
                      Var_ID,
                      Has_Succeed);
 
-                  Log_Var := Log_Data.Log_Variables (Integer (Var_ID)).all;
+                  Log_Var := Log_Data.Log_Variables (Var_ID).all;
                   Log_Var_Group := Log_Data.Log_Groups (Log_Var.Group_ID);
                   CRTP_Append_T_Uint8_Data
                     (Packet_Handler,
@@ -217,6 +210,86 @@ package body Log_Pack is
       CRTP_Send_Packet (Tx_Packet, Has_Succeed);
    end Log_Control_Process;
 
+   function Log_Create_Block
+     (Block_ID         : T_Uint8;
+      Ops_Settings_Raw : T_Uint8_Array) return T_Uint8 is
+   begin
+      return 0;
+   end Log_Create_Block;
+
+   function Log_Append_To_Block
+     (Block_ID         : T_Uint8;
+      Ops_Settings_Raw : T_Uint8_Array) return T_Uint8 is
+      type Ops_Settings_Array is
+        array (Ops_Settings_Raw'Range) of Log_Ops_Setting;
+      function T_Uint8_Array_To_Ops_Settings_Array is
+        new Ada.Unchecked_Conversion (T_Uint8_Array, Ops_Settings_Array);
+
+      Block        : access Log_Block;
+      Ops_Settings : Ops_Settings_Array;
+   begin
+      --  Block ID doesn't match anything
+      if Block_ID not in Log_Blocks'Range then
+         return ENOENT;
+      end if;
+
+      Block := Log_Blocks (Block_ID)'Access;
+
+      --  Block not created
+      if Block.Free then
+         return ENOENT;
+      end if;
+
+      Ops_Settings := T_Uint8_Array_To_Ops_Settings_Array (Ops_Settings_Raw);
+
+      declare
+         Current_Block_Length : T_Uint8;
+         Ops_Setting          : Log_Ops_Setting;
+         Variable             : access Log_Variable;
+      begin
+
+         for I in Ops_Settings'Range loop
+            Current_Block_Length := Calculate_Block_Length (Block);
+            Ops_Setting := Ops_Settings (I);
+
+            --  Trying to append a full block
+            if Current_Block_Length + Type_Length (Ops_Setting.Log_Type) >
+              CRTP_MAX_DATA_SIZE then
+               return E2BIG;
+            end if;
+
+            --  Trying a to add a variable that does not exist
+            if Ops_Setting.ID not in Log_Data.Log_Variables'Range or else
+              Log_Data.Log_Variables (Ops_Setting.ID) = null then
+               return ENOENT;
+            end if;
+
+            Variable := Log_Data.Log_Variables (Ops_Setting.ID);
+
+            Append_Log_Variable_To_Block (Block, Variable);
+         end loop;
+      end;
+
+      return 0;
+   end Log_Append_To_Block;
+
+   procedure Append_Log_Variable_To_Block
+     (Block    : access Log_Block;
+      Variable : access Log_Variable) is
+      Variables_Aux : access Log_Variable := Block.Variables;
+   begin
+      --  No variables have been appended to this block until now.
+      if Variables_Aux = null then
+         Variables_Aux := Variable;
+      else
+         while Variables_Aux.Next /= null loop
+            Variables_Aux := Variables_Aux.Next;
+         end loop;
+
+         Variables_Aux.Next := Variable;
+      end if;
+   end Append_Log_Variable_To_Block;
+
    function String_To_Log_Name (Name : String) return Log_Name is
       Result : Log_Name := (others => ASCII.NUL);
    begin
@@ -226,9 +299,9 @@ package body Log_Pack is
    end String_To_Log_Name;
 
    procedure Append_Raw_Data_Variable_Name_To_Packet
-     (Variable       : Log_Variable;
-      Group          : Log_Group;
-      Packet_Handler : in out CRTP_Packet_Handler;
+     (Variable        : Log_Variable;
+      Group           : Log_Group;
+      Packet_Handler  : in out CRTP_Packet_Handler;
       Has_Succeed     : out Boolean) is
       subtype Log_Complete_Name is
         String (1 .. Variable.Name_Length + Group.Name_Length);
@@ -239,9 +312,9 @@ package body Log_Pack is
       procedure CRTP_Append_Log_Complete_Name_Raw_Data is new
         CRTP_Append_Data (Log_Complete_Name_Raw);
 
-      Complete_Name : constant Log_Complete_Name
+      Complete_Name     : constant Log_Complete_Name
         := Group.Name (1 .. Group.Name_Length) &
-                        Variable.Name (1 .. Variable.Name_Length);
+                            Variable.Name (1 .. Variable.Name_Length);
       Complete_Name_Raw : Log_Complete_Name_Raw;
    begin
       Complete_Name_Raw :=
@@ -251,5 +324,18 @@ package body Log_Pack is
          Complete_Name_Raw,
          Has_Succeed);
    end Append_Raw_Data_Variable_Name_To_Packet;
+
+   function Calculate_Block_Length (Block : access Log_Block) return T_Uint8 is
+      Variables    : access Log_Variable := Block.Variables;
+      Block_Length : T_Uint8 := 0;
+   begin
+
+      while Variables /= null loop
+         Block_Length := Block_Length + Type_Length (Variables.Log_Type);
+         Variables := Variables.Next;
+      end loop;
+
+      return Block_Length;
+   end Calculate_Block_Length;
 
 end Log_Pack;
