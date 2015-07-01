@@ -145,4 +145,20 @@ package body CRTP_Pack is
       Callbacks (Port_ID) := Callback;
    end CRTP_Register_Callback;
 
+   procedure CRTP_Reset is
+   begin
+      Tx_Queue.Reset_Queue;
+      -- TODO: reset the link queues too.
+   end CRTP_Reset;
+
+   procedure CRTP_Set_Is_Connected (Value : Boolean) is
+   begin
+      Is_Connected := Value;
+   end CRTP_Set_Is_Connected;
+
+   function CRTP_Is_Connected return Boolean is
+   begin
+      return Is_Connected;
+   end CRTP_Is_Connected;
+
 end CRTP_Pack;

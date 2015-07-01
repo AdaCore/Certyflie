@@ -140,6 +140,15 @@ package CRTP_Pack is
      (Port_ID  : CRTP_Port;
       Callback : CRTP_Callback);
 
+   --  Reset the CRTP module by flushing the Tx Queue.
+   procedure CRTP_Reset;
+
+   --  Used by the Commander module to state if we are still connected or not.
+   procedure CRTP_Set_Is_Connected (Value : Boolean);
+
+   --  Used to know if we are still connected.
+   function CRTP_Is_Connected return Boolean;
+
 private
    package CRTP_Queue is new Generic_Queue_Pack (CRTP_Packet);
 
@@ -180,7 +189,9 @@ private
 
    --  Global variables
 
-   --  Number of dropped packets at reception
+   --  Number of dropped packets.
    Dropped_Packets : Natural := 0;
+   --  Used to know if we are still connected or not.
+   Is_Connected    : Boolean := False;
 
 end CRTP_Pack;

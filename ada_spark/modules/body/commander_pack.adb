@@ -93,6 +93,8 @@ package body Commander_Pack is
 
    procedure Commander_Watchdog_Reset is
    begin
+      CRTP_Set_Is_Connected (True);
+
       Last_Update := Clock;
    end Commander_Watchdog_Reset;
 
@@ -106,6 +108,8 @@ package body Commander_Pack is
       Time_Since_Last_Update := Commander_Get_Inactivity_Time;
 
       if Time_Since_Last_Update > COMMANDER_WDT_TIMEOUT_STABILIZE then
+         CRTP_Set_Is_Connected (False);
+
          Target_Val (Used_Side).Roll := 0.0;
          Target_Val (Used_Side).Pitch := 0.0;
          Target_Val (Used_Side).Yaw := 0.0;

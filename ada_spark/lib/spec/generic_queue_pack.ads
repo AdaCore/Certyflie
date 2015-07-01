@@ -15,6 +15,8 @@ package Generic_Queue_Pack is
      (Queue : in out T_Queue;
       Item  : out T_Element);
 
+   procedure Reset (Queue : in out T_Queue);
+
    function Is_Empty (Queue : in T_Queue) return Boolean;
 
    function Is_Full (Queue : in T_Queue) return Boolean;
@@ -30,6 +32,8 @@ package Generic_Queue_Pack is
       procedure Dequeue_Item
         (Item        : out T_Element;
          Has_Succeed : out Boolean);
+
+      procedure Reset_Queue;
 
       entry Await_Item_To_Dequeue(Item : out T_Element);
 

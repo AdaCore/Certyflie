@@ -84,28 +84,24 @@ is
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "pitch",
-         Storage_Type => LOG_FLOAT,
          Log_Type     => LOG_FLOAT,
          Variable     => Euler_Pitch_Actual'Address,
          Has_Succeed  => Has_Succeed);
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "roll",
-         Storage_Type => LOG_FLOAT,
          Log_Type     => LOG_FLOAT,
          Variable     => Euler_Roll_Actual'Address,
          Has_Succeed  => Has_Succeed);
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "yaw",
-         Storage_Type => LOG_FLOAT,
          Log_Type     => LOG_FLOAT,
          Variable     => Euler_Yaw_Actual'Address,
          Has_Succeed  => Has_Succeed);
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "thrust",
-         Storage_Type => LOG_UINT16,
          Log_Type     => LOG_UINT16,
          Variable     => Actuator_Thrust'Address,
          Has_Succeed  => Has_Succeed);
@@ -116,28 +112,24 @@ is
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m1",
-         Storage_Type => LOG_INT32,
          Log_Type     => LOG_INT32,
          Variable     => Motor_Power_M1'Address,
          Has_Succeed  => Has_Succeed);
        Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m2",
-         Storage_Type => LOG_INT32,
          Log_Type     => LOG_INT32,
          Variable     => Motor_Power_M2'Address,
          Has_Succeed  => Has_Succeed);
        Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m3",
-         Storage_Type => LOG_INT32,
          Log_Type     => LOG_INT32,
          Variable     => Motor_Power_M3'Address,
          Has_Succeed  => Has_Succeed);
        Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m4",
-         Storage_Type => LOG_INT32,
          Log_Type     => LOG_INT32,
          Variable     => Motor_Power_M4'Address,
          Has_Succeed  => Has_Succeed);

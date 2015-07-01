@@ -16,8 +16,7 @@ package Log_Pack is
       LOG_INT8,
       LOG_INT16,
       LOG_INT32,
-      LOG_FLOAT,
-      LOG_FP16);
+      LOG_FLOAT);
    for Log_Variable_Type use
      (LOG_UINT8  => 1,
       LOG_UINT16 => 2,
@@ -25,8 +24,7 @@ package Log_Pack is
       LOG_INT8   => 4,
       LOG_INT16  => 5,
       LOG_INT32  => 6,
-      LOG_FLOAT  => 7,
-      LOG_FP16   => 8);
+      LOG_FLOAT  => 7);
    for Log_Variable_Type'Size use 8;
 
    --  Type representing all the avalaible log module CRTP channels.
@@ -82,8 +80,7 @@ package Log_Pack is
          LOG_INT8   => 1,
          LOG_INT16  => 2,
          LOG_INT32  => 4,
-         LOG_FLOAT  => 4,
-         LOG_FP16   => 2);
+         LOG_FLOAT  => 4);
 
    --  Error code constants
    ENOENT : constant := 2;
@@ -122,7 +119,6 @@ package Log_Pack is
    procedure Append_Log_Variable_To_Group
      (Group_ID     : Natural;
       Name         : String;
-      Storage_Type : Log_Variable_Type;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address;
       Has_Succeed  : out Boolean);
@@ -139,7 +135,6 @@ private
       Group_ID     : Natural;
       Name         : Log_Name;
       Name_Length  : Natural;
-      Storage_Type : Log_Variable_Type;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address := System.Null_Address;
       Next         : access Log_Variable := null;
@@ -185,9 +180,10 @@ private
    subtype Log_Block_ID is T_Uint8 range 1 .. MAX_LOG_BLOCKS;
 
    --  Extension of the Timing_Event tagged type to store an
-   --  additional attribute : the block to log
+   --  additional attribute : the block to log.
    type Log_Block_Timing_Event is new Timing_Event with record
       Block_ID : Log_Block_ID;
+      Period   : Time_Span := Milliseconds (100);
    end record;
 
    --  Type representing a log block. A log block sends all
@@ -199,6 +195,9 @@ private
       Period    : Time_Span := Milliseconds (0);
       Variables : access Log_Variable := null;
    end record;
+
+   --  Type used to encode timestamps when dending log data.
+   subtype Log_Time_Stamp is T_Uint8_Array (1 .. 3);
 
    --  Tasks and protected objects
 
@@ -240,6 +239,9 @@ private
      (Block_ID         : T_Uint8;
       Ops_Settings_Raw : T_Uint8_Array) return T_Uint8;
 
+   --  Delete the specified block.
+   function Log_Delete_Block (Block_ID : T_Uint8) return T_Uint8;
+
    --  Append the variables specified in Ops_Settings to the
    --  block identified with Block_ID.
    function Log_Append_To_Block
@@ -251,8 +253,11 @@ private
      (Block_ID : T_Uint8;
       Period   : Natural) return T_Uint8;
 
-      --  Stop logging the specified.
+   --  Stop logging the specified block.
    function Log_Stop_Block (Block_ID : T_Uint8) return T_Uint8;
+
+   --  Delete all the log blocks.
+   procedure Log_Reset;
 
    --  Append a log vraible to the specified block.
    procedure Append_Log_Variable_To_Block
@@ -264,8 +269,14 @@ private
    function String_To_Log_Name (Name : String) return Log_Name;
    pragma Inline (String_To_Log_Name);
 
+   --  Calculate the current block legnth, to ensure that it will fit in
+   --  a single CRTP packet.
    function Calculate_Block_Length (Block : access Log_Block) return T_Uint8;
    pragma Inline (Calculate_Block_Length);
+
+   --  Get a log timestamp from the current clock tick count.
+   function Get_Log_Time_Stamp return Log_Time_Stamp;
+   pragma Inline (Get_Log_Time_Stamp);
 
    --  Append raw data from the variable and group name.
    procedure Append_Raw_Data_Variable_Name_To_Packet

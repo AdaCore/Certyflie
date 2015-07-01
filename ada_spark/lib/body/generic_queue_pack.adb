@@ -33,6 +33,11 @@ package body Generic_Queue_Pack is
       Queue.Count := Queue.Count - 1;
    end Dequeue;
 
+   procedure Reset (Queue : in out T_Queue) is
+   begin
+      Queue.Count := 0;
+   end Reset;
+
    function Is_Empty (Queue : in T_Queue) return Boolean is
    begin
       return Queue.Count = 0;
@@ -71,6 +76,11 @@ package body Generic_Queue_Pack is
             Has_Succeed := False;
          end if;
       end Dequeue_Item;
+
+      procedure Reset_Queue is
+      begin
+         Reset (Queue);
+      end Reset_Queue;
 
       entry Await_Item_To_Dequeue
         (Item : out T_Element) when Data_Available is

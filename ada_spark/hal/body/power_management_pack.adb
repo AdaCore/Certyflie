@@ -19,7 +19,6 @@ package body Power_Management_Pack is
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "vbat",
-         Storage_Type => LOG_FLOAT,
          Log_Type     => LOG_FLOAT,
          Variable     => Battery_Voltage'Address,
          Has_Succeed  => Has_Succeed);

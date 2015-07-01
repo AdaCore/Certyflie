@@ -45,7 +45,6 @@ package body Log_Pack is
    procedure Append_Log_Variable_To_Group
      (Group_ID     : Natural;
       Name         : String;
-      Storage_Type : Log_Variable_Type;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address;
       Has_Succeed  : out Boolean) is
@@ -71,7 +70,6 @@ package body Log_Pack is
         String_To_Log_Name (Name);
       Group.Log_Variables (Log_Variables_Index).Group_ID := Group_ID;
       Group.Log_Variables (Log_Variables_Index).Name_Length := Name'Length + 1;
-      Group.Log_Variables (Log_Variables_Index).Storage_Type := Storage_Type;
       Group.Log_Variables (Log_Variables_Index).Log_Type := Log_Type;
       Group.Log_Variables (Log_Variables_Index).Variable := Variable;
 
@@ -192,16 +190,23 @@ package body Log_Pack is
 
       case Command is
          when LOG_CONTROL_CREATE_BLOCK =>
-            null;
+            Answer := Log_Create_Block
+              (Block_ID         => Packet.Data_1 (2),
+               Ops_Settings_Raw => Packet.Data_1 (3 .. Integer (Packet.Size)));
          when LOG_CONTROL_APPEND_BLOCK =>
-            null;
+            Answer := Log_Append_To_Block
+              (Block_ID         => Packet.Data_1 (2),
+               Ops_Settings_Raw => Packet.Data_1 (3 .. Integer (Packet.Size)));
          when LOG_CONTROL_DELETE_BLOCK =>
-            null;
+            Answer := Log_Delete_Block (Packet.Data_1 (2));
          when LOG_CONTROL_START_BLOCK =>
-            null;
+            Answer := Log_Start_Block
+              (Block_ID => Packet.Data_1 (2),
+               Period   => Integer (Packet.Data_1 (3) *  10));
          when LOG_CONTROL_STOP_BLOCK =>
-            null;
+            Answer := Log_Stop_Block (Packet.Data_1 (2));
          when LOG_CONTROL_RESET =>
+            Log_Reset;
             Answer := 0;
       end case;
 
@@ -220,7 +225,7 @@ package body Log_Pack is
          return ENOMEM;
       end if;
 
-      Block := Log_Blocks (Block_ID)'access;
+      Block := Log_Blocks (Block_ID)'Access;
       --  Block with the same ID already exists.
       if not Block.Free then
          return EEXIST;
@@ -230,6 +235,28 @@ package body Log_Pack is
 
       return Log_Append_To_Block (Block_ID, Ops_Settings_Raw);
    end Log_Create_Block;
+
+   function Log_Delete_Block (Block_ID : T_Uint8) return T_Uint8 is
+      Block     : access Log_Block;
+      Cancelled : Boolean;
+      pragma Unreferenced (Cancelled);
+   begin
+      --  Block ID doesn't match anything
+      if Block_ID not in Log_Blocks'Range then
+         return ENOENT;
+      end if;
+
+      Block := Log_Blocks (Block_ID)'Access;
+
+      --  Mark the block as a free one.
+      Block.Free := True;
+      Block.Variables := null;
+
+      --  Stop the timer.
+      Cancel_Handler (Block.Timer, Cancelled);
+
+      return 0;
+   end Log_Delete_Block;
 
    function Log_Append_To_Block
      (Block_ID         : T_Uint8;
@@ -299,11 +326,12 @@ package body Log_Pack is
          return ENOENT;
       end if;
 
-      Block := Log_Blocks (Block_ID)'access;
+      Block := Log_Blocks (Block_ID)'Access;
 
       if Period > 0 then
          Cancel_Handler (Block.Timer, Cancelled);
          Block.Timer.Block_ID := Block_ID;
+         Block.Timer.Period := Milliseconds (Period);
          Set_Handler (Event   => Block.Timer,
                       At_Time => Clock + Milliseconds (Period),
                       Handler => Log_Block_Timer_Handler);
@@ -325,12 +353,24 @@ package body Log_Pack is
          return ENOENT;
       end if;
 
-      Block := Log_Blocks (Block_ID)'access;
+      Block := Log_Blocks (Block_ID)'Access;
 
+      --  Stop the timer.
       Cancel_Handler (Block.Timer, Cancelled);
 
       return 0;
    end Log_Stop_Block;
+
+   procedure Log_Reset is
+      Res   : T_Uint8;
+      pragma Unreferenced (Res);
+   begin
+      if Is_Init then
+         for ID in Log_Blocks'Range loop
+            Res := Log_Delete_Block (ID);
+         end loop;
+      end if;
+   end Log_Reset;
 
    procedure Append_Log_Variable_To_Block
      (Block    : access Log_Block;
@@ -397,13 +437,163 @@ package body Log_Pack is
       return Block_Length;
    end Calculate_Block_Length;
 
+   function Get_Log_Time_Stamp return Log_Time_Stamp is
+      subtype  Time_T_Uint8_Array is T_Uint8_Array (1 .. 8);
+      function Time_To_Time_T_Uint8_Array is new Ada.Unchecked_Conversion
+        (Time, Time_T_Uint8_Array);
+
+      Raw_Time   : Time_T_Uint8_Array;
+      Time_Stamp : Log_Time_Stamp;
+   begin
+      Raw_Time := Time_To_Time_T_Uint8_Array (Clock);
+
+      Time_Stamp := Raw_Time (6 .. 8);
+
+      return Time_Stamp;
+   end Get_Log_Time_Stamp;
+
    --  Tasks and protected objects
 
    protected body Log_Block_Timing_Event_Handler is
 
       procedure Log_Run_Block (Event : in out Timing_Event) is
+         Block_ID       : constant Log_Block_Id
+           := Log_Block_Timing_Event
+             (Timing_Event'Class (Event)).Block_ID;
+         Period         : constant Time_Span
+           := Log_Block_Timing_Event
+             (Timing_Event'Class (Event)).Period;
+         Variables      : access Log_Variable;
+         Time_Stamp     : Log_Time_Stamp;
+         Packet_Handler : CRTP_Packet_Handler;
+         Has_Succeed    : Boolean;
+         pragma Unreferenced (Has_Succeed);
+
+         --  Procedures used to append log data with different types
+         procedure CRTP_Append_Log_Time_Stamp_Data is new CRTP_Append_Data
+           (Log_Time_Stamp);
+         procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data
+           (T_Uint8);
+         procedure CRTP_Append_T_Uint16_Data is new CRTP_Append_Data
+           (T_Uint16);
+         procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
+           (T_Uint32);
+         procedure CRTP_Append_T_Int8_Data is new CRTP_Append_Data
+           (T_Int8);
+         procedure CRTP_Append_T_Int16_Data is new CRTP_Append_Data
+           (T_Int16);
+         procedure CRTP_Append_T_Int32_Data is new CRTP_Append_Data
+           (T_Int32);
+         procedure CRTP_Append_Float_Data is new CRTP_Append_Data
+           (Float);
       begin
-         null;
+         Time_Stamp := Get_Log_Time_Stamp;
+
+         Packet_Handler :=
+           CRTP_Create_Packet (Port    => CRTP_PORT_LOG,
+                               Channel => Log_Channel'Enum_Rep (LOG_DATA_CH));
+
+         --  Add block ID to the packet.
+         CRTP_Append_T_Uint8_Data (Handler     => Packet_Handler,
+                                   Data        => Block_ID,
+                                   Has_Succeed => Has_Succeed);
+         --  Add a timestamp to the packet
+         CRTP_Append_Log_Time_Stamp_Data (Handler     => Packet_Handler,
+                                          Data        => Time_Stamp,
+                                          Has_Succeed => Has_Succeed);
+
+         Variables := Log_Blocks (Block_ID).Variables;
+
+         --  Add all the variables data in the packet
+         while Variables /= null loop
+            case Variables.Log_Type is
+               when LOG_UINT8 =>
+                  declare
+                     Value : T_Uint8;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_T_Uint8_Data (Handler     => Packet_Handler,
+                                               Data        => Value,
+                                               Has_Succeed => Has_Succeed);
+                  end;
+               when LOG_UINT16 =>
+                  declare
+                     Value : T_Uint16;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_T_Uint16_Data (Handler     => Packet_Handler,
+                                               Data        => Value,
+                                               Has_Succeed => Has_Succeed);
+                  end;
+               when LOG_UINT32 =>
+                  declare
+                     Value : T_Uint32;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_T_Uint32_Data (Handler     => Packet_Handler,
+                                               Data        => Value,
+                                               Has_Succeed => Has_Succeed);
+                  end;
+               when LOG_INT8 =>
+                  declare
+                     Value : T_Int8;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_T_Int8_Data (Handler     => Packet_Handler,
+                                               Data        => Value,
+                                               Has_Succeed => Has_Succeed);
+                  end;
+               when LOG_INT16 =>
+                  declare
+                     Value : T_Int16;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_T_Int16_Data (Handler     => Packet_Handler,
+                                               Data        => Value,
+                                               Has_Succeed => Has_Succeed);
+                  end;
+               when LOG_INT32 =>
+                  declare
+                     Value : T_Int32;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_T_Int32_Data (Handler     => Packet_Handler,
+                                               Data        => Value,
+                                               Has_Succeed => Has_Succeed);
+                  end;
+               when LOG_FLOAT =>
+                  declare
+                     Value : Float;
+                     for Value'Address use Variables.Variable;
+                  begin
+
+                     CRTP_Append_Float_Data (Handler     => Packet_Handler,
+                                             Data        => Value,
+                                             Has_Succeed => Has_Succeed);
+                  end;
+            end case;
+
+            Variables := Variables.Next;
+         end loop;
+
+         if not CRTP_Is_Connected then
+            Log_Reset;
+            CRTP_Reset;
+         else
+            CRTP_Send_Packet
+              (Packet       => CRTP_Get_Packet_From_Handler (Packet_Handler),
+               Has_Succeed  => Has_Succeed);
+         end if;
+
+         Set_Handler (Event   => Event,
+                      At_Time => Clock + Period,
+                      Handler => Log_Block_Timer_Handler);
       end Log_Run_Block;
 
    end Log_Block_Timing_Event_Handler;
