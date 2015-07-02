@@ -41,6 +41,7 @@ private
 
    Is_Init : Boolean := False;
 
+   --  Procedures and functions
 
    --  Handler called when a CRTP packet is received in the memory
    --  port.

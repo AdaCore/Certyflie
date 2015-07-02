@@ -112,25 +112,25 @@ is
       Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m1",
-         Log_Type     => LOG_INT32,
+         Log_Type     => LOG_UINT16,
          Variable     => Motor_Power_M1'Address,
          Has_Succeed  => Has_Succeed);
        Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m2",
-         Log_Type     => LOG_INT32,
+         Log_Type     => LOG_UINT16,
          Variable     => Motor_Power_M2'Address,
          Has_Succeed  => Has_Succeed);
        Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m3",
-         Log_Type     => LOG_INT32,
+         Log_Type     => LOG_UINT16,
          Variable     => Motor_Power_M3'Address,
          Has_Succeed  => Has_Succeed);
        Append_Log_Variable_To_Group
         (Group_ID     => Group_ID,
          Name         => "m4",
-         Log_Type     => LOG_INT32,
+         Log_Type     => LOG_UINT16,
          Variable     => Motor_Power_M4'Address,
          Has_Succeed  => Has_Succeed);
 

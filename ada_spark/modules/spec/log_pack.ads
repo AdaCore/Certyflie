@@ -183,7 +183,7 @@ private
    --  additional attribute : the block to log.
    type Log_Block_Timing_Event is new Timing_Event with record
       Block_ID : Log_Block_ID;
-      Period   : Time_Span := Milliseconds (100);
+      Period   : Time_Span;
    end record;
 
    --  Type representing a log block. A log block sends all

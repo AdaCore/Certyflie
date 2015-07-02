@@ -140,6 +140,9 @@ package CRTP_Pack is
      (Port_ID  : CRTP_Port;
       Callback : CRTP_Callback);
 
+   --  Unregister the callback for this port.
+   procedure CRTP_Unregister_Callback (Port_ID : CRTP_Port);
+
    --  Reset the CRTP module by flushing the Tx Queue.
    procedure CRTP_Reset;
 

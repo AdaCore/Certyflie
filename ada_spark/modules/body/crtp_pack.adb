@@ -145,6 +145,12 @@ package body CRTP_Pack is
       Callbacks (Port_ID) := Callback;
    end CRTP_Register_Callback;
 
+   procedure CRTP_Unregister_Callback (Port_ID : CRTP_Port) is
+   begin
+      Callbacks (Port_ID) := null;
+   end CRTP_Unregister_Callback;
+
+
    procedure CRTP_Reset is
    begin
       Tx_Queue.Reset_Queue;
