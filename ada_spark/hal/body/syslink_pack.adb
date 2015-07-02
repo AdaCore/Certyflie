@@ -44,7 +44,6 @@ package body Syslink_Pack is
       Tx_Buffer (Data_Size - 1) := Chk_Sum (1);
       Tx_Buffer (Data_Size) := Chk_Sum (2);
 
-      --  TODO: call UART_Send_Data_DMA_Blocking
       UART_Send_DMA_Data_Blocking (Data_Size, Tx_Buffer);
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;

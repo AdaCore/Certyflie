@@ -109,7 +109,6 @@ package body MPU9250_Pack is
       Gyro_Diff    : Float_Array_3;
       FS           : constant Natural := 0;
 
-      --  TODO: remove after test
       Next_Period : Time;
       Test_Status : Boolean;
    begin

@@ -154,6 +154,7 @@ package body CRTP_Pack is
    procedure CRTP_Reset is
    begin
       Tx_Queue.Reset_Queue;
+      Rx_Queue.Reset_Queue;
       -- TODO: reset the link queues too.
    end CRTP_Reset;
 
