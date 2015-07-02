@@ -87,6 +87,11 @@ package body LEDS_Pack is
       end if;
    end Enable_LED_Status;
 
+   function Get_Current_LED_Status return Crazyflie_LED_Status is
+   begin
+      return Current_LED_Status;
+   end Get_Current_LED_Status;
+
    protected body LED_Status_Event_Handler is
       procedure Toggle_LED_Status (Event : in out Timing_Event) is
          Cancelled            : Boolean;

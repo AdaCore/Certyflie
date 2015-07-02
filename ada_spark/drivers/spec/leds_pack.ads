@@ -37,6 +37,9 @@ package LEDS_Pack is
    --  Enable the specified Crazyflie led status.
    procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status);
 
+   --  Get the current LED status.
+   function Get_Current_LED_Status return Crazyflie_LED_Status;
+
 private
    --  Global variables and constants
 
