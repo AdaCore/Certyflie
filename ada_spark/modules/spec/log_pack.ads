@@ -172,7 +172,7 @@ private
    end record;
 
    type Log_Ops_Setting is record
-      Log_Type     : Log_Variable_Type;
+      Ops_Type     : T_Uint8;
       ID           : T_Uint8;
    end record;
    for Log_Ops_Setting'Size use 16;
@@ -192,7 +192,6 @@ private
       ID        : Log_Block_ID;
       Free      : Boolean := True;
       Timer     : Log_Block_Timing_Event;
-      Period    : Time_Span := Milliseconds (0);
       Variables : access Log_Variable := null;
    end record;
 

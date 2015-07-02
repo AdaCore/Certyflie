@@ -262,7 +262,7 @@ package body Log_Pack is
      (Block_ID         : T_Uint8;
       Ops_Settings_Raw : T_Uint8_Array) return T_Uint8 is
       type Ops_Settings_Array is
-        array (Ops_Settings_Raw'Range) of Log_Ops_Setting;
+        array (1 .. Ops_Settings_Raw'Length / 2) of Log_Ops_Setting;
       function T_Uint8_Array_To_Ops_Settings_Array is
         new Ada.Unchecked_Conversion (T_Uint8_Array, Ops_Settings_Array);
 
@@ -284,8 +284,12 @@ package body Log_Pack is
       Ops_Settings := T_Uint8_Array_To_Ops_Settings_Array (Ops_Settings_Raw);
 
       declare
+         function T_Uint8_To_Log_Variable_Type is new Ada.Unchecked_Conversion
+           (T_Uint8, Log_Variable_Type);
+
          Current_Block_Length : T_Uint8;
          Ops_Setting          : Log_Ops_Setting;
+         Log_Type             : Log_Variable_Type;
          Variable             : access Log_Variable;
       begin
 
@@ -293,8 +297,11 @@ package body Log_Pack is
             Current_Block_Length := Calculate_Block_Length (Block);
             Ops_Setting := Ops_Settings (I);
 
+            Log_Type := T_Uint8_To_Log_Variable_Type
+              (Ops_Setting.Ops_Type and 16#0F#);
+
             --  Trying to append a full block
-            if Current_Block_Length + Type_Length (Ops_Setting.Log_Type) >
+            if Current_Block_Length + Type_Length (Log_Type) >
               CRTP_MAX_DATA_SIZE then
                return E2BIG;
             end if;
@@ -379,7 +386,7 @@ package body Log_Pack is
    begin
       --  No variables have been appended to this block until now.
       if Variables_Aux = null then
-         Variables_Aux := Variable;
+         Block.Variables := Variable;
       else
          while Variables_Aux.Next /= null loop
             Variables_Aux := Variables_Aux.Next;
