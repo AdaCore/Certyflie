@@ -2,8 +2,6 @@ with Link_Interface_Pack; use Link_Interface_Pack;
 with CRTP_Service_Pack; use CRTP_Service_Pack;
 with Platform_Service_Pack; use Platform_Service_Pack;
 with Console_Pack; use Console_Pack;
-with Log_Pack; use Log_Pack;
-with Parameter_Pack; use Parameter_Pack;
 
 package body Communication_Pack is
 
@@ -22,10 +20,6 @@ package body Communication_Pack is
 
       --  Initialize the console module
       Console_Init;
-
-      --  initialize the log and parameter module.
-      Log_Init;
-      Parameter_Init;
 
       Is_Init := True;
    end Communication_Init;

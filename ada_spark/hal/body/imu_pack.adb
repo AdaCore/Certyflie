@@ -57,7 +57,7 @@ package body IMU_Pack is
    begin
       --  TODO: implement the complete function
       Is_Connected := MPU9250_Test_Connection;
-      Self_Test_Passed := IMU_6_Manufacturing_Test;
+      Self_Test_Passed := MPU9250_Self_Test;
 
       return Is_Init and Is_Connected and Self_Test_Passed;
    end IMU_Test;
