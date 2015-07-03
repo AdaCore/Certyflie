@@ -188,8 +188,9 @@ private
 
    --  Check if the variances is below the predefined thresholds.
    --  The bias value should have been added before calling this.
-   function IMU_Find_Bias_Value
-     (Bias_Obj : in out Bias_Object) return Boolean;
+   procedure IMU_Find_Bias_Value
+     (Bias_Obj       : in out Bias_Object;
+      Has_Found_Bias : out Boolean);
 
    --  Calculate the variance and mean for the bias buffer.
    procedure IMU_Calculate_Variance_And_Mean

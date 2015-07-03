@@ -113,6 +113,7 @@ package body IMU_Pack is
    procedure IMU_6_Read
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data) is
+      Has_Found_Bias : Boolean;
    begin
       --  We invert X and Y because the chip is almso inverted.
       MPU9250_Get_Motion_6 (Accel_IMU.Y, Accel_IMU.X, Accel_IMU.Z,
@@ -120,7 +121,8 @@ package body IMU_Pack is
       IMU_Add_Bias_Value (Gyro_Bias, Gyro_IMU);
 
       if not Gyro_Bias.Is_Bias_Value_Found then
-         if IMU_Find_Bias_Value (Gyro_Bias) then
+         IMU_Find_Bias_Value (Gyro_Bias, Has_Found_Bias);
+         if Has_Found_Bias then
             --  TODO: led sequence to indicate that it is calibrated
             Is_Calibrated := True;
          end if;
@@ -174,10 +176,11 @@ package body IMU_Pack is
       end if;
    end IMU_Add_Bias_Value;
 
-   function IMU_Find_Bias_Value
-     (Bias_Obj : in out Bias_Object) return Boolean is
-      Bias_Found : Boolean := False;
+   procedure IMU_Find_Bias_Value
+     (Bias_Obj      : in out Bias_Object;
+      Has_Found_Bias : out Boolean) is
    begin
+      Has_Found_Bias := False;
       if Bias_Obj.Is_Buffer_Filled then
          declare
             Variance : Axis3_T_Int16;
@@ -194,13 +197,11 @@ package body IMU_Pack is
                Bias_Obj.Bias.X := Mean.X;
                Bias_Obj.Bias.Y := Mean.Y;
                Bias_Obj.Bias.Z := Mean.Z;
-               Bias_Found := True;
+               Has_Found_Bias := True;
                Bias_Obj.Is_Bias_Value_Found := True;
             end if;
          end;
       end if;
-
-      return Bias_Found;
    end IMU_Find_Bias_Value;
 
    procedure IMU_Calculate_Variance_And_Mean

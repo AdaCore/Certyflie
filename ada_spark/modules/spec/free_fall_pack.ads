@@ -4,7 +4,6 @@ with Commander_Pack; use Commander_Pack;
 with Interfaces.C; use Interfaces.C;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
-
 package Free_Fall_Pack
 with SPARK_Mode,
   Abstract_State => (FF_Parameters, FF_State),
@@ -20,7 +19,7 @@ is
 
    --  Check if an event (Free fall or Landing) has occured giving it
    --  accelerometer data.
-   procedure FF_Check_Event (Acc         : Accelerometer_Data);
+   procedure FF_Check_Event (Acc : Accelerometer_Data);
 
    --  Override the previous commands if in recovery mode.
    procedure FF_Get_Recovery_Commands
@@ -34,10 +33,11 @@ is
 
 private
    --  Types
+
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
    subtype Landing_Threshold   is T_Acc range 0.97 .. 1.1;
 
-   --  Global variables
+   --  Global variables and constants
 
    FF_MODE                   : Free_Fall_Mode := DISABLED
      with Part_Of => FF_Parameters;
@@ -52,14 +52,6 @@ private
    LANDING_DURATION          : T_Uint16 := 15
      with Part_Of => FF_Parameters;
 
-   --  Exported variables to modify from the client
-   pragma Export (C, FF_MODE, "freeFallMode");
-   pragma Export (C, MAX_RECOVERY_THRUST, "maxRecoveryThrust");
-   pragma Export (C, MIN_RECOVERY_THRUST, "minRecoveryThrust");
-   pragma Export (C, RECOVERY_THRUST_DECREMENT, "recoveryThrustDecrement");
-   pragma Export (C, FF_DURATION, "ffDuration");
-   pragma Export (C, LANDING_DURATION, "landingDuration");
-
    FF_Duration_Counter      : T_Uint16 := 0
      with Part_Of => FF_State;
    In_Recovery              : bool := 0
@@ -69,15 +61,14 @@ private
    Recovery_Thrust          : T_Uint16 := MAX_RECOVERY_THRUST
      with Part_Of => FF_State;
 
-   --  Exported variables to log from the client
-   pragma Export (C, In_Recovery, "inRecovery");
+   --  Procedures and functions
 
-   --  Detect if the drone is ine free fall with accelerometer data
+   --  Detect if the drone is in free fall with accelerometer data.
    procedure FF_Detect_Free_Fall
      (Acc         : Accelerometer_Data;
       FF_Detected : out Boolean);
 
-   --  Detect if the drone has landed with accelerometer data
+   --  Detect if the drone has landed with accelerometer data.
    procedure FF_Detect_Landing
      (Acc              : Accelerometer_Data;
       Landing_Detected : out Boolean);

@@ -42,7 +42,7 @@ is
       Landing_Detected := Landing_Duration_Counter >= LANDING_DURATION;
    end FF_Detect_Landing;
 
-   procedure FF_Check_Event (Acc         : Accelerometer_Data) is
+   procedure FF_Check_Event (Acc : Accelerometer_Data) is
       Has_Detected_FF : Boolean;
       Has_Landed      : Boolean;
    begin
@@ -90,7 +90,7 @@ is
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16) is
    begin
       --  If not in recovery, keep the original thrust
-      --  If the pilot has moved his joystick, the drone is no in recovery
+      --  If the pilot has moved his joystick, the drone is not in recovery
       --  anymore
       if In_Recovery = 0 or Thrust > 0 then
          In_Recovery := 0;
