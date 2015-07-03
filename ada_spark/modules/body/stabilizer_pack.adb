@@ -422,12 +422,11 @@ is
          Stabilizer_Alt_Hold_Update;
          --  Reset the counter
          Alt_Hold_Update_Counter := 0;
-         null;
       end if;
 
       Stabilizer_Update_Rate;
 
-      if Alt_Hold or not IMU_Has_Barometer then
+      if not Alt_Hold or not IMU_Has_Barometer then
          --  Get thrust from the commander if alt hold mode
          --  not activated
          Commander_Get_Thrust (Actuator_Thrust);
