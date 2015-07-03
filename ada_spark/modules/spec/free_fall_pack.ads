@@ -1,3 +1,5 @@
+with Ada.Real_Time; use Ada.Real_Time;
+
 with Types; use Types;
 with IMU_Pack; use IMU_Pack;
 with Commander_Pack; use Commander_Pack;
@@ -43,13 +45,17 @@ private
      with Part_Of => FF_Parameters;
    MAX_RECOVERY_THRUST       : T_Uint16 := 59_000
      with Part_Of => FF_Parameters;
-   MIN_RECOVERY_THRUST       : T_Uint16 := 36_000
+   MIN_RECOVERY_THRUST       : T_Uint16 := 35_000
      with Part_Of => FF_Parameters;
    RECOVERY_THRUST_DECREMENT : T_Uint16 := 100
      with Part_Of => FF_Parameters;
    FF_DURATION               : T_Uint16 := 30
      with Part_Of => FF_Parameters;
    LANDING_DURATION          : T_Uint16 := 15
+     with Part_Of => FF_Parameters;
+   STABILIZATION_PERIOD_AFTER_LANDING : Time_Span := Milliseconds (1_000)
+     with Part_Of => FF_Parameters;
+   RECOVERY_TIMEOUT : Time_Span := Milliseconds (2_000)
      with Part_Of => FF_Parameters;
 
    FF_Duration_Counter      : T_Uint16 := 0
@@ -59,6 +65,10 @@ private
    Landing_Duration_Counter : T_Uint16 := 0
      with Part_Of => FF_State;
    Recovery_Thrust          : T_Uint16 := MAX_RECOVERY_THRUST
+     with Part_Of => FF_State;
+   Last_Landing_Time        : Time := Time_First
+     with Part_Of => FF_State;
+   Last_FF_Detected_Time    : Time := Time_First
      with Part_Of => FF_State;
 
    --  Procedures and functions
@@ -72,5 +82,18 @@ private
    procedure FF_Detect_Landing
      (Acc              : Accelerometer_Data;
       Landing_Detected : out Boolean);
+
+   --  Ensures that we cut the recovery after a certain time, even if it has
+   --  not recovered.
+   procedure FF_Watchdog;
+
+   --  Get the time since last landing after a recovery from a free fall.
+   function Get_Time_Since_Last_Landing return Time_Span is
+     (Clock - Last_Landing_Time);
+   pragma Inline (Get_Time_Since_Last_Landing);
+
+   --  Get the time since the last free fall detection.
+   function Get_Time_Since_Last_Free_Fall return Time_Span is
+     (Clock - Last_FF_Detected_Time);
 
 end Free_Fall_Pack;
