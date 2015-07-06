@@ -37,21 +37,26 @@ private
    --  Types
 
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
-   subtype Landing_Threshold   is T_Acc range 0.97 .. 1.1;
+   subtype Landing_Threshold   is T_Acc range 0.954 .. 0.99;
+
+   type FF_Acc_Data_Collector (Number_Of_Samples : Natural) is record
+      Samples : T_Acc_Array (1 .. Number_Of_Samples) := (others => 0.0);
+      Index   : Integer := 1;
+   end record;
 
    --  Global variables and constants
 
-   FF_MODE                   : Free_Fall_Mode := DISABLED
+   FF_MODE                   : Free_Fall_Mode := ENABLED
      with Part_Of => FF_Parameters;
    MAX_RECOVERY_THRUST       : T_Uint16 := 59_000
      with Part_Of => FF_Parameters;
-   MIN_RECOVERY_THRUST       : T_Uint16 := 35_000
+   MIN_RECOVERY_THRUST       : T_Uint16 := 30_000
      with Part_Of => FF_Parameters;
    RECOVERY_THRUST_DECREMENT : T_Uint16 := 100
      with Part_Of => FF_Parameters;
    FF_DURATION               : T_Uint16 := 30
      with Part_Of => FF_Parameters;
-   LANDING_DURATION          : T_Uint16 := 15
+   LANDING_NUMBER_OF_SAMPLES : Natural := 15
      with Part_Of => FF_Parameters;
    STABILIZATION_PERIOD_AFTER_LANDING : Time_Span := Milliseconds (1_000)
      with Part_Of => FF_Parameters;
@@ -62,13 +67,13 @@ private
      with Part_Of => FF_State;
    In_Recovery              : bool := 0
      with Part_Of => FF_State;
-   Landing_Duration_Counter : T_Uint16 := 0
-     with Part_Of => FF_State;
    Recovery_Thrust          : T_Uint16 := MAX_RECOVERY_THRUST
      with Part_Of => FF_State;
    Last_Landing_Time        : Time := Time_First
      with Part_Of => FF_State;
    Last_FF_Detected_Time    : Time := Time_First
+     with Part_Of => FF_State;
+   Landing_Data_Collector   : FF_Acc_Data_Collector (LANDING_NUMBER_OF_SAMPLES)
      with Part_Of => FF_State;
 
    --  Procedures and functions
@@ -79,13 +84,25 @@ private
       FF_Detected : out Boolean);
 
    --  Detect if the drone has landed with accelerometer data.
-   procedure FF_Detect_Landing
-     (Acc              : Accelerometer_Data;
-      Landing_Detected : out Boolean);
+   procedure FF_Detect_Landing (Landing_Detected : out Boolean);
 
    --  Ensures that we cut the recovery after a certain time, even if it has
    --  not recovered.
    procedure FF_Watchdog;
+
+   --  Add accelerometer sample for Z axis
+   --  to the specified FF_Acc_Data_Collector.
+   procedure Add_Acc_Z_Sample
+     (Acc_Z          : T_Acc;
+      Data_Collector : in out FF_Acc_Data_Collector);
+   pragma Inline (Add_Acc_Z_Sample);
+
+   --  Calculate variance and mean
+   procedure Calculate_Variance_And_Mean
+     (Data_Collector : FF_Acc_Data_Collector;
+      Variance       : out Float;
+      Mean           : out Float);
+   pragma Inline (Calculate_Variance_And_Mean);
 
    --  Get the time since last landing after a recovery from a free fall.
    function Get_Time_Since_Last_Landing return Time_Span is

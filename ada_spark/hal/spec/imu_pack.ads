@@ -25,6 +25,9 @@ is
    --  Type for magnetometer output, in micro-Teslas
    subtype T_Mag  is Float range -1_200.0  .. 1_200.0;
 
+   --  Type used when we want to collect several accelerometer samples
+   type T_Acc_Array is array (Integer range <>) of T_Acc;
+
    --  Type used to ensure that accelation normalization can't lead to a
    --  division by zero in SensFusion6_Pack algorithms
    MIN_NON_ZERO_ACC : constant := 2.0 ** (-74);

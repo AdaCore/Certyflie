@@ -1,4 +1,5 @@
 with Console_Pack; use Console_Pack;
+with Safety_Pack; use Safety_Pack;
 
 package body Free_Fall_Pack
 with SPARK_Mode,
@@ -7,15 +8,15 @@ with SPARK_Mode,
                                       MIN_RECOVERY_THRUST,
                                       RECOVERY_THRUST_DECREMENT,
                                       FF_DURATION,
-                                      LANDING_DURATION,
+                                      LANDING_NUMBER_OF_SAMPLES,
                                       STABILIZATION_PERIOD_AFTER_LANDING,
                                       RECOVERY_TIMEOUT),
                     FF_State      => (FF_Duration_Counter,
                                       In_Recovery,
-                                      Landing_Duration_Counter,
                                       Recovery_Thrust,
                                       Last_Landing_Time,
-                                      Last_FF_Detected_Time))
+                                      Last_FF_Detected_Time,
+                                      Landing_Data_Collector))
 is
 
    procedure FF_Detect_Free_Fall
@@ -26,7 +27,10 @@ is
         Acc.Y in Free_Fall_Threshold and
         Acc.Z in Free_Fall_Threshold
       then
-         FF_Duration_Counter := FF_Duration_Counter + 1;
+         FF_Duration_Counter :=
+           Saturate (FF_Duration_Counter + 1,
+                     0,
+                     FF_DURATION + 1);
       else
          FF_Duration_Counter := 0;
       end if;
@@ -34,18 +38,24 @@ is
       FF_Detected := FF_Duration_Counter >= FF_DURATION;
    end FF_Detect_Free_Fall;
 
-   procedure FF_Detect_Landing
-     (Acc              : Accelerometer_Data;
-      Landing_Detected : out Boolean)
+   procedure FF_Detect_Landing (Landing_Detected : out Boolean)
    is
+      Mean     : Float := 0.0;
+      Variance : Float := 0.0;
    begin
-      if Acc.Z in Landing_Threshold then
-         Landing_Duration_Counter := Landing_Duration_Counter + 1;
-      else
-         Landing_Duration_Counter := 0;
-      end if;
+      Landing_Detected := False;
 
-      Landing_Detected := Landing_Duration_Counter >= LANDING_DURATION;
+      --  Try to detect landing only if a free fall has
+      --  been detected and we still are in recovery mode.
+      --if In_Recovery = 1 then
+         Calculate_Variance_And_Mean (Landing_Data_Collector,
+                                      Mean,
+                                      Variance);
+
+         if Variance > 0.3 then
+            Landing_Detected := True;
+         end if;
+      --end if;
    end FF_Detect_Landing;
 
    procedure FF_Watchdog is
@@ -72,23 +82,28 @@ is
          return;
       end if;
 
-      --  Detect if drone has landed during a recovery
-      FF_Detect_Landing (Acc, Has_Landed);
-      if In_Recovery = 1 and Has_Landed then
+      --  Add the new accelrometer sample for Z axis.
+      Add_Acc_Z_Sample (Acc_Z          => Acc.Z,
+                        Data_Collector => Landing_Data_Collector);
+
+      --  Detect if the drone has landed.
+      FF_Detect_Landing (Has_Landed);
+
+      if Has_Landed then
          Last_Landing_Time := Clock;
          In_Recovery := 0;
          Console_Put_Line ("Landing detected!" & ASCII.LF, Has_Sent_Message);
       end if;
 
-      --  Detect if the drone is in free fall, to enable recovery
+      --  Detect if the drone is in free fall.
       FF_Detect_Free_Fall (Acc, Has_Detected_FF);
-      if In_Recovery = 0 and
-        Get_Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING and
-        Has_Detected_FF then
+
+      if Has_Detected_FF and
+        Get_Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING then
          Last_FF_Detected_Time := Clock;
          In_Recovery := 1;
          Recovery_Thrust := MAX_RECOVERY_THRUST;
-         Console_Put_Line ("FF Detected!" & ASCII.LF, Has_Sent_Message);
+         Console_Put_Line ("FF detected!" & ASCII.LF, Has_Sent_Message);
       end if;
 
       FF_Watchdog;
@@ -116,7 +131,6 @@ is
    end FF_Get_Recovery_Commands;
 
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16) is
-      Has_Sent_Message : Boolean;
    begin
       --  If not in recovery, keep the original thrust
       --  If the pilot has moved his joystick, the drone is not in recovery
@@ -131,10 +145,34 @@ is
       Thrust := Recovery_Thrust;
       if Recovery_Thrust > MIN_RECOVERY_THRUST then
          Recovery_Thrust := Recovery_Thrust - RECOVERY_THRUST_DECREMENT;
-      else
-         Console_Put_Line ("Min recovery thrust!" & ASCII.LF,
-                           Has_Sent_Message);
       end if;
    end FF_Get_Recovery_Thrust;
+
+   procedure Add_Acc_Z_Sample
+     (Acc_Z            : T_Acc;
+      Data_Collector   : in out FF_Acc_Data_Collector) is
+   begin
+      Data_Collector.Samples (Data_Collector.Index) := Acc_Z;
+
+      Data_Collector.Index :=
+        (Data_Collector.Index mod Data_Collector.Number_Of_Samples) + 1;
+   end Add_Acc_Z_Sample;
+
+   procedure Calculate_Variance_And_Mean
+     (Data_Collector : FF_Acc_Data_Collector;
+      Variance       : out Float;
+      Mean           : out Float) is
+      Sum        : Float := 0.0;
+      Sum_Square : Float := 0.0;
+   begin
+      for Acc_Z_Sample of Data_Collector.Samples loop
+         Sum := Sum + Acc_Z_Sample;
+         Sum_Square := Sum_Square + (Acc_Z_Sample * Acc_Z_Sample);
+      end loop;
+
+      Mean := Sum / Float (Data_Collector.Number_Of_Samples);
+      Variance :=
+        (Sum_Square - Sum) / Float (Data_Collector.Number_Of_Samples);
+   end Calculate_Variance_And_Mean;
 
 end Free_Fall_Pack;
