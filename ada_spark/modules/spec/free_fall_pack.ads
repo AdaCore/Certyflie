@@ -8,8 +8,8 @@ with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 
 package Free_Fall_Pack
 with SPARK_Mode,
-  Abstract_State => (FF_Parameters, FF_State),
-  Initializes => (FF_Parameters, FF_State)
+  Abstract_State => (FF_State),
+  Initializes    => (FF_State)
 is
    --  Types
 
@@ -37,7 +37,6 @@ private
    --  Types
 
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
-   subtype Landing_Threshold   is T_Acc range 0.954 .. 0.99;
 
    type FF_Acc_Data_Collector (Number_Of_Samples : Natural) is record
       Samples : T_Acc_Array (1 .. Number_Of_Samples) := (others => 0.0);
@@ -46,22 +45,23 @@ private
 
    --  Global variables and constants
 
-   FF_MODE                   : Free_Fall_Mode := ENABLED
-     with Part_Of => FF_Parameters;
-   MAX_RECOVERY_THRUST       : T_Uint16 := 59_000
-     with Part_Of => FF_Parameters;
-   MIN_RECOVERY_THRUST       : T_Uint16 := 30_000
-     with Part_Of => FF_Parameters;
-   RECOVERY_THRUST_DECREMENT : T_Uint16 := 100
-     with Part_Of => FF_Parameters;
-   FF_DURATION               : T_Uint16 := 30
-     with Part_Of => FF_Parameters;
-   LANDING_NUMBER_OF_SAMPLES : Natural := 15
-     with Part_Of => FF_Parameters;
-   STABILIZATION_PERIOD_AFTER_LANDING : Time_Span := Milliseconds (1_000)
-     with Part_Of => FF_Parameters;
-   RECOVERY_TIMEOUT : Time_Span := Milliseconds (2_000)
-     with Part_Of => FF_Parameters;
+   LANDING_NUMBER_OF_SAMPLES : constant Natural := 15;
+
+   MAX_RECOVERY_THRUST       : constant T_Uint16 := 59_000;
+   MIN_RECOVERY_THRUST       : constant T_Uint16 := 30_000;
+   RECOVERY_THRUST_DECREMENT : constant T_Uint16 := 100;
+
+   FF_DURATION               : constant T_Uint16 := 30;
+
+   STABILIZATION_PERIOD_AFTER_LANDING : constant Time_Span
+     := Milliseconds (1_000);
+   RECOVERY_TIMEOUT                   : constant Time_Span
+     := Milliseconds (2_000);
+
+   LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.025;
+
+   FF_Mode                            : Free_Fall_Mode := ENABLED
+     with Part_Of => FF_State;
 
    FF_Duration_Counter      : T_Uint16 := 0
      with Part_Of => FF_State;

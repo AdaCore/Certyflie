@@ -53,7 +53,10 @@ is
    --  Initialize the stabilizer module.
    procedure Stabilizer_Init
      with
-       Global => (In_Out => Stabilizer_State);
+       Global => (In_Out => (Stabilizer_State,
+                             Controller_State,
+                             Attitude_PIDs,
+                             Rate_PIDs));
 
    --  Test if stabilizer module is correctly initialized.
    function Stabilizer_Test return Boolean
@@ -66,8 +69,7 @@ is
      (Attitude_Update_Counter : in out T_Uint32;
       Alt_Hold_Update_Counter : in out T_Uint32)
      with
-       Global => (Input  => (FF_Parameters,
-                             V_Speed_Parameters,
+       Global => (Input  => (V_Speed_Parameters,
                              Asl_Parameters,
                              Alt_Hold_Parameters),
                   In_Out => (FF_State,

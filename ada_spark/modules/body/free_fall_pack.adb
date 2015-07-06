@@ -3,15 +3,8 @@ with Safety_Pack; use Safety_Pack;
 
 package body Free_Fall_Pack
 with SPARK_Mode,
-  Refined_State => (FF_Parameters => (FF_MODE,
-                                      MAX_RECOVERY_THRUST,
-                                      MIN_RECOVERY_THRUST,
-                                      RECOVERY_THRUST_DECREMENT,
-                                      FF_DURATION,
-                                      LANDING_NUMBER_OF_SAMPLES,
-                                      STABILIZATION_PERIOD_AFTER_LANDING,
-                                      RECOVERY_TIMEOUT),
-                    FF_State      => (FF_Duration_Counter,
+  Refined_State => (FF_State      => (FF_Mode,
+                                      FF_Duration_Counter,
                                       In_Recovery,
                                       Recovery_Thrust,
                                       Last_Landing_Time,
@@ -40,28 +33,35 @@ is
 
    procedure FF_Detect_Landing (Landing_Detected : out Boolean)
    is
-      Mean     : Float := 0.0;
-      Variance : Float := 0.0;
+      Variance : Float;
+      Mean     : Float;
+      pragma Unreferenced (Mean);
    begin
       Landing_Detected := False;
 
       --  Try to detect landing only if a free fall has
       --  been detected and we still are in recovery mode.
-      --if In_Recovery = 1 then
-         Calculate_Variance_And_Mean (Landing_Data_Collector,
-                                      Mean,
-                                      Variance);
+      if In_Recovery = 1 then
+         Calculate_Variance_And_Mean (Data_Collector => Landing_Data_Collector,
+                                      Variance       => Variance,
+                                      Mean           => Mean);
 
-         if Variance > 0.3 then
+         --  If the acc Z variance is superior to the defined threshold
+         --  and if the drone is already in the descending phase,
+         --  a landing has been detected.
+         if Recovery_Thrust = MIN_RECOVERY_THRUST
+           and Variance > LANDING_VARIANCE_THRESHOLD then
             Landing_Detected := True;
          end if;
-      --end if;
+      end if;
    end FF_Detect_Landing;
 
    procedure FF_Watchdog is
       Has_Sent_Message : Boolean;
       pragma Unreferenced (Has_Sent_Message);
    begin
+      --  if the drone is in recovery mode and it has not recovered after
+      --  the specified timeout, disable the free fall mode in emergency.
       if In_Recovery = 1 and
         Get_Time_Since_Last_Free_Fall > RECOVERY_TIMEOUT then
          In_Recovery := 0;

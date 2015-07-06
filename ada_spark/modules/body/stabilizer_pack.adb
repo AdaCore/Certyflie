@@ -2,8 +2,6 @@ with Config; use Config;
 with Safety_Pack; use Safety_Pack;
 with Motors_Pack; use Motors_Pack;
 with Power_Management_Pack; use Power_Management_Pack;
-with Log_Pack; use Log_Pack;
-with Parameter_Pack; use Parameter_Pack;
 
 package body Stabilizer_Pack
 with SPARK_Mode,
@@ -69,82 +67,10 @@ is
    --  Private procedures and functions
 
    procedure Stabilizer_Init is
-      Group_ID : Natural;
-      Has_Succeed : Boolean;
-      pragma Unreferenced (Has_Succeed);
    begin
       if Is_Init then
          return;
       end if;
-
-      Create_Log_Group
-        (Name        => "stabilizer",
-         Group_ID    => Group_ID,
-         Has_Succeed => Has_Succeed);
-      Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "pitch",
-         Log_Type     => LOG_FLOAT,
-         Variable     => Euler_Pitch_Actual'Address,
-         Has_Succeed  => Has_Succeed);
-      Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "roll",
-         Log_Type     => LOG_FLOAT,
-         Variable     => Euler_Roll_Actual'Address,
-         Has_Succeed  => Has_Succeed);
-      Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "yaw",
-         Log_Type     => LOG_FLOAT,
-         Variable     => Euler_Yaw_Actual'Address,
-         Has_Succeed  => Has_Succeed);
-      Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "thrust",
-         Log_Type     => LOG_UINT16,
-         Variable     => Actuator_Thrust'Address,
-         Has_Succeed  => Has_Succeed);
-      Create_Log_Group
-        (Name        => "motor",
-         Group_ID    => Group_ID,
-         Has_Succeed => Has_Succeed);
-      Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "m1",
-         Log_Type     => LOG_UINT16,
-         Variable     => Motor_Power_M1'Address,
-         Has_Succeed  => Has_Succeed);
-       Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "m2",
-         Log_Type     => LOG_UINT16,
-         Variable     => Motor_Power_M2'Address,
-         Has_Succeed  => Has_Succeed);
-       Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "m3",
-         Log_Type     => LOG_UINT16,
-         Variable     => Motor_Power_M3'Address,
-         Has_Succeed  => Has_Succeed);
-       Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "m4",
-         Log_Type     => LOG_UINT16,
-         Variable     => Motor_Power_M4'Address,
-         Has_Succeed  => Has_Succeed);
-
-      Create_Parameter_Group
-        (Name        => "altHold",
-         Group_ID    => Group_ID,
-         Has_Succeed => Has_Succeed);
-      Append_Parameter_Variable_To_Group
-        (Group_ID       => Group_ID,
-         Name           => "alHoldSens",
-         Storage_Type   => PARAM_4BYTES,
-         Parameter_Type => PARAM_4BYTES,
-         Variable       => Alt_Hold_Change_SENS'Address,
-         Has_Succeed    => Has_Succeed);
 
       Controller_Init;
 
