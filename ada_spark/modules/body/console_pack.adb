@@ -23,9 +23,7 @@ package body Console_Pack is
         (CRTP_Get_Packet_From_Handler (Message_To_Print), Has_Succeed);
 
       --  Reset the CRTP packet data contained in the handler
-      if Has_Succeed then
-         CRTP_Reset_Handler (Message_To_Print);
-      end if;
+      CRTP_Reset_Handler (Message_To_Print);
    end Console_Send_Message;
 
    procedure Console_Flush (Has_Succeed : out Boolean) is

@@ -37,15 +37,15 @@ is
 
    --  Get the commands from the pilot.
    procedure Commander_Get_RPY
-     (Euler_Roll_Desired  : in out T_Degrees;
-      Euler_Pitch_Desired : in out T_Degrees;
-      Euler_Yaw_Desired   : in out T_Degrees);
+     (Euler_Roll_Desired  : out T_Degrees;
+      Euler_Pitch_Desired : out T_Degrees;
+      Euler_Yaw_Desired   : out T_Degrees);
 
    --  Get the commands types by default or from the client.
    procedure Commander_Get_RPY_Type
-     (Roll_Type  : in out RPY_Type;
-      Pitch_Type : in out RPY_Type;
-      Yaw_Type   : in out RPY_Type);
+     (Roll_Type  : out RPY_Type;
+      Pitch_Type : out RPY_Type;
+      Yaw_Type   : out RPY_Type);
 
    --  Get the thrust from the pilot.
    procedure Commander_Get_Thrust (Thrust : out T_Uint16);

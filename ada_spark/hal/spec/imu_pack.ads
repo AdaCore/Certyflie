@@ -167,7 +167,7 @@ private
    Accel_IMU           : Axis3_T_Int16;
    Gyro_IMU            : Axis3_T_Int16;
    --  Acceleration after applying the IIR LPF filter
-   Accel_LPF           : Axis3_T_Int16;
+   Accel_LPF           : Axis3_T_Int32;
    --  Use to stor the IIR LPF filter feedback
    Accel_Stored_Values : Axis3_T_Int32;
    --  Acceleration after aligning with gravity
@@ -204,7 +204,7 @@ private
    --  Apply IIR LP Filter on each axis.
    procedure IMU_Acc_IRR_LP_Filter
      (Input         : Axis3_T_Int16;
-      Output        : out Axis3_T_Int16;
+      Output        : out Axis3_T_Int32;
       Stored_Values : in out Axis3_T_Int32;
       Attenuation   : T_Int32);
 
@@ -212,7 +212,7 @@ private
    --  data gathered from the UI and written in the config-block to
    --  rotate the accelerometer to be aligned with gravity.
    procedure IMU_Acc_Align_To_Gravity
-     (Input  : Axis3_T_Int16;
+     (Input  : Axis3_T_Int32;
       Output : out Axis3_Float);
 
 end IMU_Pack;

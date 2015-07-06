@@ -98,7 +98,7 @@ is
       --  Detect if the drone is in free fall.
       FF_Detect_Free_Fall (Acc, Has_Detected_FF);
 
-      if Has_Detected_FF and
+      if In_Recovery = 0 and Has_Detected_FF and
         Get_Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING then
          Last_FF_Detected_Time := Clock;
          In_Recovery := 1;
@@ -131,6 +131,8 @@ is
    end FF_Get_Recovery_Commands;
 
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16) is
+      Has_Succeed : Boolean;
+      pragma Unreferenced (Has_Succeed);
    begin
       --  If not in recovery, keep the original thrust
       --  If the pilot has moved his joystick, the drone is not in recovery
@@ -145,6 +147,8 @@ is
       Thrust := Recovery_Thrust;
       if Recovery_Thrust > MIN_RECOVERY_THRUST then
          Recovery_Thrust := Recovery_Thrust - RECOVERY_THRUST_DECREMENT;
+      else
+         Console_Put_Line ("MIN thrust!" & ASCII.LF, Has_Succeed);
       end if;
    end FF_Get_Recovery_Thrust;
 

@@ -1,11 +1,14 @@
 with Ada.Unchecked_Conversion;
 
-package body Filter_Pack is
+package body Filter_Pack
+  with SPARK_Mode
+is
 
-   function IIR_LP_Filter_Single
+   procedure IIR_LP_Filter_Single
      (Input       : T_Int32;
       Attenuation : T_Int32;
-      Filter      : in out T_Int32) return T_Int32 is
+      Filter      : in out T_Int32;
+      Result      : out T_Int32) is
       function T_Int32_To_T_Uint32 is new Ada.Unchecked_Conversion
         (T_Int32, T_Uint32);
       function T_Uint32_To_T_Int32 is new Ada.Unchecked_Conversion
@@ -31,9 +34,9 @@ package body Filter_Pack is
       Output := Shift_Right_Arithmetic (Tmp_Filter, IIR_SHIFT) +
         Shift_Right_Arithmetic
           (Tmp_Filter and Shift_Left (1, IIR_SHIFT - 1), IIR_SHIFT - 1);
-      Filter := T_UiNt32_To_T_INt32 (Tmp_Filter);
+      Filter := T_Uint32_To_T_Int32 (Tmp_Filter);
 
-      return T_Uint32_To_T_Int32 (Output);
+      Result := T_Uint32_To_T_Int32 (Output);
    end IIR_LP_Filter_Single;
 
 end Filter_Pack;

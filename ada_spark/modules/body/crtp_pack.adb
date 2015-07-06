@@ -75,9 +75,8 @@ package body CRTP_Pack is
       function Byte_Array_To_Data is new Ada.Unchecked_Conversion
         (Byte_Array_Data, T_Data);
    begin
-      if Index
-      in Handler.Packet.Data_1'First .. Handler.Packet.Data_1'Last - Data_Size - 1
-      then
+      if Index in Handler.Packet.Data_1'First ..
+        Handler.Packet.Data_1'Last - Data_Size - 1 then
          Data := Byte_Array_To_Data
            (Handler.Packet.Data_1 (Index .. Index + Data_Size - 1));
          Has_Succeed := True;
@@ -149,7 +148,6 @@ package body CRTP_Pack is
    begin
       Callbacks (Port_ID) := null;
    end CRTP_Unregister_Callback;
-
 
    procedure CRTP_Reset is
    begin

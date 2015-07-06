@@ -238,20 +238,29 @@ package body IMU_Pack is
 
    procedure IMU_Acc_IRR_LP_Filter
      (Input         : Axis3_T_Int16;
-      Output        : out Axis3_T_Int16;
+      Output        : out Axis3_T_Int32;
       Stored_Values : in out Axis3_T_Int32;
       Attenuation   : T_Int32) is
    begin
-      Output.X := T_Int16 (IIR_LP_Filter_Single
-                           (T_Int32 (Input.X), Attenuation, Stored_Values.X));
-      Output.Y := T_Int16 (IIR_LP_Filter_Single
-                           (T_Int32 (Input.Y), Attenuation, Stored_Values.Y));
-      Output.Z := T_Int16 (IIR_LP_Filter_Single
-                           (T_Int32 (Input.Z), Attenuation, Stored_Values.Z));
+      IIR_LP_Filter_Single
+        (T_Int32 (Input.X),
+         Attenuation,
+         Stored_Values.X,
+         Output.X);
+      IIR_LP_Filter_Single
+        (T_Int32 (Input.Y),
+         Attenuation,
+         Stored_Values.Y,
+         Output.Y);
+      IIR_LP_Filter_Single
+        (T_Int32 (Input.Z),
+         Attenuation,
+         Stored_Values.Z,
+         Output.Z);
    end IMU_Acc_IRR_LP_Filter;
 
    procedure IMU_Acc_Align_To_Gravity
-     (Input  : Axis3_T_Int16;
+     (Input  : Axis3_T_Int32;
       Output : out Axis3_Float) is
       Input_F : constant Axis3_Float :=
                   (Float (Input.X), Float (Input.Y), Float (Input.Z));
