@@ -56,9 +56,9 @@ private
    STABILIZATION_PERIOD_AFTER_LANDING : constant Time_Span
      := Milliseconds (1_000);
    RECOVERY_TIMEOUT                   : constant Time_Span
-     := Milliseconds (2_000);
+     := Milliseconds (6_000);
 
-   LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.025;
+   LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.4;
 
    FF_Mode                            : Free_Fall_Mode := ENABLED
      with Part_Of => FF_State;

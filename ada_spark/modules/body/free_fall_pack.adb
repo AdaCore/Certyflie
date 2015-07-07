@@ -1,4 +1,3 @@
-with Console_Pack; use Console_Pack;
 with Safety_Pack; use Safety_Pack;
 
 package body Free_Fall_Pack
@@ -49,7 +48,7 @@ is
          --  If the acc Z variance is superior to the defined threshold
          --  and if the drone is already in the descending phase,
          --  a landing has been detected.
-         if Recovery_Thrust = MIN_RECOVERY_THRUST
+         if Recovery_Thrust <= MIN_RECOVERY_THRUST
            and Variance > LANDING_VARIANCE_THRESHOLD then
             Landing_Detected := True;
          end if;
@@ -57,8 +56,6 @@ is
    end FF_Detect_Landing;
 
    procedure FF_Watchdog is
-      Has_Sent_Message : Boolean;
-      pragma Unreferenced (Has_Sent_Message);
    begin
       --  if the drone is in recovery mode and it has not recovered after
       --  the specified timeout, disable the free fall mode in emergency.
@@ -66,15 +63,12 @@ is
         Get_Time_Since_Last_Free_Fall > RECOVERY_TIMEOUT then
          In_Recovery := 0;
          FF_MODE := DISABLED;
-         Console_Put_Line ("Disable FF mode!" & ASCII.LF, Has_Sent_Message);
       end if;
    end FF_Watchdog;
 
    procedure FF_Check_Event (Acc : Accelerometer_Data) is
       Has_Detected_FF  : Boolean;
       Has_Landed       : Boolean;
-      Has_Sent_Message : Boolean;
-      pragma Unreferenced (Has_Sent_Message);
    begin
       --  Check if FF Detection is disabled
       if FF_MODE = DISABLED then
@@ -92,7 +86,6 @@ is
       if Has_Landed then
          Last_Landing_Time := Clock;
          In_Recovery := 0;
-         Console_Put_Line ("Landing detected!" & ASCII.LF, Has_Sent_Message);
       end if;
 
       --  Detect if the drone is in free fall.
@@ -103,7 +96,6 @@ is
          Last_FF_Detected_Time := Clock;
          In_Recovery := 1;
          Recovery_Thrust := MAX_RECOVERY_THRUST;
-         Console_Put_Line ("FF detected!" & ASCII.LF, Has_Sent_Message);
       end if;
 
       FF_Watchdog;
@@ -131,8 +123,6 @@ is
    end FF_Get_Recovery_Commands;
 
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16) is
-      Has_Succeed : Boolean;
-      pragma Unreferenced (Has_Succeed);
    begin
       --  If not in recovery, keep the original thrust
       --  If the pilot has moved his joystick, the drone is not in recovery
@@ -147,8 +137,6 @@ is
       Thrust := Recovery_Thrust;
       if Recovery_Thrust > MIN_RECOVERY_THRUST then
          Recovery_Thrust := Recovery_Thrust - RECOVERY_THRUST_DECREMENT;
-      else
-         Console_Put_Line ("MIN thrust!" & ASCII.LF, Has_Succeed);
       end if;
    end FF_Get_Recovery_Thrust;
 
