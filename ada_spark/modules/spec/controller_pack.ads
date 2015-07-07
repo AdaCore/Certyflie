@@ -100,14 +100,6 @@ private
    Pitch_Rate_Pid : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
    Yaw_Rate_Pid   : Rate_Pid.Pid_Object with Part_Of => Rate_PIDs;
 
-   --  Export these variables to log them in the C part
-   pragma Export (C, Roll_Pid, "pidRoll");
-   pragma Export (C, Pitch_Pid, "pidPitch");
-   pragma Export (C, Yaw_Pid, "pidYaw");
-   pragma Export (C, Roll_Rate_Pid, "pidRollRate");
-   pragma Export (C, Pitch_Rate_Pid, "pidPitchRate");
-   pragma Export (C, Yaw_Rate_Pid, "pidYawRate");
-
    Is_Init : Boolean := False with Part_Of => Controller_State;
 
 end Controller_Pack;

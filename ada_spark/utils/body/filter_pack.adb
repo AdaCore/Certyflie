@@ -29,7 +29,8 @@ is
       In_Scaled := Shift_Left (Tmp_Input, IIR_SHIFT);
       --  Calculate IIR filter
       Tmp_Filter := Tmp_Filter +
-        (Shift_Right_Arithmetic (In_Scaled - Tmp_Filter, IIR_SHIFT) * Tmp_Attenuation);
+        (Shift_Right_Arithmetic (In_Scaled - Tmp_Filter, IIR_SHIFT)
+         * Tmp_Attenuation);
       --  Scale and round
       Output := Shift_Right_Arithmetic (Tmp_Filter, IIR_SHIFT) +
         Shift_Right_Arithmetic

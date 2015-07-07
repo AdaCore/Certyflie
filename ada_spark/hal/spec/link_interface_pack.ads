@@ -4,7 +4,10 @@ with CRTP_Pack; use CRTP_Pack;
 
 package Link_Interface_Pack is
 
-   --  Initialize the selected link layer
+   --  Procedures and functions
+
+   --  Initialize the selected link layer.
+   --  The selected link layer is specified in 'config.ads'.
    procedure Link_Init;
 
    --  Send a CRTP packet using the link layer specified in

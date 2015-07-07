@@ -72,7 +72,6 @@ package body System_Pack is
          Stabilizer_Control_Loop (Attitude_Update_Counter,
                                   Alt_Hold_Update_Counter);
 
-
          Next_Period := Next_Period + IMU_UPDATE_DT_MS;
       end loop;
    end System_Loop;

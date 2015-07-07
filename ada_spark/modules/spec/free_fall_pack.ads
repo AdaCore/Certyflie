@@ -36,8 +36,13 @@ is
 private
    --  Types
 
+   --  Threshold used to detect when the drone is in Free Fall.
+   --  This threshold is compared with accelerometer measurements for
+   --  Z axis.
    subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
 
+   --  Type used to collect measurement samples and easily calculate
+   --  their variance and mean.
    type FF_Acc_Data_Collector (Number_Of_Samples : Natural) is record
       Samples : T_Acc_Array (1 .. Number_Of_Samples) := (others => 0.0);
       Index   : Integer := 1;
@@ -45,24 +50,37 @@ private
 
    --  Global variables and constants
 
+   --  Number of samples we collect to calculate accelation variance
+   --  along Z axis. Used to detect landing.
    LANDING_NUMBER_OF_SAMPLES : constant Natural := 15;
 
+   --  Thrust related variables.
    MAX_RECOVERY_THRUST       : constant T_Uint16 := 59_000;
    MIN_RECOVERY_THRUST       : constant T_Uint16 := 30_000;
    RECOVERY_THRUST_DECREMENT : constant T_Uint16 := 100;
 
+   --  Number of successive times that acceleration along Z axis must
+   --  be in the threshold to detect a Free Fall.
    FF_DURATION               : constant T_Uint16 := 30;
 
+   --  Stabiliation period after a landing, during which free falls can't
+   --  be detected.
    STABILIZATION_PERIOD_AFTER_LANDING : constant Time_Span
      := Milliseconds (1_000);
+   --  Used by a watchdog to ensure that we cut the thrust after a free fall,
+   --  even if the drone has not recovered.
    RECOVERY_TIMEOUT                   : constant Time_Span
      := Milliseconds (6_000);
 
+   --  If the variance is superior to this value during the recovering phase,
+   --  it means that the drone has landed.
    LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.4;
 
+   --  Used to enable or disable the Free Fall/Recovery feature.
    FF_Mode                            : Free_Fall_Mode := ENABLED
      with Part_Of => FF_State;
 
+   --  Free Fall features internal variables.
    FF_Duration_Counter      : T_Uint16 := 0
      with Part_Of => FF_State;
    In_Recovery              : bool := 0

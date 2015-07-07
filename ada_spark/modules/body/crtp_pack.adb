@@ -17,7 +17,7 @@ package body CRTP_Pack is
       end loop;
    end CRTP_Tx_Task;
 
-    task body CRTP_Rx_Task is
+   task body CRTP_Rx_Task is
       Packet : CRTP_Packet;
       Has_Succeed : Boolean;
    begin
@@ -76,7 +76,8 @@ package body CRTP_Pack is
         (Byte_Array_Data, T_Data);
    begin
       if Index in Handler.Packet.Data_1'First ..
-        Handler.Packet.Data_1'Last - Data_Size - 1 then
+        Handler.Packet.Data_1'Last - Data_Size - 1
+      then
          Data := Byte_Array_To_Data
            (Handler.Packet.Data_1 (Index .. Index + Data_Size - 1));
          Has_Succeed := True;
@@ -152,7 +153,7 @@ package body CRTP_Pack is
    procedure CRTP_Reset is
    begin
       Tx_Queue.Reset_Queue;
-      -- TODO: reset the link queues too.
+      --  TODO: reset the link queues too.
    end CRTP_Reset;
 
    procedure CRTP_Set_Is_Connected (Value : Boolean) is

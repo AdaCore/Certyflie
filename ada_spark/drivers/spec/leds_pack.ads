@@ -53,7 +53,6 @@ private
          LED_Red_L   => Pin_0,
          LED_Red_R   => Pin_3);
 
-
    --  Mapping to the proper polarity of a given led.
    LEDS_Polarity : constant array (Crazyflie_LED) of Boolean
      := (LED_Blue_L  => True,
@@ -76,7 +75,8 @@ private
 
    --  Predefined led animations, each one corresponding to a specific
    --  LED status.
-   LED_Animations          : constant array (Crazyflie_LED_Status) of LED_Animation
+   LED_Animations          : constant array (Crazyflie_LED_Status)
+     of LED_Animation
      := (Ready_To_Fly      => (LED          => LED_Green_R,
                                Blink_Period => Milliseconds (500)),
          Charging_Battery  => (LED          => LED_Blue_L,

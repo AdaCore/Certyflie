@@ -27,7 +27,8 @@ package body Log_Pack is
       Log_Groups_Index : constant Natural := Log_Data.Log_Groups_Index;
    begin
       if Log_Groups_Index > Log_Data.Log_Groups'Last or
-        Name'Length > MAX_LOG_VARIABLE_NAME_LENGTH then
+        Name'Length > MAX_LOG_VARIABLE_NAME_LENGTH
+      then
          Has_Succeed := False;
          return;
       end if;
@@ -54,7 +55,8 @@ package body Log_Pack is
       Has_Succeed := False;
 
       --  If group ID doesn't exist.
-      if Group_ID not in Log_Data.Log_Groups'Range then
+      if Group_ID not in Log_Data.Log_Groups'Range
+      then
          return;
       end if;
 
@@ -62,7 +64,8 @@ package body Log_Pack is
       Log_Variables_Index := Group.Log_Variables_Index;
 
       if Log_Variables_Index > Group.Log_Variables'Last or
-        Name'Length > MAX_LOG_VARIABLE_NAME_LENGTH then
+        Name'Length > MAX_LOG_VARIABLE_NAME_LENGTH
+      then
          return;
       end if;
 
@@ -142,7 +145,8 @@ package body Log_Pack is
                Has_Succeed);
             CRTP_Append_T_Uint8_Data
               (Packet_Handler,
-               MAX_LOG_NUMBER_OF_GROUPS * MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP,
+               MAX_LOG_NUMBER_OF_GROUPS *
+                 MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP,
                Has_Succeed);
 
          when LOG_CMD_GET_ITEM =>
@@ -302,13 +306,15 @@ package body Log_Pack is
 
             --  Trying to append a full block
             if Current_Block_Length + Type_Length (Log_Type) >
-              CRTP_MAX_DATA_SIZE then
+              CRTP_MAX_DATA_SIZE
+            then
                return E2BIG;
             end if;
 
             --  Trying a to add a variable that does not exist
             if Ops_Setting.ID not in Log_Data.Log_Variables'Range or else
-              Log_Data.Log_Variables (Ops_Setting.ID) = null then
+              Log_Data.Log_Variables (Ops_Setting.ID) = null
+            then
                return ENOENT;
             end if;
 
@@ -464,7 +470,7 @@ package body Log_Pack is
    protected body Log_Block_Timing_Event_Handler is
 
       procedure Log_Run_Block (Event : in out Timing_Event) is
-         Block_ID       : constant Log_Block_Id
+         Block_ID       : constant Log_Block_ID
            := Log_Block_Timing_Event
              (Timing_Event'Class (Event)).Block_ID;
          Period         : constant Time_Span

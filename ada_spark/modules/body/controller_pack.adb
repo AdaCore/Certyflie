@@ -46,7 +46,6 @@ is
                              PID_YAW_INTEGRATION_LIMIT,
                              IMU_UPDATE_DT);
 
-
       Is_Init := True;
    end Controller_Init;
 

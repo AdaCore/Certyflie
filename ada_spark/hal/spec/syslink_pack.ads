@@ -12,21 +12,25 @@ package Syslink_Pack is
 
    --  Global variables and constants
 
-   --  Size of Syslink packet data
+   --  Size of Syslink packet data.
    SYSLINK_MTU      : constant := 31;
-   --  Size of the transmission buffer
+
+   --  Size of the transmission buffer.
    SEND_BUFFER_SIZE : constant := 64;
-   --  Synchronization bytes
+
+   --  Synchronization bytes.
    SYSLINK_START_BYTE1 : constant T_Uint8 := 16#BC#;
    SYSLINK_START_BYTE2 : constant T_Uint8 := 16#CF#;
-   --  Bitwise mask to get the group type of a packet
+
+   --  Bitwise mask to get the group type of a packet/
    SYSLINK_GROUP_MASK : constant T_Uint8 := 16#F0#;
 
+   --  Buffer used for transmission.
    Tx_Buffer : DMA_Data;
 
    --  Types
 
-   --  Syslink packet group type
+   --  Syslink packet group type.
    type Syslink_Packet_Group_Type is (SYSLINK_RADIO_GROUP,
                                       SYSLINK_PM_GROUP,
                                       SYSLINK_OW_GROUP);
@@ -36,7 +40,7 @@ package Syslink_Pack is
                                       SYSLINK_OW_GROUP    => 16#20#);
    for Syslink_Packet_Group_Type'Size use 8;
 
-   --  Syslink packet types
+   --  Syslink packet types.
    type Syslink_Packet_Type is (SYSLINK_RADIO_RAW,
                                 SYSLINK_RADIO_CHANNEL,
                                 SYSLINK_RADIO_DATARATE,
@@ -67,10 +71,10 @@ package Syslink_Pack is
                                 SYSLINK_OW_WRITE              => 16#23#);
    for Syslink_Packet_Type'Size use 8;
 
-   --  Type for Syslink packet data
+   --  Type for Syslink packet data.
    subtype Syslink_Data is T_Uint8_Array (1 .. SYSLINK_MTU);
 
-   --  Type for Syslink packets
+   --  Type for Syslink packets.
    type Syslink_Packet is record
       Slp_Type : Syslink_Packet_Type;
       Length   : T_Uint8;
@@ -85,13 +89,13 @@ package Syslink_Pack is
                              WAIT_FOR_CHKSUM_1,
                              WAIT_FOR_CHKSUM_2);
 
-   --  Initialize the Syslink protocol
+   --  Initialize the Syslink protocol.
    procedure Syslink_Init;
 
-   --  Test the Syslink protocol
+   --  Test the Syslink protocol.
    function Syslink_Test return Boolean;
 
-   --  Send a packet to the nrf51 chip
+   --  Send a packet to the nrf51 chip.
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet);
 
 private
@@ -107,6 +111,8 @@ private
    function T_Uint8_To_Slp_Type is new Ada.Unchecked_Conversion
      (T_Uint8, Syslink_Packet_Type);
 
+   --  Route the incoming pâcket by sending it to the appropriate layer
+   --  (Radiolink, Power_Management etc.).
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet);
 
    --  Tasks and protected objects

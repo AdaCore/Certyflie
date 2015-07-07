@@ -14,7 +14,6 @@ package body Platform_Service_Pack is
       Is_Init := True;
    end Platform_Service_Init;
 
-
    function Platform_Service_Test return Boolean is
    begin
       return Is_Init;
@@ -49,4 +48,4 @@ package body Platform_Service_Pack is
       end case;
    end Platform_Command_Process;
 
-   end Platform_Service_Pack;
+end Platform_Service_Pack;

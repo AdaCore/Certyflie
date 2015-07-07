@@ -69,7 +69,7 @@ package Log_Pack is
 
    type Log_Block is limited private;
 
-   -- Global variables and constants
+   --  Global variables and constants
 
    --  Constant array registering the length of each log variable type
    --  in Bytes.
@@ -210,7 +210,6 @@ private
 
    Log_Block_Timer_Handler : constant Timing_Event_Handler
      := Log_Block_Timing_Event_Handler.Log_Run_Block'Access;
-
 
    Is_Init : Boolean := False;
 

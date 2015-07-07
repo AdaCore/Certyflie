@@ -10,13 +10,13 @@ package Power_Management_Pack is
 
    --  Types
 
-   --  Type reperesenting the current power state
+   --  Type reperesenting the current power state.
    type Power_State is (Battery, Charging, Charged, Low_Power, Shut_Down);
 
-   --  Type representing the current charge state
+   --  Type representing the current charge state.
    type Power_Charge_State is (Charge_100_MA, Charge_500_MA, Charge_MAX);
 
-   --  Types used for Syslink packet translation
+   --  Types used for Syslink packet translation.
    type Power_Syslink_Info_Repr is (Normal, Flags_Detailed);
 
    --  Type representing a syslink packet containing power information.
@@ -41,13 +41,13 @@ package Power_Management_Pack is
 
    --  Procedures and functions
 
-   --  Initialize the power management module
+   --  Initialize the power management module.
    procedure Power_Management_Init;
 
-   --  Update the power state information
+   --  Update the power state information.
    procedure Power_Management_Syslink_Update (Sl_Packet : Syslink_Packet);
 
-   --  Return True is the Crazyflie is discharging, False when it's charging
+   --  Return True is the Crazyflie is discharging, False when it's charging.
    function Power_Management_Is_Discharging return Boolean;
 
 private
@@ -55,26 +55,26 @@ private
    --  Global variables and constants
 
    --  Current power information received from nrf51
-   --  and current power state
+   --  and current power state.
    Current_Power_Info  : Power_Syslink_Info;
    Current_Power_State : Power_State;
 
-   --  Current battery voltage, and it's min and max values
+   --  Current battery voltage, and it's min and max values.
    Battery_Voltage          : Float;
    Battery_Voltage_Min      : Float := 6.0;
    Battery_Voltage_Max      : Float := 0.0;
    Battery_Low_Time_Stamp   : Time;
 
-   --  LEDs to switch on according power state
+   --  LEDs to switch on according power state.
    Charging_LED  : constant Crazyflie_LED := LED_Blue_L;
    Charged_LED   : constant Crazyflie_LED := LED_Green_L;
    Low_Power_Led : constant Crazyflie_LED := LED_Red_L;
 
-   --  Constants used to detect when the battery is low
+   --  Constants used to detect when the battery is low.
    PM_BAT_LOW_VOLTAGE : constant := 3.2;
    PM_BAT_LOW_TIMEOUT : constant Time_Span := Seconds (5);
 
-   --  Constants used to know the charge percentage of the battery
+   --  Constants used to know the charge percentage of the battery.
    Bat_671723HS25C : constant array (1 .. 10) of Float :=
                        (
                         3.00, --   00%
@@ -91,7 +91,7 @@ private
 
    --  Procedures and functions
 
-   --  Set the battery voltage and its min and max values
+   --  Set the battery voltage and its min and max values.
    procedure Power_Management_Set_Battery_Voltage (Voltage : Float);
 
    --  Return a number From 0 To 9 Where 0 is completely Discharged
@@ -100,11 +100,11 @@ private
      (Voltage : Float) return Integer;
 
    --  Get the power state for the given power information received from
-   --  the nrf51
+   --  the nrf51.
    function Power_Management_Get_State
      (Power_Info : Power_Syslink_Info) return Power_State;
 
-   --  Switch on/off the power related leds according to power state
+   --  Switch on/off the power related leds according to power state.
    procedure Set_Power_LEDs (State : Power_State);
 
    --  Tasks and protected objects

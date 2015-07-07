@@ -86,7 +86,8 @@ package body IMU_Pack is
             Roll := Tan (Acc_Out.Y / Acc_Out.Z) * 180.0 * Pi;
 
             if abs (Roll) < IMU_MAN_TEST_LEVEL_MAX
-              and abs (Pitch) < IMU_MAN_TEST_LEVEL_MAX then
+               and abs (Pitch) < IMU_MAN_TEST_LEVEL_MAX
+            then
                Test_Status := True;
             else
                Test_Status := False;
@@ -98,7 +99,6 @@ package body IMU_Pack is
 
       return Test_Status;
    end IMU_6_Manufacturing_Test;
-
 
    function IMU_6_Calibrated return Boolean is
    begin
@@ -137,7 +137,7 @@ package body IMU_Pack is
 
       --  Re-map outputs
       Gyro.X :=
-        - (Float (Gyro_IMU.X - Gyro_Bias.Bias.X)) * IMU_DEG_PER_LSB_CFG;
+        -(Float (Gyro_IMU.X - Gyro_Bias.Bias.X)) * IMU_DEG_PER_LSB_CFG;
       Gyro.Y :=
         (Float (Gyro_IMU.Y - Gyro_Bias.Bias.Y)) * IMU_DEG_PER_LSB_CFG;
       Gyro.Z :=
@@ -155,7 +155,7 @@ package body IMU_Pack is
    begin
       IMU_6_Read (Gyro,
                   Acc);
-      -- TODO: implement drivers for magnetometer if we want to
+      --  TODO: implement drivers for magnetometer if we want to
       --  use it.
       Mag.X := 0.0;
       Mag.Y := 0.0;
@@ -192,7 +192,8 @@ package body IMU_Pack is
             if Variance.X < GYRO_VARIANCE_THRESHOLD_X and
               Variance.Y < GYRO_VARIANCE_THRESHOLD_Y and
               Variance.Z < GYRO_VARIANCE_THRESHOLD_Z and
-              Clock > Variance_Sample_Time + GYRO_MIN_BIAS_TIMEOUT_MS then
+              Clock > Variance_Sample_Time + GYRO_MIN_BIAS_TIMEOUT_MS
+            then
                Variance_Sample_Time := Clock;
                Bias_Obj.Bias.X := Mean.X;
                Bias_Obj.Bias.Y := Mean.Y;

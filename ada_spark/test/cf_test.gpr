@@ -31,7 +31,7 @@ project Cf_Test is
          when "Native" =>
             for Default_Switches ("Ada") use ("-gnatwa");
          when "Target" =>
-            for Default_Switches ("Ada") use ("-gnatwa", "-gnatQ", "-gnatw.X");
+            for Default_Switches ("Ada") use ("-gnatQ", "-gnatyg");
       end case;
    end Compiler;
 

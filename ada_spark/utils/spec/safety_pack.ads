@@ -6,7 +6,7 @@ with SPARK_Mode
 is
    --  Procedures and functions
 
-   --  Deadband function
+   --  Deadband function.
    function Dead_Band
      (Value     : Float;
       Threshold : Natural_Float) return Float is
@@ -20,7 +20,7 @@ is
          Value);
    pragma Inline (Dead_Band);
 
-   --  Saturate a Float value within a given range
+   --  Saturate a Float value within a given range.
    function Saturate
      (Value     : Float;
       Min_Value : Float;
@@ -33,7 +33,7 @@ is
          Value);
    pragma Inline (Saturate);
 
-   --  Saturate a T_Uint16 value within a given range
+   --  Saturate a T_Uint16 value within a given range.
    function Saturate
      (Value     : T_Uint16;
       Min_Value : T_Uint16;
@@ -46,7 +46,7 @@ is
          Value);
    pragma Inline (Saturate);
 
-   --  Truncate a 32-bit Integer into a 16-bit Integer
+   --  Truncate a 32-bit Integer into a 16-bit Integer.
    function Truncate_To_T_Int16 (Value : Float) return T_Int16 is
      (if Value > Float (T_Int16'Last) then
            T_Int16'Last
@@ -58,7 +58,7 @@ is
 
    --  Ensure that a Float absolute value can't be inferior that 2^74
    --  to avoid having zero when doing
-   --  a vector normalization (ie: Inv_Sqrt (X*X + Y*Y + Z*Z)
+   --  a vector normalization (ie: Inv_Sqrt (X*X + Y*Y + Z*Z).
    function Lift_Away_From_Zero (X : T_Acc) return T_Acc_Lifted is
      (if X = 0.0 then
          0.0

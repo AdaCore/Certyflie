@@ -8,21 +8,22 @@ package Radiolink_Pack is
 
    --  Constants
 
+   --  Size of transmission/receptions queues.
    RADIOLINK_TX_QUEUE_SIZE : constant := 1;
    RADIOLINK_RX_QUEUE_SIZE : constant := 5;
 
    --  Procedures and functions
 
-   --  Initialize the Radiolink layer
+   --  Initialize the Radiolink layer.
    procedure Radiolink_Init;
 
-   --  Set the radio channel
+   --  Set the radio channel.
    procedure Radiolink_Set_Channel (Channel : T_Uint8);
 
-   --  Set the radio data rate
+   --  Set the radio data rate.
    procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8);
 
-   --  Send a packet to Radiolink layer
+   --  Send a packet to Radiolink layer.
    function Radiolink_Send_Packet (Packet : CRTP_Packet) return Boolean;
 
    --  Receive a packet from Radiolink layer.
@@ -30,7 +31,7 @@ package Radiolink_Pack is
    procedure Radiolink_Receive_Packet_Blocking (Packet : out CRTP_Packet);
 
    --  Enqueue a packet in the Radiolink RX_Queue and send one packet
-   --  to Syslink if one has been received
+   --  to Syslink if one has been received.
    procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet);
 
 private
@@ -45,12 +46,12 @@ private
 
    --  Tasks and protected objects
 
-   --  Protected object queue for transmission
+   --  Protected object queue used for transmission.
    Tx_Queue : Syslink_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, RADIOLINK_TX_QUEUE_SIZE);
 
-   --  Protected object queue for reception
+   --  Protected object queue used for reception.
    Rx_Queue : CRTP_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, RADIOLINK_RX_QUEUE_SIZE);
 
-end RadiolInk_Pack;
+end Radiolink_Pack;

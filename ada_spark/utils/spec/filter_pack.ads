@@ -10,7 +10,8 @@ is
 
    --  Procedures and functions
 
-   --  IIR filter the samples.
+   --  Infinite-impulse-response low-pass filter.
+   --  Used to filter IMU measurements.
    procedure IIR_LP_Filter_Single
      (Input       : T_Int32;
       Attenuation : T_Int32;

@@ -3,8 +3,6 @@ with Safety_Pack; use Safety_Pack;
 with Config; use Config;
 with Ada.Numerics; use Ada.Numerics;
 
-with Interfaces.C; use Interfaces.C;
-
 package body SensFusion6_Pack
 with SPARK_Mode,
   Refined_State => (SensFusion6_State => (Is_Init,
@@ -22,14 +20,14 @@ is
 
    procedure SensFusion6_Init is
    begin
-      if Is_Init = 1 then
+      if Is_Init then
          return;
       end if;
 
-      Is_Init := 1;
+      Is_Init := True;
    end SensFusion6_Init;
 
-   function SensFusion6_Test return Bool is
+   function SensFusion6_Test return Boolean is
    begin
       return Is_Init;
    end SensFusion6_Test;
@@ -84,7 +82,7 @@ is
 
       --  Compute feedback only if accelerometer measurement valid
       --  (avoids NaN in accelerometer normalisation)
-      if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
+      if not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0)) then
          --  Normalize accelerometer measurement
          Ax_Tmp := Lift_Away_From_Zero (Ax);
          Ay_Tmp := Lift_Away_From_Zero (Ay);
@@ -159,7 +157,7 @@ is
    --  Subtypes used to help SPARK proving absence of runtime errors
    --  in the Mahony algorithm
 
-   subtype T_Norm_Acc is T_Acc range - 1.0 .. 1.0;
+   subtype T_Norm_Acc is T_Acc range -1.0 .. 1.0;
    subtype T_Float_1  is Float range -3.0 .. 3.0;
    subtype T_Float_2  is Float range -7.0 .. 7.0;
    subtype T_Float_3  is
@@ -210,7 +208,7 @@ is
       Integ_FB_Gy     : T_Float_5 := Rad_Gy;
       Integ_FB_Gz     : T_Float_5 := Rad_Gz;
    begin
-      if (not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0))) then
+      if not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0)) then
          --  Normalize accelerometer measurement
          Ax_Lifted := Lift_Away_From_Zero (Ax);
          Ay_Lifted := Lift_Away_From_Zero (Ay);
@@ -270,16 +268,24 @@ is
       Rate_Change_Gy := Rate_Change_Gy * (0.5 * Dt);
       Rate_Change_Gz := Rate_Change_Gz * (0.5 * Dt);
 
-      Q0_Tmp := Q0 + (-Qb * Rate_Change_Gx - Qc * Rate_Change_Gy - Q3 * Rate_Change_Gz);
-      Q1_Tmp := Q1 + (Qa * Rate_Change_Gx + Qc * Rate_Change_Gz - Q3 * Rate_Change_Gy);
-      Q2_Tmp := Q2 + (Qa * Rate_Change_Gy - Qb * Rate_Change_Gz + Q3 * Rate_Change_Gx);
-      Q3_Tmp := Q3 + (Qa * Rate_Change_Gz + Qb * Rate_Change_Gy - Qc * Rate_Change_Gx);
+      Q0_Tmp := Q0 +
+        (-Qb * Rate_Change_Gx - Qc * Rate_Change_Gy - Q3 * Rate_Change_Gz);
+      Q1_Tmp := Q1 +
+        (Qa * Rate_Change_Gx + Qc * Rate_Change_Gz - Q3 * Rate_Change_Gy);
+      Q2_Tmp := Q2 +
+        (Qa * Rate_Change_Gy - Qb * Rate_Change_Gz + Q3 * Rate_Change_Gx);
+      Q3_Tmp := Q3 +
+        (Qa * Rate_Change_Gz + Qb * Rate_Change_Gy - Qc * Rate_Change_Gx);
 
       --  These asserts are only needed to help SPARK
-      pragma Assert (Q0_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q1_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q2_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
-      pragma Assert (Q3_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q0_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q1_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q2_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
+      pragma Assert
+        (Q3_Tmp in -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE);
 
       --  Normalize quaternions
       Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
@@ -297,7 +303,6 @@ is
                       T_Quaternion'First,
                       T_Quaternion'Last);
    end Mahony_Update_Q;
-
 
    procedure SensFusion6_Update_Q
      (Gx : T_Rate;

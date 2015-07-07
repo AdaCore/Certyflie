@@ -6,7 +6,7 @@ package body LPS25h_pack is
       Asl         : out T_Altitude;
       Status      : out Boolean) is
    begin
-     --  TODO: implement the real function when drivers will be done
+      --  TODO: implement the real function when drivers will be done
       Pressure := T_Pressure'First;
       Temperature := 0.0;
       Asl := 0.0;

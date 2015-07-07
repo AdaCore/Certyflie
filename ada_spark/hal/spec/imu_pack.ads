@@ -15,39 +15,45 @@ is
    --  It corresponds to the maximum range of values that can be output
    --  by the IMU.
 
-   --  Type for angular speed output from gyro, degrees/s
+   --  Type for angular speed output from gyro, degrees/s.
    subtype T_Rate is Float range -3_000.0  .. 3_000.0;
-   --  Type for angular speed output from gyro, rad/s
+   --  Type for angular speed output from gyro, rad/s.
    subtype T_Rate_Rad
      is Float range -3_000.0 * Pi / 180.0 .. 3_000.0 * Pi / 180.0;
-   --  Type for acceleration output from accelerometer, in G
+   --  Type for acceleration output from accelerometer, in G.
    subtype T_Acc  is Float range -16.0 .. 16.0;
-   --  Type for magnetometer output, in micro-Teslas
+   --  Type for magnetometer output, in micro-Teslas.
    subtype T_Mag  is Float range -1_200.0  .. 1_200.0;
 
-   --  Type used when we want to collect several accelerometer samples
+   --  Type used when we want to collect several accelerometer samples.
    type T_Acc_Array is array (Integer range <>) of T_Acc;
 
    --  Type used to ensure that accelation normalization can't lead to a
-   --  division by zero in SensFusion6_Pack algorithms
+   --  division by zero in SensFusion6_Pack algorithms.
    MIN_NON_ZERO_ACC : constant := 2.0 ** (-74);
 
    subtype T_Acc_Lifted is T_Acc; -- with
    --         Static_Predicate => T_Acc_Lifted = 0.0 or else
    --         T_Acc_Lifted not in -MIN_NON_ZERO_ACC .. MIN_NON_ZERO_ACC;
 
+   --  Type used to represent gyroscope data
+   --  along each axis (X, Y, Z).
    type Gyroscope_Data is record
       X : T_Rate;
       Y : T_Rate;
       Z : T_Rate;
    end record;
 
+   --  Type used to represent accelerometer data
+   --  along each axis (X, Y, Z).
    type Accelerometer_Data is record
       X : T_Acc;
       Y : T_Acc;
       Z : T_Acc;
    end record;
 
+   --  Type used to represent magnetometer data
+   --  along each axis (X, Y, Z).
    type Magnetometer_Data is record
       X : T_Mag;
       Y : T_Mag;
@@ -98,13 +104,14 @@ is
    --  Manufacting test to ensure that IMU is not broken.
    function IMU_6_Manufacturing_Test return Boolean;
 
+   --  Read gyro and accelerometer measurements from the IMU.
    procedure IMU_6_Read
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data)
      with
        Global => null;
 
-   --  Read gyro, accelerometer and magnetometer measurements.
+   --  Read gyro, accelerometer and magnetometer measurements from the IMU.
    procedure IMU_9_Read
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data;

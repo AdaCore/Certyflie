@@ -29,7 +29,7 @@ package Types is
 
    subtype Natural_Float is Float range 0.0 .. Float'Last;
 
-   --  Types used by the stabilization system
+   --  Types used by the stabilization system.
 
    --  Allowed delta time range.
    subtype T_Delta_Time   is Float range 0.001 .. 1.0;

@@ -24,7 +24,7 @@ package body UART_Syslink is
    begin
       Source_Block (1 .. Data_Size) := Data (1 .. Data_Size);
 
-      Start_Transfer_With_Interrupts
+      Start_Transfer_with_Interrupts
         (Controller,
          Tx_Stream,
          Source      => Source_Block'Address,
@@ -52,12 +52,12 @@ package body UART_Syslink is
 
       Configure_IO
         (Port => IO_Port,
-         Pins => Rx_Pin & Tx_Pin,
+         Pins => RX_Pin & TX_Pin,
          Config => Configuration);
 
       Configure_Alternate_Function
         (Port => IO_Port,
-         Pins => Rx_Pin & Tx_Pin,
+         Pins => RX_Pin & TX_Pin,
          AF   => Transceiver_AF);
    end Initialize_USART;
 
@@ -80,18 +80,18 @@ package body UART_Syslink is
    begin
       Enable_Clock (Controller);
 
-      Configuration.Channel                      := Tx_Channel;
-      Configuration.Direction                    := Memory_To_Peripheral;
+      Configuration.Channel := Tx_Channel;
+      Configuration.Direction := Memory_To_Peripheral;
       Configuration.Increment_Peripheral_Address := False;
-      Configuration.Increment_Memory_Address     := True;
-      Configuration.Peripheral_Data_Format       := Bytes;
-      Configuration.Memory_Data_Format           := Bytes;
-      Configuration.Operation_Mode               := Normal_Mode;
-      Configuration.Priority                     := Priority_Very_High;
-      Configuration.FIFO_Enabled                 := True;
-      Configuration.FIFO_Threshold               := FIFO_Threshold_Full_Configuration;
-      Configuration.Memory_Burst_Size            := Memory_Burst_Inc4;
-      Configuration.Peripheral_Burst_Size        := Peripheral_Burst_Inc4;
+      Configuration.Increment_Memory_Address := True;
+      Configuration.Peripheral_Data_Format := Bytes;
+      Configuration.Memory_Data_Format := Bytes;
+      Configuration.Operation_Mode := Normal_Mode;
+      Configuration.Priority  := Priority_Very_High;
+      Configuration.FIFO_Enabled  := True;
+      Configuration.FIFO_Threshold := FIFO_Threshold_Full_Configuration;
+      Configuration.Memory_Burst_Size := Memory_Burst_Inc4;
+      Configuration.Peripheral_Burst_Size := Peripheral_Burst_Inc4;
 
       Configure (Controller, Tx_Stream, Configuration);
       --  note the controller is disabled by the call to Configure
@@ -126,8 +126,11 @@ package body UART_Syslink is
       begin
          --  Transfer Error Interrupt management
          if Status (Controller, Tx_Stream, Transfer_Error_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Transfer_Error_Interrupt) then
-               Disable_Interrupt (Controller, Tx_Stream, Transfer_Error_Interrupt);
+            if Interrupt_Enabled
+              (Controller, Tx_Stream, Transfer_Error_Interrupt)
+            then
+               Disable_Interrupt
+                 (Controller, Tx_Stream, Transfer_Error_Interrupt);
                Clear_Status (Controller, Tx_Stream, Transfer_Error_Indicated);
                Event_Kind := Transfer_Error_Interrupt;
                Event_Occurred := True;
@@ -135,9 +138,11 @@ package body UART_Syslink is
             end if;
          end if;
 
-         --  FIFO Error Interrupt management
+         --  FIFO Error Interrupt management.
          if Status (Controller, Tx_Stream, FIFO_Error_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, FIFO_Error_Interrupt) then
+            if Interrupt_Enabled
+              (Controller, Tx_Stream, FIFO_Error_Interrupt)
+            then
                Disable_Interrupt (Controller, Tx_Stream, FIFO_Error_Interrupt);
                Clear_Status (Controller, Tx_Stream, FIFO_Error_Indicated);
                Event_Kind := FIFO_Error_Interrupt;
@@ -148,9 +153,13 @@ package body UART_Syslink is
 
          --  Direct Mode Error Interrupt management
          if Status (Controller, Tx_Stream, Direct_Mode_Error_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Direct_Mode_Error_Interrupt) then
-               Disable_Interrupt (Controller, Tx_Stream, Direct_Mode_Error_Interrupt);
-               Clear_Status (Controller, Tx_Stream, Direct_Mode_Error_Indicated);
+            if Interrupt_Enabled
+              (Controller, Tx_Stream, Direct_Mode_Error_Interrupt)
+            then
+               Disable_Interrupt
+                 (Controller, Tx_Stream, Direct_Mode_Error_Interrupt);
+               Clear_Status
+                 (Controller, Tx_Stream, Direct_Mode_Error_Indicated);
                Event_Kind := Direct_Mode_Error_Interrupt;
                Event_Occurred := True;
                return;
@@ -158,15 +167,24 @@ package body UART_Syslink is
          end if;
 
          --  Half Transfer Complete Interrupt management
-         if Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt) then
+         if Status
+           (Controller, Tx_Stream, Half_Transfer_Complete_Indicated)
+         then
+            if Interrupt_Enabled
+              (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt)
+            then
                if Double_Buffered (Controller, Tx_Stream) then
-                  Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
+                  Clear_Status
+                    (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
                else -- not double buffered
                   if not Circular_Mode (Controller, Tx_Stream) then
-                     Disable_Interrupt (Controller, Tx_Stream, Half_Transfer_Complete_Interrupt);
+                     Disable_Interrupt
+                       (Controller,
+                        Tx_Stream,
+                        Half_Transfer_Complete_Interrupt);
                   end if;
-                  Clear_Status (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
+                  Clear_Status
+                    (Controller, Tx_Stream, Half_Transfer_Complete_Indicated);
                end if;
                Event_Kind := Half_Transfer_Complete_Interrupt;
                Event_Occurred := True;
@@ -175,16 +193,23 @@ package body UART_Syslink is
 
          --  Transfer Complete Interrupt management
          if Status (Controller, Tx_Stream, Transfer_Complete_Indicated) then
-            if Interrupt_Enabled (Controller, Tx_Stream, Transfer_Complete_Interrupt) then
-                if Double_Buffered (Controller, Tx_Stream) then
-                   Clear_Status (Controller, Tx_Stream, Transfer_Complete_Indicated);
-                   --  TODO: handle the difference between M0 and M1 callbacks
-                else
-                   if not Circular_Mode (Controller, Tx_Stream) then
-                      Disable_Interrupt (Controller, Tx_Stream, Transfer_Complete_Interrupt);
-                   end if;
-                  Clear_Status (Controller, Tx_Stream, Transfer_Complete_Indicated);
-                end if;
+            if Interrupt_Enabled
+              (Controller, Tx_Stream, Transfer_Complete_Interrupt)
+            then
+               if Double_Buffered
+                 (Controller, Tx_Stream)
+               then
+                  Clear_Status
+                    (Controller, Tx_Stream, Transfer_Complete_Indicated);
+                  --  TODO: handle the difference between M0 and M1 callbacks
+               else
+                  if not Circular_Mode (Controller, Tx_Stream) then
+                     Disable_Interrupt
+                       (Controller, Tx_Stream, Transfer_Complete_Interrupt);
+                  end if;
+                  Clear_Status
+                    (Controller, Tx_Stream, Transfer_Complete_Indicated);
+               end if;
                Finalize_DMA_Transmission (Transceiver);
                Event_Kind := Transfer_Complete_Interrupt;
                Event_Occurred := True;

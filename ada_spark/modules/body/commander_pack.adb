@@ -32,7 +32,7 @@ is
 
       if Time_Since_Last_Update > COMMANDER_WDT_TIMEOUT_SHUTDOWN then
          Target_Val (Used_Side).Thrust := 0;
-         -- TODO: set the alt hold mode variable to false
+         --  TODO: set the alt hold mode variable to false
          Alt_Hold_Mode := False;
          Is_Inactive := True;
          Thrust_Locked := True;

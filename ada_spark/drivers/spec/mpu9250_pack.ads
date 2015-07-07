@@ -127,7 +127,7 @@ package MPU9250_Pack is
    --  clock sources are enumerated in the MPU9250 register map.
    procedure MPU9250_Set_Clock_Source (Clock_Source : MPU9250_Clock_Source);
 
-   -- Set digital low-pass filter configuration.
+   --  Set digital low-pass filter configuration.
    procedure MPU9250_Set_DLPF_Mode (DLPF_Mode : MPU9250_DLPF_Bandwidth_Mode);
 
    --  Set full-scale gyroscope range.
@@ -138,13 +138,14 @@ package MPU9250_Pack is
    procedure MPU9250_Set_Full_Scale_Accel_Range
      (FS_Range : MPU9250_FS_Accel_Range);
 
-   --   Set I2C bypass enabled status.
-   --   When this bit is equal to 1 and I2C_MST_EN (Register 106 bit[5]) is equal to
-   --   0, the host application processor will be able to directly access the
-   --   auxiliary I2C bus of the MPU-60X0. When this bit is equal to 0, the host
-   --   application processor will not be able to directly access the auxiliary I2C
-   --   bus of the MPU-60X0 regardless of the state of I2C_MST_EN (Register 106
-   --   bit[5]).
+   --  Set I2C bypass enabled status.
+   --  When this bit is equal to 1 and I2C_MST_EN (Register 106 bit[5]) is
+   --  equal to 0, the host application processor
+   --  will be able to directly access the
+   --  auxiliary I2C bus of the MPU-60X0. When this bit is equal to 0,
+   --  the host application processor will not be able to directly
+   --  access the auxiliary I2C bus of the MPU-60X0 regardless of the state
+   --  of I2C_MST_EN (Register 106 bit[5]).
    procedure MPU9250_Set_I2C_Bypass_Enabled (Value : Boolean);
 
    --  Set interrupts enabled status.

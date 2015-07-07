@@ -38,12 +38,12 @@ package body Generic_Queue_Pack is
       Queue.Count := 0;
    end Reset;
 
-   function Is_Empty (Queue : in T_Queue) return Boolean is
+   function Is_Empty (Queue : T_Queue) return Boolean is
    begin
       return Queue.Count = 0;
    end Is_Empty;
 
-   function Is_Full (Queue : in T_Queue) return Boolean is
+   function Is_Full (Queue : T_Queue) return Boolean is
    begin
       return Queue.Count = Queue.Container'Length;
    end Is_Full;

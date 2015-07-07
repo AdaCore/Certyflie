@@ -70,19 +70,19 @@ package body Radiolink_Pack is
 
          --  Enqueue the received packet
          Rx_Queue.Enqueue_Item (Rx_CRTP_Packet, Has_Succeed);
-         -- TODO: led blink
+         --  TODO: led blink
 
-         -- If a radio packet is received, one can be sent
+         --  If a radio packet is received, one can be sent
          Tx_Queue.Dequeue_Item (Tx_Sl_Packet, Has_Succeed);
 
          if Has_Succeed then
-            -- TODO: led blink
+            --  TODO: led blink
             Syslink_Send_Packet (Tx_Sl_Packet);
          end if;
       elsif Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RSSI then
          --  Extract RSSI sample sent from Radio
          RSSI := Rx_Sl_Packet.Data (1);
-      end if ;
+      end if;
    end Radiolink_Syslink_Dispatch;
 
 end Radiolink_Pack;

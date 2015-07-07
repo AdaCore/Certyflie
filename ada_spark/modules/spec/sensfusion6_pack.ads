@@ -1,5 +1,4 @@
 with Types; use Types;
-with Interfaces.C.Extensions; use Interfaces.C.Extensions;
 with IMU_Pack; use IMU_Pack;
 
 package SensFusion6_Pack
@@ -10,10 +9,13 @@ is
 
    --  Procedures and functions
 
+   --  Initialize the sensorfusion module.
    procedure SensFusion6_Init;
 
-   function SensFusion6_Test return bool;
+   --  Test if the sensorfusion module is initialized.
+   function SensFusion6_Test return Boolean;
 
+   --  Update the quaternions by fusing sensor measurements.
    procedure SensFusion6_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
@@ -23,21 +25,25 @@ is
       Az : T_Acc;
       Dt : T_Delta_Time);
 
+   --  Get Euler roll, pitch and yaw from the current quaternions.
+   --  Must be called after a call to 'Sensfusion6_Update_Q' to have
+   --  the latest angles.
    procedure SensFusion6_Get_Euler_RPY
      (Euler_Roll_Actual  : out T_Degrees;
       Euler_Pitch_Actual : out T_Degrees;
       Euler_Yaw_Actual   : out T_Degrees);
 
-
+   --  Get accleration along Z axis, without gravity.
    function SensFusion6_Get_AccZ_Without_Gravity
      (Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc) return Float;
+
 private
 
    --  Global variables and constants
 
-   Is_Init : bool := 0 with Part_Of => SensFusion6_State;
+   Is_Init : Boolean := False with Part_Of => SensFusion6_State;
 
    Q0 : T_Quaternion := 1.0
      with Part_Of => SensFusion6_State;
@@ -49,11 +55,6 @@ private
    Q3 : T_Quaternion := 0.0
      with Part_Of => SensFusion6_State;
 
-   pragma Export (C, Q0, "q0");
-   pragma Export (C, Q1, "q1");
-   pragma Export (C, Q2, "q2");
-   pragma Export (C, Q3, "q3");
-
    --   Implementation of Madgwick's IMU and AHRS algorithms.
    --   See: http:--  www.x-io.co.uk/open-source-ahrs-with-x-imu
    --
@@ -63,7 +64,7 @@ private
 
    --  Global variables and constants
 
-   --  Needed for Mahony algorithm
+   --  Needed for Mahony algorithm.
    MAX_TWO_KP : constant := (2.0 * 1.0);
    MAX_TWO_KI : constant := (2.0 * 1.0);
 
@@ -78,7 +79,7 @@ private
    Two_Ki       : Float range 0.0 .. MAX_TWO_KI := TWO_KI_DEF
      with Part_Of => SensFusion6_State; --  2 * integral gain (Ki)
 
-   --  Integral error terms scaled by Ki
+   --  Integral error terms scaled by Ki.
    Integral_FBx : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
      with Part_Of => SensFusion6_State;
    Integral_FBy : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
@@ -86,7 +87,7 @@ private
    Integral_FBz : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
      with Part_Of => SensFusion6_State;
 
-   --  Needed for Madgwick algorithm
+   --  Needed for Madgwick algorithm.
    BETA_DEF     : constant Float := 0.01;
 
    Beta         : T_Alpha := BETA_DEF
@@ -94,6 +95,7 @@ private
 
    --  Procedures and functions
 
+   --  Madgwick sensorfusion algorithm implementation.
    procedure Madgwick_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
@@ -103,6 +105,7 @@ private
       Az : T_Acc;
       Dt : T_Delta_Time);
 
+   --  Mahony sensorfusion algorithm implementation.
    procedure Mahony_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
@@ -111,6 +114,5 @@ private
       Ay : T_Acc;
       Az : T_Acc;
       Dt : T_Delta_Time);
-
 
 end SensFusion6_Pack;

@@ -54,7 +54,7 @@ package body Memory_Pack is
       Command := T_Uint8_To_Memory_Command (Packet.Data_1 (1));
 
       Packet_Handler := CRTP_Create_Packet
-        (CRTP_PORT_MEM, Memory_Channel'Enum_Rep(MEM_SETTINGS_CH));
+        (CRTP_PORT_MEM, Memory_Channel'Enum_Rep (MEM_SETTINGS_CH));
       CRTP_Append_T_Uint8_Data
         (Packet_Handler,
          Memory_Command'Enum_Rep (Command),

@@ -1,5 +1,5 @@
--- Memory module.
--- Handles one - wire and eeprom memory functions over crtp link.
+--  Memory module.
+--  Handles one - wire and eeprom memory functions over crtp link.
 
 with CRTP_Pack; use CRTP_Pack;
 

@@ -12,36 +12,36 @@ package Motors_Pack is
 
    --  Procedures and functions
 
-   --  Initialize the motors
+   --  Initialize the motors.
    procedure Motors_Init;
 
-   --  Apply a power percentage to the given motor
+   --  Apply a power percentage to the given motor.
    procedure Motor_Set_Ratio
      (ID               : Motor_ID;
       Power_Percentage : Duty_Percentage);
 
-   --  Apply an absolute power to the given motor
+   --  Apply an absolute power to the given motor.
    procedure Motor_Set_Power
      (ID : Motor_ID;
       Motor_Power : T_Uint16);
 
-   --  Test all the Crazyflie motors
+   --  Test all the Crazyflie motors.
    function Motors_Test return Boolean;
 
 private
    --  Global variables and constants
 
-   --  Constants used to configure PWM
+   --  Constants used to configure PWM.
    MOTORS_PWM_PERIOD    : constant := 1.0 / 328_000.0; --  328 KHz
    MOTORS_PWM_PRESCALE  : constant := 0;
 
-   --  Constants used for testing
+   --  Constants used for testing.
    MOTORS_TEST_RATIO         : constant := 13_000;
    MOTORS_TEST_ON_TIME_MS    : constant := 50;
    MOTORS_TEST_DELAY_TIME_MS : constant := 150;
 
    --  Constants used to configure the proper GPIO Ports and pins
-   --  to communicate with the motors
+   --  to communicate with the motors.
    MOTORS_GPIO_M1_PORT   : GPIO_Port renames GPIO_A;
    MOTORS_GPIO_M1_PIN    : GPIO_Pin  renames Pin_1;
    MOTORS_GPIO_AF_M1     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
@@ -66,9 +66,9 @@ private
    MOTORS_TIMER_M4       : constant Timer := TIM4;
    MOTORS_TIM_CHANNEL_M4 : constant Channel := CH4;
 
-   --  Procedures and constanst
+   --  Procedures and constants
 
-   --  Set the power of all the motors to zero
+   --  Set the power of all the motors to zero.
    procedure Motors_Reset;
 
 end Motors_Pack;

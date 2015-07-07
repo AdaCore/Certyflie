@@ -2,13 +2,13 @@ package Communication_Pack is
 
    --  Procedures and functions
 
-   --  Initialize all the communication related modules
+   --  Initialize all the communication related modules.
    procedure Communication_Init;
 
-   --  Test if the communication modules is initialized
+   --  Test if the communication modules is initialized.
    function Communication_Test return Boolean;
 
-Private
+private
 
    --  Global variables and constants
 

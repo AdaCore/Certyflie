@@ -18,13 +18,13 @@ is
       Arg  : Pvoid;
    end record;
 
-   --  Constants and Global Variables
+   --  Global variables and constants
 
    WORKER_QUEUE_LENGTH : constant T_Uint32 := 5;
 
    Worker_Queue : Pvoid := System.Null_Address;
 
-   --  Procedures and Functions
+   --  Procedures and functions
 
    --  Initialize the worker queue.
    procedure Worker_Init;

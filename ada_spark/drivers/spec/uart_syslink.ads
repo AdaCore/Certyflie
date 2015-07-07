@@ -22,13 +22,13 @@ package UART_Syslink is
 
    --  Procedures and functions
 
-   --  Initialize the UART Syslink interface
+   --  Initialize the UART Syslink interface.
    procedure UART_Syslink_Init;
 
-   --  Get one byte of data from UART, with a defined timeout
+   --  Get one byte of data from UART, with a defined timeout.
    procedure UART_Get_Data_Blocking (Rx_Byte : out T_Uint8);
 
-   --  Send data to DMA
+   --  Send data to DMA.
    procedure UART_Send_DMA_Data_Blocking
      (Data_Size : Natural;
       Data      : DMA_Data);
@@ -53,8 +53,8 @@ private
    Tx_Channel : constant DMA_Channel_Selector := Channel_5;
    Tx_Stream : constant DMA_Stream_Selector := Stream_6;
 
-   DMA_Tx_IRQ : constant Ada.Interrupts.Interrupt_Id := DMA2_Stream6_Interrupt;
-   -- must match that of the selected controller and stream number!!!!
+   DMA_Tx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA2_Stream6_Interrupt;
+   --  must match that of the selected controller and stream number!!!!
 
    Bytes_To_Transfer : constant := DMA_Data'Length;
 
@@ -62,7 +62,7 @@ private
 
    Event_Kind : DMA_Interrupt;
 
-   UART_RX_QUEUE_SIZE : constant := 40;
+   UART_RX_QUEUE_SIZE   : constant := 40;
    UART_DATA_TIMEOUT_MS : constant Time_Span :=  Milliseconds (1_000);
 
    --  Procedures and functions
@@ -75,21 +75,24 @@ private
    function T_Uint8_To_Half_Word is
      new Ada.Unchecked_Conversion (T_Uint8, Half_Word);
 
-   --  Initialize the STM32F4 USART controller
+   --  Initialize the STM32F4 USART controller.
    procedure Initialize_USART;
 
-   --  Configure the STM32F4 USART controller
+   --  Configure the STM32F4 USART controller.
    procedure Configure_USART;
 
-   --  Initialize the STM32F4 DMA controller
+   --  Initialize the STM32F4 DMA controller.
    procedure Initialize_DMA;
 
-   --  Enable USART interrupts in reception
+   --  Enable USART interrupts in reception.
    procedure Enable_USART_Rx_Interrupts;
+
+   --  Finalize Tx DMA transmissions.
+   procedure Finalize_DMA_Transmission (Transceiver : in out USART);
 
    --  Tasks and protected objects
 
-   --  DMA Interrupt Handler for transmission
+   --  DMA Interrupt Handler for transmission.
    protected Tx_IRQ_Handler is
       pragma Interrupt_Priority;
 
@@ -105,7 +108,7 @@ private
       pragma Attach_Handler (IRQ_Handler, DMA_Tx_IRQ);
    end Tx_IRQ_Handler;
 
-   --  Interrupt Handler for reception (DMA not used here)
+   --  Interrupt Handler for reception (DMA not used here).
    protected Rx_IRQ_Handler is
       pragma Interrupt_Priority;
 

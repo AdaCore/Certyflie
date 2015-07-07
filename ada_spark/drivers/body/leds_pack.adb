@@ -34,7 +34,7 @@ package body LEDS_Pack is
 
    procedure Set_LED (LED : Crazyflie_LED; Value : Boolean) is
       Set_Value : constant Boolean
-        := (if LEDS_Polarity (Led) then Value else not Value);
+        := (if LEDS_Polarity (LED) then Value else not Value);
    begin
       if Set_Value then
          if LED = LED_Blue_L then

@@ -77,12 +77,14 @@ package body Power_Management_Pack is
       Is_Pgood := Power_Info.Pgood;
       Battery_Low_Time := Clock - Battery_Low_Time_Stamp;
 
-      if Is_Pgood and not Is_Charging then
+      if Is_Pgood and not Is_Charging
+      then
          State := Charged;
       elsif Is_Charging then
          State := Charging;
       elsif not Is_Pgood and not Is_Charging and
-        Battery_Low_Time > PM_BAT_LOW_TIMEOUT then
+        Battery_Low_Time > PM_BAT_LOW_TIMEOUT
+      then
          State := Low_Power;
       else
          State := Battery;

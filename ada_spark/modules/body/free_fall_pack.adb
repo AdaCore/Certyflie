@@ -49,7 +49,8 @@ is
          --  and if the drone is already in the descending phase,
          --  a landing has been detected.
          if Recovery_Thrust <= MIN_RECOVERY_THRUST
-           and Variance > LANDING_VARIANCE_THRESHOLD then
+           and Variance > LANDING_VARIANCE_THRESHOLD
+         then
             Landing_Detected := True;
          end if;
       end if;
@@ -60,9 +61,10 @@ is
       --  if the drone is in recovery mode and it has not recovered after
       --  the specified timeout, disable the free fall mode in emergency.
       if In_Recovery = 1 and
-        Get_Time_Since_Last_Free_Fall > RECOVERY_TIMEOUT then
+        Get_Time_Since_Last_Free_Fall > RECOVERY_TIMEOUT
+      then
          In_Recovery := 0;
-         FF_MODE := DISABLED;
+         FF_Mode := DISABLED;
       end if;
    end FF_Watchdog;
 
@@ -71,7 +73,7 @@ is
       Has_Landed       : Boolean;
    begin
       --  Check if FF Detection is disabled
-      if FF_MODE = DISABLED then
+      if FF_Mode = DISABLED then
          In_Recovery := 0;
          return;
       end if;
@@ -92,7 +94,8 @@ is
       FF_Detect_Free_Fall (Acc, Has_Detected_FF);
 
       if In_Recovery = 0 and Has_Detected_FF and
-        Get_Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING then
+        Get_Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING
+      then
          Last_FF_Detected_Time := Clock;
          In_Recovery := 1;
          Recovery_Thrust := MAX_RECOVERY_THRUST;

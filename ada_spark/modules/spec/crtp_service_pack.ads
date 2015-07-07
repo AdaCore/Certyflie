@@ -4,11 +4,12 @@ package CRTP_Service_Pack is
 
    --  Types
 
+   --  Type representing all the avalaible commands for
+   --  CRTP service module.
    type CRTP_Service_Command is (Link_Echo,
                                  Link_Source,
                                  Link_Sink,
                                  Link_Other);
-
    for CRTP_Service_Command use (Link_Echo   => 16#00#,
                                  Link_Source => 16#01#,
                                  Link_Sink   => 16#02#,
@@ -17,11 +18,11 @@ package CRTP_Service_Pack is
 
    --  Procedures and functions
 
-   --  Initialize CRTP Service module
+   --  Initialize CRTP Service module.
    procedure CRTP_Service_Init;
 
    --  Handler called when a CRTP packet is received in the CRTP Service
-   --  port queue
+   --  port queue.
    procedure CRTP_Service_Handler (Packet : CRTP_Packet);
 
 private

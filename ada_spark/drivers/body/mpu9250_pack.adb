@@ -16,7 +16,7 @@ package body MPU9250_Pack is
       end if;
 
       --  Wait for MPU9250 startup
-      while (Clock < MPU9250_STARTUP_TIME_MS) loop
+      while Clock < MPU9250_STARTUP_TIME_MS loop
          null;
       end loop;
 
@@ -250,11 +250,16 @@ package body MPU9250_Pack is
       end loop;
 
       --  Restore old configuration
-      MPU9250_Write_Byte_At_Register (MPU9250_RA_SMPLRT_DIV, Saved_Reg (1));
-      MPU9250_Write_Byte_At_Register (MPU9250_RA_CONFIG, Saved_Reg (2));
-      MPU9250_Write_Byte_At_Register (MPU9250_RA_GYRO_CONFIG, Saved_Reg (3));
-      MPU9250_Write_Byte_At_Register (MPU9250_RA_ACCEL_CONFIG_2, Saved_Reg (4));
-      MPU9250_Write_Byte_At_Register (MPU9250_RA_ACCEL_CONFIG, Saved_Reg (5));
+      MPU9250_Write_Byte_At_Register
+        (MPU9250_RA_SMPLRT_DIV, Saved_Reg (1));
+      MPU9250_Write_Byte_At_Register
+        (MPU9250_RA_CONFIG, Saved_Reg (2));
+      MPU9250_Write_Byte_At_Register
+        (MPU9250_RA_GYRO_CONFIG, Saved_Reg (3));
+      MPU9250_Write_Byte_At_Register
+        (MPU9250_RA_ACCEL_CONFIG_2, Saved_Reg (4));
+      MPU9250_Write_Byte_At_Register
+        (MPU9250_RA_ACCEL_CONFIG, Saved_Reg (5));
 
       --  Check result
       Test_Status := MPU9250_Evaluate_Self_Test
@@ -381,7 +386,6 @@ package body MPU9250_Pack is
         (Reg_Addr => MPU9250_RA_SMPLRT_DIV,
          Data     => Rate_Div);
    end MPU9250_Set_Rate;
-
 
    procedure MPU9250_Set_Sleep_Enabled (Value : Boolean) is
    begin
