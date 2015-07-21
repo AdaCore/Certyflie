@@ -24,9 +24,10 @@ is
    --  division by zero in SensFusion6_Pack algorithms
    MIN_NON_ZERO_ACC : constant := 2.0 ** (-74);
 
-   subtype T_Acc_Lifted is T_Acc; -- with
---         Static_Predicate => T_Acc_Lifted = 0.0 or else
---         T_Acc_Lifted not in -MIN_NON_ZERO_ACC .. MIN_NON_ZERO_ACC;
+   subtype T_Acc_Lifted is T_Acc with
+       Static_Predicate => T_Acc_Lifted = 0.0 or else
+     T_Acc_Lifted <= -MIN_NON_ZERO_ACC or else
+     T_Acc_Lifted >= MIN_NON_ZERO_ACC;
 
    type Gyroscope_Data is record
       X : T_Rate;
