@@ -5,20 +5,21 @@ project Cf_Test is
 
    for Languages use ("Ada");
    for Main use ("main.adb");
-   for Source_Dirs use ("src",
-                        "src/stm32f4-drivers",
-                        "..",
-                        "../types/spec",
-                        "../utils/spec",
-                        "../utils/body",
-                        "../drivers/spec",
-                        "../drivers/body",
-                        "../lib/spec",
-                        "../lib/body",
-                        "../hal/spec",
-                        "../hal/body",
-                        "../modules/spec",
-                        "../modules/body");
+   for Source_Dirs use (".",
+                        "init",
+                        "config",
+                        "stm32f4-drivers",
+                        "types/spec",
+                        "utils/spec",
+                        "utils/body",
+                        "drivers/spec",
+                        "drivers/body",
+                        "lib/spec",
+                        "lib/body",
+                        "hal/spec",
+                        "hal/body",
+                        "modules/spec",
+                        "modules/body");
    for Object_Dir use "obj";
    for Exec_Dir use "obj";
 
