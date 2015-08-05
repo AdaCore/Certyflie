@@ -1,12 +1,11 @@
-project Cf_Test is
+project Cf_Ada_SPARK is
    --  Define if we want to test on the host or the target machine
    type Modes is ("Native", "Target");
-   Mode : Modes := external ("MODE", "Native");
+   Mode : Modes := external ("MODE", "Target");
 
    for Languages use ("Ada");
    for Main use ("main.adb");
-   for Source_Dirs use (".",
-                        "init",
+   for Source_Dirs use ("init",
                         "config",
                         "stm32f4-drivers",
                         "types/spec",
@@ -77,4 +76,4 @@ project Cf_Test is
       end case;
    end Ide;
 
-end Cf_Test;
+end Cf_Ada_SPARK;
