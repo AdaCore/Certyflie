@@ -6,6 +6,7 @@ library project Cf_Spark is
    for Object_Dir use "../bin";
    for Languages use ("Ada");
    for Source_Dirs use (".",
+                        "config/spec",
                         "modules/spec",
                         "modules/body",
                         "utils/spec",
