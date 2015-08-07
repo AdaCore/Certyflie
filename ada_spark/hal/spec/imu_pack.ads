@@ -29,6 +29,9 @@ is
      T_Acc_Lifted <= -MIN_NON_ZERO_ACC or else
      T_Acc_Lifted >= MIN_NON_ZERO_ACC;
 
+   --  Type used when we want to collect several accelerometer samples.
+   type T_Acc_Array is array (Integer range <>) of T_Acc;
+
    type Gyroscope_Data is record
       X : T_Rate;
       Y : T_Rate;

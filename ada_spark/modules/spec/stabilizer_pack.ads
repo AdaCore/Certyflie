@@ -126,14 +126,16 @@ private
    ATTITUDE_UPDATE_RATE_DIVIDER_F : constant := 2.0;
    --  500 Hz
    FUSION_UPDATE_DT : constant Float :=
-                        (1.0 / (IMU_UPDATE_FREQ / ATTITUDE_UPDATE_RATE_DIVIDER_F));
+                        (1.0 / (IMU_UPDATE_FREQ
+                         / ATTITUDE_UPDATE_RATE_DIVIDER_F));
 
    --  500hz/5 = 100hz for barometer measurements
    ALTHOLD_UPDATE_RATE_DIVIDER   : constant := 5;
    ALTHOLD_UPDATE_RATE_DIVIDER_F : constant := 5.0;
    --  200 Hz
    ALTHOLD_UPDATE_DT : constant Float :=
-                         (1.0 / (IMU_UPDATE_FREQ / ALTHOLD_UPDATE_RATE_DIVIDER_F));
+                                     (1.0 / (IMU_UPDATE_FREQ
+                                      / ALTHOLD_UPDATE_RATE_DIVIDER_F));
 
    --  IMU outputs. The IMU is composed of an accelerometer, a gyroscope
    --  and a magnetometer (notused yet)

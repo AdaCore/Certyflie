@@ -133,11 +133,8 @@ extern uint16_t motorPowerM3;
 
 // Free fall detection variables
 extern uint16_t freeFallMode;
-extern uint16_t maxRecoveryThrust;
-extern uint16_t minRecoveryThrust;
-extern uint16_t recoveryThrustDecrement;
 extern uint16_t ffDuration;
-extern uint16_t landingDuration;
+extern uint16_t landingVarianceThreshold;
 
 // Free fall detection log variables
 extern bool     inRecovery;
@@ -360,10 +357,6 @@ LOG_ADD(LOG_INT16, apitch, &actuatorPitch)
 LOG_ADD(LOG_INT16, ayaw, &actuatorYaw)
 LOG_GROUP_STOP(actuator)
 
-LOG_GROUP_START(freefall)
-LOG_ADD(LOG_UINT8, inRecovery, &inRecovery)
-LOG_GROUP_STOP(freefall)
-
 LOG_GROUP_START(stabilizer)
 LOG_ADD(LOG_FLOAT, roll, &eulerRollActual)
 LOG_ADD(LOG_FLOAT, pitch, &eulerPitchActual)
@@ -448,9 +441,6 @@ PARAM_GROUP_STOP(altHold)
 
 PARAM_GROUP_START(freefall)
 PARAM_ADD(PARAM_UINT8, freeFallMode, &freeFallMode)
-PARAM_ADD(PARAM_UINT16, maxRecoveryThrust, &maxRecoveryThrust)
-PARAM_ADD(PARAM_UINT16, minRecoveryThrust, &minRecoveryThrust)
-PARAM_ADD(PARAM_UINT16, recoveryThrustDec, &recoveryThrustDecrement)
 PARAM_ADD(PARAM_UINT16, ffDuration, &ffDuration)
-PARAM_ADD(PARAM_UINT16, landingDuration, &landingDuration)
+PARAM_ADD(PARAM_UINT16, landingVarThres, &landingVarianceThreshold)
 PARAM_GROUP_STOP(freefall)
