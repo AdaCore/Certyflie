@@ -7,7 +7,7 @@ project Cf_Ada_SPARK is
    for Main use ("main.adb");
    for Source_Dirs use ("init",
                         "config",
-                        "stm32f4-drivers",
+                        "stm32f4-peripheral-lib",
                         "types/spec",
                         "utils/spec",
                         "utils/body",
