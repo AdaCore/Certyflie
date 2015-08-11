@@ -1,7 +1,4 @@
 project Cf_Ada_SPARK is
-   --  Define if we want to test on the host or the target machine
-   type Modes is ("Native", "Target");
-   Mode : Modes := external ("MODE", "Target");
 
    for Languages use ("Ada");
    for Main use ("main.adb");
@@ -27,53 +24,26 @@ project Cf_Ada_SPARK is
    Loader : Loaders := external ("LOADER", "ROM");
 
    package Compiler is
-      case Mode is
-         when "Native" =>
-            for Default_Switches ("Ada") use ("-gnatwa");
-         when "Target" =>
-            for Default_Switches ("Ada") use ("-gnatQ", "-gnatyg");
-      end case;
+      for Default_Switches ("Ada") use ("-gnatQ", "-gnatyg", "-O2", "-gnatn");
    end Compiler;
 
-   case Mode is
-      when "Target" =>
-         for Target use "arm-eabi";
-         for Runtime ("Ada") use "ravenscar-sfp-stm32f4";
-      when others =>
-   end case;
+   for Target use "arm-eabi";
+   for Runtime ("Ada") use "ravenscar-sfp-stm32f4";
 
    package Builder is
-      case Mode is
-         when "Target" =>
-            for Global_Configuration_Pragmas use "gnat.adc";
-         when others =>
-      end case;
-
-      case Mode is
-         when "Target" =>
-            for Default_Switches ("ada") use ("-g");
-         when others =>
-      end case;
+      for Global_Configuration_Pragmas use "gnat.adc";
    end Builder;
 
    package Naming is
-      case Mode is
-         when "Target" =>
-            for Implementation ("last_chance_handler") use "last_chance_handler-stm32f429xx.adb";
-         when others =>
-      end case;
+      for Implementation ("last_chance_handler") use "last_chance_handler-stm32f429xx.adb";
    end Naming;
 
    package Ide is
-      case Mode is
-         when "Target" =>
-            for Gnat use "arm-eabi-gnat";
-            for Gnatlist use "arm-eabi-gnatls";
-            for Debugger_Command use "arm-eabi-gdb";
-            for Program_Host use "localhost:4242";
-            for Communication_Protocol use "remote";
-         when others =>
-      end case;
+      for Gnat use "arm-eabi-gnat";
+      for Gnatlist use "arm-eabi-gnatls";
+      for Debugger_Command use "arm-eabi-gdb";
+      for Program_Host use "localhost:4242";
+      for Communication_Protocol use "remote";
    end Ide;
 
 end Cf_Ada_SPARK;
