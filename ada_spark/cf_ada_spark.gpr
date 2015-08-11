@@ -32,6 +32,7 @@ project Cf_Ada_SPARK is
 
    package Builder is
       for Global_Configuration_Pragmas use "gnat.adc";
+      for Executable ("main.adb") use "cflie.elf";
    end Builder;
 
    package Naming is
