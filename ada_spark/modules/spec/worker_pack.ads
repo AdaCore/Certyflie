@@ -34,7 +34,7 @@ is
    pragma Export (C, Worker_Init, "ada_workerInit");
 
    --  Test if the worker queue is valid.
-   function Worker_Test return Bool
+   function Worker_Test return bool
      with
        Global => (Input => Worker_Queue);
    pragma Export (C, Worker_Test, "ada_workerTest");
