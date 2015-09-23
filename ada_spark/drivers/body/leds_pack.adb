@@ -1,9 +1,13 @@
 package body LEDS_Pack is
 
+   ---------------
+   -- LEDS_Init --
+   ---------------
+
    procedure LEDS_Init is
       Configuration : GPIO_Port_Configuration;
    begin
-      if Is_Init then
+      if Is_Initialized then
          return;
       end if;
 
@@ -24,13 +28,21 @@ package body LEDS_Pack is
 
       Reset_All_LEDs;
 
-      Is_Init := True;
+      Is_Initialized := True;
    end LEDS_Init;
+
+   ---------------
+   -- LEDS_Test --
+   ---------------
 
    function LEDS_Test return Boolean is
    begin
-      return Is_Init;
+      return Is_Initialized;
    end LEDS_Test;
+
+   -------------
+   -- Set_LED --
+   -------------
 
    procedure Set_LED (LED : Crazyflie_LED; Value : Boolean) is
       Set_Value : constant Boolean
@@ -51,6 +63,10 @@ package body LEDS_Pack is
       end if;
    end Set_LED;
 
+   ----------------
+   -- Toggle_LED --
+   ----------------
+
    procedure Toggle_LED (LED : Crazyflie_LED) is
    begin
       if LED = LED_Blue_L then
@@ -60,6 +76,10 @@ package body LEDS_Pack is
       end if;
    end Toggle_LED;
 
+   --------------------
+   -- Reset_All_LEDs --
+   --------------------
+
    procedure Reset_All_LEDs is
    begin
       for LED in Crazyflie_LED loop
@@ -67,44 +87,66 @@ package body LEDS_Pack is
       end loop;
    end Reset_All_LEDs;
 
+   -----------------------
+   -- Enable_LED_Status --
+   -----------------------
+
    procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status) is
-      Cancelled            : Boolean;
-      Status_LED_Animation : LED_Animation;
+      Cancelled : Boolean;
       pragma Unreferenced (Cancelled);
    begin
       Reset_All_LEDs;
+      --  This reset is in a race with the events' occurrences, but is OK since
+      --  we're about to cancel all of the current live events anyway, and
+      --  there is no corruption to worry about.
 
       Current_LED_Status := LED_Status;
-      Cancel_Handler (Current_LED_Status_Event, Cancelled);
-      Status_LED_Animation := LED_Animations (Current_LED_Status);
 
-      if Status_LED_Animation.Blink_Period > Milliseconds (0) then
-         Set_Handler (Current_LED_Status_Event,
-                      Clock + Status_LED_Animation.Blink_Period,
-                      Current_LED_Status_Event_Handler);
-      else
-         Set_LED (Status_LED_Animation.LED, True);
-      end if;
+      for Animation of LED_Animations (Current_LED_Status).all loop
+         Animation.Cancel_Handler (Cancelled);
+         if Animation.Blink_Period > Time_Span_Zero then
+            Animation.Set_Handler
+              (Clock + Animation.Blink_Period,
+               LED_Status_Event_Handler.Toggle_LED_Status'Access);
+         else
+            Set_LED (Animation.LED, True);
+         end if;
+      end loop;
    end Enable_LED_Status;
+
+   ------------------------------
+   -- LED_Status_Event_Handler --
+   ------------------------------
+
+   protected body LED_Status_Event_Handler is
+
+      procedure Toggle_LED_Status (Event : in out Timing_Event) is
+         Animation : LED_Animation renames
+                       LED_Animation (Timing_Event'Class (Event));
+         --  We "know" we have an LED_Animation value for the actual parameter
+         --  but the formal gives a view of type Timing_Event, so we convert
+         --  to the subclass to change the view. (The inner conversion to
+         --  the classwide base type is required.) Changing the view allows
+         --  reference to the LED and Blink_Period components within Event.
+      begin
+         Toggle_LED (Animation.LED);
+
+         --  Set this procedure as the handler for the next occurrence for
+         --  Event, too.
+         Animation.Set_Handler
+           (Clock + Animation.Blink_Period,
+            Toggle_LED_Status'Access);
+      end Toggle_LED_Status;
+
+   end LED_Status_Event_Handler;
+
+   ----------------------------
+   -- Get_Current_LED_Status --
+   ----------------------------
 
    function Get_Current_LED_Status return Crazyflie_LED_Status is
    begin
       return Current_LED_Status;
    end Get_Current_LED_Status;
-
-   protected body LED_Status_Event_Handler is
-      procedure Toggle_LED_Status (Event : in out Timing_Event) is
-         Cancelled            : Boolean;
-         Status_LED_Animation : constant LED_Animation
-           := LED_Animations (Current_LED_Status);
-         pragma Unreferenced (Event);
-         pragma Unreferenced (Cancelled);
-      begin
-         Toggle_LED (Status_LED_Animation.LED);
-         Set_Handler (Current_LED_Status_Event,
-                      Clock + Status_LED_Animation.Blink_Period,
-                      Current_LED_Status_Event_Handler);
-      end Toggle_LED_Status;
-   end LED_Status_Event_Handler;
 
 end LEDS_Pack;
