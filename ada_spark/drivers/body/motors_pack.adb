@@ -1,5 +1,6 @@
 with Ada.Real_Time; use Ada.Real_Time;
 with Safety_Pack; use Safety_Pack;
+with Power_Management_Pack; use Power_Management_Pack;
 
 package body Motors_Pack is
 
@@ -129,7 +130,7 @@ package body Motors_Pack is
    begin
       Power_Percentage_F :=
         Saturate ((Float (Motor_Power) / Float (T_Uint16'Last)) * 100.0,
-                  1.0,
+                  0.0,
                   100.0);
       Power_Percentage := Duty_Percentage (Power_Percentage_F);
 
@@ -152,6 +153,43 @@ package body Motors_Pack is
                                  Percent => Power_Percentage);
       end case;
    end Motor_Set_Power;
+
+   procedure Motor_Set_Power_With_Bat_Compensation
+     (ID : Motor_ID;
+      Motor_Power : T_Uint16) is
+      Tmp_Thrust         : Float
+        := (Float (Motor_Power) / Float (T_Uint16'Last)) * 60.0;
+      Volts              : Float
+        := -0.0006239 * Tmp_Thrust * Tmp_Thrust + 0.088 * Tmp_Thrust;
+      Supply_Voltage     : Float;
+      Power_Percentage_F : Float;
+      Power_Percentage   : Duty_Percentage;
+   begin
+      Supply_Voltage := Power_Management_Get_Battery_Voltage;
+      Power_Percentage_F := (Volts / Supply_Voltage) * 100.0;
+      Power_Percentage_F :=
+        Saturate (Power_Percentage_F, 0.0, 100.0);
+      Power_Percentage := Duty_Percentage (Power_Percentage_F);
+
+      case ID is
+         when MOTOR_M1 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
+                                 Ch      => MOTORS_TIM_CHANNEL_M1,
+                                 Percent => Power_Percentage);
+         when MOTOR_M2 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
+                                 Ch      => MOTORS_TIM_CHANNEL_M2,
+                                 Percent => Power_Percentage);
+         when MOTOR_M3 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
+                                 Ch      => MOTORS_TIM_CHANNEL_M3,
+                                 Percent => Power_Percentage);
+         when MOTOR_M4 =>
+            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
+                                 Ch      => MOTORS_TIM_CHANNEL_M4,
+                                 Percent => Power_Percentage);
+      end case;
+   end Motor_Set_Power_With_Bat_Compensation;
 
    function Motors_Test return Boolean is
       Next_Period_1 : Time;

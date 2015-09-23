@@ -25,6 +25,12 @@ package Motors_Pack is
      (ID : Motor_ID;
       Motor_Power : T_Uint16);
 
+   --  Apply power to the given motor with a compensation
+   --  according to the battery level.
+   procedure Motor_Set_Power_With_Bat_Compensation
+     (ID : Motor_ID;
+      Motor_Power : T_Uint16);
+
    --  Test all the Crazyflie motors.
    function Motors_Test return Boolean;
 

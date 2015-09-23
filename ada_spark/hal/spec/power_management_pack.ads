@@ -50,6 +50,9 @@ package Power_Management_Pack is
    --  Return True is the Crazyflie is discharging, False when it's charging.
    function Power_Management_Is_Discharging return Boolean;
 
+   --  Get the current battery voltage.
+   function Power_Management_Get_Battery_Voltage return Float;
+
 private
 
    --  Global variables and constants

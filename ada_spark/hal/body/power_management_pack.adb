@@ -37,6 +37,9 @@ package body Power_Management_Pack is
       end if;
    end Power_Management_Set_Battery_Voltage;
 
+   function Power_Management_Get_Battery_Voltage return Float is
+     (Battery_Voltage);
+
    function Power_Management_Get_Charge_From_Voltage
      (Voltage : Float) return Integer is
       Charge : Integer := 0;

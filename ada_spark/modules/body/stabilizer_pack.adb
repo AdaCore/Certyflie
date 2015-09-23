@@ -122,10 +122,10 @@ is
          Motor_Power_M4 := Limit_Thrust (T + R - Y);
       end if;
 
-      Motor_Set_Power (MOTOR_M1, Motor_Power_M1);
-      Motor_Set_Power (MOTOR_M2, Motor_Power_M2);
-      Motor_Set_Power (MOTOR_M3, Motor_Power_M3);
-      Motor_Set_Power (MOTOR_M4, Motor_Power_M4);
+      Motor_Set_Power_With_Bat_Compensation (MOTOR_M1, Motor_Power_M1);
+      Motor_Set_Power_With_Bat_Compensation (MOTOR_M2, Motor_Power_M2);
+      Motor_Set_Power_With_Bat_Compensation (MOTOR_M3, Motor_Power_M3);
+      Motor_Set_Power_With_Bat_Compensation (MOTOR_M4, Motor_Power_M4);
    end Stabilizer_Distribute_Power;
 
    procedure Stabilizer_Update_Attitude is
