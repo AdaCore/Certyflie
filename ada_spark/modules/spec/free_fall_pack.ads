@@ -55,8 +55,8 @@ private
    LANDING_NUMBER_OF_SAMPLES : constant Natural := 15;
 
    --  Thrust related variables.
-   MAX_RECOVERY_THRUST       : constant T_Uint16 := 59_000;
-   MIN_RECOVERY_THRUST       : constant T_Uint16 := 30_000;
+   MAX_RECOVERY_THRUST       : constant T_Uint16 := 48_000;
+   MIN_RECOVERY_THRUST       : constant T_Uint16 := 22_000;
    RECOVERY_THRUST_DECREMENT : constant T_Uint16 := 100;
 
    --  Number of successive times that acceleration along Z axis must
@@ -74,7 +74,7 @@ private
 
    --  If the variance is superior to this value during the recovering phase,
    --  it means that the drone has landed.
-   LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.4;
+   LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.32;
 
    --  Used to enable or disable the Free Fall/Recovery feature.
    FF_Mode                            : Free_Fall_Mode := ENABLED
