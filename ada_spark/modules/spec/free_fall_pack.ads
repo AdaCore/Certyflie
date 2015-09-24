@@ -50,11 +50,11 @@ private
 
    --  Number of samples we collect to calculate accelation variance
    --  along Z axis. Used to detect landing.
-   LANDING_NUMBER_OF_SAMPLES : constant Natural := 15;
+   LANDING_NUMBER_OF_SAMPLES : constant Natural := 2;
 
    --  Thrust related variables.
-   MAX_RECOVERY_THRUST       : constant T_Uint16 := 59_000;
-   MIN_RECOVERY_THRUST       : constant T_Uint16 := 30_000;
+   MAX_RECOVERY_THRUST       : constant T_Uint16 := 58_000;
+   MIN_RECOVERY_THRUST       : constant T_Uint16 := 36_000;
    RECOVERY_THRUST_DECREMENT : constant T_Uint16 := 100;
 
    --  Number of successive times that acceleration along Z axis must
@@ -63,15 +63,16 @@ private
      with Part_Of => FF_Parameters;
    pragma Export (C, FF_DURATION, "ffDuration");
 
-   --  If the variance is superior to this value during the recovering phase,
+   --  If the derivative is superior to this value during the recovering phase,
    --  it means that the drone has landed.
-   LANDING_VARIANCE_THRESHOLD :  T_Alpha := 0.4
+   LANDING_DERIVATIVE_THRESHOLD :  T_Alpha := 0.25
      with Part_Of => FF_Parameters;
-   pragma Export (C, LANDING_VARIANCE_THRESHOLD, "landingVarianceThreshold");
+   pragma Export
+     (C, LANDING_DERIVATIVE_THRESHOLD, "landingDerivativeThreshold");
 
 
    --  Used to enable or disable the Free Fall/Recovery feature.
-   FF_Mode                            : Free_Fall_Mode := DISABLED
+   FF_Mode                            : Free_Fall_Mode := ENABLED
      with Part_Of => FF_Parameters;
    pragma Export (C, FF_Mode, "freeFallMode");
 
@@ -84,6 +85,8 @@ private
      with Part_Of => FF_State;
    Landing_Data_Collector   : FF_Acc_Data_Collector (LANDING_NUMBER_OF_SAMPLES)
      with Part_Of => FF_State;
+   pragma Export (C, In_Recovery, "ffInRecovery");
+
 
    --  Procedures and functions
 
@@ -102,11 +105,14 @@ private
       Data_Collector : in out FF_Acc_Data_Collector);
    pragma Inline (Add_Acc_Z_Sample);
 
-   --  Calculate variance and mean
+   --  Calculate variance and mean for given samples.
    procedure Calculate_Variance_And_Mean
      (Data_Collector : FF_Acc_Data_Collector;
       Variance       : out Float;
       Mean           : out Float);
    pragma Inline (Calculate_Variance_And_Mean);
+
+   function Calculate_Last_Derivative
+     (Data_Collector : FF_Acc_Data_Collector) return Float;
 
 end Free_Fall_Pack;

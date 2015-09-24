@@ -214,8 +214,19 @@ bool motorsTest(void)
 }
 
 
-void motorsSetRatio(int id, uint16_t ratio)
+void motorsSetRatio(int id, uint16_t ithrust)
 {
+  uint16_t ratio = ithrust;
+
+  #ifdef ENABLE_THRUST_BAT_COMPENSATED
+    float thrust = ((float)ithrust / 65536.0f) * 60;
+    float volts = -0.0006239 * thrust * thrust + 0.088 * thrust;
+    float supply_voltage = pmGetBatteryVoltage();
+    float percentage = volts / supply_voltage;
+    percentage = percentage > 1.0 ? 1.0 : percentage;
+    ratio = percentage * UINT16_MAX;
+  #endif
+
   switch(id)
   {
     case MOTOR_M1:

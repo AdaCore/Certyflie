@@ -4,7 +4,7 @@ package body Free_Fall_Pack
 with SPARK_Mode,
   Refined_State => (FF_Parameters => (FF_Mode,
                                       FF_DURATION,
-                                      LANDING_VARIANCE_THRESHOLD),
+                                      LANDING_DERIVATIVE_THRESHOLD),
                     FF_State      => (FF_Duration_Counter,
                                       In_Recovery,
                                       Recovery_Thrust,
@@ -32,24 +32,21 @@ is
 
    procedure FF_Detect_Landing (Landing_Detected : out Boolean)
    is
-      Variance : Float;
-      Mean     : Float;
-      pragma Unreferenced (Mean);
+      Derivative : Float;
    begin
       Landing_Detected := False;
 
       --  Try to detect landing only if a free fall has
       --  been detected and we still are in recovery mode.
       if In_Recovery = 1 then
-         Calculate_Variance_And_Mean (Data_Collector => Landing_Data_Collector,
-                                      Variance       => Variance,
-                                      Mean           => Mean);
 
-         --  If the acc Z variance is superior to the defined threshold
+         Derivative := Calculate_Last_Derivative (Landing_Data_Collector);
+         --  If the derivative between two samples of the Z acceleration
+         --  is superior to the defined threshold
          --  and if the drone is already in the descending phase,
          --  a landing has been detected.
          if Recovery_Thrust <= MIN_RECOVERY_THRUST
-           and Variance > LANDING_VARIANCE_THRESHOLD
+           and Derivative > LANDING_DERIVATIVE_THRESHOLD
          then
             Landing_Detected := True;
          end if;
@@ -152,5 +149,18 @@ is
       Variance :=
         (Sum_Square - Sum) / Float (Data_Collector.Number_Of_Samples);
    end Calculate_Variance_And_Mean;
+
+   function Calculate_Last_Derivative
+     (Data_Collector : FF_Acc_Data_Collector) return Float is
+      Last_Sample        : Float
+        := Data_Collector.Samples (Data_Collector.Index);
+      Penultimate_Sample : Float
+        := (if Data_Collector.Index - 1 >= Data_Collector.Samples'First then
+               Data_Collector.Samples (Data_Collector.Index - 1)
+            else
+               Data_Collector.Samples (Data_Collector.Samples'First));
+   begin
+      return (Last_Sample - Penultimate_Sample);
+   end Calculate_Last_Derivative;
 
 end Free_Fall_Pack;

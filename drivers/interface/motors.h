@@ -44,6 +44,7 @@
   #define MOTORS_PWM_BITS     9
   #define MOTORS_PWM_PERIOD   ((1<<MOTORS_PWM_BITS) - 1)
   #define MOTORS_PWM_PRESCALE 0
+  #define ENABLE_THRUST_BAT_COMPENSATED // Emable motor power comepensation according to the battery level
 #else
   #ifdef BRUSHLESS_MOTORCONTROLLER //Crazyflie2
     #define BLMC_PERIOD 0.0025   // 2.5ms = 400Hz
@@ -62,7 +63,6 @@
     #define MOTORS_PWM_PRESCALE 0
   #endif
 #endif
-
 
 // Motors IDs define
 #define MOTOR_M1  0
@@ -91,7 +91,7 @@ bool motorsTest(void);
 /**
  * Set the PWM ratio of the motor 'id'
  */
-void motorsSetRatio(int id, uint16_t ratio);
+void motorsSetRatio(int id, uint16_t ithrust);
 
 /**
  * Get the PWM ratio of the motor 'id'. Return -1 if wrong ID.
