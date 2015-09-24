@@ -147,27 +147,30 @@ void commanderGetRPYType(RPYType* rollType, RPYType* pitchType, RPYType* yawType
   *pitchType = ANGLE;
   *yawType   = RATE;
 }
-
 void commanderGetThrust(uint16_t* thrust)
 {
   int usedSide = side;
   uint16_t rawThrust = targetVal[usedSide].thrust;
 
-  if (thrustLocked) {
-    *thrust = 0;
-  }
-  else if (rawThrust > MIN_THRUST)
+  if (thrustLocked)
   {
-    *thrust = rawThrust;
+    *thrust = 0;
   }
   else
   {
-    *thrust = 0;
-  }
+    if (rawThrust > MIN_THRUST)
+    {
+      *thrust = rawThrust;
+    }
+    else
+    {
+      *thrust = 0;
+    }
 
-  if (rawThrust > MAX_THRUST)
-  {
-    *thrust = MAX_THRUST;
+    if (rawThrust > MAX_THRUST)
+    {
+      *thrust = MAX_THRUST;
+    }
   }
 
   commanderWatchdog();
