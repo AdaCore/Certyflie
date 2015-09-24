@@ -72,9 +72,9 @@ private
    RECOVERY_TIMEOUT                   : constant Time_Span
      := Milliseconds (6_000);
 
-   --  If the variance is superior to this value during the recovering phase,
+   --  If the derivative is superior to this value during the recovering phase,
    --  it means that the drone has landed.
-   LANDING_VARIANCE_THRESHOLD         : constant T_Alpha := 0.32;
+   LANDING_DERIVATIVE_THRESHOLD       : constant T_Alpha := 0.25;
 
    --  Used to enable or disable the Free Fall/Recovery feature.
    FF_Mode                            : Free_Fall_Mode := ENABLED
@@ -121,6 +121,10 @@ private
       Variance       : out Float;
       Mean           : out Float);
    pragma Inline (Calculate_Variance_And_Mean);
+
+   --  Calculate the derivative from the two last samples collected.
+   function Calculate_Last_Derivative
+     (Data_Collector : FF_Acc_Data_Collector) return Float;
 
    --  Get the time since last landing after a recovery from a free fall.
    function Get_Time_Since_Last_Landing return Time_Span is
