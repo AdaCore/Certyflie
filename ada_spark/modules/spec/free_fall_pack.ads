@@ -53,8 +53,8 @@ private
    LANDING_NUMBER_OF_SAMPLES : constant Natural := 2;
 
    --  Thrust related variables.
-   MAX_RECOVERY_THRUST       : constant T_Uint16 := 58_000;
-   MIN_RECOVERY_THRUST       : constant T_Uint16 := 36_000;
+   MAX_RECOVERY_THRUST       : constant T_Uint16 := 55_000;
+   MIN_RECOVERY_THRUST       : constant T_Uint16 := 28_000;
    RECOVERY_THRUST_DECREMENT : constant T_Uint16 := 100;
 
    --  Number of successive times that acceleration along Z axis must

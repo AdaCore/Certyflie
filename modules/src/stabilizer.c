@@ -160,7 +160,7 @@ void stabilizerInit(void)
   if(isInit)
     return;
 
-  motorsInit();
+  motorsInit(motorMapDefaultBrushed);
   imu6Init();
   sensfusion6Init();
   ada_controllerInit();
