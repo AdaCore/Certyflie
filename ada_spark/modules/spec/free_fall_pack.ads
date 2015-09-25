@@ -3,6 +3,7 @@ with IMU_Pack; use IMU_Pack;
 with Commander_Pack; use Commander_Pack;
 with Interfaces.C; use Interfaces.C;
 with Interfaces.C.Extensions; use Interfaces.C.Extensions;
+with FreeRTOS_Pack; use FreeRTOS_Pack;
 
 package Free_Fall_Pack
 with SPARK_Mode,
@@ -63,13 +64,21 @@ private
      with Part_Of => FF_Parameters;
    pragma Export (C, FF_DURATION, "ffDuration");
 
+   --  Stabiliation period after a landing, during which free falls can't
+   --  be detected.
+   STABILIZATION_PERIOD_AFTER_LANDING : constant T_Uint16
+     := Milliseconds_To_Ticks (1_000);
+   --  Used by a watchdog to ensure that we cut the thrust after a free fall,
+   --  even if the drone has not recovered.
+   RECOVERY_TIMEOUT                   : constant T_Uint16
+     := Milliseconds_To_Ticks (6_000);
+
    --  If the derivative is superior to this value during the recovering phase,
    --  it means that the drone has landed.
    LANDING_DERIVATIVE_THRESHOLD :  T_Alpha := 0.25
      with Part_Of => FF_Parameters;
    pragma Export
      (C, LANDING_DERIVATIVE_THRESHOLD, "landingDerivativeThreshold");
-
 
    --  Used to enable or disable the Free Fall/Recovery feature.
    FF_Mode                            : Free_Fall_Mode := DISABLED
@@ -85,8 +94,11 @@ private
      with Part_Of => FF_State;
    Landing_Data_Collector   : FF_Acc_Data_Collector (LANDING_NUMBER_OF_SAMPLES)
      with Part_Of => FF_State;
+   Last_Landing_Time        : T_Uint16 := 0
+     with Part_Of => FF_State;
+   Last_FF_Detected_Time    : T_Uint16 := 0
+     with Part_Of => FF_State;
    pragma Export (C, In_Recovery, "ffInRecovery");
-
 
    --  Procedures and functions
 
@@ -97,6 +109,10 @@ private
 
    --  Detect if the drone has landed with accelerometer data.
    procedure FF_Detect_Landing (Landing_Detected : out Boolean);
+
+   --  Ensures that we cut the recovery after a certain time, even if it has
+   --  not recovered.
+   procedure FF_Watchdog;
 
    --  Add accelerometer sample for Z axis
    --  to the specified FF_Acc_Data_Collector.
@@ -112,7 +128,17 @@ private
       Mean           : out Float);
    pragma Inline (Calculate_Variance_And_Mean);
 
+   --  Calculate the derivative between the two last accelerometer samples
+   --  along the Z axis.
    function Calculate_Last_Derivative
      (Data_Collector : FF_Acc_Data_Collector) return Float;
+
+   --  Get the time since last landing after a recovery from a free fall.
+   function Get_Ticks_Since_Last_Landing return T_Uint16 is
+     (XTask_Get_Tick_Count - Last_Landing_Time);
+
+   --  Get the time since the last free fall detection.
+   function Get_Ticks_Since_Last_Free_Fall return T_Uint16 is
+     (XTask_Get_Tick_Count - Last_FF_Detected_Time);
 
 end Free_Fall_Pack;

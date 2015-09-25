@@ -8,7 +8,9 @@ with SPARK_Mode,
                     FF_State      => (FF_Duration_Counter,
                                       In_Recovery,
                                       Recovery_Thrust,
-                                      Landing_Data_Collector))
+                                      Landing_Data_Collector,
+                                      Last_Landing_Time,
+                                      Last_FF_Detected_Time))
 is
 
    procedure FF_Detect_Free_Fall
@@ -53,6 +55,18 @@ is
       end if;
    end FF_Detect_Landing;
 
+   procedure FF_Watchdog is
+   begin
+      --  if the drone is in recovery mode and it has not recovered after
+      --  the specified timeout, disable the free fall mode in emergency.
+      if In_Recovery = 1 and
+        Get_Ticks_Since_Last_Free_Fall > RECOVERY_TIMEOUT
+      then
+         In_Recovery := 0;
+         FF_Mode := DISABLED;
+      end if;
+   end FF_Watchdog;
+
    procedure FF_Check_Event (Acc : Accelerometer_Data) is
       Has_Detected_FF  : Boolean;
       Has_Landed       : Boolean;
@@ -71,17 +85,22 @@ is
       FF_Detect_Landing (Has_Landed);
 
       if Has_Landed then
+         Last_Landing_Time := XTask_Get_Tick_Count;
          In_Recovery := 0;
       end if;
 
       --  Detect if the drone is in free fall.
       FF_Detect_Free_Fall (Acc, Has_Detected_FF);
 
-      if In_Recovery = 0 and Has_Detected_FF
+      if In_Recovery = 0 and Has_Detected_FF and
+        Get_Ticks_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING
       then
+         Last_FF_Detected_Time := XTask_Get_Tick_Count;
          In_Recovery := 1;
          Recovery_Thrust := MAX_RECOVERY_THRUST;
       end if;
+
+      FF_Watchdog;
    end FF_Check_Event;
 
    procedure FF_Get_Recovery_Commands
