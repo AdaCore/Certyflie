@@ -53,7 +53,7 @@ private
    LANDING_NUMBER_OF_SAMPLES : constant Natural := 2;
 
    --  Thrust related variables.
-   MAX_RECOVERY_THRUST       : constant T_Uint16 := 55_000;
+   MAX_RECOVERY_THRUST       : constant T_Uint16 := 48_000;
    MIN_RECOVERY_THRUST       : constant T_Uint16 := 28_000;
    RECOVERY_THRUST_DECREMENT : constant T_Uint16 := 100;
 
@@ -72,7 +72,7 @@ private
 
 
    --  Used to enable or disable the Free Fall/Recovery feature.
-   FF_Mode                            : Free_Fall_Mode := ENABLED
+   FF_Mode                            : Free_Fall_Mode := DISABLED
      with Part_Of => FF_Parameters;
    pragma Export (C, FF_Mode, "freeFallMode");
 
