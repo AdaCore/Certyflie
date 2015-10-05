@@ -34,21 +34,7 @@ is
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16);
 
 private
-   --  Types
-
-   --  Threshold used to detect when the drone is in Free Fall.
-   --  This threshold is compared with accelerometer measurements for
-   --  Z axis.
-   subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
-
-   --  Type used to collect measurement samples and easily calculate
-   --  their variance and mean.
-   type FF_Acc_Data_Collector (Number_Of_Samples : Natural) is record
-      Samples : T_Acc_Array (1 .. Number_Of_Samples) := (others => 0.0);
-      Index   : Integer := 1;
-   end record;
-
-   --  Global variables and constants
+   --  Constants
 
    --  Number of samples we collect to calculate accelation variance
    --  along Z axis. Used to detect landing.
@@ -76,6 +62,27 @@ private
    --  it means that the drone has landed.
    LANDING_DERIVATIVE_THRESHOLD       : constant T_Alpha := 0.25;
 
+   --  Types
+
+   --  Threshold used to detect when the drone is in Free Fall.
+   --  This threshold is compared with accelerometer measurements for
+   --  Z axis.
+   subtype Free_Fall_Threshold is T_Acc range -0.2 .. 0.2;
+
+   --  Type used to prove that we can't have a buffer overflow
+   --  when collecting accelerometer samples.
+   subtype T_Acc_Data_Collector_Index is
+     Integer range 1 .. LANDING_NUMBER_OF_SAMPLES;
+
+   --  Type used to collect measurement samples and easily calculate
+   --  their variance and mean.
+   type FF_Acc_Data_Collector  is record
+      Samples : T_Acc_Array (T_Acc_Data_Collector_Index) := (others => 0.0);
+      Index   : T_Acc_Data_Collector_Index := 1;
+   end record;
+
+   --  Global variables
+
    --  Used to enable or disable the Free Fall/Recovery feature.
    FF_Mode                            : Free_Fall_Mode := ENABLED
      with Part_Of => FF_State;
@@ -91,7 +98,7 @@ private
      with Part_Of => FF_State;
    Last_FF_Detected_Time    : Time := Time_First
      with Part_Of => FF_State;
-   Landing_Data_Collector   : FF_Acc_Data_Collector (LANDING_NUMBER_OF_SAMPLES)
+   Landing_Data_Collector   : FF_Acc_Data_Collector
      with Part_Of => FF_State;
 
    --  Procedures and functions
@@ -114,13 +121,6 @@ private
      (Acc_Z          : T_Acc;
       Data_Collector : in out FF_Acc_Data_Collector);
    pragma Inline (Add_Acc_Z_Sample);
-
-   --  Calculate variance and mean
-   procedure Calculate_Variance_And_Mean
-     (Data_Collector : FF_Acc_Data_Collector;
-      Variance       : out Float;
-      Mean           : out Float);
-   pragma Inline (Calculate_Variance_And_Mean);
 
    --  Calculate the derivative from the two last samples collected.
    function Calculate_Last_Derivative
