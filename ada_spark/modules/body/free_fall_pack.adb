@@ -13,6 +13,29 @@ with SPARK_Mode,
                                       Last_FF_Detected_Time))
 is
 
+   procedure Add_Acc_Z_Sample
+     (Acc_Z            : T_Acc;
+      Data_Collector   : in out FF_Acc_Data_Collector) is
+   begin
+      Data_Collector.Samples (Data_Collector.Index) := Acc_Z;
+
+      Data_Collector.Index :=
+        (Data_Collector.Index mod Data_Collector.Samples'Last) + 1;
+   end Add_Acc_Z_Sample;
+
+   function Calculate_Last_Derivative
+     (Data_Collector : FF_Acc_Data_Collector) return Float is
+      Last_Sample        : Float
+        := Data_Collector.Samples (Data_Collector.Index);
+      Penultimate_Sample : Float
+        := (if Data_Collector.Index - 1 >= Data_Collector.Samples'First then
+               Data_Collector.Samples (Data_Collector.Index - 1)
+            else
+               Data_Collector.Samples (Data_Collector.Samples'First));
+   begin
+      return (Last_Sample - Penultimate_Sample);
+   end Calculate_Last_Derivative;
+
    procedure FF_Detect_Free_Fall
      (Acc         :  Accelerometer_Data;
       FF_Detected : out Boolean) is
@@ -141,45 +164,5 @@ is
          Recovery_Thrust := Recovery_Thrust - RECOVERY_THRUST_DECREMENT;
       end if;
    end FF_Get_Recovery_Thrust;
-
-   procedure Add_Acc_Z_Sample
-     (Acc_Z            : T_Acc;
-      Data_Collector   : in out FF_Acc_Data_Collector) is
-   begin
-      Data_Collector.Samples (Data_Collector.Index) := Acc_Z;
-
-      Data_Collector.Index :=
-        (Data_Collector.Index mod Data_Collector.Number_Of_Samples) + 1;
-   end Add_Acc_Z_Sample;
-
-   procedure Calculate_Variance_And_Mean
-     (Data_Collector : FF_Acc_Data_Collector;
-      Variance       : out Float;
-      Mean           : out Float) is
-      Sum        : Float := 0.0;
-      Sum_Square : Float := 0.0;
-   begin
-      for Acc_Z_Sample of Data_Collector.Samples loop
-         Sum := Sum + Acc_Z_Sample;
-         Sum_Square := Sum_Square + (Acc_Z_Sample * Acc_Z_Sample);
-      end loop;
-
-      Mean := Sum / Float (Data_Collector.Number_Of_Samples);
-      Variance :=
-        (Sum_Square - Sum) / Float (Data_Collector.Number_Of_Samples);
-   end Calculate_Variance_And_Mean;
-
-   function Calculate_Last_Derivative
-     (Data_Collector : FF_Acc_Data_Collector) return Float is
-      Last_Sample        : Float
-        := Data_Collector.Samples (Data_Collector.Index);
-      Penultimate_Sample : Float
-        := (if Data_Collector.Index - 1 >= Data_Collector.Samples'First then
-               Data_Collector.Samples (Data_Collector.Index - 1)
-            else
-               Data_Collector.Samples (Data_Collector.Samples'First));
-   begin
-      return (Last_Sample - Penultimate_Sample);
-   end Calculate_Last_Derivative;
 
 end Free_Fall_Pack;
