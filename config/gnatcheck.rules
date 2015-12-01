@@ -1,0 +1,98 @@
+--  Sample coding standard file, with all available rules disabled
+--  Should be reviewed and corrected manually
+
+-R Abstract_Type_Declarations                          -- abstract types
+-R Annotated_Comments                                  -- use of comment annotations
+                                                       -- provide a proper comment marker as a parameter value if the rule is enabled!
+-R Anonymous_Arrays                                    -- anonymous array types
+-R Anonymous_Subtypes                                  -- anonymous subtypes
+-R Blocks                                              -- block statements
+-R Boolean_Relational_Operators                        -- comparisons of Boolean values
+-R Complex_Inlined_Subprograms                         -- complex inlined subprograms
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Controlled_Type_Declarations                        -- controlled types
+-R Declarations_In_Blocks                              -- block statements with local declarations
+-R Deep_Inheritance_Hierarchies                        -- derivation tree is too deep
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Deeply_Nested_Generics                              -- deeply nested generic declarations
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Deeply_Nested_Inlining                              -- deeply nested inlining (global check)
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Default_Parameters                                  -- declarations of default subprogram parameters
+-R Direct_Calls_To_Primitives                          -- non-dispatching calls to primitives
+-R Discriminated_Records                               -- discriminated records
+-R Enumeration_Ranges_In_CASE_Statements               -- enumeration ranges as choices in case statements
+-R Exceptions_As_Control_Flow                          -- exceptions for control flow
+-R Exits_From_Conditional_Loops                        -- exit from conditional loops
+-R EXIT_Statements_With_No_Loop_Name                   -- exit statements with no loop name
+-R Expanded_Loop_Exit_Names                            -- expanded loop names in exit statements
+-R Explicit_Full_Discrete_Ranges                       -- explicit discrete ranges
+-R Float_Equality_Checks                               -- equality for float values
+-R Forbidden_Attributes                                -- usage of specified attributes
+-R Forbidden_Pragmas                                   -- usage of specified pragmas
+-R Function_Style_Procedures                           -- procedures looking like functions
+-R Generics_In_Subprograms                             -- definitions of generic units in  subprogram bodies
+-R GOTO_Statements                                     -- goto statements
+-R Identifier_Casing                                   -- casing of defining names
+-R Identifier_Suffixes                                 -- suffixes in defining names
+-R Identifier_Prefixes                                 -- prefixes in defining names
+-R Implicit_IN_Mode_Parameters                         -- implicit IN mode in parameter specifications
+-R Implicit_SMALL_For_Fixed_Point_Types                -- fixed point type declarations with no 'Small clause
+-R Improper_Returns                                    -- improper use of return statements
+-R Improperly_Located_Instantiations                   -- instantiations that can cause problems
+-R Library_Level_Subprograms                           -- library level subprograms
+-R Local_Packages                                      -- local packages
+-R Metrics_Cyclomatic_Complexity                       -- (metrics) high cyclomatic complexity
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Metrics_Essential_Complexity                        -- (metrics) high essential complexity
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Metrics_LSLOC                                       -- (metrics) high LSLOC value
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Misnamed_Controlling_Parameters                     -- Badly formatted profile of a primitive operation
+-R Multiple_Entries_In_Protected_Definitions           -- protected definitions with more than one entry
+-R Name_Clashes                                        -- restrictions on name space
+                                                       -- provide a proper dictionary file as a parameter if the rule is enabled
+-R No_Scalar_Storage_Order_Specified                   -- a record/record extension type has record representation clause but no Scalar_Storage_Order attribute clause
+-R Non_Qualified_Aggregates                            -- non-qualified aggregates
+-R Non_Short_Circuit_Operators                         -- use of predefined AND and OR for boolean types
+-R Non_SPARK_Attributes                                -- attributes that are not from the SPARK subset
+-R Non_Tagged_Derived_Types                            -- derived types that are not type extensions
++R Non_Visible_Exceptions                              -- potential propagations of non-visible exceptions
++R Numeric_Literals                                    -- numeric literals
++R OTHERS_In_Aggregates                                -- OTHERS choices in aggregates
++R OTHERS_In_CASE_Statements                           -- OTHERS choices in case statements
++R OTHERS_In_Exception_Handlers                        -- OTHERS choices in exception handlers
++R Outer_Loop_Exits                                    -- exiting more than one loop at once
++R Overloaded_Operators                                -- operator overloading
++R Overly_Nested_Control_Structures                    -- deep nesting level of control structures
+                                                       -- provide a proper parameter value if the rule is enabled!
++R Parameters_Out_Of_Order                             -- formal parameters ordering
++R Positional_Actuals_For_Defaulted_Generic_Parameters -- positional generic actuals for defaulted generic parameters
++R Positional_Actuals_For_Defaulted_Parameters         -- positional actuals for defaulted parameters
++R Positional_Components                               -- positional components associations in aggregates
++R Positional_Generic_Parameters                       -- positional generic associations
++R Positional_Parameters                               -- positional associations in subprogram and entry calls
++R Predefined_Numeric_Types                            -- explicit references to predefined numeric subtypes
++R Raising_External_Exceptions                         -- visibility of exceptions raised by routines declared in library package
++R Raising_Predefined_Exceptions                       -- explicit raise of predefined exceptions
+-R Recursive_Subprograms                               -- recursion (call graph cycles)
+-R Separate_Numeric_Error_Handlers                     -- Numeric_Error and Constraint error are not handled together
+-R Slices                                              -- slices
+-R Too_Many_Parents                                    -- type/object has too many parents
+                                                       -- provide a proper parameter value if the rule is enabled!
+-R Unassigned_OUT_Parameters                           -- OUT parameters do not get values in procedure bodies
+-R Uncommented_BEGIN_In_Package_Bodies                 -- BEGIN keywords in package bodies non-marked with comment with package name
+-R Unconstrained_Array_Returns                         -- functions returning unconstrained arrays
+-R Unconditional_Exits                                 -- Exit statement with no condition
+-R Universal_Ranges                                    -- ranges with universal integer bounds
+-R Unnamed_Blocks_And_Loops                            -- compound statements naming
+-R USE_PACKAGE_Clauses                                 -- use clause for packages
+-R Visible_Components                                  -- Types with publicly accessible components
+-R Volatile_Objects_Without_Address_Clauses            -- volatile objects with no address clause
+
+----------------------------
+--  Compiler-based checks --
+----------------------------
++R Warnings:s                              --  disable all warnings
++R Style_Checks:N                          --  disable all style checks
+-R Restrictions : No_Obsolescent_Features  --  disable specific restriction

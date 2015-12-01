@@ -1,0 +1,53 @@
+project Certyflie is
+   for Languages use ("Ada");
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+   for Main use ("main.adb");
+
+   for Target use "arm-eabi";
+
+   --  Runtime attribute can be overridden by an environment variable. This is
+   --  required for CodePeer and SPARK2014 that need a full path to the
+   --  run-time directory. With the default value we can still build without
+   --  having to provide full path to the run-time.
+   for Runtime ("Ada") use external ("RUNTIME", "ravenscar-sfp-stm32f4");
+
+   --  Export run-time variables
+   type Loaders is ("ROM", "RAM");
+   Loader : Loaders := external ("LOADER", "ROM");
+
+   --  Variable for build mode
+   type Build_Type is ("Debug", "Release");
+   Build_Mode : Build_Type := external ("Build", "Release");
+
+   --  Default build switches
+   Build_Switches := ("-gnat12", "-gnatwa", "-gnatwe",
+                      "-gnatyg", "-gnaty-d", "-gnatw.X");
+
+   --  Add optimization/debug switches depending on the build mode
+   case Build_Mode is
+      when "Debug" =>
+         Build_Switches := Build_Switches & ("-g", "-O0");
+      when "Release" =>
+         Build_Switches := Build_Switches & ("-O3");
+   end case;
+
+   package Compiler is
+      for Default_Switches ("Ada") use Build_Switches;
+   end Compiler;
+
+   package Builder is
+      --  Set executable filename
+      for Executable ("main.adb") use "Certyflie.elf";
+
+      --  Configuration for SPARK2014
+      for Global_Compilation_Switches ("Ada") use
+        ("-gnateT=" & Certyflie'Project_Dir & "/config/stm32f4.atp");
+   end Builder;
+
+   package Check is
+      for Default_Switches ("Ada") use ("-rules",
+                                        "-from=config/gnatcheck.rules");
+   end Check;
+end Certyflie;
