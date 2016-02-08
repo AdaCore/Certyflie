@@ -9,7 +9,7 @@ with STM32F4.USARTs; use STM32F4.USARTs;
 with STM32F4_Discovery; use STM32F4_Discovery;
 
 with Types; use Types;
-with Generic_Queue_Pack;
+with Generic_Queue;
 
 package UART_Syslink is
 
@@ -35,7 +35,7 @@ package UART_Syslink is
 
 private
 
-   package T_Uint8_Queue is new Generic_Queue_Pack (T_Uint8);
+   package T_Uint8_Queue is new Generic_Queue (T_Uint8);
    use T_Uint8_Queue;
 
    --  Global variables and constants

@@ -3,7 +3,7 @@ pragma Profile (Ravenscar);
 with Last_Chance_Handler;
 with Ada.Real_Time; use Ada.Real_Time;
 
-with System_Pack; use System_Pack;
+with CF_System; use CF_System;
 with Config; use Config;
 
 pragma Unreferenced (Last_Chance_Handler);

@@ -1,7 +1,7 @@
 with Ada.Real_Time; use Ada.Real_Time;
 with System;
 with Types; use Types;
-with MPU9250_Pack; use MPU9250_Pack;
+with MPU9250; use MPU9250;
 
 package Config is
 
