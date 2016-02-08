@@ -1,101 +1,58 @@
 with Ada.Real_Time; use Ada.Real_Time;
 with Safety; use Safety;
 with Power_Management; use Power_Management;
+with STM32F4.RCC; use STM32F4.RCC;
 
 package body Motors is
 
    procedure Motors_Init is
-      GPIO_Configuration    : GPIO_Port_Configuration;
-      Timer_Configuration   : Timer_Config;
-      Channel_Configuration : Channel_Config;
    begin
-      --  Enable GPIOs
-      Enable_Clock (MOTORS_GPIO_M1_PORT);
-      Enable_Clock (MOTORS_GPIO_M2_PORT);
-      Enable_Clock (MOTORS_GPIO_M3_PORT);
-      Enable_Clock (MOTORS_GPIO_M4_PORT);
 
-      --  Configure GPIOs
-      GPIO_Configuration.Mode := Mode_AF;
-      GPIO_Configuration.Speed := Speed_25MHz;
-      GPIO_Configuration.Output_Type := Push_Pull;
-      GPIO_Configuration.Resistors := Pull_Down;
+      Initialise_PWM_Modulator
+        (Timer_2_PWM,
+         Requested_Frequency    => MOTORS_PWM_FREQUENCY,
+         PWM_Timer              => Timer_2'Access,
+         PWM_AF                 => GPIO_AF_TIM2,
+         Enable_PWM_Timer_Clock => TIM2_Clock_Enable'Access);
 
-      Configure_IO (Port => MOTORS_GPIO_M1_PORT,
-                    Pin  => MOTORS_GPIO_M1_PIN,
-                    Config => GPIO_Configuration);
-      Configure_IO (Port => MOTORS_GPIO_M2_PORT,
-                    Pin  => MOTORS_GPIO_M2_PIN,
-                    Config => GPIO_Configuration);
-      Configure_IO (Port => MOTORS_GPIO_M3_PORT,
-                    Pin  => MOTORS_GPIO_M3_PIN,
-                    Config => GPIO_Configuration);
-      Configure_IO (Port => MOTORS_GPIO_M4_PORT,
-                    Pin  => MOTORS_GPIO_M4_PIN,
-                    Config => GPIO_Configuration);
+      Initialise_PWM_Modulator
+        (Timer_4_PWM,
+         Requested_Frequency    => MOTORS_PWM_FREQUENCY,
+         PWM_Timer              => Timer_4'Access,
+         PWM_AF                 => GPIO_AF_TIM4,
+         Enable_PWM_Timer_Clock => TIM4_Clock_Enable'Access);
 
-      Configure_Alternate_Function
-        (Port => MOTORS_GPIO_M1_PORT,
-         Pin => MOTORS_GPIO_M1_PIN,
-         AF   => MOTORS_GPIO_AF_M1);
-      Configure_Alternate_Function
-        (Port => MOTORS_GPIO_M2_PORT,
-         Pin => MOTORS_GPIO_M2_PIN,
-         AF   => MOTORS_GPIO_AF_M2);
-      Configure_Alternate_Function
-        (Port => MOTORS_GPIO_M3_PORT,
-         Pin => MOTORS_GPIO_M3_PIN,
-         AF   => MOTORS_GPIO_AF_M3);
-      Configure_Alternate_Function
-        (Port => MOTORS_GPIO_M4_PORT,
-         Pin => MOTORS_GPIO_M4_PIN,
-         AF   => MOTORS_GPIO_AF_M4);
+      Attach_PWM_Channel
+        (MOTORS_TIMER_M1,
+         MOTORS_TIM_CHANNEL_M1,
+         (MOTORS_GPIO_M1_PORT'Access, MOTORS_GPIO_M1_PIN),
+         GPIOA_Clock_Enable'Access);
 
-      --  Configure the timers
-      Timer_Configuration := (Prescaler => MOTORS_PWM_PRESCALE,
-                              Period => MOTORS_PWM_PERIOD);
+      Attach_PWM_Channel
+        (MOTORS_TIMER_M2,
+         MOTORS_TIM_CHANNEL_M2,
+         (MOTORS_GPIO_M2_PORT'Access, MOTORS_GPIO_M2_PIN),
+         GPIOB_Clock_Enable'Access);
 
-      Config_Timer (Tim  => MOTORS_TIMER_M1,
-                    Conf => Timer_Configuration);
-      Config_Timer (Tim  => MOTORS_TIMER_M2,
-                    Conf => Timer_Configuration);
-      Config_Timer (Tim  => MOTORS_TIMER_M3,
-                    Conf => Timer_Configuration);
-      Config_Timer (Tim =>  MOTORS_TIMER_M4,
-                    Conf => Timer_Configuration);
+      Attach_PWM_Channel
+        (MOTORS_TIMER_M3,
+         MOTORS_TIM_CHANNEL_M3,
+         (MOTORS_GPIO_M3_PORT'Access, MOTORS_GPIO_M3_PIN),
+         GPIOA_Clock_Enable'Access);
 
-      --  Configure the channels
-      Channel_Configuration := (Mode => Output);
-
-      Config_Channel (Tim  => MOTORS_TIMER_M1,
-                      Ch   => MOTORS_TIM_CHANNEL_M1,
-                      Conf => Channel_Configuration);
-      Config_Channel (Tim  => MOTORS_TIMER_M2,
-                      Ch   => MOTORS_TIM_CHANNEL_M2,
-                      Conf => Channel_Configuration);
-      Config_Channel (Tim  => MOTORS_TIMER_M3,
-                      Ch   => MOTORS_TIM_CHANNEL_M3,
-                      Conf => Channel_Configuration);
-      Config_Channel (Tim  => MOTORS_TIMER_M4,
-                      Ch   => MOTORS_TIM_CHANNEL_M4,
-                      Conf => Channel_Configuration);
+      Attach_PWM_Channel
+        (MOTORS_TIMER_M4,
+         MOTORS_TIM_CHANNEL_M4,
+         (MOTORS_GPIO_M4_PORT'Access, MOTORS_GPIO_M4_PIN),
+         GPIOB_Clock_Enable'Access);
 
       --  Reset all the motors power to zero
       Motors_Reset;
 
-      --  Enable the channels
-      Set_Channel_State (Tim   => MOTORS_TIMER_M1,
-                         Ch    => MOTORS_TIM_CHANNEL_M1,
-                         State => Enabled);
-      Set_Channel_State (Tim   => MOTORS_TIMER_M2,
-                         Ch    => MOTORS_TIM_CHANNEL_M2,
-                         State => Enabled);
-      Set_Channel_State (Tim   => MOTORS_TIMER_M3,
-                         Ch    => MOTORS_TIM_CHANNEL_M3,
-                         State => Enabled);
-      Set_Channel_State (Tim   => MOTORS_TIMER_M4,
-                         Ch    => MOTORS_TIM_CHANNEL_M4,
-                         State => Enabled);
+      Enable_PWM_Channel (MOTORS_TIMER_M1, MOTORS_TIM_CHANNEL_M1);
+      Enable_PWM_Channel (MOTORS_TIMER_M2, MOTORS_TIM_CHANNEL_M2);
+      Enable_PWM_Channel (MOTORS_TIMER_M3, MOTORS_TIM_CHANNEL_M3);
+      Enable_PWM_Channel (MOTORS_TIMER_M4, MOTORS_TIM_CHANNEL_M4);
    end Motors_Init;
 
    procedure Motor_Set_Ratio
@@ -104,21 +61,21 @@ package body Motors is
    begin
       case ID is
          when MOTOR_M1 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
-                                 Ch      => MOTORS_TIM_CHANNEL_M1,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M1,
+                            Channel => MOTORS_TIM_CHANNEL_M1,
+                            Value   => Power_Percentage);
          when MOTOR_M2 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
-                                 Ch      => MOTORS_TIM_CHANNEL_M2,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This     => MOTORS_TIMER_M2,
+                            Channel => MOTORS_TIM_CHANNEL_M2,
+                            Value   => Power_Percentage);
          when MOTOR_M3 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
-                                 Ch      => MOTORS_TIM_CHANNEL_M3,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M3,
+                            Channel => MOTORS_TIM_CHANNEL_M3,
+                            Value   => Power_Percentage);
          when MOTOR_M4 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
-                                 Ch      => MOTORS_TIM_CHANNEL_M4,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M4,
+                            Channel => MOTORS_TIM_CHANNEL_M4,
+                            Value   => Power_Percentage);
       end case;
    end Motor_Set_Ratio;
 
@@ -136,30 +93,30 @@ package body Motors is
 
       case ID is
          when MOTOR_M1 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
-                                 Ch      => MOTORS_TIM_CHANNEL_M1,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M1,
+                            Channel => MOTORS_TIM_CHANNEL_M1,
+                            Value   => Power_Percentage);
          when MOTOR_M2 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
-                                 Ch      => MOTORS_TIM_CHANNEL_M2,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M2,
+                            Channel => MOTORS_TIM_CHANNEL_M2,
+                            Value   => Power_Percentage);
          when MOTOR_M3 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
-                                 Ch      => MOTORS_TIM_CHANNEL_M3,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M3,
+                            Channel => MOTORS_TIM_CHANNEL_M3,
+                            Value   => Power_Percentage);
          when MOTOR_M4 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
-                                 Ch      => MOTORS_TIM_CHANNEL_M4,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M4,
+                            Channel => MOTORS_TIM_CHANNEL_M4,
+                            Value   => Power_Percentage);
       end case;
    end Motor_Set_Power;
 
    procedure Motor_Set_Power_With_Bat_Compensation
      (ID : Motor_ID;
       Motor_Power : T_Uint16) is
-      Tmp_Thrust         : Float
+      Tmp_Thrust         : constant Float
         := (Float (Motor_Power) / Float (T_Uint16'Last)) * 60.0;
-      Volts              : Float
+      Volts              : constant Float
         := -0.0006239 * Tmp_Thrust * Tmp_Thrust + 0.088 * Tmp_Thrust;
       Supply_Voltage     : Float;
       Power_Percentage_F : Float;
@@ -173,21 +130,21 @@ package body Motors is
 
       case ID is
          when MOTOR_M1 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M1,
-                                 Ch      => MOTORS_TIM_CHANNEL_M1,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M1,
+                            Channel => MOTORS_TIM_CHANNEL_M1,
+                            Value   => Power_Percentage);
          when MOTOR_M2 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M2,
-                                 Ch      => MOTORS_TIM_CHANNEL_M2,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M2,
+                            Channel => MOTORS_TIM_CHANNEL_M2,
+                            Value   => Power_Percentage);
          when MOTOR_M3 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M3,
-                                 Ch      => MOTORS_TIM_CHANNEL_M3,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M3,
+                            Channel => MOTORS_TIM_CHANNEL_M3,
+                            Value   => Power_Percentage);
          when MOTOR_M4 =>
-            Set_Duty_Percentage (Tim     => MOTORS_TIMER_M4,
-                                 Ch      => MOTORS_TIM_CHANNEL_M4,
-                                 Percent => Power_Percentage);
+            Set_Duty_Cycle (This    => MOTORS_TIMER_M4,
+                            Channel => MOTORS_TIM_CHANNEL_M4,
+                            Value   => Power_Percentage);
       end case;
    end Motor_Set_Power_With_Bat_Compensation;
 
