@@ -1,12 +1,10 @@
 pragma Profile (Ravenscar);
 
-with Last_Chance_Handler;
 with Ada.Real_Time; use Ada.Real_Time;
+with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
 
 with System_Pack; use System_Pack;
 with Config; use Config;
-
-pragma Unreferenced (Last_Chance_Handler);
 
 procedure Main is
    pragma Priority (MAIN_TASK_PRIORITY);

@@ -1,0 +1,3 @@
+[submodule "ada_spark/stm32_peripheral_libs"]
+	path = ada_spark/stm32_peripheral_libs
+	url = git://github.com/AdaCore/bareboard.git

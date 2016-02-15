@@ -54,7 +54,7 @@ package body MPU9250_Pack is
       GPIO_Conf.Mode        := Mode_AF;
       GPIO_Conf.Output_Type := Open_Drain;
       GPIO_Conf.Resistors   := Pull_Up;
-      GPIO_Conf.Locked      := True;
+
       Configure_IO (MPU9250_SCL_GPIO, MPU9250_SCL_Pin, GPIO_Conf);
       Configure_IO (MPU9250_SDA_GPIO, MPU9250_SDA_Pin, GPIO_Conf);
    end MPU9250_Init_Control_Lines;

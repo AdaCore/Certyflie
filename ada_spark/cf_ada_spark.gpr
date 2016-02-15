@@ -4,7 +4,11 @@ project Cf_Ada_SPARK is
    for Main use ("main.adb");
    for Source_Dirs use ("init",
                         "config",
-                        "stm32f4-peripheral-lib",
+                        "stm32_peripheral_libs/ARM/STMicro/STM32/boards",
+                        "stm32_peripheral_libs/ARM/STMicro/STM32/components",
+                        "stm32_peripheral_libs/ARM/STMicro/STM32/drivers",
+                        "stm32_peripheral_libs/ARM/STMicro/STM32/devices",
+                        "stm32_peripheral_libs/ARM/STMicro/STM32/utils",
                         "types/spec",
                         "utils/spec",
                         "utils/body",
@@ -36,7 +40,8 @@ project Cf_Ada_SPARK is
    end Builder;
 
    package Naming is
-      for Implementation ("last_chance_handler") use "last_chance_handler-stm32f429xx.adb";
+      for Spec ("last_chance_handler") use "last_chance_handler-sfp.ads";
+      for Body ("last_chance_handler") use "last_chance_handler-stm32f429xx-sfp.adb";
    end Naming;
 
    package Ide is
