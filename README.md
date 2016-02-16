@@ -31,7 +31,7 @@ and
  |  + FreeRTOS  | Source FreeRTOS folder. Cleaned up from the useless files
  |  + STM32...  | Library folders of the ST STM32 peripheral libs
  |  + CMSIS     | Core abstraction layer
-
+```
 ##### SPARK code
 ```
  + ada_spark       | Contains the parts that have been reimplemented in SPARK
