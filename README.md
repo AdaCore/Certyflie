@@ -21,7 +21,6 @@ This branch contains the source code for the full Ada + SPARK Crazyflie 2.0 firm
  |  + spec               | Utils packages specification. Used by other parts of the firmware (e.g: modules, HAL)
  + types
  |  + spec               | Contains type definitions that are shared with several firmware parts
- |              | *** The two following folders contains the unmodified files ***
  + stm32_peripheral_libs | Git submodule for STM32 peripheral libraries. See: https://github.com/AdaCore/bareboard
 ```
 
@@ -61,14 +60,14 @@ gprbuild --target=arm-eabi -P runtime_build.gpr
 Once you modified and rebuilt the runtime, you will be able to build the actual firmware.
 To do it, go on the project's root directory and type:
 ```
-. gprbuild -P cf_ada_spark.gpr -p
+ gprbuild -P cf_ada_spark.gpr -p
 ```
 
-###4. Flashing the fiwmware
+####4. Flashing the firmware
 
-The fimware can be flashed using the STM32f4 DFU mode.
+The firmware can be flashed using the STM32f4 DFU mode.
 
-First, Install the *dfu-util* on your matchine. On Ubuntu:
+First, install the *dfu-util* on your matchine. On Ubuntu:
 ```
 apt-get install dfu-util
 ```
