@@ -1,6 +1,10 @@
 package body Worker_Pack
   with SPARK_Mode
 is
+   -----------------
+   -- Worker_Init --
+   -----------------
+
    procedure Worker_Init is
    begin
       if Worker_Queue = System.Null_Address then
@@ -8,6 +12,10 @@ is
                                         Worker_Work'Size / 8);
       end if;
    end Worker_Init;
+
+   -----------------
+   -- Worker_Test --
+   -----------------
 
    function Worker_Test return bool is
    begin
@@ -18,7 +26,12 @@ is
       end if;
    end Worker_Test;
 
-   procedure Worker_Loop is
+   -----------------
+   -- Worker_Loop --
+   -----------------
+
+   procedure Worker_Loop
+   is
       Work : Worker_Work := (None, System.Null_Address);
       Res : Integer;
    begin
@@ -40,9 +53,14 @@ is
       end if;
    end Worker_Loop;
 
+   ---------------------
+   -- Worker_Schedule --
+   ---------------------
+
    function Worker_Schedule
      (Func_ID : Integer;
-      Arg     : Pvoid) return Integer is
+      Arg     : Pvoid) return Integer
+   is
       Work : Worker_Work;
       Res : Integer;
    begin
@@ -63,7 +81,16 @@ is
       return 0;
    end Worker_Schedule;
 
-   procedure Log_Run_Worker (Arg : Pvoid) is
+   --------------------
+   -- Log_Run_Worker --
+   --------------------
+
+   procedure Log_Run_Worker (Arg : Pvoid)
+   is
+      ---------------------
+      -- Worker_Function --
+      ---------------------
+
       procedure Worker_Function (Arg : Pvoid)
         with
           Global => null;
@@ -72,7 +99,16 @@ is
       Worker_Function (Arg);
    end Log_Run_Worker;
 
-   procedure Neo_Pixel_Ring_Worker (Arg : Pvoid) is
+   ---------------------------
+   -- Neo_Pixel_Ring_Worker --
+   ---------------------------
+
+   procedure Neo_Pixel_Ring_Worker (Arg : Pvoid)
+   is
+      ---------------------
+      -- Worker_Function --
+      ---------------------
+
       procedure Worker_Function (Arg : Pvoid)
      with
        Global => null;
@@ -82,4 +118,3 @@ is
    end Neo_Pixel_Ring_Worker;
 
 end Worker_Pack;
-

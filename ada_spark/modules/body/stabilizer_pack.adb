@@ -67,7 +67,12 @@ is
 
    --  Private procedures and functions
 
-   function Limit_Thrust (Value : T_Int32) return T_Uint16 is
+   ------------------
+   -- Limit_Thrust --
+   ------------------
+
+   function Limit_Thrust (Value : T_Int32) return T_Uint16
+   is
       Res : T_Uint16;
    begin
       if Value > T_Int32 (T_Uint16'Last) then
@@ -82,11 +87,16 @@ is
       return Res;
    end Limit_Thrust;
 
+   ---------------------------------
+   -- Stabilizer_Distribute_Power --
+   ---------------------------------
+
    procedure Stabilizer_Distribute_Power
      (Thrust : T_Uint16;
       Roll   : T_Int16;
       Pitch  : T_Int16;
-      Yaw    : T_Int16) is
+      Yaw    : T_Int16)
+   is
       T : T_Int32 := T_Int32 (Thrust);
       R : T_Int32 := T_Int32 (Roll);
       P : T_Int32 := T_Int32 (Pitch);
@@ -112,6 +122,10 @@ is
       Motor_Set_Ratio (MOTOR_M3, Motor_Power_M3);
       Motor_Set_Ratio (MOTOR_M4, Motor_Power_M4);
    end Stabilizer_Distribute_Power;
+
+   --------------------------------
+   -- Stabilizer_Update_Attitude --
+   --------------------------------
 
    procedure Stabilizer_Update_Attitude is
    begin
@@ -147,6 +161,10 @@ is
                                    Yaw_Rate_Desired);
    end Stabilizer_Update_Attitude;
 
+   ----------------------------
+   -- Stabilizer_Update_Rate --
+   ----------------------------
+
    procedure Stabilizer_Update_Rate is
    begin
       --  If CF is in Rate mode, give the angles given by the pilot
@@ -172,7 +190,12 @@ is
                                       Actuator_Yaw);
    end Stabilizer_Update_Rate;
 
-   procedure Stabilizer_Alt_Hold_Update is
+   --------------------------------
+   -- Stabilizer_Alt_Hold_Update --
+   --------------------------------
+
+   procedure Stabilizer_Alt_Hold_Update
+   is
       LPS25H_Data_Valid   : Boolean;
       Prev_Integ          : Float;
       Baro_V_Speed        : T_Speed;
@@ -281,6 +304,10 @@ is
    end Stabilizer_Alt_Hold_Update;
 
    --  Public functions
+
+   -----------------------------
+   -- Stabilizer_Control_Loop --
+   -----------------------------
 
    procedure Stabilizer_Control_Loop
      (Attitude_Update_Counter : in out T_Uint32;

@@ -1,10 +1,18 @@
 package body Commander_Pack is
 
-   --  Procedures and functions
+   -----------------------
+   -- Commander_Get_RPY --
+   -----------------------
+
    procedure Commander_Get_RPY
      (Euler_Roll_Desired  : in out T_Degrees;
       Euler_Pitch_Desired : in out T_Degrees;
-      Euler_Yaw_Desired   : in out T_Degrees) is
+      Euler_Yaw_Desired   : in out T_Degrees)
+   is
+      -------------------------------
+      -- Commander_Get_RPY_Wrapper --
+      -------------------------------
+
       procedure Commander_Get_RPY_Wrapper
         (Euler_Roll_Desired  : in out Float;
          Euler_Pitch_Desired : in out Float;

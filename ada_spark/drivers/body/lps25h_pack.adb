@@ -1,10 +1,19 @@
 package body LPS25h_pack is
 
+   ---------------------
+   -- LPS25h_Get_Data --
+   ---------------------
+
    procedure LPS25h_Get_Data
      (Pressure    : out T_Pressure;
       Temperature : out T_Temperature;
       Asl         : out T_Altitude;
-      Status      : out Boolean) is
+      Status      : out Boolean)
+   is
+      -----------------------------
+      -- LPS25h_Get_Data_Wrapper --
+      -----------------------------
+
       function LPS25h_Get_Data_Wrapper
         (Pressure    : out T_Pressure;
          Temperature : out T_Temperature;

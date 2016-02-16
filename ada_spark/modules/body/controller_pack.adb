@@ -14,6 +14,10 @@ SPARK_Mode,
                     Controller_State  =>  Is_Init)
 is
 
+   ---------------------
+   -- Controller_Init --
+   ---------------------
+
    procedure Controller_Init is
    begin
       Rate_Pid.Pid_Init (Roll_Rate_Pid, 0.0, PID_ROLL_RATE_KP,
@@ -52,7 +56,12 @@ is
       Is_Init := True;
    end Controller_Init;
 
-   function Controller_Test return bool is
+   ---------------------
+   -- Controller_Test --
+   ---------------------
+
+   function Controller_Test return bool
+   is
       Res : bool;
    begin
       if Is_Init then
@@ -64,12 +73,17 @@ is
       return Res;
    end Controller_Test;
 
-   procedure Controller_Correct_Rate_PID (Roll_Rate_Actual   : T_Rate;
-                                          Pitch_Rate_Actual  : T_Rate;
-                                          Yaw_Rate_Actual    : T_Rate;
-                                          Roll_Rate_Desired  : T_Rate;
-                                          Pitch_Rate_Desired : T_Rate;
-                                          Yaw_Rate_Desired   : T_Rate) is
+   ---------------------------------
+   -- Controller_Correct_Rate_PID --
+   ---------------------------------
+
+   procedure Controller_Correct_Rate_PID
+     (Roll_Rate_Actual   : T_Rate;
+      Pitch_Rate_Actual  : T_Rate;
+      Yaw_Rate_Actual    : T_Rate;
+      Roll_Rate_Desired  : T_Rate;
+      Pitch_Rate_Desired : T_Rate;
+      Yaw_Rate_Desired   : T_Rate) is
    begin
       Rate_Pid.Pid_Set_Desired (Roll_Rate_Pid, Roll_Rate_Desired);
       Rate_Pid.Pid_Set_Desired (Pitch_Rate_Pid, Pitch_Rate_Desired);
@@ -80,13 +94,18 @@ is
       Rate_Pid.Pid_Update (Yaw_Rate_Pid, Yaw_Rate_Actual, True);
    end Controller_Correct_Rate_PID;
 
+   -------------------------------------
+   -- Controller_Correct_Attitude_Pid --
+   -------------------------------------
+
    procedure Controller_Correct_Attitude_Pid
      (Euler_Roll_Actual   : T_Degrees;
       Euler_Pitch_Actual  : T_Degrees;
       Euler_Yaw_Actual    : T_Degrees;
       Euler_Roll_Desired  : T_Degrees;
       Euler_Pitch_Desired : T_Degrees;
-      Euler_Yaw_Desired   : T_Degrees) is
+      Euler_Yaw_Desired   : T_Degrees)
+   is
       Yaw_Error : Float := Euler_Yaw_Desired - Euler_Yaw_Actual;
    begin
       Attitude_Pid.Pid_Set_Desired (Roll_Pid, Euler_Roll_Desired);
@@ -106,6 +125,10 @@ is
       Attitude_Pid.Pid_Update (Yaw_Pid, Euler_Yaw_Actual, False);
    end Controller_Correct_Attitude_Pid;
 
+   ------------------------------
+   -- Controller_Reset_All_Pid --
+   ------------------------------
+
    procedure Controller_Reset_All_Pid is
    begin
       Rate_Pid.Pid_Reset (Roll_Rate_Pid);
@@ -116,9 +139,14 @@ is
       Attitude_Pid.Pid_Reset (Yaw_Pid);
    end Controller_Reset_All_Pid;
 
-   procedure Controller_Get_Actuator_Output (Actuator_Roll  : out T_Int16;
-                                             Actuator_Pitch : out T_Int16;
-                                             Actuator_Yaw   : out T_Int16) is
+   ------------------------------------
+   -- Controller_Get_Actuator_Output --
+   ------------------------------------
+
+   procedure Controller_Get_Actuator_Output
+     (Actuator_Roll  : out T_Int16;
+      Actuator_Pitch : out T_Int16;
+      Actuator_Yaw   : out T_Int16) is
    begin
       Actuator_Roll := Truncate_To_T_Int16
         (Rate_Pid.Pid_Get_Output (Roll_Rate_Pid));
@@ -128,9 +156,14 @@ is
         (Rate_Pid.Pid_Get_Output (Yaw_Rate_Pid));
    end Controller_Get_Actuator_Output;
 
-   procedure Controller_Get_Desired_Rate (Roll_Rate_Desired  : out Float;
-                                          Pitch_Rate_Desired : out Float;
-                                          Yaw_Rate_Desired   : out Float) is
+   ---------------------------------
+   -- Controller_Get_Desired_Rate --
+   ---------------------------------
+
+   procedure Controller_Get_Desired_Rate
+     (Roll_Rate_Desired  : out Float;
+      Pitch_Rate_Desired : out Float;
+      Yaw_Rate_Desired   : out Float) is
    begin
       Roll_Rate_Desired := Attitude_Pid.Pid_Get_Output (Roll_Pid);
       Pitch_Rate_Desired := Attitude_Pid.Pid_Get_Output (Pitch_Pid);

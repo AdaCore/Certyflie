@@ -1,8 +1,16 @@
 package body Motors_Pack is
 
+   ---------------------
+   -- Motor_Set_Ratio --
+   ---------------------
+
    procedure Motor_Set_Ratio
      (ID          : Motor_ID;
-      Motor_Power : T_Uint16) is
+      Motor_Power : T_Uint16)
+   is
+      -----------------------------
+      -- Motor_Set_Ratio_Wrapper --
+      -----------------------------
 
       procedure Motor_Set_Ratio_Wrapper
         (ID          : T_Int16;

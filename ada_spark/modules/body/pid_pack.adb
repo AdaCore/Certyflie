@@ -4,6 +4,10 @@ package body Pid_Pack
 with SPARK_Mode
 is
 
+   --------------
+   -- Pid_Init --
+   --------------
+
    procedure Pid_Init
      (Pid          : out Pid_Object;
       Desired      : T_Input;
@@ -30,6 +34,10 @@ is
       Pid.Dt := Dt;
    end Pid_Init;
 
+   ---------------
+   -- Pid_Reset --
+   ---------------
+
    procedure Pid_Reset (Pid : in out Pid_Object) is
    begin
       Pid.Error := 0.0;
@@ -37,6 +45,10 @@ is
       Pid.Integ := 0.0;
       Pid.Deriv := 0.0;
    end Pid_Reset;
+
+   ----------------
+   -- Pid_Update --
+   ----------------
 
    procedure Pid_Update
      (Pid          : in out Pid_Object;
@@ -68,10 +80,19 @@ is
       Pid.Prev_Error := Pid.Error;
    end Pid_Update;
 
+   --------------------
+   -- Pid_Get_Output --
+   --------------------
+
    function Pid_Get_Output (Pid : Pid_Object) return Float is
      (Pid.Out_P + Pid.Out_I + Pid.Out_D);
 
-   function Pid_Is_Active (Pid : Pid_Object) return Boolean is
+   -------------------
+   -- Pid_Is_Active --
+   -------------------
+
+   function Pid_Is_Active (Pid : Pid_Object) return Boolean
+   is
       Is_Active : Boolean := True;
    begin
       if Pid.Kp < 0.0001 and Pid.Ki < 0.0001 and Pid.Kd < 0.0001 then
@@ -81,6 +102,10 @@ is
       return Is_Active;
    end Pid_Is_Active;
 
+   ---------------------
+   -- Pid_Set_Desired --
+   ---------------------
+
    procedure Pid_Set_Desired
      (Pid     : in out Pid_Object;
       Desired : T_Input) is
@@ -88,8 +113,16 @@ is
       Pid.Desired := Desired;
    end Pid_Set_Desired;
 
+   ---------------------
+   -- Pid_Get_Desired --
+   ---------------------
+
    function Pid_Get_Desired (Pid : Pid_Object) return Float is
      (Pid.Desired);
+
+   -------------------
+   -- Pid_Set_Error --
+   -------------------
 
    procedure Pid_Set_Error
      (Pid   : in out Pid_Object;
@@ -98,12 +131,20 @@ is
       Pid.Error := Error;
    end Pid_Set_Error;
 
+   ----------------
+   -- Pid_Set_Kp --
+   ----------------
+
    procedure Pid_Set_Kp
      (Pid : in out Pid_Object;
       Kp  : T_Coeff) is
    begin
       Pid.Kp := Kp;
    end Pid_Set_Kp;
+
+   ----------------
+   -- Pid_Set_Ki --
+   ----------------
 
    procedure Pid_Set_Ki
      (Pid : in out Pid_Object;
@@ -112,12 +153,20 @@ is
       Pid.Ki := Ki;
    end Pid_Set_Ki;
 
+   ----------------
+   -- Pid_Set_Kd --
+   ----------------
+
    procedure Pid_Set_Kd
      (Pid : in out Pid_Object;
       Kd  : T_Coeff) is
    begin
       Pid.Kd := Kd;
    end Pid_Set_Kd;
+
+   -------------------------
+   -- Pid_Set_I_Limit_Low --
+   -------------------------
 
    procedure Pid_Set_I_Limit_Low
      (Pid          : in out Pid_Object;
@@ -126,12 +175,20 @@ is
       Pid.I_Limit_Low := I_Limit_Low;
    end Pid_Set_I_Limit_Low;
 
+   --------------------------
+   -- Pid_Set_I_Limit_High --
+   --------------------------
+
    procedure Pid_Set_I_Limit_High
      (Pid            : in out Pid_Object;
       I_Limit_High   : T_I_Limit) is
    begin
       Pid.I_Limit_High := I_Limit_High;
    end Pid_Set_I_Limit_High;
+
+   ----------------
+   -- Pid_Set_Dt --
+   ----------------
 
    procedure Pid_Set_Dt
      (Pid : in out Pid_Object;

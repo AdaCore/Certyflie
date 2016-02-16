@@ -1,16 +1,29 @@
 package body Debug_Pack is
 
-   procedure Debug_Print (Str : String) is
+   -----------------
+   -- Debug_Print --
+   -----------------
+
+   procedure Debug_Print (Str : String)
+   is
       C_Str : char_array := To_C (Str);
       Res : Integer;
    begin
       Res := C_ConsolePuts (C_Str);
    end Debug_Print;
 
+   ----------
+   -- To_C --
+   ----------
+
    function To_C (Item : Character) return char is
    begin
       return char'Val (Character'Pos (Item));
    end To_C;
+
+   ----------
+   -- To_C --
+   ----------
 
    function To_C
      (Item       : String;

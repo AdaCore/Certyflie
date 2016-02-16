@@ -5,7 +5,16 @@ package body Maths_Pack
   with SPARK_Mode
 is
 
-   function Inv_Sqrt (X : Float) return Float is
+   --------------
+   -- Inv_Sqrt --
+   --------------
+
+   function Inv_Sqrt (X : Float) return Float
+   is
+      -----------
+      -- Sqrtf --
+      -----------
+
       function Sqrtf (X : Float) return Float with
         Global => null,
         Pre    => X >= Float'Succ (0.0),
@@ -15,6 +24,10 @@ is
       return 1.0 / Sqrtf (X);
    end Inv_Sqrt;
 
+   ----------
+   -- Atan --
+   ----------
+
    function Atan (Y :  Float; X : Float) return T_Radians is
    begin
       --  We constrain the return value accordingly to
@@ -22,6 +35,10 @@ is
       --  (A.5.1 Elementary Functions)
       return Saturate (Arctan (Y, X), -Pi, Pi);
    end Atan;
+
+   ----------
+   -- Asin --
+   ----------
 
    function Asin (X : Float) return T_Radians is
    begin
