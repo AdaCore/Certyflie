@@ -7,9 +7,8 @@ and
 [AdaCore Blog post](http://blog.adacore.com/how-to-prevent-drone-crashes-using-spark)
 
 ####Folder description
+#####C Code
 ```
-** C Code **
-
 ./              | Root, contains the Makefile
  + init         | Contains the main.c
  + config       | Configuration files
@@ -33,7 +32,8 @@ and
  |  + STM32...  | Library folders of the ST STM32 peripheral libs
  |  + CMSIS     | Core abstraction layer
 
-** SPARK code **
+##### SPARK code
+```
  + ada_spark       | Contains the parts that have been reimplemented in SPARK
  |  . cf_spark.gpr | The .gpr project file used to build the firmware part written in SPARK
  |  + config       | Configuration files
