@@ -1,9 +1,9 @@
-B1;3409;0c#Crazyflie 2.0 Firmware
+#Crazyflie 2.0 Firmware
 
 This project contains the original source code for the Crazyflie 2.0 firmware with a rewritten part in SPARK 2014.
 More information can be found on the
 [Bitcraze wiki](http://wiki.bitcraze.se/projects:crazyflie2:index)
-and
+and by reading this
 [AdaCore Blog post](http://blog.adacore.com/how-to-prevent-drone-crashes-using-spark)
 
 ####Folder description
