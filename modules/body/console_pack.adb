@@ -1,5 +1,9 @@
 package body Console_Pack is
 
+   ------------------
+   -- Console_Init --
+   ------------------
+
    procedure Console_Init is
    begin
       if Is_Init then
@@ -17,6 +21,10 @@ package body Console_Pack is
       return Is_Init;
    end Console_Test;
 
+   --------------------------
+   -- Console_Send_Message --
+   --------------------------
+
    procedure Console_Send_Message (Has_Succeed : out Boolean) is
    begin
       CRTP_Send_Packet
@@ -26,6 +34,10 @@ package body Console_Pack is
       CRTP_Reset_Handler (Message_To_Print);
    end Console_Send_Message;
 
+   -------------------
+   -- Console_Flush --
+   -------------------
+
    procedure Console_Flush (Has_Succeed : out Boolean) is
    begin
       Suspend_Until_True (Console_Access);
@@ -33,11 +45,22 @@ package body Console_Pack is
       Set_True (Console_Access);
    end Console_Flush;
 
+   ----------------------
+   -- Console_Put_Line --
+   ----------------------
+
    procedure Console_Put_Line
      (Message     : String;
-      Has_Succeed : out Boolean) is
+      Has_Succeed : out Boolean)
+   is
       Free_Bytes_In_Packet : Boolean := True;
+
+      --------------------------------
+      -- CRTP_Append_Character_Data --
+      --------------------------------
+
       procedure CRTP_Append_Character_Data is new CRTP_Append_Data (Character);
+
    begin
       for C of Message loop
          CRTP_Append_Character_Data

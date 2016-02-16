@@ -2,6 +2,10 @@ package body UART_Syslink is
 
    --  Public procedures and functions
 
+   -----------------------
+   -- UART_Syslink_Init --
+   -----------------------
+
    procedure UART_Syslink_Init is
    begin
       Initialize_USART;
@@ -13,10 +17,18 @@ package body UART_Syslink is
       Enable_USART_Rx_Interrupts;
    end UART_Syslink_Init;
 
-   procedure UART_Get_Data_Blocking (Rx_Byte     : out T_Uint8) is
+   ----------------------------
+   -- UART_Get_Data_Blocking --
+   ----------------------------
+
+   procedure UART_Get_Data_Blocking (Rx_Byte : out T_Uint8) is
    begin
       Rx_IRQ_Handler.Await_Byte_Reception (Rx_Byte);
    end UART_Get_Data_Blocking;
+
+   ---------------------------------
+   -- UART_Send_DMA_Data_Blocking --
+   ---------------------------------
 
    procedure UART_Send_DMA_Data_Blocking
      (Data_Size : Natural;
@@ -38,6 +50,10 @@ package body UART_Syslink is
    end UART_Send_DMA_Data_Blocking;
 
    --  Private procedures and functions
+
+   ----------------------
+   -- Initialize_USART --
+   ----------------------
 
    procedure Initialize_USART is
       Configuration : GPIO_Port_Configuration;
@@ -61,6 +77,10 @@ package body UART_Syslink is
          AF   => Transceiver_AF);
    end Initialize_USART;
 
+   ---------------------
+   -- Configure_USART --
+   ---------------------
+
    procedure Configure_USART is
    begin
       Disable (Transceiver);
@@ -74,6 +94,10 @@ package body UART_Syslink is
 
       Enable (Transceiver);
    end Configure_USART;
+
+   --------------------
+   -- Initialize_DMA --
+   --------------------
 
    procedure Initialize_DMA is
       Configuration : DMA_Stream_Configuration;
@@ -97,10 +121,18 @@ package body UART_Syslink is
       --  note the controller is disabled by the call to Configure
    end Initialize_DMA;
 
+   --------------------------------
+   -- Enable_USART_Rx_Interrupts --
+   --------------------------------
+
    procedure Enable_USART_Rx_Interrupts is
    begin
       Enable_Interrupts (Transceiver, Source => Received_Data_Not_Empty);
    end Enable_USART_Rx_Interrupts;
+
+   -------------------------------
+   -- Finalize_DMA_Transmission --
+   -------------------------------
 
    procedure Finalize_DMA_Transmission (Transceiver : in out USART) is
       --  see static void USART_DMATransmitCplt
@@ -114,13 +146,25 @@ package body UART_Syslink is
 
    --  Tasks and protected objects
 
+   --------------------
+   -- Tx_IRQ_Handler --
+   --------------------
+
    protected body Tx_IRQ_Handler is
+
+      -----------------------------
+      -- Await_Transfer_Complete --
+      -----------------------------
 
       entry Await_Transfer_Complete when Transfer_Complete is
       begin
          Event_Occurred := False;
          Transfer_Complete := False;
       end Await_Transfer_Complete;
+
+      -----------------
+      -- IRQ_Handler --
+      -----------------
 
       procedure IRQ_Handler is
       begin
@@ -220,7 +264,15 @@ package body UART_Syslink is
 
    end Tx_IRQ_Handler;
 
+   --------------------
+   -- Rx_IRQ_Handler --
+   --------------------
+
    protected body Rx_IRQ_Handler is
+
+      --------------------------
+      -- Await_Byte_Reception --
+      --------------------------
 
       entry Await_Byte_Reception (Rx_Byte : out T_Uint8)
         when Byte_Avalaible is
@@ -228,6 +280,10 @@ package body UART_Syslink is
          Dequeue (Rx_Queue, Rx_Byte);
          Byte_Avalaible := not Is_Empty (Rx_Queue);
       end Await_Byte_Reception;
+
+      -----------------
+      -- IRQ_Handler --
+      -----------------
 
       procedure IRQ_Handler is
          Received_Byte : T_Uint8;

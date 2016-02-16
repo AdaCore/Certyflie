@@ -4,6 +4,10 @@ with Power_Management_Pack; use Power_Management_Pack;
 
 package body Motors_Pack is
 
+   -----------------
+   -- Motors_Init --
+   -----------------
+
    procedure Motors_Init is
    begin
       --  Initialize the pwm modulators
@@ -60,9 +64,14 @@ package body Motors_Pack is
       Motors_Reset;
    end Motors_Init;
 
+   ---------------------
+   -- Motor_Set_Power --
+   ---------------------
+
    procedure Motor_Set_Power
      (ID : Motor_ID;
-      Motor_Power : T_Uint16) is
+      Motor_Power : T_Uint16)
+   is
       Power_Percentage_F : Float;
       Power_Percentage   : Percentage;
    begin
@@ -92,9 +101,14 @@ package body Motors_Pack is
       end case;
    end Motor_Set_Power;
 
+   -------------------------------------------
+   -- Motor_Set_Power_With_Bat_Compensation --
+   -------------------------------------------
+
    procedure Motor_Set_Power_With_Bat_Compensation
      (ID : Motor_ID;
-      Motor_Power : T_Uint16) is
+      Motor_Power : T_Uint16)
+   is
       Tmp_Thrust         : Float
         := (Float (Motor_Power) / Float (T_Uint16'Last)) * 60.0;
       Volts              : Float
@@ -129,7 +143,12 @@ package body Motors_Pack is
       end case;
    end Motor_Set_Power_With_Bat_Compensation;
 
-   function Motors_Test return Boolean is
+   -----------------
+   -- Motors_Test --
+   -----------------
+
+   function Motors_Test return Boolean
+   is
       Next_Period_1 : Time;
       Next_Period_2 : Time;
    begin
@@ -144,6 +163,10 @@ package body Motors_Pack is
 
       return True;
    end Motors_Test;
+
+   ------------------
+   -- Motors_Reset --
+   ------------------
 
    procedure Motors_Reset is
    begin

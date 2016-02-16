@@ -1,10 +1,2 @@
-version.c
-^bin/dep/all
-bin/*
-.cproject
-.project
-.settings/*
-ada_spark/stm32f4-peripheral-lib
-ada_spark/obj
-*~
-cflie.*
+obj/
+bin/

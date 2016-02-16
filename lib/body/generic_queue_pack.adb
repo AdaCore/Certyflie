@@ -1,5 +1,9 @@
 package body Generic_Queue_Pack is
 
+   -------------
+   -- Enqueue --
+   -------------
+
    procedure Enqueue
      (Queue : in out T_Queue;
       Item  : T_Element) is
@@ -17,6 +21,10 @@ package body Generic_Queue_Pack is
       Queue.Count := Queue.Count + 1;
    end Enqueue;
 
+   -------------
+   -- Dequeue --
+   -------------
+
    procedure Dequeue
      (Queue : in out T_Queue;
       Item  : out T_Element) is
@@ -33,22 +41,42 @@ package body Generic_Queue_Pack is
       Queue.Count := Queue.Count - 1;
    end Dequeue;
 
+   -----------
+   -- Reset --
+   -----------
+
    procedure Reset (Queue : in out T_Queue) is
    begin
       Queue.Count := 0;
    end Reset;
+
+   --------------
+   -- Is_Empty --
+   --------------
 
    function Is_Empty (Queue : T_Queue) return Boolean is
    begin
       return Queue.Count = 0;
    end Is_Empty;
 
+   -------------
+   -- Is_Full --
+   -------------
+
    function Is_Full (Queue : T_Queue) return Boolean is
    begin
       return Queue.Count = Queue.Container'Length;
    end Is_Full;
 
+   ---------------------
+   -- Protected_Queue --
+   ---------------------
+
    protected body Protected_Queue is
+
+      ------------------
+      -- Enqueue_Item --
+      ------------------
 
       procedure Enqueue_Item
         (Item         : T_Element;

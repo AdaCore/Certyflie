@@ -3,6 +3,10 @@ with Radiolink_Pack; use Radiolink_Pack;
 
 package body Link_Interface_Pack is
 
+   ---------------
+   -- Link_Init --
+   ---------------
+
    procedure Link_Init is
    begin
       if Is_Init then
@@ -20,6 +24,10 @@ package body Link_Interface_Pack is
       Is_Init := True;
    end Link_Init;
 
+   ----------------------
+   -- Link_Send_Packet --
+   ----------------------
+
    function Link_Send_Packet (Packet : CRTP_Packet) return Boolean is
    begin
       case LINK_LAYER_TYPE is
@@ -30,6 +38,10 @@ package body Link_Interface_Pack is
             return False;
       end case;
    end Link_Send_Packet;
+
+   ----------------------------------
+   -- Link_Receive_Packet_Blocking --
+   ----------------------------------
 
    procedure Link_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
    begin

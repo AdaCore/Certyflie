@@ -6,6 +6,10 @@ with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
 with System_Pack; use System_Pack;
 with Config; use Config;
 
+----------
+-- Main --
+----------
+
 procedure Main is
    pragma Priority (MAIN_TASK_PRIORITY);
    Self_Test_Passed : Boolean;

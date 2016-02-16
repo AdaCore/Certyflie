@@ -3,6 +3,10 @@ with Power_Management_Pack; use Power_Management_Pack;
 
 package body Syslink_Pack is
 
+   ------------------
+   -- Syslink_Init --
+   ------------------
+
    procedure Syslink_Init is
    begin
       if Is_Init then
@@ -16,12 +20,21 @@ package body Syslink_Pack is
       Is_Init := True;
    end Syslink_Init;
 
+   ------------------
+   -- Syslink_Test --
+   ------------------
+
    function Syslink_Test return Boolean is
    begin
       return Is_Init;
    end Syslink_Test;
 
-   procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet) is
+   -------------------------
+   -- Syslink_Send_Packet --
+   -------------------------
+
+   procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet)
+   is
       Data_Size : Natural;
       Chk_Sum   : array (1 .. 2) of T_Uint8 := (others => 0);
    begin
@@ -48,9 +61,19 @@ package body Syslink_Pack is
       Set_True (Syslink_Access);
    end Syslink_Send_Packet;
 
-   procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet) is
+   -----------------------------------
+   -- Syslink_Route_Incoming_Packet --
+   -----------------------------------
+
+   procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet)
+   is
       Group_Type_Raw : T_Uint8;
       Group_Type     : Syslink_Packet_Group_Type;
+
+      ------------------------------------------
+      -- T_Uint8_To_Syslink_Packet_Group_Type --
+      ------------------------------------------
+
       function T_Uint8_To_Syslink_Packet_Group_Type is
         new Ada.Unchecked_Conversion (T_Uint8, Syslink_Packet_Group_Type);
 
@@ -70,6 +93,10 @@ package body Syslink_Pack is
             null;
       end case;
    end Syslink_Route_Incoming_Packet;
+
+   ------------------
+   -- Syslink_Task --
+   ------------------
 
    task body Syslink_Task is
       Rx_State     : Syslink_Rx_State := WAIT_FOR_FIRST_START;

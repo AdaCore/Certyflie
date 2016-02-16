@@ -4,6 +4,10 @@ package body Parameter_Pack is
 
    --  Public procedures and functions
 
+   --------------------
+   -- Parameter_Init --
+   --------------------
+
    procedure Parameter_Init is
    begin
       if Is_Init then
@@ -15,15 +19,24 @@ package body Parameter_Pack is
       Is_Init := True;
    end Parameter_Init;
 
+   --------------------
+   -- Parameter_Test --
+   --------------------
+
    function Parameter_Test return Boolean is
    begin
       return Is_Init;
    end Parameter_Test;
 
+   ----------------------------
+   -- Create_Parameter_Group --
+   ----------------------------
+
    procedure Create_Parameter_Group
      (Name        : String;
       Group_ID    : out Natural;
-      Has_Succeed : out Boolean) is
+      Has_Succeed : out Boolean)
+   is
       Parameter_Groups_Index : constant Natural
         := Parameter_Data.Parameter_Groups_Index;
    begin
@@ -43,13 +56,18 @@ package body Parameter_Pack is
       Has_Succeed := True;
    end Create_Parameter_Group;
 
+   ----------------------------------------
+   -- Append_Parameter_Variable_To_Group --
+   ----------------------------------------
+
    procedure Append_Parameter_Variable_To_Group
      (Group_ID       : Natural;
       Name           : String;
       Storage_Type   : Parameter_Variable_Type;
       Parameter_Type : Parameter_Variable_Type;
       Variable       : System.Address;
-      Has_Succeed    : out Boolean) is
+      Has_Succeed    : out Boolean)
+   is
       Group               : Parameter_Group;
       Parameter_Variables_Index : Natural;
    begin
@@ -97,7 +115,16 @@ package body Parameter_Pack is
 
    --  Private procedures and functions
 
-   procedure Parameter_CRTP_Handler (Packet : CRTP_Packet) is
+   ----------------------------
+   -- Parameter_CRTP_Handler --
+   ----------------------------
+
+   procedure Parameter_CRTP_Handler (Packet : CRTP_Packet)
+   is
+      ---------------------------------------
+      -- CRTP_Channel_To_Parameter_Channel --
+      ---------------------------------------
+
       function CRTP_Channel_To_Parameter_Channel is
         new Ada.Unchecked_Conversion (CRTP_Channel, Parameter_Channel);
 
@@ -115,11 +142,30 @@ package body Parameter_Pack is
       end case;
    end Parameter_CRTP_Handler;
 
-   procedure Parameter_TOC_Process (Packet : CRTP_Packet) is
+   ---------------------------
+   -- Parameter_TOC_Process --
+   ---------------------------
+
+   procedure Parameter_TOC_Process (Packet : CRTP_Packet)
+   is
+      --------------------------------------
+      -- T_Uint8_To_Parameter_TOC_Command --
+      --------------------------------------
+
       function T_Uint8_To_Parameter_TOC_Command is new Ada.Unchecked_Conversion
         (T_Uint8, Parameter_TOC_Command);
+
+      ------------------------------
+      -- CRTP_Append_T_Uint8_Data --
+      ------------------------------
+
       procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data
         (T_Uint8);
+
+      -------------------------------
+      -- CRTP_Append_T_Uint32_Data --
+      -------------------------------
+
       procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
         (T_Uint32);
 
@@ -190,7 +236,12 @@ package body Parameter_Pack is
          Has_Succeed);
    end Parameter_TOC_Process;
 
-   function String_To_Parameter_Name (Name : String) return Parameter_Name is
+   ------------------------------
+   -- String_To_Parameter_Name --
+   ------------------------------
+
+   function String_To_Parameter_Name (Name : String) return Parameter_Name
+   is
       Result : Parameter_Name := (others => ASCII.NUL);
    begin
       Result (1 .. Name'Length) := Name;
@@ -198,18 +249,33 @@ package body Parameter_Pack is
       return Result;
    end String_To_Parameter_Name;
 
+   ---------------------------------------------
+   -- Append_Raw_Data_Variable_Name_To_Packet --
+   ---------------------------------------------
+
    procedure Append_Raw_Data_Variable_Name_To_Packet
      (Variable       : Parameter_Variable;
       Group          : Parameter_Group;
       Packet_Handler : in out CRTP_Packet_Handler;
-      Has_Succeed     : out Boolean) is
+      Has_Succeed     : out Boolean)
+   is
       subtype Parameter_Complete_Name is
         String (1 .. Variable.Name_Length + Group.Name_Length);
       subtype Parameter_Complete_Name_Raw is
         T_Uint8_Array (1 .. Variable.Name_Length + Group.Name_Length);
+
+      ------------------------------------------------------------
+      -- Parameter_Complete_Name_To_Parameter_Complete_Name_Raw --
+      ------------------------------------------------------------
+
       function Parameter_Complete_Name_To_Parameter_Complete_Name_Raw is new
         Ada.Unchecked_Conversion (Parameter_Complete_Name,
                                   Parameter_Complete_Name_Raw);
+
+      --------------------------------------------------
+      -- CRTP_Append_Parameter_Complete_Name_Raw_Data --
+      --------------------------------------------------
+
       procedure CRTP_Append_Parameter_Complete_Name_Raw_Data is new
         CRTP_Append_Data (Parameter_Complete_Name_Raw);
 

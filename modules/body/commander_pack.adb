@@ -6,12 +6,20 @@ package body Commander_Pack
 is
    --  Private procedures and functions
 
+   ------------------------------
+   -- Commander_Watchdog_Reset --
+   ------------------------------
+
    procedure Commander_Watchdog_Reset is
    begin
       CRTP_Set_Is_Connected (True);
 
       Last_Update := Clock;
    end Commander_Watchdog_Reset;
+
+   ------------------------
+   -- Commander_Watchdog --
+   ------------------------
 
    procedure Commander_Watchdog is
       Used_Side : Boolean;
@@ -43,6 +51,10 @@ is
 
    --  Public procedures and functions
 
+   --------------------
+   -- Commander_Init --
+   --------------------
+
    procedure Commander_Init
      with SPARK_Mode => Off
    is
@@ -58,13 +70,22 @@ is
       Is_Init := True;
    end Commander_Init;
 
+   --------------------
+   -- Commander_Test --
+   --------------------
+
    function Commander_Test return Boolean is
    begin
       return Is_Init;
    end Commander_Test;
 
+   ------------------------------
+   -- Get_Commands_From_Packet --
+   ------------------------------
+
    function Get_Commands_From_Packet
-     (Packet : CRTP_Packet) return Commander_CRTP_Values is
+     (Packet : CRTP_Packet) return Commander_CRTP_Values
+   is
       Commands     : Commander_CRTP_Values;
       Handler      : CRTP_Packet_Handler;
       Has_Succeed  : Boolean;
@@ -82,6 +103,10 @@ is
       return Commands;
    end Get_Commands_From_Packet;
 
+   ----------------------------
+   -- Commander_CRTP_Handler --
+   ----------------------------
+
    procedure Commander_CRTP_Handler (Packet : CRTP_Packet) is
    begin
       Side := not Side;
@@ -93,6 +118,10 @@ is
 
       Commander_Watchdog_Reset;
    end Commander_CRTP_Handler;
+
+   -----------------------
+   -- Commander_Get_RPY --
+   -----------------------
 
    procedure Commander_Get_RPY
      (Euler_Roll_Desired  : out T_Degrees;
@@ -108,6 +137,10 @@ is
       Euler_Yaw_Desired := Target_Val (Used_Side).Yaw;
    end Commander_Get_RPY;
 
+   ----------------------------
+   -- Commander_Get_RPY_Type --
+   ----------------------------
+
    procedure Commander_Get_RPY_Type
      (Roll_Type  : out RPY_Type;
       Pitch_Type : out RPY_Type;
@@ -117,6 +150,10 @@ is
       Pitch_Type := ANGLE;
       Yaw_Type := RATE;
    end Commander_Get_RPY_Type;
+
+   --------------------------
+   -- Commander_Get_Thrust --
+   --------------------------
 
    procedure Commander_Get_Thrust (Thrust : out T_Uint16) is
       Raw_Thrust : T_Uint16;
@@ -131,6 +168,10 @@ is
 
       Commander_Watchdog;
    end Commander_Get_Thrust;
+
+   ----------------------------
+   -- Commander_Get_Alt_Hold --
+   ----------------------------
 
    procedure Commander_Get_Alt_Hold
      (Alt_Hold        : out Boolean;

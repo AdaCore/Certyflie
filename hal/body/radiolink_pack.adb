@@ -4,6 +4,10 @@ with Config; use Config;
 
 package body Radiolink_Pack is
 
+   --------------------
+   -- Radiolink_Init --
+   --------------------
+
    procedure Radiolink_Init is
    begin
       if Is_Init then
@@ -18,7 +22,12 @@ package body Radiolink_Pack is
       Is_Init := True;
    end Radiolink_Init;
 
-   procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8) is
+   -----------------------------
+   -- Radiolink_Set_Data_Rate --
+   -----------------------------
+
+   procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8)
+   is
       Sl_Packet : Syslink_Packet;
    begin
       Sl_Packet.Slp_Type := SYSLINK_RADIO_DATARATE;
@@ -27,7 +36,12 @@ package body Radiolink_Pack is
       Syslink_Send_Packet (Sl_Packet);
    end Radiolink_Set_Data_Rate;
 
-   procedure Radiolink_Set_Channel (Channel : T_Uint8) is
+   ---------------------------
+   -- Radiolink_Set_Channel --
+   ---------------------------
+
+   procedure Radiolink_Set_Channel (Channel : T_Uint8)
+   is
       Sl_Packet : Syslink_Packet;
    begin
       Sl_Packet.Slp_Type := SYSLINK_RADIO_CHANNEL;
@@ -36,14 +50,28 @@ package body Radiolink_Pack is
       Syslink_Send_Packet (Sl_Packet);
    end Radiolink_Set_Channel;
 
+   ---------------------------------------
+   -- Radiolink_Receive_Packet_Blocking --
+   ---------------------------------------
+
    procedure Radiolink_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
    begin
       Rx_Queue.Await_Item_To_Dequeue (Packet);
    end Radiolink_Receive_Packet_Blocking;
 
-   function Radiolink_Send_Packet (Packet : CRTP_Packet) return Boolean is
+   ---------------------------
+   -- Radiolink_Send_Packet --
+   ---------------------------
+
+   function Radiolink_Send_Packet (Packet : CRTP_Packet) return Boolean
+   is
       Sl_Packet : Syslink_Packet;
       Has_Succeed : Boolean;
+
+      ------------------------------
+      -- CRTP_Raw_To_Syslink_Data --
+      ------------------------------
+
       function CRTP_Raw_To_Syslink_Data is new Ada.Unchecked_Conversion
         (CRTP_Raw, Syslink_Data);
    begin
@@ -57,7 +85,12 @@ package body Radiolink_Pack is
       return Has_Succeed;
    end Radiolink_Send_Packet;
 
-   procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet) is
+   --------------------------------
+   -- Radiolink_Syslink_Dispatch --
+   --------------------------------
+
+   procedure Radiolink_Syslink_Dispatch (Rx_Sl_Packet : Syslink_Packet)
+   is
       Tx_Sl_Packet   : Syslink_Packet;
       Rx_CRTP_Packet : CRTP_Packet;
       Has_Succeed    : Boolean;

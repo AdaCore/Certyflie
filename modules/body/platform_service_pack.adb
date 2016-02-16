@@ -2,6 +2,10 @@ with Syslink_Pack; use Syslink_Pack;
 
 package body Platform_Service_Pack is
 
+   ---------------------------
+   -- Platform_Service_Init --
+   ---------------------------
+
    procedure Platform_Service_Init is
    begin
       if Is_Init then
@@ -14,10 +18,18 @@ package body Platform_Service_Pack is
       Is_Init := True;
    end Platform_Service_Init;
 
+   ---------------------------
+   -- Platform_Service_Test --
+   ---------------------------
+
    function Platform_Service_Test return Boolean is
    begin
       return Is_Init;
    end Platform_Service_Test;
+
+   ------------------------------
+   -- Platform_Service_Handler --
+   ------------------------------
 
    procedure Platform_Service_Handler (Packet : CRTP_Packet) is
       Has_Succeed : Boolean;
@@ -31,6 +43,10 @@ package body Platform_Service_Pack is
             null;
       end case;
    end Platform_Service_Handler;
+
+   ------------------------------
+   -- Platform_Command_Process --
+   ------------------------------
 
    procedure Platform_Command_Process
      (Command : T_Uint8;

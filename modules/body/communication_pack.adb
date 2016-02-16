@@ -5,6 +5,10 @@ with Console_Pack; use Console_Pack;
 
 package body Communication_Pack is
 
+   ------------------------
+   -- Communication_Init --
+   ------------------------
+
    procedure Communication_Init is
    begin
       if Is_Init then
@@ -23,6 +27,10 @@ package body Communication_Pack is
 
       Is_Init := True;
    end Communication_Init;
+
+   ------------------------
+   -- Communication_Test --
+   ------------------------
 
    function Communication_Test return Boolean is
    begin

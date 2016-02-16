@@ -18,6 +18,10 @@ with SPARK_Mode,
                                           Beta))
 is
 
+   ----------------------
+   -- SensFusion6_Init --
+   ----------------------
+
    procedure SensFusion6_Init is
    begin
       if Is_Init then
@@ -27,10 +31,18 @@ is
       Is_Init := True;
    end SensFusion6_Init;
 
+   ----------------------
+   -- SensFusion6_Test --
+   ----------------------
+
    function SensFusion6_Test return Boolean is
    begin
       return Is_Init;
    end SensFusion6_Test;
+
+   -----------------------
+   -- Madgwick_Update_Q --
+   -----------------------
 
    procedure Madgwick_Update_Q
      (Gx : T_Rate;
@@ -39,7 +51,8 @@ is
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
-      Dt : T_Delta_Time) is
+      Dt : T_Delta_Time)
+   is
       Recip_Norm    : Float;
       S0            : Float;
       S1            : Float;
@@ -166,6 +179,10 @@ is
    subtype T_Float_5  is Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
      .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR;
 
+   ---------------------
+   -- Mahony_Update_Q --
+   ---------------------
+
    procedure Mahony_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
@@ -173,7 +190,8 @@ is
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
-      Dt : T_Delta_Time) is
+      Dt : T_Delta_Time)
+   is
       Recip_Norm      : Float;
       Norm_Ax         : T_Norm_Acc;
       Norm_Ay         : T_Norm_Acc;
@@ -304,6 +322,10 @@ is
                       T_Quaternion'Last);
    end Mahony_Update_Q;
 
+   --------------------------
+   -- SensFusion6_Update_Q --
+   --------------------------
+
    procedure SensFusion6_Update_Q
      (Gx : T_Rate;
       Gy : T_Rate;
@@ -331,10 +353,15 @@ is
       end case;
    end SensFusion6_Update_Q;
 
+   -------------------------------
+   -- SensFusion6_Get_Euler_RPY --
+   -------------------------------
+
    procedure SensFusion6_Get_Euler_RPY
      (Euler_Roll_Actual  : out T_Degrees;
       Euler_Pitch_Actual : out T_Degrees;
-      Euler_Yaw_Actual   : out T_Degrees) is
+      Euler_Yaw_Actual   : out T_Degrees)
+   is
       Grav_X : Float;
       Grav_Y : Float;
       Grav_Z : Float;
@@ -354,10 +381,15 @@ is
       Euler_Roll_Actual := Atan (Grav_Y, Grav_Z) * 180.0 / Pi;
    end SensFusion6_Get_Euler_RPY;
 
+   ------------------------------------------
+   -- SensFusion6_Get_AccZ_Without_Gravity --
+   ------------------------------------------
+
    function SensFusion6_Get_AccZ_Without_Gravity
      (Ax : T_Acc;
       Ay : T_Acc;
-      Az : T_Acc) return Float is
+      Az : T_Acc) return Float
+   is
       Grav_X : Float range -4.0 .. 4.0;
       Grav_Y : Float range -4.0 .. 4.0;
       Grav_Z : Float range -4.0 .. 4.0;

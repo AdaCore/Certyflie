@@ -4,6 +4,10 @@ with Config; use Config;
 
 package body IMU_Pack is
 
+   --------------
+   -- IMU_Init --
+   --------------
+
    procedure IMU_Init is
       Delay_After_Reset_Time : Time;
    begin
@@ -50,7 +54,10 @@ package body IMU_Pack is
       Is_Init := True;
    end IMU_Init;
 
-   --  Test if the IMU device is initialized/
+   --------------
+   -- IMU_Test --
+   --------------
+
    function IMU_Test return Boolean is
       Is_Connected     : Boolean;
       Self_Test_Passed : Boolean;
@@ -61,6 +68,10 @@ package body IMU_Pack is
 
       return Is_Init and Is_Connected and Self_Test_Passed;
    end IMU_Test;
+
+   ------------------------------
+   -- IMU_6_Manufacturing_Test --
+   ------------------------------
 
    function IMU_6_Manufacturing_Test return Boolean is
       Test_Status : Boolean := False;
@@ -100,19 +111,32 @@ package body IMU_Pack is
       return Test_Status;
    end IMU_6_Manufacturing_Test;
 
+   ----------------------
+   -- IMU_6_Calibrated --
+   ----------------------
+
    function IMU_6_Calibrated return Boolean is
    begin
       return Is_Calibrated;
    end IMU_6_Calibrated;
+
+   -----------------------
+   -- IMU_Has_Barometer --
+   -----------------------
 
    function IMU_Has_Barometer return Boolean is
    begin
       return Is_Barometer_Avalaible;
    end IMU_Has_Barometer;
 
+   ----------------
+   -- IMU_6_Read --
+   ----------------
+
    procedure IMU_6_Read
      (Gyro : in out Gyroscope_Data;
-      Acc  : in out Accelerometer_Data) is
+      Acc  : in out Accelerometer_Data)
+   is
       Has_Found_Bias : Boolean;
    begin
       --  We invert X and Y because the chip is almso inverted.
@@ -148,6 +172,10 @@ package body IMU_Pack is
       Acc.Z := Accel_LPF_Aligned.Z * IMU_G_PER_LSB_CFG;
    end IMU_6_Read;
 
+   ----------------
+   -- IMU_9_Read --
+   ----------------
+
    procedure IMU_9_Read
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data;
@@ -161,6 +189,10 @@ package body IMU_Pack is
       Mag.Y := 0.0;
       Mag.Z := 0.0;
    end IMU_9_Read;
+
+   ------------------------
+   -- IMU_Add_Bias_Value --
+   ------------------------
 
    procedure IMU_Add_Bias_Value
      (Bias_Obj : in out Bias_Object;
@@ -176,8 +208,12 @@ package body IMU_Pack is
       end if;
    end IMU_Add_Bias_Value;
 
+   -------------------------
+   -- IMU_Find_Bias_Value --
+   -------------------------
+
    procedure IMU_Find_Bias_Value
-     (Bias_Obj      : in out Bias_Object;
+     (Bias_Obj       : in out Bias_Object;
       Has_Found_Bias : out Boolean) is
    begin
       Has_Found_Bias := False;
@@ -205,10 +241,15 @@ package body IMU_Pack is
       end if;
    end IMU_Find_Bias_Value;
 
+   -------------------------------------
+   -- IMU_Calculate_Variance_And_Mean --
+   -------------------------------------
+
    procedure IMU_Calculate_Variance_And_Mean
      (Bias_Obj : Bias_Object;
       Variance : out Axis3_T_Int16;
-      Mean     : out Axis3_T_Int16) is
+      Mean     : out Axis3_T_Int16)
+   is
       Sum        : T_Int32_Array (1 .. 3) := (others => 0);
       Sum_Square : T_Int64_Array (1 .. 3) := (others => 0);
    begin
@@ -237,6 +278,10 @@ package body IMU_Pack is
       Mean.Z := T_Int16 (Sum (3) / IMU_NBR_OF_BIAS_SAMPLES);
    end IMU_Calculate_Variance_And_Mean;
 
+   ---------------------------
+   -- IMU_Acc_IRR_LP_Filter --
+   ---------------------------
+
    procedure IMU_Acc_IRR_LP_Filter
      (Input         : Axis3_T_Int16;
       Output        : out Axis3_T_Int32;
@@ -260,13 +305,18 @@ package body IMU_Pack is
          Output.Z);
    end IMU_Acc_IRR_LP_Filter;
 
+   ------------------------------
+   -- IMU_Acc_Align_To_Gravity --
+   ------------------------------
+
    procedure IMU_Acc_Align_To_Gravity
      (Input  : Axis3_T_Int32;
-      Output : out Axis3_Float) is
+      Output : out Axis3_Float)
+   is
       Input_F : constant Axis3_Float :=
                   (Float (Input.X), Float (Input.Y), Float (Input.Z));
-      Rx : Axis3_Float;
-      Ry : Axis3_Float;
+      Rx      : Axis3_Float;
+      Ry      : Axis3_Float;
    begin
       --  Rotate around X-Axis
       Rx.X := Input_F.X;

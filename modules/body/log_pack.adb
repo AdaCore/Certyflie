@@ -4,6 +4,10 @@ package body Log_Pack is
 
    --  Public procedures and functions
 
+   --------------
+   -- Log_Init --
+   --------------
+
    procedure Log_Init is
    begin
       if Is_Init then
@@ -15,15 +19,24 @@ package body Log_Pack is
       Is_Init := True;
    end Log_Init;
 
+   --------------
+   -- Log_Test --
+   --------------
+
    function Log_Test return Boolean is
    begin
       return Is_Init;
    end Log_Test;
 
+   ----------------------
+   -- Create_Log_Group --
+   ----------------------
+
    procedure Create_Log_Group
      (Name        : String;
       Group_ID    : out Natural;
-      Has_Succeed : out Boolean) is
+      Has_Succeed : out Boolean)
+   is
       Log_Groups_Index : constant Natural := Log_Data.Log_Groups_Index;
    begin
       if Log_Groups_Index > Log_Data.Log_Groups'Last or
@@ -43,12 +56,17 @@ package body Log_Pack is
       Has_Succeed := True;
    end Create_Log_Group;
 
+   ----------------------------------
+   -- Append_Log_Variable_To_Group --
+   ----------------------------------
+
    procedure Append_Log_Variable_To_Group
      (Group_ID     : Natural;
       Name         : String;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address;
-      Has_Succeed  : out Boolean) is
+      Has_Succeed  : out Boolean)
+   is
       Group               : Log_Group;
       Log_Variables_Index : Log_Variable_ID;
    begin
@@ -90,9 +108,19 @@ package body Log_Pack is
 
    --  Private procedures and functions
 
-   procedure Log_CRTP_Handler (Packet : CRTP_Packet) is
+   ----------------------
+   -- Log_CRTP_Handler --
+   ----------------------
+
+   procedure Log_CRTP_Handler (Packet : CRTP_Packet)
+   is
+      ---------------------------------
+      -- CRTP_Channel_To_Log_Channel --
+      ---------------------------------
+
       function CRTP_Channel_To_Log_Channel is new Ada.Unchecked_Conversion
         (CRTP_Channel, Log_Channel);
+
       Channel : Log_Channel;
    begin
       Channel := CRTP_Channel_To_Log_Channel (Packet.Channel);
@@ -107,11 +135,30 @@ package body Log_Pack is
       end case;
    end Log_CRTP_Handler;
 
-   procedure Log_TOC_Process (Packet : CRTP_Packet) is
+   ---------------------
+   -- Log_TOC_Process --
+   ---------------------
+
+   procedure Log_TOC_Process (Packet : CRTP_Packet)
+   is
+      --------------------------------
+      -- T_Uint8_To_Log_TOC_Command --
+      --------------------------------
+
       function T_Uint8_To_Log_TOC_Command is new Ada.Unchecked_Conversion
         (T_Uint8, Log_TOC_Command);
+
+      ------------------------------
+      -- CRTP_Append_T_Uint8_Data --
+      ------------------------------
+
       procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data
         (T_Uint8);
+
+      -------------------------------
+      -- CRTP_Append_T_Uint32_Data --
+      -------------------------------
+
       procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
         (T_Uint32);
 
@@ -180,7 +227,16 @@ package body Log_Pack is
          Has_Succeed);
    end Log_TOC_Process;
 
-   procedure Log_Control_Process (Packet : CRTP_Packet) is
+   -------------------------
+   -- Log_Control_Process --
+   -------------------------
+
+   procedure Log_Control_Process (Packet : CRTP_Packet)
+   is
+      ------------------------------------
+      -- T_Uint8_To_Log_Control_Command --
+      ------------------------------------
+
       function T_Uint8_To_Log_Control_Command is new Ada.Unchecked_Conversion
         (T_Uint8, Log_Control_Command);
 
@@ -219,9 +275,14 @@ package body Log_Pack is
       CRTP_Send_Packet (Tx_Packet, Has_Succeed);
    end Log_Control_Process;
 
+   ----------------------
+   -- Log_Create_Block --
+   ----------------------
+
    function Log_Create_Block
      (Block_ID         : T_Uint8;
-      Ops_Settings_Raw : T_Uint8_Array) return T_Uint8 is
+      Ops_Settings_Raw : T_Uint8_Array) return T_Uint8
+   is
       Block : access Log_Block;
    begin
       --  Not enough memory to create a new block.
@@ -240,7 +301,12 @@ package body Log_Pack is
       return Log_Append_To_Block (Block_ID, Ops_Settings_Raw);
    end Log_Create_Block;
 
-   function Log_Delete_Block (Block_ID : T_Uint8) return T_Uint8 is
+   ----------------------
+   -- Log_Delete_Block --
+   ----------------------
+
+   function Log_Delete_Block (Block_ID : T_Uint8) return T_Uint8
+   is
       Block     : access Log_Block;
       Cancelled : Boolean;
       pragma Unreferenced (Cancelled);
@@ -262,11 +328,21 @@ package body Log_Pack is
       return 0;
    end Log_Delete_Block;
 
+   -------------------------
+   -- Log_Append_To_Block --
+   -------------------------
+
    function Log_Append_To_Block
      (Block_ID         : T_Uint8;
-      Ops_Settings_Raw : T_Uint8_Array) return T_Uint8 is
+      Ops_Settings_Raw : T_Uint8_Array) return T_Uint8
+   is
       type Ops_Settings_Array is
         array (1 .. Ops_Settings_Raw'Length / 2) of Log_Ops_Setting;
+
+      -----------------------------------------
+      -- T_Uint8_Array_To_Ops_Settings_Array --
+      -----------------------------------------
+
       function T_Uint8_Array_To_Ops_Settings_Array is
         new Ada.Unchecked_Conversion (T_Uint8_Array, Ops_Settings_Array);
 
@@ -288,6 +364,10 @@ package body Log_Pack is
       Ops_Settings := T_Uint8_Array_To_Ops_Settings_Array (Ops_Settings_Raw);
 
       declare
+         ----------------------------------
+         -- T_Uint8_To_Log_Variable_Type --
+         ----------------------------------
+
          function T_Uint8_To_Log_Variable_Type is new Ada.Unchecked_Conversion
            (T_Uint8, Log_Variable_Type);
 
@@ -327,9 +407,14 @@ package body Log_Pack is
       return 0;
    end Log_Append_To_Block;
 
+   ---------------------
+   -- Log_Start_Block --
+   ---------------------
+
    function Log_Start_Block
      (Block_ID : T_Uint8;
-      Period   : Natural) return T_Uint8 is
+      Period   : Natural) return T_Uint8
+   is
       Block     : access Log_Block;
       Cancelled : Boolean;
       pragma Unreferenced (Cancelled);
@@ -356,7 +441,12 @@ package body Log_Pack is
       return 0;
    end Log_Start_Block;
 
-   function Log_Stop_Block (Block_ID : T_Uint8) return T_Uint8 is
+   --------------------
+   -- Log_Stop_Block --
+   --------------------
+
+   function Log_Stop_Block (Block_ID : T_Uint8) return T_Uint8
+   is
       Block     : access Log_Block;
       Cancelled : Boolean;
       pragma Unreferenced (Cancelled);
@@ -374,6 +464,10 @@ package body Log_Pack is
       return 0;
    end Log_Stop_Block;
 
+   ---------------
+   -- Log_Reset --
+   ---------------
+
    procedure Log_Reset is
       Res   : T_Uint8;
       pragma Unreferenced (Res);
@@ -385,9 +479,14 @@ package body Log_Pack is
       end if;
    end Log_Reset;
 
+   ----------------------------------
+   -- Append_Log_Variable_To_Block --
+   ----------------------------------
+
    procedure Append_Log_Variable_To_Block
      (Block    : access Log_Block;
-      Variable : access Log_Variable) is
+      Variable : access Log_Variable)
+   is
       Variables_Aux : access Log_Variable := Block.Variables;
    begin
       --  No variables have been appended to this block until now.
@@ -402,6 +501,10 @@ package body Log_Pack is
       end if;
    end Append_Log_Variable_To_Block;
 
+   ------------------------
+   -- String_To_Log_Name --
+   ------------------------
+
    function String_To_Log_Name (Name : String) return Log_Name is
       Result : Log_Name := (others => ASCII.NUL);
    begin
@@ -410,17 +513,32 @@ package body Log_Pack is
       return Result;
    end String_To_Log_Name;
 
+   ---------------------------------------------
+   -- Append_Raw_Data_Variable_Name_To_Packet --
+   ---------------------------------------------
+
    procedure Append_Raw_Data_Variable_Name_To_Packet
      (Variable        : Log_Variable;
       Group           : Log_Group;
       Packet_Handler  : in out CRTP_Packet_Handler;
-      Has_Succeed     : out Boolean) is
+      Has_Succeed     : out Boolean)
+   is
       subtype Log_Complete_Name is
         String (1 .. Variable.Name_Length + Group.Name_Length);
       subtype Log_Complete_Name_Raw is
         T_Uint8_Array (1 .. Variable.Name_Length + Group.Name_Length);
+
+      ------------------------------------------------
+      -- Log_Complete_Name_To_Log_Complete_Name_Raw --
+      ------------------------------------------------
+
       function Log_Complete_Name_To_Log_Complete_Name_Raw is new
         Ada.Unchecked_Conversion (Log_Complete_Name, Log_Complete_Name_Raw);
+
+      --------------------------------------------
+      -- CRTP_Append_Log_Complete_Name_Raw_Data --
+      --------------------------------------------
+
       procedure CRTP_Append_Log_Complete_Name_Raw_Data is new
         CRTP_Append_Data (Log_Complete_Name_Raw);
 
@@ -437,7 +555,12 @@ package body Log_Pack is
          Has_Succeed);
    end Append_Raw_Data_Variable_Name_To_Packet;
 
-   function Calculate_Block_Length (Block : access Log_Block) return T_Uint8 is
+   ----------------------------
+   -- Calculate_Block_Length --
+   ----------------------------
+
+   function Calculate_Block_Length (Block : access Log_Block) return T_Uint8
+   is
       Variables    : access Log_Variable := Block.Variables;
       Block_Length : T_Uint8 := 0;
    begin
@@ -450,8 +573,18 @@ package body Log_Pack is
       return Block_Length;
    end Calculate_Block_Length;
 
-   function Get_Log_Time_Stamp return Log_Time_Stamp is
+   ------------------------
+   -- Get_Log_Time_Stamp --
+   ------------------------
+
+   function Get_Log_Time_Stamp return Log_Time_Stamp
+   is
       subtype  Time_T_Uint8_Array is T_Uint8_Array (1 .. 8);
+
+      --------------------------------
+      -- Time_To_Time_T_Uint8_Array --
+      --------------------------------
+
       function Time_To_Time_T_Uint8_Array is new Ada.Unchecked_Conversion
         (Time, Time_T_Uint8_Array);
 
@@ -467,7 +600,15 @@ package body Log_Pack is
 
    --  Tasks and protected objects
 
+   ------------------------------------
+   -- Log_Block_Timing_Event_Handler --
+   ------------------------------------
+
    protected body Log_Block_Timing_Event_Handler is
+
+      -------------------
+      -- Log_Run_Block --
+      -------------------
 
       procedure Log_Run_Block (Event : in out Timing_Event) is
          Block_ID       : constant Log_Block_ID
@@ -483,6 +624,11 @@ package body Log_Pack is
          pragma Unreferenced (Has_Succeed);
 
          --  Procedures used to append log data with different types
+
+         ------------------------------------
+         -- Prcoedures used to append data --
+         ------------------------------------
+
          procedure CRTP_Append_Log_Time_Stamp_Data is new CRTP_Append_Data
            (Log_Time_Stamp);
          procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data

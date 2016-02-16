@@ -12,6 +12,10 @@ with Types; use Types;
 
 package body System_Pack is
 
+   -----------------
+   -- System_Init --
+   -----------------
+
    procedure System_Init is
    begin
       if Is_Init then
@@ -40,6 +44,10 @@ package body System_Pack is
       Is_Init := True;
    end System_Init;
 
+   ----------------------
+   -- System_Self_Test --
+   ----------------------
+
    function System_Self_Test return Boolean is
       Self_Test_Passed : Boolean;
    begin
@@ -59,6 +67,10 @@ package body System_Pack is
 
       return Self_Test_Passed;
    end System_Self_Test;
+
+   -----------------
+   -- System_Loop --
+   -----------------
 
    procedure System_Loop is
       Attitude_Update_Counter : T_Uint32 := 0;

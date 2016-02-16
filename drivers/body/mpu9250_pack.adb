@@ -8,7 +8,12 @@ package body MPU9250_Pack is
 
    --  Public procedures and functions
 
-   procedure MPU9250_Init is
+   ------------------
+   -- MPU9250_Init --
+   ------------------
+
+   procedure MPU9250_Init
+   is
       Delay_Time : Time;
    begin
       if Is_Init then
@@ -33,7 +38,12 @@ package body MPU9250_Pack is
       MPU9250_Configure_I2C;
    end MPU9250_Init;
 
-   procedure MPU9250_Init_Control_Lines is
+   --------------------------------
+   -- MPU9250_Init_Control_Lines --
+   --------------------------------
+
+   procedure MPU9250_Init_Control_Lines
+   is
       GPIO_Conf : GPIO_Port_Configuration;
    begin
       Enable_Clock (MPU9250_SDA_GPIO);
@@ -59,6 +69,10 @@ package body MPU9250_Pack is
       Configure_IO (MPU9250_SDA_GPIO, MPU9250_SDA_Pin, GPIO_Conf);
    end MPU9250_Init_Control_Lines;
 
+   ---------------------------
+   -- MPU9250_Configure_I2C --
+   ---------------------------
+
    procedure MPU9250_Configure_I2C is
    begin
       I2C3_Force_Reset;
@@ -76,12 +90,21 @@ package body MPU9250_Pack is
       Set_State (MPU9250_I2C_PORT, Enabled);
    end MPU9250_Configure_I2C;
 
+   ------------------
+   -- MPU9250_Test --
+   ------------------
+
    function MPU9250_Test return Boolean is
    begin
       return Is_Init;
    end MPU9250_Test;
 
-   function MPU9250_Test_Connection return Boolean is
+   -----------------------------
+   -- MPU9250_Test_Connection --
+   -----------------------------
+
+   function MPU9250_Test_Connection return Boolean
+   is
       Who_Am_I : Byte;
    begin
       MPU9250_Read_Byte_At_Register
@@ -91,7 +114,12 @@ package body MPU9250_Pack is
       return Who_Am_I = MPU9250_DEVICE_ID;
    end MPU9250_Test_Connection;
 
-   function MPU9250_Self_Test return Boolean is
+   -----------------------
+   -- MPU9250_Self_Test --
+   -----------------------
+
+   function MPU9250_Self_Test return Boolean
+   is
       subtype T_Int32_Array_3 is T_Int32_Array (1 .. 3);
       subtype T_Int32_Array_6 is T_Int32_Array (1 .. 6);
       subtype Float_Array_3 is Float_Array (1 .. 3);
@@ -283,6 +311,10 @@ package body MPU9250_Pack is
       return Test_Status;
    end MPU9250_Self_Test;
 
+   -------------------
+   -- MPU9250_Reset --
+   -------------------
+
    procedure MPU9250_Reset is
    begin
       MPU9250_Write_Bit_At_Register
@@ -291,13 +323,18 @@ package body MPU9250_Pack is
          Bit_Value => True);
    end MPU9250_Reset;
 
+   --------------------------
+   -- MPU9250_Get_Motion_6 --
+   --------------------------
+
    procedure MPU9250_Get_Motion_6
      (Acc_X  : out T_Int16;
       Acc_Y  : out T_Int16;
       Acc_Z  : out T_Int16;
       Gyro_X : out T_Int16;
       Gyro_Y : out T_Int16;
-      Gyro_Z : out T_Int16) is
+      Gyro_Z : out T_Int16)
+   is
       Raw_Data : I2C_Data (1 .. 14);
    begin
       MPU9250_Read_Register
@@ -319,6 +356,10 @@ package body MPU9250_Pack is
         Fuse_Low_And_High_Register_Parts (Raw_Data (13), Raw_Data (14));
    end MPU9250_Get_Motion_6;
 
+   ------------------------------
+   -- MPU9250_Set_Clock_Source --
+   ------------------------------
+
    procedure MPU9250_Set_Clock_Source (Clock_Source : MPU9250_Clock_Source) is
    begin
       MPU9250_Write_Bits_At_Register
@@ -328,6 +369,10 @@ package body MPU9250_Pack is
          Length        => MPU9250_PWR1_CLKSEL_LENGTH);
    end MPU9250_Set_Clock_Source;
 
+   ---------------------------
+   -- MPU9250_Set_DLPF_Mode --
+   ---------------------------
+
    procedure MPU9250_Set_DLPF_Mode (DLPF_Mode : MPU9250_DLPF_Bandwidth_Mode) is
    begin
       MPU9250_Write_Bits_At_Register
@@ -336,6 +381,10 @@ package body MPU9250_Pack is
          Data          => MPU9250_DLPF_Bandwidth_Mode'Enum_Rep (DLPF_Mode),
          Length        => MPU9250_CFG_DLPF_CFG_LENGTH);
    end MPU9250_Set_DLPF_Mode;
+
+   ---------------------------------------
+   -- MPU9250_Set_Full_Scale_Gyro_Range --
+   ---------------------------------------
 
    procedure MPU9250_Set_Full_Scale_Gyro_Range
      (FS_Range : MPU9250_FS_Gyro_Range) is
@@ -347,8 +396,12 @@ package body MPU9250_Pack is
          Length        => MPU9250_GCONFIG_FS_SEL_LENGTH);
    end MPU9250_Set_Full_Scale_Gyro_Range;
 
+   ----------------------------------------
+   -- MPU9250_Set_Full_Scale_Accel_Range --
+   ----------------------------------------
+
    procedure MPU9250_Set_Full_Scale_Accel_Range
-           (FS_Range : MPU9250_FS_Accel_Range) is
+     (FS_Range : MPU9250_FS_Accel_Range) is
    begin
       MPU9250_Write_Bits_At_Register
         (Reg_Addr      => MPU9250_RA_ACCEL_CONFIG,
@@ -357,6 +410,10 @@ package body MPU9250_Pack is
          Length        => MPU9250_ACONFIG_AFS_SEL_LENGTH);
    end MPU9250_Set_Full_Scale_Accel_Range;
 
+   ------------------------------------
+   -- MPU9250_Set_I2C_Bypass_Enabled --
+   ------------------------------------
+
    procedure MPU9250_Set_I2C_Bypass_Enabled (Value : Boolean) is
    begin
       MPU9250_Write_Bit_At_Register
@@ -364,6 +421,10 @@ package body MPU9250_Pack is
          Bit_Pos   => MPU9250_INTCFG_I2C_BYPASS_EN_BIT,
          Bit_Value => Value);
    end MPU9250_Set_I2C_Bypass_Enabled;
+
+   -----------------------------
+   -- MPU9250_Set_Int_Enabled --
+   -----------------------------
 
    procedure MPU9250_Set_Int_Enabled (Value : Boolean) is
    begin
@@ -380,12 +441,20 @@ package body MPU9250_Pack is
       end if;
    end MPU9250_Set_Int_Enabled;
 
+   ----------------------
+   -- MPU9250_Set_Rate --
+   ----------------------
+
    procedure MPU9250_Set_Rate (Rate_Div : Byte) is
    begin
       MPU9250_Write_Byte_At_Register
         (Reg_Addr => MPU9250_RA_SMPLRT_DIV,
          Data     => Rate_Div);
    end MPU9250_Set_Rate;
+
+   -------------------------------
+   -- MPU9250_Set_Sleep_Enabled --
+   -------------------------------
 
    procedure MPU9250_Set_Sleep_Enabled (Value : Boolean) is
    begin
@@ -395,6 +464,10 @@ package body MPU9250_Pack is
          Bit_Value => Value);
    end MPU9250_Set_Sleep_Enabled;
 
+   -------------------------------------
+   -- MPU9250_Set_Temp_Sensor_Enabled --
+   -------------------------------------
+
    procedure MPU9250_Set_Temp_Sensor_Enabled (Value : Boolean) is
    begin
       --  True value for this bit actually disables it.
@@ -403,6 +476,10 @@ package body MPU9250_Pack is
          Bit_Pos   => MPU9250_PWR1_TEMP_DIS_BIT,
          Bit_Value => not Value);
    end MPU9250_Set_Temp_Sensor_Enabled;
+
+   -------------------------------------
+   -- MPU9250_Get_Temp_Sensor_Enabled --
+   -------------------------------------
 
    function MPU9250_Get_Temp_Sensor_Enabled return Boolean is
    begin
@@ -414,11 +491,16 @@ package body MPU9250_Pack is
 
    --  Private procedures and functions
 
+   --------------------------------
+   -- MPU9250_Evaluate_Self_Test --
+   --------------------------------
+
    function MPU9250_Evaluate_Self_Test
      (Low          : Float;
       High         : Float;
       Value        : Float;
-      Debug_String : String) return Boolean is
+      Debug_String : String) return Boolean
+   is
       Has_Succeed : Boolean;
       pragma Unreferenced (Has_Succeed);
    begin
@@ -433,6 +515,10 @@ package body MPU9250_Pack is
 
       return True;
    end MPU9250_Evaluate_Self_Test;
+
+   ---------------------------
+   -- MPU9250_Read_Register --
+   ---------------------------
 
    procedure MPU9250_Read_Register
      (Reg_Addr    : Byte;
@@ -456,6 +542,10 @@ package body MPU9250_Pack is
       end loop;
    end MPU9250_Read_Register;
 
+   -----------------------------------
+   -- MPU9250_Read_Byte_At_Register --
+   -----------------------------------
+
    procedure MPU9250_Read_Byte_At_Register
      (Reg_Addr : Byte;
       Data     : out Byte) is
@@ -472,9 +562,14 @@ package body MPU9250_Pack is
       Data := Read_Nack (MPU9250_I2C_PORT);
    end MPU9250_Read_Byte_At_Register;
 
+   ----------------------------------
+   -- MPU9250_Read_Bit_At_Register --
+   ----------------------------------
+
    function MPU9250_Read_Bit_At_Register
      (Reg_Addr  : Byte;
-      Bit_Pos   : T_Bit_Pos_8) return Boolean is
+      Bit_Pos   : T_Bit_Pos_8) return Boolean
+   is
       Register_Value : Byte;
    begin
       MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
@@ -483,6 +578,10 @@ package body MPU9250_Pack is
               else
                  False);
    end MPU9250_Read_Bit_At_Register;
+
+   ----------------------------
+   -- MPU9250_Write_Register --
+   ----------------------------
 
    procedure MPU9250_Write_Register
      (Reg_Addr    : Byte;
@@ -500,6 +599,10 @@ package body MPU9250_Pack is
       Stop (MPU9250_I2C_PORT);
    end MPU9250_Write_Register;
 
+   ------------------------------------
+   -- MPU9250_Write_Byte_At_Register --
+   ------------------------------------
+
    procedure MPU9250_Write_Byte_At_Register
      (Reg_Addr : Byte;
       Data     : Byte) is
@@ -512,10 +615,15 @@ package body MPU9250_Pack is
       Stop (MPU9250_I2C_PORT);
    end MPU9250_Write_Byte_At_Register;
 
+   -----------------------------------
+   -- MPU9250_Write_Bit_At_Register --
+   -----------------------------------
+
    procedure MPU9250_Write_Bit_At_Register
      (Reg_Addr  : Byte;
       Bit_Pos   : T_Bit_Pos_8;
-      Bit_Value : Boolean) is
+      Bit_Value : Boolean)
+   is
       Register_Value : Byte;
    begin
       MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
@@ -528,11 +636,16 @@ package body MPU9250_Pack is
       MPU9250_Write_Byte_At_Register (Reg_Addr, Register_Value);
    end MPU9250_Write_Bit_At_Register;
 
+   ------------------------------------
+   -- MPU9250_Write_Bits_At_Register --
+   ------------------------------------
+
    procedure MPU9250_Write_Bits_At_Register
      (Reg_Addr      : Byte;
       Start_Bit_Pos : T_Bit_Pos_8;
       Data          : Byte;
-      Length        : T_Bit_Pos_8) is
+      Length        : T_Bit_Pos_8)
+   is
       Register_Value : Byte;
       Mask           : Byte;
       Data_Aux       : Byte := Data;
@@ -550,11 +663,21 @@ package body MPU9250_Pack is
       MPU9250_Write_Byte_At_Register (Reg_Addr, Register_Value);
    end MPU9250_Write_Bits_At_Register;
 
+   --------------------------------------
+   -- Fuse_Low_And_High_Register_Parts --
+   --------------------------------------
+
    function Fuse_Low_And_High_Register_Parts
      (High : Byte;
-      Low  : Byte) return T_Int16 is
+      Low  : Byte) return T_Int16
+   is
+      -------------------------
+      -- T_Uint16_To_T_Int16 --
+      -------------------------
+
       function T_Uint16_To_T_Int16 is new Ada.Unchecked_Conversion
         (T_Uint16, T_Int16);
+
       Register : T_Uint16;
    begin
       Register := Shift_Left (T_Uint16 (High), 8);

@@ -2,6 +2,10 @@ with Ada.Unchecked_Conversion;
 
 package body CRTP_Service_Pack is
 
+   -----------------------
+   -- CRTP_Service_Init --
+   -----------------------
+
    procedure CRTP_Service_Init is
    begin
       if Is_Init then
@@ -14,10 +18,20 @@ package body CRTP_Service_Pack is
       Is_Init := True;
    end CRTP_Service_Init;
 
-   procedure CRTP_Service_Handler (Packet : CRTP_Packet) is
+   --------------------------
+   -- CRTP_Service_Handler --
+   --------------------------
+
+   procedure CRTP_Service_Handler (Packet : CRTP_Packet)
+   is
       Command     : CRTP_Service_Command;
       Tx_Packet   : CRTP_Packet := Packet;
       Has_Succeed : Boolean;
+
+      ------------------------------------------
+      -- CRTP_Channel_To_CRTP_Service_Command --
+      ------------------------------------------
+
       function CRTP_Channel_To_CRTP_Service_Command is
         new Ada.Unchecked_Conversion (CRTP_Channel, CRTP_Service_Command);
    begin

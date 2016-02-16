@@ -5,6 +5,10 @@ package body Memory_Pack is
 
    --  Public procedures and functions
 
+   -----------------
+   -- Memory_Init --
+   -----------------
+
    procedure Memory_Init is
    begin
       if Is_Init then
@@ -16,6 +20,10 @@ package body Memory_Pack is
       Is_Init := True;
    end Memory_Init;
 
+   -----------------
+   -- Memory_Test --
+   -----------------
+
    function Memory_Test return Boolean is
    begin
       return Is_Init;
@@ -23,7 +31,16 @@ package body Memory_Pack is
 
    --  Private procedures and functions
 
-   procedure Memory_CRTP_Handler (Packet : CRTP_Packet) is
+   -------------------------
+   -- Memory_CRTP_Handler --
+   -------------------------
+
+   procedure Memory_CRTP_Handler (Packet : CRTP_Packet)
+   is
+      ------------------------------------
+      -- CRTP_Channel_To_Memory_Channel --
+      ------------------------------------
+
       function CRTP_Channel_To_Memory_Channel is new Ada.Unchecked_Conversion
         (CRTP_Channel, Memory_Channel);
       Channel : Memory_Channel;
@@ -40,9 +57,23 @@ package body Memory_Pack is
       end case;
    end Memory_CRTP_Handler;
 
-   procedure Memory_Settings_Process (Packet : CRTP_Packet) is
+   -----------------------------
+   -- Memory_Settings_Process --
+   -----------------------------
+
+   procedure Memory_Settings_Process (Packet : CRTP_Packet)
+   is
+      -------------------------------
+      -- T_Uint8_To_Memory_Command --
+      -------------------------------
+
       function T_Uint8_To_Memory_Command is new Ada.Unchecked_Conversion
         (T_Uint8, Memory_Command);
+
+      ------------------------------
+      -- CRTP_Append_T_Uint8_Data --
+      ------------------------------
+
       procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data
         (T_Uint8);
 

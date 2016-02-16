@@ -4,6 +4,10 @@ with Log_Pack; use Log_Pack;
 
 package body Power_Management_Pack is
 
+   ---------------------------
+   -- Power_Management_Init --
+   ---------------------------
+
    procedure Power_Management_Init is
       Group_ID : Natural;
       Has_Succeed : Boolean;
@@ -24,6 +28,10 @@ package body Power_Management_Pack is
          Has_Succeed  => Has_Succeed);
    end Power_Management_Init;
 
+   ------------------------------------------
+   -- Power_Management_Set_Battery_Voltage --
+   ------------------------------------------
+
    procedure Power_Management_Set_Battery_Voltage (Voltage : Float) is
    begin
       Battery_Voltage := Voltage;
@@ -37,11 +45,20 @@ package body Power_Management_Pack is
       end if;
    end Power_Management_Set_Battery_Voltage;
 
+   ------------------------------------------
+   -- Power_Management_Get_Battery_Voltage --
+   ------------------------------------------
+
    function Power_Management_Get_Battery_Voltage return Float is
      (Battery_Voltage);
 
+   ----------------------------------------------
+   -- Power_Management_Get_Charge_From_Voltage --
+   ----------------------------------------------
+
    function Power_Management_Get_Charge_From_Voltage
-     (Voltage : Float) return Integer is
+     (Voltage : Float) return Integer
+   is
       Charge : Integer := 0;
    begin
       if Voltage < Bat_671723HS25C (1) then
@@ -59,6 +76,10 @@ package body Power_Management_Pack is
       return Charge;
    end Power_Management_Get_Charge_From_Voltage;
 
+   -------------------------------------
+   -- Power_Management_Syslink_Update --
+   -------------------------------------
+
    procedure Power_Management_Syslink_Update (Sl_Packet : Syslink_Packet) is
       subtype Power_Data is T_Uint8_Array (1 .. 9);
       function Syslink_Data_To_Power_Syslink_Info is
@@ -69,8 +90,13 @@ package body Power_Management_Pack is
       Power_Management_Set_Battery_Voltage (Current_Power_Info.V_Bat_1);
    end Power_Management_Syslink_Update;
 
+   --------------------------------
+   -- Power_Management_Get_State --
+   --------------------------------
+
    function Power_Management_Get_State
-     (Power_Info : Power_Syslink_Info) return Power_State is
+     (Power_Info : Power_Syslink_Info) return Power_State
+   is
       State : Power_State;
       Is_Charging      : Boolean;
       Is_Pgood         : Boolean;
@@ -96,6 +122,10 @@ package body Power_Management_Pack is
       return State;
    end Power_Management_Get_State;
 
+   -------------------------------------
+   -- Power_Management_Is_Discharging --
+   -------------------------------------
+
    function Power_Management_Is_Discharging return Boolean is
       State : Power_State;
    begin
@@ -103,6 +133,10 @@ package body Power_Management_Pack is
 
       return State = Battery;
    end Power_Management_Is_Discharging;
+
+   --------------------
+   -- Set_Power_LEDs --
+   --------------------
 
    procedure Set_Power_LEDs (State : Power_State) is
    begin
@@ -120,6 +154,10 @@ package body Power_Management_Pack is
       end case;
       --  TODO: find other led feedback for the other power states
    end Set_Power_LEDs;
+
+   ---------------------------
+   -- Power_Management_Task --
+   ---------------------------
 
    task body Power_Management_Task is
       Next_Period     : Time;

@@ -1,5 +1,9 @@
 package body LPS25h_pack is
 
+   ---------------------
+   -- LPS25h_Get_Data --
+   ---------------------
+
    procedure LPS25h_Get_Data
      (Pressure    : out T_Pressure;
       Temperature : out T_Temperature;

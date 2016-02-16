@@ -11,6 +11,10 @@ with SPARK_Mode,
                                       Landing_Data_Collector))
 is
 
+   ----------------------
+   -- Add_Acc_Z_Sample --
+   ----------------------
+
    procedure Add_Acc_Z_Sample
      (Acc_Z            : T_Acc;
       Data_Collector   : in out FF_Acc_Data_Collector) is
@@ -21,8 +25,13 @@ is
         (Data_Collector.Index mod Data_Collector.Samples'Last) + 1;
    end Add_Acc_Z_Sample;
 
+   -------------------------------
+   -- Calculate_Last_Derivative --
+   -------------------------------
+
    function Calculate_Last_Derivative
-     (Data_Collector : FF_Acc_Data_Collector) return Float is
+     (Data_Collector : FF_Acc_Data_Collector) return Float
+   is
       Last_Sample        : Float
         := Data_Collector.Samples (Data_Collector.Index);
       Penultimate_Sample : Float
@@ -33,6 +42,10 @@ is
    begin
       return (Last_Sample - Penultimate_Sample);
    end Calculate_Last_Derivative;
+
+   -------------------------
+   -- FF_Detect_Free_Fall --
+   -------------------------
 
    procedure FF_Detect_Free_Fall
      (Acc         :  Accelerometer_Data;
@@ -52,6 +65,10 @@ is
 
       FF_Detected := FF_Duration_Counter >= FF_DURATION;
    end FF_Detect_Free_Fall;
+
+   -----------------------
+   -- FF_Detect_Landing --
+   -----------------------
 
    procedure FF_Detect_Landing (Landing_Detected : out Boolean)
    is
@@ -76,6 +93,10 @@ is
       end if;
    end FF_Detect_Landing;
 
+   -----------------
+   -- FF_Watchdog --
+   -----------------
+
    procedure FF_Watchdog is
    begin
       --  if the drone is in recovery mode and it has not recovered after
@@ -88,7 +109,12 @@ is
       end if;
    end FF_Watchdog;
 
-   procedure FF_Check_Event (Acc : Accelerometer_Data) is
+   --------------------
+   -- FF_Check_Event --
+   --------------------
+
+   procedure FF_Check_Event (Acc : Accelerometer_Data)
+   is
       Has_Detected_FF  : Boolean;
       Has_Landed       : Boolean;
    begin
@@ -124,6 +150,10 @@ is
       FF_Watchdog;
    end FF_Check_Event;
 
+   ------------------------------
+   -- FF_Get_Recovery_Commands --
+   ------------------------------
+
    procedure FF_Get_Recovery_Commands
      (Euler_Roll_Desired  : in out Float;
       Euler_Pitch_Desired : in out Float;
@@ -144,6 +174,10 @@ is
       Roll_Type := ANGLE;
       Pitch_Type := ANGLE;
    end FF_Get_Recovery_Commands;
+
+   ----------------------------
+   -- FF_Get_Recovery_Thrust --
+   ----------------------------
 
    procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16) is
    begin
