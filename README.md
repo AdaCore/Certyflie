@@ -1,11 +1,15 @@
-#Crazyflie 2.0 Firmware
+B1;3409;0c#Crazyflie 2.0 Firmware
 
-This project contains the source code for the Crazyflie 2.0 firmware. More information can be found on the 
+This project contains the original source code for the Crazyflie 2.0 firmware with a rewritten part in SPARK 2014.
+More information can be found on the
 [Bitcraze wiki](http://wiki.bitcraze.se/projects:crazyflie2:index)
-
+and
+[AdaCore Blog post](http://blog.adacore.com/how-to-prevent-drone-crashes-using-spark)
 
 ####Folder description
 ```
+** C Code **
+
 ./              | Root, contains the Makefile
  + init         | Contains the main.c
  + config       | Configuration files
@@ -28,6 +32,17 @@ This project contains the source code for the Crazyflie 2.0 firmware. More infor
  |  + FreeRTOS  | Source FreeRTOS folder. Cleaned up from the useless files
  |  + STM32...  | Library folders of the ST STM32 peripheral libs
  |  + CMSIS     | Core abstraction layer
+
+** SPARK code **
+ + ada_spark       | Contains the parts that have been reimplemented in SPARK
+ |  . cf_spark.gpr | The .gpr project file used to build the firmware part written in SPARK
+ |  + config       | Configuration files
+ |  + drivers      | SPARK interface for the C drivers
+ |  + hal          | SPARK interface for the HAL
+ |  + lib          | SPARK interface for external libs (e.g: FreeRTOS)
+ |  + modules      | Contains the rewritten modules in SPARK (e.g: Stabilization system)
+ |  + types        | Contains type definitions that is common to the whole SPARK code
+ |  + utils        | Contains utility packages used by the modules rewritten in SPARK
 ```
 ####Make targets
 ```
