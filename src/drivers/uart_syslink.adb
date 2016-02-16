@@ -1,4 +1,7 @@
+with STM32_SVD;
 package body UART_Syslink is
+
+   use type STM32_SVD.UInt9;
 
    --  Public procedures and functions
 
@@ -234,7 +237,7 @@ package body UART_Syslink is
       begin
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
             Received_Byte :=
-              Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#);
+              T_Uint8 (Current_Input (Transceiver) and 16#FF#);
             Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
             Enqueue (Rx_Queue, Received_Byte);
             Byte_Avalaible := True;

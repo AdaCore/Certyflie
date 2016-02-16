@@ -2,19 +2,17 @@
 
 with Ada.Real_Time; use Ada.Real_Time;
 
-with STM32F4.I2C; use STM32F4.I2C;
-with STM32F4.GPIO; use STM32F4.GPIO;
-with STM32F429_Discovery;  use STM32F429_Discovery;
-with STM32F4; use STM32F4;
+with STM32_SVD;
+with STM32.GPIO; use STM32.GPIO;
+with STM32; use STM32;
+with STM32.Device; use STM32.Device;
+with STM32.I2C; use STM32.I2C;
 
 with Types; use Types;
 
 package MPU9250 is
 
    --  Types and subtypes
-
-   --  Type used to represent teh data we want to send via I2C
-   type I2C_Data is array (Positive range <>) of Byte;
 
    --  Type reprensnting all the different clock sources of the MPU9250.
    --  See the MPU9250 register map section 4.4 for more details.
@@ -168,18 +166,18 @@ private
    --  Global variables and constants
 
    Is_Init : Boolean := False;
-   Device_Address : Byte;
+   Device_Address : STM32_SVD.UInt10;
 
-   MPU9250_I2C_PORT     : I2C_Port renames I2C_3;
+   MPU9250_I2C_PORT     : I2C_Port_Id renames I2C_3;
    MPU9250_I2C_OWN_ADDR : constant := 16#0074#;
 
    MPU9250_SCL_GPIO : GPIO_Port renames GPIO_A;
    MPU9250_SCL_Pin  : constant GPIO_Pin := Pin_8;
-   MPU9250_SCL_AF   : GPIO_Alternate_Function := GPIO_AF_I2C3;
+   MPU9250_SCL_AF   : GPIO_Alternate_Function := GPIO_AF_I2C;
 
    MPU9250_SDA_GPIO : GPIO_Port renames GPIO_C;
    MPU9250_SDA_Pin  : constant GPIO_Pin := Pin_9;
-   MPU9250_SDA_AF   : constant GPIO_Alternate_Function := GPIO_AF_I2C3;
+   MPU9250_SDA_AF   : constant GPIO_Alternate_Function := GPIO_AF_I2C;
 
    --  MPU9250 Device ID. Use to test if we are connected via I2C
    MPU9250_DEVICE_ID        : constant := 16#71#;
@@ -596,39 +594,39 @@ private
 
    --  Read data to the specified MPU9250 register
    procedure MPU9250_Read_Register
-     (Reg_Addr    : Byte;
+     (Reg_Addr    : STM32_SVD.Short;
       Data        : in out I2C_Data);
 
    --  Read one byte at the specified MPU9250 register
    procedure MPU9250_Read_Byte_At_Register
-     (Reg_Addr : Byte;
+     (Reg_Addr : STM32_SVD.Short;
       Data     : out Byte);
 
    --  Read one but at the specified MPU9250 register
    function MPU9250_Read_Bit_At_Register
-     (Reg_Addr  : Byte;
+     (Reg_Addr  : STM32_SVD.Short;
       Bit_Pos   : T_Bit_Pos_8) return Boolean;
 
    --  Write data to the specified MPU9250 register
    procedure MPU9250_Write_Register
-     (Reg_Addr    : Byte;
+     (Reg_Addr    : STM32_SVD.Short;
       Data        : I2C_Data);
 
    --  Write one byte at the specified MPU9250 register
    procedure MPU9250_Write_Byte_At_Register
-     (Reg_Addr : Byte;
+     (Reg_Addr : STM32_SVD.Short;
       Data     : Byte);
 
    --  Write one bit at the specified MPU9250 register
    procedure MPU9250_Write_Bit_At_Register
-     (Reg_Addr  : Byte;
+     (Reg_Addr  : STM32_SVD.Short;
       Bit_Pos   : T_Bit_Pos_8;
       Bit_Value : Boolean);
 
    --  Write data in the specified register, starting from the
    --  bit specified in Start_Bit_Pos
    procedure MPU9250_Write_Bits_At_Register
-     (Reg_Addr      : Byte;
+     (Reg_Addr      : STM32_SVD.Short;
       Start_Bit_Pos : T_Bit_Pos_8;
       Data          : Byte;
       Length        : T_Bit_Pos_8);

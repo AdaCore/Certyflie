@@ -1,10 +1,12 @@
 with Ada.Unchecked_Conversion;
 
-with STM32F4.RCC; use STM32F4.RCC;
-
 with Console; use Console;
+with Interfaces;
 
 package body MPU9250 is
+
+   use type Byte;
+   use type STM32_SVD.UInt10;
 
    --  Public procedures and functions
 
@@ -21,7 +23,7 @@ package body MPU9250 is
       end loop;
 
       --  Set the device address
-      Device_Address := Shift_Left (MPU9250_ADDRESS_AD0_HIGH, 1);
+      Device_Address := MPU9250_ADDRESS_AD0_HIGH * 2;
 
       --  Init and configure GPIO pins and I2C
       MPU9250_Init_Control_Lines;
@@ -61,19 +63,19 @@ package body MPU9250 is
 
    procedure MPU9250_Configure_I2C is
    begin
-      I2C3_Force_Reset;
-      I2C3_Release_Reset;
+      Reset (MPU9250_I2C_PORT);
 
       Configure
-        (Port        => MPU9250_I2C_PORT,
-         Mode        => I2C_Mode,
-         Duty_Cycle  => DutyCycle_2,
-         Own_Address => MPU9250_I2C_OWN_ADDR,
-         Ack         => Ack_Enable,
-         Ack_Address => AcknowledgedAddress_7bit,
-         Clock_Speed => 100_000);
+        (MPU9250_I2C_PORT,
+         (Clock_Speed              => 100_000,
+          Mode                     => I2C_Mode,
+          Duty_Cycle               => DutyCycle_2,
+          Addressing_Mode          => Addressing_Mode_7bit,
+          Own_Address              => MPU9250_I2C_OWN_ADDR,
+          General_Call_Enabled     => False,
+          Clock_Stretching_Enabled => False));
 
-      Set_State (MPU9250_I2C_PORT, Enabled);
+      Set_State (MPU9250_I2C_PORT, Enabled => True);
    end MPU9250_Configure_I2C;
 
    function MPU9250_Test return Boolean is
@@ -123,10 +125,10 @@ package body MPU9250 is
       MPU9250_Write_Byte_At_Register (MPU9250_RA_SMPLRT_DIV, 16#00#);
       MPU9250_Write_Byte_At_Register (MPU9250_RA_CONFIG, 16#02#);
       MPU9250_Write_Byte_At_Register (MPU9250_RA_GYRO_CONFIG,
-                                      Shift_Left (1, FS));
+                                      Interfaces.Shift_Left (1, FS));
       MPU9250_Write_Byte_At_Register (MPU9250_RA_ACCEL_CONFIG_2, 16#02#);
       MPU9250_Write_Byte_At_Register (MPU9250_RA_ACCEL_CONFIG,
-                                      Shift_Left (1, FS));
+                                      Interfaces.Shift_Left (1, FS));
 
       --  Get average current values of gyro and accelerometer
       for I in 1 .. 200 loop
@@ -435,113 +437,99 @@ package body MPU9250 is
    end MPU9250_Evaluate_Self_Test;
 
    procedure MPU9250_Read_Register
-     (Reg_Addr    : Byte;
-      Data        : in out I2C_Data) is
+     (Reg_Addr    : STM32_SVD.Short;
+      Data        : in out I2C_Data)
+   is
+      Status : I2C_Status;
+      pragma Unreferenced (Status);
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Receiver);
-
-      for I in Data'Range loop
-         if I = Data'Last then
-            Data (I) := Read_Nack (MPU9250_I2C_PORT);
-         else
-            Data (I) := Read_Ack (MPU9250_I2C_PORT);
-         end if;
-      end loop;
+      Mem_Read (Port          => MPU9250_I2C_PORT,
+                Addr          => Device_Address,
+                Mem_Addr      => Reg_Addr,
+                Mem_Addr_Size => Memory_Size_8b,
+                Data          => Data,
+                Status        => Status);
    end MPU9250_Read_Register;
 
    procedure MPU9250_Read_Byte_At_Register
-     (Reg_Addr : Byte;
-      Data     : out Byte) is
+     (Reg_Addr : STM32_SVD.Short;
+      Data     : out Byte)
+   is
+      Tmp_Data : I2C_Data (1 .. 1);
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Receiver);
-
-      Data := Read_Nack (MPU9250_I2C_PORT);
+      MPU9250_Read_Register (Reg_Addr, Tmp_Data);
+      Data := Tmp_Data (1);
    end MPU9250_Read_Byte_At_Register;
 
    function MPU9250_Read_Bit_At_Register
-     (Reg_Addr  : Byte;
+     (Reg_Addr  : STM32_SVD.Short;
       Bit_Pos   : T_Bit_Pos_8) return Boolean is
       Register_Value : Byte;
    begin
       MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
-      return (if (Register_Value and Shift_Left (1, Bit_Pos)) /= 0 then
-                 True
-              else
-                 False);
+      if (Register_Value and Interfaces.Shift_Left (1, Bit_Pos)) /= 0 then
+         return True;
+      else
+         return False;
+      end if;
    end MPU9250_Read_Bit_At_Register;
 
    procedure MPU9250_Write_Register
-     (Reg_Addr    : Byte;
-      Data        : I2C_Data) is
+     (Reg_Addr    : STM32_SVD.Short;
+      Data        : I2C_Data)
+   is
+      Status : I2C_Status;
+      pragma Unreferenced (Status);
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-
-      for Data_Byte of Data loop
-         Write (MPU9250_I2C_PORT, Data_Byte);
-      end loop;
-
-      Stop (MPU9250_I2C_PORT);
+      Mem_Write (Port          => MPU9250_I2C_PORT,
+                 Addr          => Device_Address,
+                 Mem_Addr      => Reg_Addr,
+                 Mem_Addr_Size => Memory_Size_8b,
+                 Data          => Data,
+                 Status        => Status);
    end MPU9250_Write_Register;
 
    procedure MPU9250_Write_Byte_At_Register
-     (Reg_Addr : Byte;
-      Data     : Byte) is
+     (Reg_Addr : STM32_SVD.Short;
+      Data     : Byte)
+   is
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-      Write (MPU9250_I2C_PORT, Data);
-      Stop (MPU9250_I2C_PORT);
+      MPU9250_Write_Register (Reg_Addr, (1 => Data));
    end MPU9250_Write_Byte_At_Register;
 
    procedure MPU9250_Write_Bit_At_Register
-     (Reg_Addr  : Byte;
+     (Reg_Addr  : STM32_SVD.Short;
       Bit_Pos   : T_Bit_Pos_8;
       Bit_Value : Boolean) is
       Register_Value : Byte;
    begin
       MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
 
-      Register_Value := (if Bit_Value then
-                            Register_Value or (Shift_Left (1, Bit_Pos))
-                         else
-                            Register_Value and not (Shift_Left (1, Bit_Pos)));
+      Register_Value :=
+        (if Bit_Value then
+            Register_Value or (Interfaces.Shift_Left (1, Bit_Pos))
+         else
+            Register_Value and not (Interfaces.Shift_Left (1, Bit_Pos)));
 
       MPU9250_Write_Byte_At_Register (Reg_Addr, Register_Value);
    end MPU9250_Write_Bit_At_Register;
 
    procedure MPU9250_Write_Bits_At_Register
-     (Reg_Addr      : Byte;
+     (Reg_Addr      : STM32_SVD.Short;
       Start_Bit_Pos : T_Bit_Pos_8;
       Data          : Byte;
-      Length        : T_Bit_Pos_8) is
+      Length        : T_Bit_Pos_8)
+   is
       Register_Value : Byte;
       Mask           : Byte;
       Data_Aux       : Byte := Data;
    begin
       MPU9250_Read_Byte_At_Register (Reg_Addr, Register_Value);
 
-      Mask := Shift_Left
-        ((Shift_Left (1, Length) - 1), Start_Bit_Pos - Length + 1);
-      Data_Aux := Shift_Left
+      Mask := Interfaces.Shift_Left
+        ((Interfaces.Shift_Left (Byte (1), Length) - 1),
+         Start_Bit_Pos - Length + 1);
+      Data_Aux := Interfaces.Shift_Left
         (Data_Aux, Start_Bit_Pos - Length + 1);
       Data_Aux := Data_Aux and Mask;
       Register_Value := Register_Value and not Mask;

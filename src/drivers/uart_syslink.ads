@@ -2,11 +2,11 @@ with Ada.Unchecked_Conversion;
 with Ada.Interrupts.Names; use Ada.Interrupts.Names;
 with Ada.Real_Time; use Ada.Real_Time;
 
-with STM32F4; use STM32F4;
-with STM32F4.DMA; use STM32F4.DMA;
-with STM32F4.GPIO; use STM32F4.GPIO;
-with STM32F4.USARTs; use STM32F4.USARTs;
-with STM32F4_Discovery; use STM32F4_Discovery;
+with STM32; use STM32;
+with STM32.Device; use STM32.Device;
+with STM32.DMA; use STM32.DMA;
+with STM32.GPIO; use STM32.GPIO;
+with STM32.USARTs; use STM32.USARTs;
 
 with Types; use Types;
 with Generic_Queue;
@@ -48,7 +48,7 @@ private
    TX_Pin : constant GPIO_Pin := Pin_6;
    RX_Pin : constant GPIO_Pin := Pin_7;
 
-   Controller : DMA_Controller renames DMA_2;
+   Controller : STM32.Device.DMA_Controller renames STM32.Device.DMA_2;
 
    Tx_Channel : constant DMA_Channel_Selector := Channel_5;
    Tx_Stream : constant DMA_Stream_Selector := Stream_6;
@@ -66,14 +66,6 @@ private
    UART_DATA_TIMEOUT_MS : constant Time_Span :=  Milliseconds (1_000);
 
    --  Procedures and functions
-
-   --  Convert 16-Bit word to T_Uint8
-   function Half_Word_To_T_Uint8 is
-     new Ada.Unchecked_Conversion (Half_Word, T_Uint8);
-
-   --  Convert T_Uint8 to 16-Bit words
-   function T_Uint8_To_Half_Word is
-     new Ada.Unchecked_Conversion (T_Uint8, Half_Word);
 
    --  Initialize the STM32F4 USART controller.
    procedure Initialize_USART;

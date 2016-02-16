@@ -1,0 +1,28 @@
+library project Crazyflie_2_BSP extends "../drivers/ARM/STMicro/STM32/stm32f40x.gpr" is
+   for Target use "arm-eabi";
+   for Languages use ("Ada");
+   for Object_Dir use "obj";
+   for Library_Dir use "lib";
+   for Library_Name use "Crazyflie_2_BSP";
+   for Library_Kind use "static";
+
+   --  Variable for build mode
+   type Build_Type is ("Debug", "Release");
+   Build_Mode : Build_Type := external ("Build", "Release");
+
+   --  Default build switches
+   Build_Switches := ("-gnatw.V");
+
+   --  Add optimization/debug switches depending on the build mode
+   case Build_Mode is
+      when "Debug" =>
+         Build_Switches := Build_Switches & ("-g", "-O0");
+      when "Release" =>
+         Build_Switches := Build_Switches & ("-O2");
+   end case;
+
+   package Compiler is
+      for Default_Switches ("Ada") use Build_Switches;
+   end Compiler;
+
+end Crazyflie_2_BSP;

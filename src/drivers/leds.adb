@@ -1,4 +1,5 @@
-with STM32F4_Discovery; use STM32F4_Discovery;
+with STM32; use STM32;
+with STM32.Device; use STM32.Device;
 
 package body LEDS is
 

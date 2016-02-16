@@ -1,7 +1,7 @@
 with Ada.Real_Time;               use Ada.Real_Time;
 with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
 
-with STM32F4.GPIO;      use STM32F4.GPIO;
+with STM32.GPIO;      use STM32.GPIO;
 
 package LEDS is
 

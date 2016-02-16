@@ -1,9 +1,9 @@
 with Types; use Types;
-with STM32F4_Discovery; use STM32F4_Discovery;
-with STM32F4.GPIO; use STM32F4.GPIO;
-with STM32F4; use STM32F4;
-with STM32F4.Timers; use STM32F4.Timers;
-with STM32F4.PWM; use STM32F4.PWM;
+with STM32.Device; use STM32.Device;
+with STM32.GPIO; use STM32.GPIO;
+with STM32; use STM32;
+with STM32.Timers; use STM32.Timers;
+with STM32.PWM; use STM32.PWM;
 
 package Motors is
 
@@ -57,24 +57,28 @@ private
    --  to communicate with the motors.
    MOTORS_GPIO_M1_PORT   : GPIO_Port renames GPIO_A;
    MOTORS_GPIO_M1_PIN    : GPIO_Pin  renames Pin_1;
+   MOTORS_GPIO_POINT_M1  : GPIO_Point renames PA1;
    MOTORS_GPIO_AF_M1     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
    MOTORS_TIMER_M1       : PWM_Modulator renames Timer_2_PWM;
    MOTORS_TIM_CHANNEL_M1 : constant Timer_Channel := Channel_2;
 
    MOTORS_GPIO_M2_PORT   : GPIO_Port renames GPIO_B;
    MOTORS_GPIO_M2_PIN    : GPIO_Pin  renames Pin_11;
+   MOTORS_GPIO_POINT_M2  : GPIO_Point renames PB11;
    MOTORS_GPIO_AF_M2     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
    MOTORS_TIMER_M2       : PWM_Modulator renames Timer_2_PWM;
    MOTORS_TIM_CHANNEL_M2 : constant Timer_Channel := Channel_4;
 
    MOTORS_GPIO_M3_PORT   : GPIO_Port renames GPIO_A;
    MOTORS_GPIO_M3_PIN    : GPIO_Pin  renames Pin_15;
+   MOTORS_GPIO_POINT_M3  : GPIO_Point renames PA15;
    MOTORS_GPIO_AF_M3     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
    MOTORS_TIMER_M3       : PWM_Modulator renames Timer_2_PWM;
    MOTORS_TIM_CHANNEL_M3 : constant Timer_Channel := Channel_1;
 
    MOTORS_GPIO_M4_PORT   : GPIO_Port renames GPIO_B;
    MOTORS_GPIO_M4_PIN    : GPIO_Pin  renames Pin_9;
+   MOTORS_GPIO_POINT_M4  : GPIO_Point renames PB9;
    MOTORS_GPIO_AF_M4     : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
    MOTORS_TIMER_M4       : PWM_Modulator renames Timer_4_PWM;
    MOTORS_TIM_CHANNEL_M4 : constant Timer_Channel := Channel_4;

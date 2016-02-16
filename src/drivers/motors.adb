@@ -1,7 +1,6 @@
 with Ada.Real_Time; use Ada.Real_Time;
 with Safety; use Safety;
 with Power_Management; use Power_Management;
-with STM32F4.RCC; use STM32F4.RCC;
 
 package body Motors is
 
@@ -12,39 +11,33 @@ package body Motors is
         (Timer_2_PWM,
          Requested_Frequency    => MOTORS_PWM_FREQUENCY,
          PWM_Timer              => Timer_2'Access,
-         PWM_AF                 => GPIO_AF_TIM2,
-         Enable_PWM_Timer_Clock => TIM2_Clock_Enable'Access);
+         PWM_AF                 => GPIO_AF_TIM2);
 
       Initialise_PWM_Modulator
         (Timer_4_PWM,
          Requested_Frequency    => MOTORS_PWM_FREQUENCY,
          PWM_Timer              => Timer_4'Access,
-         PWM_AF                 => GPIO_AF_TIM4,
-         Enable_PWM_Timer_Clock => TIM4_Clock_Enable'Access);
+         PWM_AF                 => GPIO_AF_TIM4);
 
       Attach_PWM_Channel
         (MOTORS_TIMER_M1,
          MOTORS_TIM_CHANNEL_M1,
-         (MOTORS_GPIO_M1_PORT'Access, MOTORS_GPIO_M1_PIN),
-         GPIOA_Clock_Enable'Access);
+         MOTORS_GPIO_POINT_M1);
 
       Attach_PWM_Channel
         (MOTORS_TIMER_M2,
          MOTORS_TIM_CHANNEL_M2,
-         (MOTORS_GPIO_M2_PORT'Access, MOTORS_GPIO_M2_PIN),
-         GPIOB_Clock_Enable'Access);
+         MOTORS_GPIO_POINT_M2);
 
       Attach_PWM_Channel
         (MOTORS_TIMER_M3,
          MOTORS_TIM_CHANNEL_M3,
-         (MOTORS_GPIO_M3_PORT'Access, MOTORS_GPIO_M3_PIN),
-         GPIOA_Clock_Enable'Access);
+         MOTORS_GPIO_POINT_M3);
 
       Attach_PWM_Channel
         (MOTORS_TIMER_M4,
          MOTORS_TIM_CHANNEL_M4,
-         (MOTORS_GPIO_M4_PORT'Access, MOTORS_GPIO_M4_PIN),
-         GPIOB_Clock_Enable'Access);
+         MOTORS_GPIO_POINT_M4);
 
       --  Reset all the motors power to zero
       Motors_Reset;
