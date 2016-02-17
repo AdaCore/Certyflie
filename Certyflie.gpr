@@ -36,6 +36,9 @@ project Certyflie is
          Build_Switches := Build_Switches & ("-O2");
    end case;
 
+   --  Switches for GNATstack analysis
+   Build_Switches := Build_Switches & ("-fcallgraph-info=su");
+
    package Compiler is
       for Default_Switches ("Ada") use Build_Switches;
    end Compiler;
