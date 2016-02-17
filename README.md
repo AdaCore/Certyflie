@@ -2,6 +2,8 @@
 
 This branch contains the source code for the full Ada + SPARK Crazyflie 2.0 firmware.
 
+If you want to use the SPARK + C version, switch to the *crazyflie2* branch instead.
+
 ####1. Folder description
 ```
 ./                       | Root, contains the .gpr project file
