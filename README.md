@@ -1,10 +1,12 @@
 #Crazyflie 2.0 Firmware
 
-This project contains the original source code for the Crazyflie 2.0 firmware with a rewritten part in SPARK 2014.
+This branch contains the original source code for the Crazyflie 2.0 firmware with a rewritten part in SPARK 2014.
 More information can be found on the
 [Bitcraze wiki](http://wiki.bitcraze.se/projects:crazyflie2:index)
 and by reading this
 [AdaCore Blog post](http://blog.adacore.com/how-to-prevent-drone-crashes-using-spark)
+
+If you want to use the full Ada + SPARK version, switch to the *ravenscar-cf-stable* or *ravenscar-cf-dev* branch instead.
 
 ####Folder description
 #####C Code
