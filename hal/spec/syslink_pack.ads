@@ -4,9 +4,9 @@
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with Ada.Unchecked_Conversion;
 
-with Types; use Types;
-with Config; use Config;
-with UART_Syslink; use UART_Syslink;
+with Config;                       use Config;
+with Types;                        use Types;
+with UART_Syslink;                 use UART_Syslink;
 
 package Syslink_Pack is
 
