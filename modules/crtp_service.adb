@@ -27,32 +27,55 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+with Ada.Unchecked_Conversion;
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+package body CRTP_Service is
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   -----------------------
+   -- CRTP_Service_Init --
+   -----------------------
 
-----------
--- Main --
-----------
+   procedure CRTP_Service_Init is
+   begin
+      if Is_Init then
+         return;
+      end if;
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+      CRTP_Register_Callback (CRTP_PORT_LINK,
+                              CRTP_Service_Handler'Access);
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+      Is_Init := True;
+   end CRTP_Service_Init;
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+   --------------------------
+   -- CRTP_Service_Handler --
+   --------------------------
+
+   procedure CRTP_Service_Handler (Packet : CRTP_Packet)
+   is
+      Command     : CRTP_Service_Command;
+      Tx_Packet   : CRTP_Packet := Packet;
+      Has_Succeed : Boolean;
+
+      ------------------------------------------
+      -- CRTP_Channel_To_CRTP_Service_Command --
+      ------------------------------------------
+
+      function CRTP_Channel_To_CRTP_Service_Command is
+        new Ada.Unchecked_Conversion (CRTP_Channel, CRTP_Service_Command);
+   begin
+      Command := CRTP_Channel_To_CRTP_Service_Command (Packet.Channel);
+
+      case Command is
+         when Link_Echo =>
+            CRTP_Send_Packet (Tx_Packet, Has_Succeed);
+         when Link_Source =>
+            Tx_Packet.Size := CRTP_MAX_DATA_SIZE;
+            CRTP_Send_Packet (Tx_Packet, Has_Succeed);
+         when others =>
+            --  Null packets
+            null;
+      end case;
+   end CRTP_Service_Handler;
+
+end CRTP_Service;

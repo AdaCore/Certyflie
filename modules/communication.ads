@@ -27,32 +27,20 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+package Communication is
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+   --  Procedures and functions
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   --  Initialize all the communication related modules.
+   procedure Communication_Init;
 
-----------
--- Main --
-----------
+   --  Test if the communication modules is initialized.
+   function Communication_Test return Boolean;
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+private
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+   --  Global variables and constants
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+   Is_Init : Boolean := False;
+
+end Communication;

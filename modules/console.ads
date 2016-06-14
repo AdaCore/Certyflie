@@ -27,32 +27,40 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+with CRTP;                         use CRTP;
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+package Console is
 
-----------
--- Main --
-----------
+   --  Procedures and functions
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+   --  Initialize the console module.
+   procedure Console_Init;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+   --  Flush the console buffer.
+   procedure Console_Flush (Has_Succeed : out Boolean);
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+   --  Test if the console module is initialized.
+   function  Console_Test return Boolean;
+
+   --  Put a string in the console buffer, and send it if a newline
+   --  character is found.
+   procedure Console_Put_Line
+     (Message     : String;
+      Has_Succeed : out Boolean);
+
+private
+
+   --  Global variables
+
+   Is_Init          : Boolean := False;
+   Console_Access   : Suspension_Object;
+   Message_To_Print : CRTP_Packet_Handler;
+
+   --  Procedures and functions
+
+   --  Send the console buffer via CRTP.
+   procedure Console_Send_Message (Has_Succeed : out Boolean);
+
+end Console;

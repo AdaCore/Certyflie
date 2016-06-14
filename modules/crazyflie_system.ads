@@ -27,32 +27,26 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+--  Package initializing all the modules of the Crazyflie
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+package Crazyflie_System is
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   --  Procedures and functions
 
-----------
--- Main --
-----------
+   --  Initialize all the low/high level modules
+   procedure System_Init;
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+   --  Self test function, used to check if all the modules
+   --  are working correctly
+   function System_Self_Test return Boolean;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+   --  Main loop of the system
+   procedure System_Loop;
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+private
+
+   --  Global variables and constants
+
+   Is_Init : Boolean := False;
+
+end Crazyflie_System;

@@ -27,32 +27,60 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+with Config;    use Config;
+with Radiolink; use Radiolink;
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+package body Link_Interface is
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   ---------------
+   -- Link_Init --
+   ---------------
 
-----------
--- Main --
-----------
+   procedure Link_Init is
+   begin
+      if Is_Init then
+         return;
+      end if;
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+      case LINK_LAYER_TYPE is
+         when RADIO_LINK =>
+            Radiolink_Init;
+         when others =>
+            --  Other link layers not implemented yet.
+            null;
+      end case;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+      Is_Init := True;
+   end Link_Init;
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+   ----------------------
+   -- Link_Send_Packet --
+   ----------------------
+
+   function Link_Send_Packet (Packet : CRTP_Packet) return Boolean is
+   begin
+      case LINK_LAYER_TYPE is
+         when RADIO_LINK =>
+            return Radiolink_Send_Packet (Packet);
+         when others =>
+            --  Other link layers not implemented yet.
+            return False;
+      end case;
+   end Link_Send_Packet;
+
+   ----------------------------------
+   -- Link_Receive_Packet_Blocking --
+   ----------------------------------
+
+   procedure Link_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
+   begin
+      case LINK_LAYER_TYPE is
+         when RADIO_LINK =>
+            Radiolink_Receive_Packet_Blocking (Packet);
+         when others =>
+            --  Other link layers not implemented yet.
+            null;
+      end case;
+   end Link_Receive_Packet_Blocking;
+
+end Link_Interface;

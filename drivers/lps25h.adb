@@ -27,32 +27,23 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+package body LPS25h is
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+   ---------------------
+   -- LPS25h_Get_Data --
+   ---------------------
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   procedure LPS25h_Get_Data
+     (Pressure    : out T_Pressure;
+      Temperature : out T_Temperature;
+      Asl         : out T_Altitude;
+      Status      : out Boolean) is
+   begin
+      --  TODO: implement the real function when drivers will be done
+      Pressure := T_Pressure'First;
+      Temperature := 0.0;
+      Asl := 0.0;
+      Status := False;
+   end LPS25h_Get_Data;
 
-----------
--- Main --
-----------
-
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
-
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
-
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+end LPS25h;

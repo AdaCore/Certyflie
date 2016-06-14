@@ -27,32 +27,80 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+with System;
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+generic
+   type T_Element is private;
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+package Generic_Queue is
 
-----------
--- Main --
-----------
+   --  Types
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+   type T_Queue (Length : Positive) is private;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+   --  Procedures and functions
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+   --  Enqueue an item in the queue, if the queue is not full.
+   procedure Enqueue
+     (Queue : in out T_Queue;
+      Item  : T_Element);
+
+   --  Dequeue an item from the queue, if the queue is not empty.
+   procedure Dequeue
+     (Queue : in out T_Queue;
+      Item  : out T_Element);
+
+   --  Reset the queue by setting the count to 0.
+   procedure Reset (Queue : in out T_Queue);
+
+   --  Return True if the queue is empty, False otherwise.
+   function Is_Empty (Queue : T_Queue) return Boolean;
+
+   --  Return True if the queue is full, False otherwise.
+   function Is_Full (Queue : T_Queue) return Boolean;
+
+   --  Tasks and protected types
+
+   --  Protected type used to access a queue that can be
+   --  used by various tasks.
+   protected type Protected_Queue
+     (Ceiling    : System.Any_Priority;
+      Queue_Size : Positive) is
+
+      procedure Enqueue_Item
+        (Item         : T_Element;
+         Has_Succeed  : out Boolean);
+
+      procedure Dequeue_Item
+        (Item        : out T_Element;
+         Has_Succeed : out Boolean);
+
+      procedure Reset_Queue;
+
+      entry Await_Item_To_Dequeue (Item : out T_Element);
+
+   private
+      pragma Priority (Ceiling);
+
+      Data_Available : Boolean := False;
+      Queue          : T_Queue (Queue_Size);
+
+   end Protected_Queue;
+
+private
+
+   --  Types
+
+   --  Type for arrays containing T_Element type items,
+   --  T_Element type given as generic parameter.
+   type Element_Array is array (Positive range <>) of T_Element;
+
+   --  Type representing a generic queue.
+   type T_Queue (Length : Positive) is record
+      Container : Element_Array (1 .. Length);
+      Count     : Natural := 0;
+      Front     : Positive := 1;
+      Rear      : Positive := 1;
+   end record;
+
+end Generic_Queue;

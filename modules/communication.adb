@@ -27,32 +27,43 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+with Console;          use Console;
+with CRTP_Service;     use CRTP_Service;
+with Platform_Service; use Platform_Service;
+with Link_Interface;   use Link_Interface;
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+package body Communication is
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   ------------------------
+   -- Communication_Init --
+   ------------------------
 
-----------
--- Main --
-----------
+   procedure Communication_Init is
+   begin
+      if Is_Init then
+         return;
+      end if;
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+      --  Initialize the link layer (Radiolink by default in Config.ads).
+      Link_Init;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+      --  Initialize low and high level services.
+      CRTP_Service_Init;
+      Platform_Service_Init;
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+      --  Initialize the console module.
+      Console_Init;
+
+      Is_Init := True;
+   end Communication_Init;
+
+   ------------------------
+   -- Communication_Test --
+   ------------------------
+
+   function Communication_Test return Boolean is
+   begin
+      return Is_Init;
+   end Communication_Test;
+
+end Communication;

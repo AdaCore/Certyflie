@@ -27,32 +27,33 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
+--  Package defining an asbtract interface for the link layer used by
+--  the CRTP Communication protocol.
+with CRTP; use CRTP;
 
-with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
+package Link_Interface is
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+   --  Procedures and functions
 
-----------
--- Main --
-----------
+   --  Initialize the selected link layer.
+   --  The selected link layer is specified in 'config.ads'.
+   procedure Link_Init;
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+   --  Send a CRTP packet using the link layer specified in
+   --  the 'Config' package.
+   --  Return 'True' if the packet is correctly sent, 'False'
+   --  ortherwise.
+   function Link_Send_Packet (Packet : CRTP_Packet) return Boolean;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+   --  Receive a CRTP packet using the link layer specified in
+   --  the 'Config' package.
+   --  Put the task calling it in sleep mode until a packet is received.
+   procedure Link_Receive_Packet_Blocking (Packet : out CRTP_Packet);
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+private
+
+   --  Global variables and constants
+
+   Is_Init : Boolean := False;
+
+end Link_Interface;
