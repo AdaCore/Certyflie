@@ -2,37 +2,22 @@ project Cf_Ada_SPARK is
 
    for Languages use ("Ada");
    for Main use ("main.adb");
-   for Source_Dirs use ("init",
-                        "config",
-                        "stm32_peripheral_libs/ARM/STMicro/STM32/boards",
-                        "stm32_peripheral_libs/ARM/STMicro/STM32/components",
-                        "stm32_peripheral_libs/ARM/STMicro/STM32/drivers",
-                        "stm32_peripheral_libs/ARM/STMicro/STM32/devices",
-                        "stm32_peripheral_libs/ARM/STMicro/STM32/utils",
-                        "types/spec",
-                        "utils/spec",
-                        "utils/body",
-                        "drivers/spec",
-                        "drivers/body",
-                        "lib/spec",
-                        "lib/body",
-                        "hal/spec",
-                        "hal/body",
-                        "modules/spec",
-                        "modules/body");
+   for Source_Dirs use ("init", "config", "stm32_peripheral_libs/ARM/STMicro/STM32/boards", "stm32_peripheral_libs/ARM/STMicro/STM32/components", "stm32_peripheral_libs/ARM/STMicro/STM32/drivers",
+      "stm32_peripheral_libs/ARM/STMicro/STM32/devices", "stm32_peripheral_libs/ARM/STMicro/STM32/utils", "types/spec", "utils/spec", "utils/body", "drivers/spec", "drivers/body", "lib/spec", "lib/body", "hal/spec", "hal/body", "modules/spec",
+      "modules/body");
    for Object_Dir use "obj";
    for Exec_Dir use "obj";
 
    --  Export run-times's variables
-   type Loaders is ("ROM", "RAM");
+   type Loaders is
+      ("ROM", "RAM");
    Loader : Loaders := external ("LOADER", "ROM");
+   for Target use "arm-eabi";
+   for Runtime ("ada") use "ravenscar-full-stm32f4";
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-gnatQ", "-gnatyg", "-O2", "-gnatn");
+      for Default_Switches ("ada") use ("-gnatQ", "-gnatyg", "-O2", "-gnatn");
    end Compiler;
-
-   for Target use "arm-eabi";
-   for Runtime ("Ada") use "ravenscar-sfp-stm32f4";
 
    package Builder is
       for Global_Configuration_Pragmas use "gnat.adc";
@@ -45,11 +30,18 @@ project Cf_Ada_SPARK is
    end Naming;
 
    package Ide is
-      for Gnat use "arm-eabi-gnat";
-      for Gnatlist use "arm-eabi-gnatls";
-      for Debugger_Command use "arm-eabi-gdb";
       for Program_Host use "localhost:4242";
       for Communication_Protocol use "remote";
+
+      case Loader is
+
+         when "ROM" =>
+
+         when "RAM" =>
+            for Debugger_Command use "arm-eabi-gdb";
+            for Gnatlist use "arm-eabi-gnatls";
+            for Gnat use "arm-eabi-gnat";
+      end case;
    end Ide;
 
 end Cf_Ada_SPARK;

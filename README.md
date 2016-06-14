@@ -35,35 +35,10 @@ To be able to analyze the SPARK code, you will need the SPARK toolsuite (e.g: "S
 
 ## Building the firmware
 
-The firmware uses a SFP Ravenscar runtime that targets STM32F4 boards. This runtime is included in the
+The firmware uses a Ravenscar-Full runtime that targets STM32F4 boards. This runtime is included in the
 "GNAT GPL 2015" for ARM (ELF) package and in the recent GNAT Pro packages for ARM.
-However, the firmware needs some mathematical functions that are not included in this runtime by default.
 
-Therefore, to be able to build the actual firmware, you will need to recompile the runtime with
-the needed files. These files can be found in the Ravenscar Full runtime targetting STM32F4 boards
-install directory.
-
-If you use the "GNAT GPL 2015" ARM compiler, you can do it following these simple steps:
-
-Copy the needed files:
-```
-cd $(INSTALL_DIR)/arm-eabi/lib/gnat
-
-cp ./ravenscar-full-stm32f4/math/* ./ravenscar-sfp-stm32f4/math
-```
-Remove packages that rely on Ada.Numerics
-```
-rm -f ./ravenscar-sfp-stm32f4/math/a-ngrear.ad* ./ravenscar-sfp-stm32f4/math/a-ngcoar.ad*
-```
-Rebuild the runtime:
-```
-cd ravenscar-sfp-stm32f4
-
-gprbuild --target=arm-eabi -P runtime_build.gpr
-```
-
-Once you modified and rebuilt the runtime, you will be able to build the actual firmware.
-To do it, go on the project's root directory and type:
+To build the actual firmware, go on the project's root directory and type:
 ```
  gprbuild -P cf_ada_spark.gpr -p
 ```
