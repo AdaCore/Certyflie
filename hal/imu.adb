@@ -190,11 +190,11 @@ package body IMU is
 
       --  Re-map outputs
       Gyro.X :=
-        -(Float (Gyro_IMU.X - Gyro_Bias.Bias.X)) * IMU_DEG_PER_LSB_CFG;
+        -(Float (Gyro_IMU.X) - Gyro_Bias.Bias.X) * IMU_DEG_PER_LSB_CFG;
       Gyro.Y :=
-        (Float (Gyro_IMU.Y - Gyro_Bias.Bias.Y)) * IMU_DEG_PER_LSB_CFG;
+        (Float (Gyro_IMU.Y) - Gyro_Bias.Bias.Y) * IMU_DEG_PER_LSB_CFG;
       Gyro.Z :=
-        (Float (Gyro_IMU.Z - Gyro_Bias.Bias.Z)) * IMU_DEG_PER_LSB_CFG;
+        (Float (Gyro_IMU.Z) - Gyro_Bias.Bias.Z) * IMU_DEG_PER_LSB_CFG;
 
       Acc.X := (-Accel_LPF_Aligned.X) * IMU_G_PER_LSB_CFG;
       Acc.Y := Accel_LPF_Aligned.Y * IMU_G_PER_LSB_CFG;
@@ -248,8 +248,8 @@ package body IMU is
       Has_Found_Bias := False;
       if Bias_Obj.Is_Buffer_Filled then
          declare
-            Variance : Axis3_T_Int16;
-            Mean     : Axis3_T_Int16;
+            Variance : Axis3_Float;
+            Mean     : Axis3_Float;
          begin
             IMU_Calculate_Variance_And_Mean
               (Bias_Obj, Variance, Mean);
@@ -276,16 +276,16 @@ package body IMU is
 
    procedure IMU_Calculate_Variance_And_Mean
      (Bias_Obj : Bias_Object;
-      Variance : out Axis3_T_Int16;
-      Mean     : out Axis3_T_Int16)
+      Variance : out Axis3_Float;
+      Mean     : out Axis3_Float)
    is
-      Sum        : T_Int32_Array (1 .. 3) := (others => 0);
+      Sum        : T_Int64_Array (1 .. 3) := (others => 0);
       Sum_Square : T_Int64_Array (1 .. 3) := (others => 0);
    begin
       for Value of Bias_Obj.Buffer loop
-         Sum (1) := Sum (1) + T_Int32 (Value.X);
-         Sum (2) := Sum (2) + T_Int32 (Value.Y);
-         Sum (3) := Sum (3) + T_Int32 (Value.Z);
+         Sum (1) := Sum (1) + T_Int64 (Value.X);
+         Sum (2) := Sum (2) + T_Int64 (Value.Y);
+         Sum (3) := Sum (3) + T_Int64 (Value.Z);
 
          Sum_Square (1) := Sum_Square (1) + T_Int64 (Value.X * Value.X);
          Sum_Square (2) := Sum_Square (2) + T_Int64 (Value.Y * Value.Y);
@@ -293,18 +293,18 @@ package body IMU is
       end loop;
 
       Variance.X :=
-        T_Int16 (Sum_Square (1) -
+        Float (Sum_Square (1) -
                      T_Int64 (Sum (1) * Sum (1)) / IMU_NBR_OF_BIAS_SAMPLES);
       Variance.Y :=
-        T_Int16 (Sum_Square (2) -
+        Float (Sum_Square (2) -
                      T_Int64 (Sum (2) * Sum (2)) / IMU_NBR_OF_BIAS_SAMPLES);
       Variance.Z :=
-        T_Int16 (Sum_Square (3) -
+        Float (Sum_Square (3) -
                      T_Int64 (Sum (3) * Sum (3)) / IMU_NBR_OF_BIAS_SAMPLES);
 
-      Mean.X := T_Int16 (Sum (1) / IMU_NBR_OF_BIAS_SAMPLES);
-      Mean.Y := T_Int16 (Sum (2) / IMU_NBR_OF_BIAS_SAMPLES);
-      Mean.Z := T_Int16 (Sum (3) / IMU_NBR_OF_BIAS_SAMPLES);
+      Mean.X := Float (Sum (1) / IMU_NBR_OF_BIAS_SAMPLES);
+      Mean.Y := Float (Sum (2) / IMU_NBR_OF_BIAS_SAMPLES);
+      Mean.Z := Float (Sum (3) / IMU_NBR_OF_BIAS_SAMPLES);
    end IMU_Calculate_Variance_And_Mean;
 
    ---------------------------

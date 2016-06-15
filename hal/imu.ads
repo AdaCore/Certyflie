@@ -96,7 +96,7 @@ is
    IMU_UPDATE_DT_MS : constant Time_Span := Milliseconds (2);
 
    --  Number of samples used for bias calculation
-   IMU_NBR_OF_BIAS_SAMPLES      : constant := 32;
+   IMU_NBR_OF_BIAS_SAMPLES      : constant := 1024;
    GYRO_MIN_BIAS_TIMEOUT_MS     : constant Time_Span := Milliseconds (1_000);
 
    --  Set ACC_WANTED_LPF1_CUTOFF_HZ to the wanted cut-off freq in Hz.
@@ -111,7 +111,7 @@ is
    IMU_ACC_IIR_LPF_ATT_FACTOR   : constant T_Uint8
      := T_Uint8 (Float (2 ** IIR_SHIFT) / IMU_ACC_IIR_LPF_ATTENUATION + 0.5);
 
-   GYRO_VARIANCE_BASE        : constant := 2000;
+   GYRO_VARIANCE_BASE        : constant := 2000.0;
    GYRO_VARIANCE_THRESHOLD_X : constant := (GYRO_VARIANCE_BASE);
    GYRO_VARIANCE_THRESHOLD_Y : constant := (GYRO_VARIANCE_BASE);
    GYRO_VARIANCE_THRESHOLD_Z : constant := (GYRO_VARIANCE_BASE);
@@ -180,7 +180,7 @@ private
 
    --  Type used for bias calculation
    type Bias_Object is record
-      Bias                : Axis3_T_Int16;
+      Bias                : Axis3_Float;
       Buffer              : Bias_Buffer_Array;
       Buffer_Index        : Positive := Bias_Buffer_Array'First;
       Is_Bias_Value_Found : Boolean  := False;
@@ -234,8 +234,8 @@ private
    --  Calculate the variance and mean for the bias buffer.
    procedure IMU_Calculate_Variance_And_Mean
      (Bias_Obj : Bias_Object;
-      Variance : out Axis3_T_Int16;
-      Mean     : out Axis3_T_Int16);
+      Variance : out Axis3_Float;
+      Mean     : out Axis3_Float);
 
    --  Apply IIR LP Filter on each axis.
    procedure IMU_Acc_IRR_LP_Filter
