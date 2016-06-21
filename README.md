@@ -36,15 +36,15 @@ git clone --recursive https://github.com/AnthonyLeonardoGracio/crazyflie-firmwar
 ## Requirements
 
 The firmware is written in Ada 2012 and in SPARK 2014 and targets a STM32F4 chip, based on ARM.
-Therefore, a compiler for ARM (ELF) is needed: The "GNAT GPL 2015" compiler for ARM (ELF) is one such compiler.
+Therefore, a compiler for ARM (ELF) is needed: The "GNAT GPL 2016" compiler for ARM (ELF) is one such compiler.
 A recent GNAT Pro compiler for that target will also suffice.
 
-To be able to analyze the SPARK code, you will need the SPARK toolsuite (e.g: "SPARK GPL 2015").
+To be able to analyze the SPARK code, you will need the SPARK toolsuite (e.g: "SPARK GPL 2016").
 
 ## Building the firmware
 
 The firmware uses a Ravenscar-Full runtime that targets STM32F4 boards. This runtime is included in the
-"GNAT GPL 2015" for ARM (ELF) package and in the recent GNAT Pro packages for ARM.
+"GNAT GPL 2016" for ARM (ELF) package and in the recent GNAT Pro packages for ARM.
 
 To build the actual firmware, go on the project's root directory and type:
 ```
