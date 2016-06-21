@@ -23,11 +23,6 @@ project Cf_Ada_SPARK is
       for Executable ("main.adb") use "cflie.elf";
    end Builder;
 
-   package Naming is
-      for Spec ("last_chance_handler") use "last_chance_handler-sfp.ads";
-      for Body ("last_chance_handler") use "last_chance_handler-stm32f429xx-sfp.adb";
-   end Naming;
-
    package Ide is
       for Program_Host use "localhost:4242";
       for Communication_Protocol use "remote";

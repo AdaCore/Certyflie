@@ -117,4 +117,20 @@ package body Crazyflie_System is
       end loop;
    end System_Loop;
 
+   -------------------------
+   -- Last_Chance_Handler --
+   -------------------------
+
+   procedure Last_Chance_Handler (Error : Exception_Occurrence) is
+   begin
+      Motors_Reset;
+      Reset_All_LEDs;
+
+      --  No-return procedure...
+      loop
+         Toggle_LED (LED_Red_L);
+         delay until Clock + Milliseconds (1_000);
+      end loop;
+   end Last_Chance_Handler;
+
 end Crazyflie_System;

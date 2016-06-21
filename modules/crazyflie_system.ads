@@ -29,6 +29,8 @@
 
 --  Package initializing all the modules of the Crazyflie
 
+with Ada.Exceptions; use Ada.Exceptions;
+
 package Crazyflie_System is
 
    --  Procedures and functions
@@ -48,5 +50,12 @@ private
    --  Global variables and constants
 
    Is_Init : Boolean := False;
+
+   --  Procedures and function
+
+   --  Global exception handler
+   procedure Last_Chance_Handler (Error : Exception_Occurrence);
+   pragma Export (C, Last_Chance_Handler, "__gnat_last_chance_handler");
+   pragma No_Return (Last_Chance_Handler);
 
 end Crazyflie_System;

@@ -27,10 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-pragma Profile (Ravenscar);
-
 with Ada.Real_Time;       use Ada.Real_Time;
-with Last_Chance_Handler; pragma Unreferenced (Last_Chance_Handler);
 
 with Config;              use Config;
 with Crazyflie_System;    use Crazyflie_System;
