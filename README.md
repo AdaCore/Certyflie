@@ -25,6 +25,14 @@ If you want to use the SPARK + C version, switch to the *crazyflie2* branch inst
  + stm32_peripheral_libs | Git submodule for STM32 peripheral libraries. See: https://github.com/AdaCore/bareboard
 ```
 
+## Cloning
+
+This repository uses git submodules. Clone with the --recursive flag to clone
+the submodules:
+```
+git clone --recursive https://github.com/AnthonyLeonardoGracio/crazyflie-firmware.git
+```
+
 ## Requirements
 
 The firmware is written in Ada 2012 and in SPARK 2014 and targets a STM32F4 chip, based on ARM.
