@@ -32,7 +32,10 @@ with Ada.Unchecked_Conversion;
 with Link_Interface;      use Link_Interface;
 pragma Elaborate (Link_Interface);
 
-package body CRTP is
+package body CRTP
+with Refined_State => (CRTP_State => (Dropped_Packets,
+                                      Is_Connected))
+is
 
    ------------------
    -- CRTP_Tx_Task --
@@ -120,9 +123,9 @@ package body CRTP is
    -------------------
 
    procedure CRTP_Get_Data
-     (Handler    : CRTP_Packet_Handler;
-      Index      : Integer;
-      Data       : out T_Data;
+     (Handler     : CRTP_Packet_Handler;
+      Index       : Integer;
+      Data        : in out T_Data;
       Has_Succeed : out Boolean)
    is
       Data_Size : constant Natural := T_Data'Size / 8;

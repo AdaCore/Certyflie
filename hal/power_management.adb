@@ -31,7 +31,14 @@ with Ada.Unchecked_Conversion;
 
 with Log;                      use Log;
 
-package body Power_Management is
+package body Power_Management
+with Refined_State => (Power_Management_State => (Current_Power_Info,
+                                                  Current_Power_State,
+                                                  Battery_Voltage,
+                                                  Battery_Voltage_Min,
+                                                  Battery_Voltage_Max,
+                                                  Battery_Low_Time_Stamp))
+is
 
    ---------------------------
    -- Power_Management_Init --

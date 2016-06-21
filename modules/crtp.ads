@@ -34,7 +34,9 @@ with Config;             use Config;
 with Generic_Queue;
 with Types;              use Types;
 
-package CRTP is
+package CRTP
+  with Abstract_State => CRTP_State
+is
 
    --  Constants
 
@@ -135,9 +137,9 @@ package CRTP is
    generic
       type T_Data is private;
    procedure CRTP_Get_Data
-     (Handler    : CRTP_Packet_Handler;
-      Index      : Integer;
-      Data       : out T_Data;
+     (Handler     : CRTP_Packet_Handler;
+      Index       : Integer;
+      Data        : in out T_Data;
       Has_Succeed : out Boolean);
 
    --  Function pointer type for callbacks.
@@ -221,8 +223,13 @@ private
    --  Global variables
 
    --  Number of dropped packets.
-   Dropped_Packets : Natural := 0;
+   Dropped_Packets : Natural := 0
+     with
+       Part_Of => CRTP_State;
+
    --  Used to know if we are still connected or not.
-   Is_Connected    : Boolean := False;
+   Is_Connected    : Boolean := False
+     with
+       Part_Of => CRTP_State;
 
 end CRTP;

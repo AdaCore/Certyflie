@@ -36,7 +36,9 @@ with STM32F4.Timers;    use STM32F4.Timers;
 with STM32F4.RCC;       use STM32F4.RCC;
 with STM32F40xxx;       use STM32F40xxx;
 
-package Motors is
+package Motors
+   with Abstract_State => Motors_State
+is
 
    --  Types
 
@@ -45,21 +47,34 @@ package Motors is
    --  Procedures and functions
 
    --  Initialize the motors.
-   procedure Motors_Init;
+   procedure Motors_Init
+     with
+     Global => (In_Out => Motors_State);
 
    --  Apply an absolute power to the given motor.
    procedure Motor_Set_Power
      (ID : Motor_ID;
-      Motor_Power : T_Uint16);
+      Motor_Power : T_Uint16)
+     with
+       Global => (In_Out => Motors_State);
 
    --  Apply power to the given motor with a compensation
    --  according to the battery level.
    procedure Motor_Set_Power_With_Bat_Compensation
      (ID : Motor_ID;
-      Motor_Power : T_Uint16);
+      Motor_Power : T_Uint16)
+     with
+       Global => (In_Out => Motors_State);
 
    --  Test all the Crazyflie motors.
-   function Motors_Test return Boolean;
+   function Motors_Test return Boolean
+     with
+       Global => (Input => Motors_State);
+
+   --  Set the power of all the motors to zero.
+   procedure Motors_Reset
+     with
+       Global => (In_Out => Motors_State);
 
 private
    --  Global variables and constants
@@ -112,14 +127,17 @@ private
    MOTORS_TIM_CHANNEL_M4 : constant Timer_Channel := Channel_4;
 
    --  PWM modulators
-   M1_Modulator          : PWM_Modulator;
-   M2_Modulator          : PWM_Modulator;
-   M3_Modulator          : PWM_Modulator;
-   M4_Modulator          : PWM_Modulator;
-
-   --  Procedures
-
-   --  Set the power of all the motors to zero.
-   procedure Motors_Reset;
+   M1_Modulator          : PWM_Modulator
+     with
+       Part_Of => Motors_State;
+   M2_Modulator          : PWM_Modulator
+     with
+       Part_Of => Motors_State;
+   M3_Modulator          : PWM_Modulator
+     with
+       Part_Of => Motors_State;
+   M4_Modulator          : PWM_Modulator
+     with
+       Part_Of => Motors_State;
 
 end Motors;

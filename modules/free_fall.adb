@@ -127,12 +127,11 @@ is
    -----------------
 
    procedure FF_Watchdog is
+      Time_Since_Last_FF : constant Time_Span := Get_Time_Since_Last_Free_Fall;
    begin
       --  if the drone is in recovery mode and it has not recovered after
       --  the specified timeout, disable the free fall mode in emergency.
-      if In_Recovery = 1 and
-        Get_Time_Since_Last_Free_Fall > RECOVERY_TIMEOUT
-      then
+      if In_Recovery = 1 and then Time_Since_Last_FF > RECOVERY_TIMEOUT then
          In_Recovery := 0;
          FF_Mode := DISABLED;
       end if;
@@ -144,8 +143,10 @@ is
 
    procedure FF_Check_Event (Acc : Accelerometer_Data)
    is
-      Has_Detected_FF  : Boolean;
-      Has_Landed       : Boolean;
+      Has_Detected_FF         : Boolean;
+      Has_Landed              : Boolean;
+      Time_Since_Last_Landing : constant Time_Span :=
+                                  Get_Time_Since_Last_Landing;
    begin
       --  Check if FF Detection is disabled
       if FF_Mode = DISABLED then
@@ -169,7 +170,7 @@ is
       FF_Detect_Free_Fall (Acc, Has_Detected_FF);
 
       if In_Recovery = 0 and Has_Detected_FF and
-        Get_Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING
+        Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING
       then
          Last_FF_Detected_Time := Clock;
          In_Recovery := 1;
@@ -225,5 +226,27 @@ is
          Recovery_Thrust := Recovery_Thrust - RECOVERY_THRUST_DECREMENT;
       end if;
    end FF_Get_Recovery_Thrust;
+
+   ---------------------------------
+   -- Get_Time_Since_Last_Landing --
+   ---------------------------------
+
+   function Get_Time_Since_Last_Landing return Time_Span
+   is
+      Current_Time : constant Time := Clock;
+   begin
+      return Current_Time - Last_Landing_Time;
+   end Get_Time_Since_Last_Landing;
+
+   -----------------------------------
+   -- Get_Time_Since_Last_Free_Fall --
+   -----------------------------------
+
+   function Get_Time_Since_Last_Free_Fall return Time_Span
+   is
+      Current_Time : constant Time := Clock;
+   begin
+      return Current_Time - Last_FF_Detected_Time;
+   end Get_Time_Since_Last_Free_Fall;
 
 end Free_Fall;

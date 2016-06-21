@@ -32,7 +32,12 @@ with Ada.Real_Time;    use Ada.Real_Time;
 with Power_Management; use Power_Management;
 with Safety;           use Safety;
 
-package body Motors is
+package body Motors
+with Refined_State => (Motors_State => (M1_Modulator,
+                                        M2_Modulator,
+                                        M3_Modulator,
+                                        M4_Modulator))
+is
 
    -----------------
    -- Motors_Init --

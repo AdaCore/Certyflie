@@ -50,17 +50,24 @@ is
 
    --  Check if an event (Free fall or Landing) has occured giving it
    --  accelerometer data.
-   procedure FF_Check_Event (Acc : Accelerometer_Data);
+   procedure FF_Check_Event (Acc : Accelerometer_Data)
+     with
+       Global => (Input  => Clock_Time,
+                  In_Out => FF_State);
 
    --  Override the previous commands if in recovery mode.
    procedure FF_Get_Recovery_Commands
      (Euler_Roll_Desired  : in out Float;
       Euler_Pitch_Desired : in out Float;
       Roll_Type           : in out RPY_Type;
-      Pitch_Type          : in out RPY_Type);
+      Pitch_Type          : in out RPY_Type)
+     with
+       Global => (Input => FF_State);
 
    --  Override the previous thrust if in recovery mode.
-   procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16);
+   procedure FF_Get_Recovery_Thrust (Thrust : in out T_Uint16)
+     with
+       Global => (In_Out => FF_State);
 
 private
    --  Constants
@@ -156,12 +163,13 @@ private
      (Data_Collector : FF_Acc_Data_Collector) return Float;
 
    --  Get the time since last landing after a recovery from a free fall.
-   function Get_Time_Since_Last_Landing return Time_Span is
-     (Clock - Last_Landing_Time);
-   pragma Inline (Get_Time_Since_Last_Landing);
+   function Get_Time_Since_Last_Landing return Time_Span
+     with
+       Volatile_Function;
 
    --  Get the time since the last free fall detection.
-   function Get_Time_Since_Last_Free_Fall return Time_Span is
-     (Clock - Last_FF_Detected_Time);
+   function Get_Time_Since_Last_Free_Fall return Time_Span
+     with
+       Volatile_Function;
 
 end Free_Fall;

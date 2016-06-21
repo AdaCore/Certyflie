@@ -33,7 +33,9 @@ with LEDS;          use LEDS;
 with Syslink;       use Syslink;
 with Types;         use Types;
 
-package Power_Management is
+package Power_Management
+  with Abstract_State => (Power_Management_State)
+is
 
    --  Types
 
@@ -86,14 +88,26 @@ private
 
    --  Current power information received from nrf51
    --  and current power state.
-   Current_Power_Info  : Power_Syslink_Info;
-   Current_Power_State : Power_State;
+   Current_Power_Info  : Power_Syslink_Info
+     with
+     Part_Of => Power_Management_State;
+   Current_Power_State : Power_State
+     with
+       Part_Of => Power_Management_State;
 
    --  Current battery voltage, and it's min and max values.
-   Battery_Voltage          : Float;
-   Battery_Voltage_Min      : Float := 6.0;
-   Battery_Voltage_Max      : Float := 0.0;
-   Battery_Low_Time_Stamp   : Time;
+   Battery_Voltage          : Float
+     with
+       Part_Of => Power_Management_State;
+   Battery_Voltage_Min      : Float := 6.0
+     with
+       Part_Of => Power_Management_State;
+   Battery_Voltage_Max      : Float := 0.0
+     with
+       Part_Of => Power_Management_State;
+   Battery_Low_Time_Stamp   : Time
+     with
+       Part_Of => Power_Management_State;
 
    --  LEDs to switch on according power state.
    Charging_LED  : constant Crazyflie_LED := LED_Blue_L;

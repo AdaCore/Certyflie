@@ -35,7 +35,8 @@ with MPU9250;       use MPU9250;
 with Types;         use Types;
 
 package IMU
-with SPARK_Mode
+with SPARK_Mode,
+  Abstract_State => IMU_State
 is
 
    --  Types
@@ -149,10 +150,14 @@ is
        Global => null;
 
    --  Return True if the IMU is correctly calibrated, False otherwise.
-   function IMU_6_Calibrated return Boolean;
+   function IMU_6_Calibrated return Boolean
+     with
+       Global => (Input => IMU_State);
 
    --  Return True if the IMU has an initialized barometer, False otherwise.
-   function IMU_Has_Barometer return Boolean;
+   function IMU_Has_Barometer return Boolean
+     with
+       Global => (Input => IMU_State);
 
 private
    --  Types
@@ -189,33 +194,66 @@ private
 
    --  Global variables and constants
 
-   Is_Init : Boolean := False;
-   --  Barometer and magnetometr not avalaible for now.
-   --  TODO: add the code to manipulate them
-   Is_Barometer_Avalaible   : Boolean := False;
-   Is_Magnetomer_Availaible : Boolean := False;
-   Is_Calibrated            : Boolean := False;
+   Is_Init : Boolean := False
+     with
+       Part_Of => IMU_State;
 
-   Variance_Sample_Time  : Time;
-   IMU_Acc_Lp_Att_Factor : T_Uint8;
+   --  Barometer and magnetometer not avalaible for now.
+   --  TODO: add the code to manipulate them
+   Is_Barometer_Avalaible   : Boolean := False
+     with
+       Part_Of => IMU_State;
+   Is_Magnetomer_Availaible : Boolean := False
+     with
+       Part_Of => IMU_State;
+   Is_Calibrated            : Boolean := False
+     with
+       Part_Of => IMU_State;
+
+   Variance_Sample_Time  : Time
+     with
+       Part_Of => IMU_State;
+   IMU_Acc_Lp_Att_Factor : T_Uint8
+     with
+       Part_Of => IMU_State;
 
    --  Raw values retrieved from IMU
-   Accel_IMU           : Axis3_T_Int16;
-   Gyro_IMU            : Axis3_T_Int16;
+   Accel_IMU           : Axis3_T_Int16
+     with
+       Part_Of => IMU_State;
+   Gyro_IMU            : Axis3_T_Int16
+     with
+       Part_Of => IMU_State;
    --  Acceleration after applying the IIR LPF filter
-   Accel_LPF           : Axis3_T_Int32;
+   Accel_LPF           : Axis3_T_Int32
+     with
+       Part_Of => IMU_State;
    --  Use to stor the IIR LPF filter feedback
-   Accel_Stored_Values : Axis3_T_Int32;
+   Accel_Stored_Values : Axis3_T_Int32
+     with
+       Part_Of => IMU_State;
    --  Acceleration after aligning with gravity
-   Accel_LPF_Aligned   : Axis3_Float;
+   Accel_LPF_Aligned   : Axis3_Float
+     with
+       Part_Of => IMU_State;
 
-   Cos_Pitch : Float;
-   Sin_Pitch : Float;
-   Cos_Roll  : Float;
-   Sin_Roll  : Float;
+   Cos_Pitch : Float
+     with
+       Part_Of => IMU_State;
+   Sin_Pitch : Float
+     with
+       Part_Of => IMU_State;
+   Cos_Roll  : Float
+     with
+       Part_Of => IMU_State;
+   Sin_Roll  : Float
+     with
+       Part_Of => IMU_State;
 
    --  Bias objects used for bias calculation
-   Gyro_Bias : Bias_Object;
+   Gyro_Bias : Bias_Object
+     with
+       Part_Of => IMU_State;
 
    --  Procedures and functions
 

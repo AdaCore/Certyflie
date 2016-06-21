@@ -56,7 +56,7 @@ is
 
    --  Procedures and functions
 
-   --  Initalize all the PID's needed for the drone.
+   --  Initialize all the PID's needed for the drone.
    procedure Controller_Init
      with
        Global => (Output => (Attitude_PIDs, Rate_PIDs, Controller_State));

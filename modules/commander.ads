@@ -34,7 +34,8 @@ with Types;         use Types;
 pragma Elaborate_All (CRTP);
 
 package Commander
-with SPARK_Mode
+with SPARK_Mode,
+  Abstract_State => Commander_State
 is
 
    --  Types
@@ -71,16 +72,24 @@ is
    procedure Commander_Get_RPY
      (Euler_Roll_Desired  : out T_Degrees;
       Euler_Pitch_Desired : out T_Degrees;
-      Euler_Yaw_Desired   : out T_Degrees);
+      Euler_Yaw_Desired   : out T_Degrees)
+     with
+       Global => (Input => Commander_State);
 
    --  Get the commands types by default or from the client..
    procedure Commander_Get_RPY_Type
      (Roll_Type  : out RPY_Type;
       Pitch_Type : out RPY_Type;
-      Yaw_Type   : out RPY_Type);
+      Yaw_Type   : out RPY_Type)
+     with
+       Global => null;
 
    --  Get the thrust from the pilot.
-   procedure Commander_Get_Thrust (Thrust : out T_Uint16);
+   procedure Commander_Get_Thrust (Thrust : out T_Uint16)
+     with
+       Global => (Input  => Clock_Time,
+                  In_Out => (CRTP_State,
+                             Commander_State));
 
    --  Get Alt Hold Mode parameters from the pilot..
    procedure Commander_Get_Alt_Hold
@@ -89,7 +98,11 @@ is
       Alt_Hold_Change : out Float);
 
    --  Cut the trust when inactivity time has been during for too long.
-   procedure Commander_Watchdog;
+   procedure Commander_Watchdog
+     with
+       Global => (Input  => Clock_Time,
+                  In_Out => (CRTP_State,
+                             Commander_State));
 
 private
 
@@ -104,17 +117,33 @@ private
    MAX_THRUST        : constant := 60_000;
    ALT_HOLD_THRUST_F : constant := 32_767.0;
 
-   Is_Init           : Boolean := False;
-   Is_Inactive       : Boolean := True;
-   Alt_Hold_Mode     : Boolean := False;
-   Alt_Hold_Mode_Old : Boolean := False;
-   Thrust_Locked     : Boolean := True;
-   Side              : Boolean := False;
+   Is_Init           : Boolean := False
+     with
+       Part_Of => Commander_State;
+   Is_Inactive       : Boolean := True
+     with
+       Part_Of => Commander_State;
+   Alt_Hold_Mode     : Boolean := False
+     with
+       Part_Of => Commander_State;
+   Alt_Hold_Mode_Old : Boolean := False
+     with
+       Part_Of => Commander_State;
+   Thrust_Locked     : Boolean := True
+     with
+       Part_Of => Commander_State;
+   Side              : Boolean := False
+     with
+       Part_Of => Commander_State;
 
    --  Container for the commander values received via CRTP.
-   Target_Val : array (Boolean) of Commander_CRTP_Values;
+   Target_Val : array (Boolean) of Commander_CRTP_Values
+     with
+       Part_Of => Commander_State;
 
-   Last_Update : Time;
+   Last_Update : Time
+     with
+       Part_Of => Commander_State;
 
    --  Procedures and functions
 
@@ -124,8 +153,9 @@ private
    pragma Inline (Commander_Watchdog_Reset);
 
    --  Get inactivity time since last update.
-   function Commander_Get_Inactivity_Time return Time_Span is
-      (Clock - Last_Update);
+   function Commander_Get_Inactivity_Time return Time_Span
+     with
+       Volatile_Function;
    pragma Inline (Commander_Get_Inactivity_Time);
 
    --  Get target values from a received CRTP packet

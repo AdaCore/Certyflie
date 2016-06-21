@@ -27,16 +27,21 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with IMU;            use IMU;
-with LPS25h;         use LPS25h;
+with Ada.Real_Time;    use Ada.Real_Time;
 
-with Commander;      use Commander;
-with Controller;     use Controller;
-with Free_Fall;      use Free_Fall;
+with IMU;              use IMU;
+with LPS25h;           use LPS25h;
+
+with Commander;        use Commander;
+with Controller;       use Controller;
+with CRTP;             use CRTP;
+with Free_Fall;        use Free_Fall;
+with Motors;           use Motors;
 with Pid;
-with Pid_Parameters; use Pid_Parameters;
-with SensFusion6;    use SensFusion6;
-with Types;          use Types;
+with Pid_Parameters;   use Pid_Parameters;
+with Power_Management; use Power_Management;
+with SensFusion6;      use SensFusion6;
+with Types;            use Types;
 pragma Elaborate_All (Pid);
 
 package Stabilizer
@@ -102,8 +107,14 @@ is
      with
        Global => (Input  => (V_Speed_Parameters,
                              Asl_Parameters,
-                             Alt_Hold_Parameters),
-                  In_Out => (FF_State,
+                             Alt_Hold_Parameters,
+                             IMU_State,
+                             Power_Management_State,
+                             Clock_Time),
+                  In_Out => (Commander_State,
+                             CRTP_State,
+                             FF_State,
+                             Motors_State,
                              SensFusion6_State,
                              IMU_Outputs,
                              Desired_Angles,
@@ -124,8 +135,10 @@ is
      with
        Global => (Input   => (Asl_Parameters,
                               Alt_Hold_Parameters,
-                              V_Speed_Parameters),
-                  In_Out  => (V_Speed_Variables,
+                              V_Speed_Parameters,
+                              Power_Management_State),
+                  In_Out  => (Commander_State,
+                              V_Speed_Variables,
                               Asl_Variables,
                               Alt_Hold_Variables,
                               Actuator_Commands));
@@ -148,8 +161,8 @@ is
        Global => (Input  => (Command_Types,
                              Desired_Angles,
                              IMU_Outputs),
-                  Output => (Actuator_Commands),
-                  In_Out => (Desired_Rates,
+                  In_Out => (Actuator_Commands,
+                             Desired_Rates,
                              Rate_PIDs));
 
 private
@@ -348,7 +361,8 @@ private
       Pitch  : T_Int16;
       Yaw    : T_Int16)
      with
-       Global => (Output => Motor_Powers);
+       Global => (Output => Motor_Powers,
+                  In_Out => Motors_State);
 
    --  Limit the given thrust to the maximum thrust supported by the motors.
    function Limit_Thrust (Value : T_Int32) return T_Uint16;

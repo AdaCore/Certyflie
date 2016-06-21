@@ -31,7 +31,25 @@ with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
 with Config;                            use Config;
 
-package body IMU is
+package body IMU
+with Refined_State => (IMU_State => (Is_Init,
+                                     Is_Barometer_Avalaible,
+                                     Is_Magnetomer_Availaible,
+                                     Is_Calibrated,
+                                     Variance_Sample_Time,
+                                     IMU_Acc_Lp_Att_Factor,
+                                     Accel_IMU,
+                                     Gyro_IMU,
+                                     Accel_LPF,
+                                     Accel_Stored_Values,
+                                     Accel_LPF_Aligned,
+                                     Cos_Pitch,
+                                     Sin_Pitch,
+                                     Cos_Roll,
+                                     Sin_Roll,
+                                     Gyro_Bias))
+
+is
 
    --------------
    -- IMU_Init --

@@ -32,7 +32,15 @@ with Ada.Unchecked_Conversion;
 with Safety;                   use Safety;
 
 package body Commander
-  with SPARK_Mode
+with SPARK_Mode,
+  Refined_State => (Commander_State  => (Is_Init,
+                                         Is_Inactive,
+                                         Alt_Hold_Mode,
+                                         Alt_Hold_Mode_Old,
+                                         Thrust_Locked,
+                                         Side,
+                                         Target_Val,
+                                         Last_Update))
 is
    --  Private procedures and functions
 
@@ -46,6 +54,17 @@ is
 
       Last_Update := Clock;
    end Commander_Watchdog_Reset;
+
+   -----------------------------------
+   -- Commander_Get_Inactivity_Time --
+   -----------------------------------
+
+   function Commander_Get_Inactivity_Time return Time_Span
+   is
+      Current_Time : constant Time := Clock;
+   begin
+      return Current_Time - Last_Update;
+   end Commander_Get_Inactivity_Time;
 
    ------------------------
    -- Commander_Watchdog --
@@ -156,7 +175,8 @@ is
    procedure Commander_Get_RPY
      (Euler_Roll_Desired  : out T_Degrees;
       Euler_Pitch_Desired : out T_Degrees;
-      Euler_Yaw_Desired   : out T_Degrees) is
+      Euler_Yaw_Desired   : out T_Degrees)
+   is
       Used_Side : Boolean;
    begin
       --  To prevent the change of Side value when this is called
