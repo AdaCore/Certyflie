@@ -46,10 +46,10 @@ is
    --  by the IMU.
 
    --  Type for angular speed output from gyro, degrees/s.
-   subtype T_Rate is Float range -3_000.0  .. 3_000.0;
+   subtype T_Rate is Float range -100_000.0  .. 100_000.0;
    --  Type for angular speed output from gyro, rad/s.
    subtype T_Rate_Rad
-     is Float range -3_000.0 * Pi / 180.0 .. 3_000.0 * Pi / 180.0;
+     is Float range T_Rate'First * Pi / 180.0 .. T_Rate'Last * Pi / 180.0;
    --  Type for acceleration output from accelerometer, in G.
    subtype T_Acc  is Float range -16.0 .. 16.0;
    --  Type for magnetometer output, in micro-Teslas.
