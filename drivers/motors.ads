@@ -29,12 +29,12 @@
 
 with Types;             use Types;
 
-with STM32F4.GPIO;      use STM32F4.GPIO;
-with STM32F4;           use STM32F4;
-with STM32F4.PWM;       use STM32F4.PWM;
-with STM32F4.Timers;    use STM32F4.Timers;
-with STM32F4.RCC;       use STM32F4.RCC;
-with STM32F40xxx;       use STM32F40xxx;
+with STM32.GPIO;      use STM32.GPIO;
+with STM32;           use STM32;
+with STM32.PWM;       use STM32.PWM;
+with STM32.Timers;    use STM32.Timers;
+with STM32.RCC;       use STM32.RCC;
+with STM32.Device;    use STM32.Device;
 
 package Motors
    with Abstract_State => Motors_State
@@ -90,40 +90,24 @@ private
 
    --  Constants used to configure the proper GPIO Ports and pins
    --  to communicate with the motors.
-   MOTORS_GPIO_M1_POINT  : constant GPIO_Point := (GPIO_A'Access, Pin_1);
+   MOTORS_GPIO_M1_POINT  : constant GPIO_Point := PA1;
    MOTORS_GPIO_AF_M1     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_GPIO_ENABLE_M1 : constant access procedure :=
-                             GPIOA_Clock_Enable'Access;
    MOTORS_TIMER_M1       : Timer renames Timer_2;
-   MOTORS_TIM_ENABLE_M1  : constant access procedure :=
-                             TIM2_Clock_Enable'Access;
    MOTORS_TIM_CHANNEL_M1 : constant Timer_Channel := Channel_2;
 
-   MOTORS_GPIO_M2_POINT  : constant GPIO_Point := (GPIO_B'Access, Pin_11);
+   MOTORS_GPIO_M2_POINT  : constant GPIO_Point := PB11;
    MOTORS_GPIO_AF_M2     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_GPIO_ENABLE_M2 : constant access procedure :=
-                             GPIOB_Clock_Enable'Access;
    MOTORS_TIMER_M2       : Timer renames Timer_2;
-   MOTORS_TIM_ENABLE_M2  : constant access procedure :=
-                             TIM2_Clock_Enable'Access;
    MOTORS_TIM_CHANNEL_M2 : constant Timer_Channel := Channel_4;
 
-   MOTORS_GPIO_M3_POINT  : constant GPIO_Point := (GPIO_A'Access, Pin_15);
+   MOTORS_GPIO_M3_POINT  : constant GPIO_Point := PA15;
    MOTORS_GPIO_AF_M3     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_GPIO_ENABLE_M3 : constant access procedure :=
-                             GPIOA_Clock_Enable'Access;
    MOTORS_TIMER_M3       : Timer renames Timer_2;
-   MOTORS_TIM_ENABLE_M3  : constant access procedure :=
-                             TIM2_Clock_Enable'Access;
    MOTORS_TIM_CHANNEL_M3 : constant Timer_Channel := Channel_1;
 
-   MOTORS_GPIO_M4_POINT  : constant GPIO_Point := (GPIO_B'Access, Pin_9);
+   MOTORS_GPIO_M4_POINT  : constant GPIO_Point := PB9;
    MOTORS_GPIO_AF_M4     : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
-   MOTORS_GPIO_ENABLE_M4 : constant access procedure :=
-                             GPIOB_Clock_Enable'Access;
    MOTORS_TIMER_M4       : Timer renames Timer_4;
-   MOTORS_TIM_ENABLE_M4  : constant access procedure :=
-                             TIM4_Clock_Enable'Access;
    MOTORS_TIM_CHANNEL_M4 : constant Timer_Channel := Channel_4;
 
    --  PWM modulators

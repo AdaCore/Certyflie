@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with STM32.Board;
+
 package body LEDS is
 
    ---------------
@@ -34,29 +36,8 @@ package body LEDS is
    ---------------
 
    procedure LEDS_Init is
-      Configuration : GPIO_Port_Configuration;
    begin
-      if Is_Initialized then
-         return;
-      end if;
-
-      Enable_Clock (GPIO_D);
-      Enable_Clock (GPIO_C);
-
-      Configuration.Mode        := Mode_Out;
-      Configuration.Output_Type := Push_Pull;
-      Configuration.Speed       := Speed_100MHz;
-      Configuration.Resistors   := Floating;
-
-      Configure_IO (Port => GPIO_D,
-                    Pin  => LEDs_Pins (LED_Blue_L),
-                    Config => Configuration);
-      Configure_IO (Port => GPIO_C,
-                    Pins => Red_And_Green_LEDs_Pins,
-                    Config => Configuration);
-
-      Reset_All_LEDs;
-
+      STM32.Board.Initialize_LEDs;
       Is_Initialized := True;
    end LEDS_Init;
 
@@ -73,22 +54,13 @@ package body LEDS is
    -- Set_LED --
    -------------
 
-   procedure Set_LED (LED : Crazyflie_LED; Value : Boolean) is
-      Set_Value : constant Boolean
-        := (if LEDS_Polarity (LED) then Value else not Value);
+   procedure Set_LED (LED : Crazyflie_LED; Value : Boolean)
+   is
    begin
-      if Set_Value then
-         if LED = LED_Blue_L then
-            Set (GPIO_D, LEDs_Pins (LED));
-         else
-            Set (GPIO_C, LEDs_Pins (LED));
-         end if;
+      if Value then
+         Turn_On (LED);
       else
-         if LED = LED_Blue_L then
-            Clear (GPIO_D, LEDs_Pins (LED));
-         else
-            Clear (GPIO_C, LEDs_Pins (LED));
-         end if;
+         Turn_Off (LED);
       end if;
    end Set_LED;
 
@@ -96,25 +68,13 @@ package body LEDS is
    -- Toggle_LED --
    ----------------
 
-   procedure Toggle_LED (LED : Crazyflie_LED) is
-   begin
-      if LED = LED_Blue_L then
-         Toggle (GPIO_D, LEDs_Pins (LED));
-      else
-         Toggle (GPIO_C, LEDs_Pins (LED));
-      end if;
-   end Toggle_LED;
+   procedure Toggle_LED (LED : Crazyflie_LED) renames STM32.Board.Toggle_LED;
 
    --------------------
    -- Reset_All_LEDs --
    --------------------
 
-   procedure Reset_All_LEDs is
-   begin
-      for LED in Crazyflie_LED loop
-         Set_LED (LED, False);
-      end loop;
-   end Reset_All_LEDs;
+   procedure Reset_All_LEDs renames All_LEDs_Off;
 
    -----------------------
    -- Enable_LED_Status --

@@ -70,7 +70,7 @@ package body UART_Syslink is
          Tx_Stream,
          Source      => Source_Block'Address,
          Destination => Data_Register_Address (Transceiver),
-         Data_Count  => Half_Word (Data_Size));
+         Data_Count  => Short (Data_Size));
       --  also enables the stream
 
       Enable_DMA_Transmit_Requests (Transceiver);
@@ -84,11 +84,14 @@ package body UART_Syslink is
    -- Initialize_USART --
    ----------------------
 
-   procedure Initialize_USART is
+   procedure Initialize_USART
+   is
       Configuration : GPIO_Port_Configuration;
+      USART_Pins    : constant GPIO_Points :=
+                        RX_Pin & TX_Pin;
    begin
       Enable_Clock (Transceiver);
-      Enable_Clock (IO_Port);
+      Enable_Clock (USART_Pins);
 
       Configuration.Mode := Mode_AF;
       Configuration.Speed := Speed_50MHz;
@@ -96,14 +99,12 @@ package body UART_Syslink is
       Configuration.Resistors := Pull_Up;
 
       Configure_IO
-        (Port => IO_Port,
-         Pins => RX_Pin & TX_Pin,
+        (Points => USART_Pins,
          Config => Configuration);
 
       Configure_Alternate_Function
-        (Port => IO_Port,
-         Pins => RX_Pin & TX_Pin,
-         AF   => Transceiver_AF);
+        (Points => USART_Pins,
+         AF     => Transceiver_AF);
    end Initialize_USART;
 
    ---------------------
@@ -318,8 +319,7 @@ package body UART_Syslink is
          Received_Byte : T_Uint8;
       begin
          if Status (Transceiver, Read_Data_Register_Not_Empty) then
-            Received_Byte :=
-              Half_Word_To_T_Uint8 (Current_Input (Transceiver) and 16#FF#);
+            Received_Byte := T_Uint8 (Current_Input (Transceiver) and 16#FF#);
             Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
             Enqueue (Rx_Queue, Received_Byte);
             Byte_Avalaible := True;

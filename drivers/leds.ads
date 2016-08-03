@@ -30,13 +30,16 @@
 with Ada.Real_Time;               use Ada.Real_Time;
 with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
 
-with STM32F4.GPIO;                use STM32F4.GPIO;
-with STM32F4_Discovery;           use STM32F4_Discovery;
+with STM32.Board;                 use STM32.Board;
 
 package LEDS is
 
-   type Crazyflie_LED is
-     (LED_Blue_L, LED_Green_L, LED_Green_R, LED_Red_L, LED_Red_R);
+   subtype Crazyflie_LED is User_LED;
+   LED_Blue_L  : Crazyflie_LED renames STM32.Board.LED_Blue_L;
+   LED_Green_L : Crazyflie_LED renames STM32.Board.LED_Green_L;
+   LED_Green_R : Crazyflie_LED renames STM32.Board.LED_Green_R;
+   LED_Red_L   : Crazyflie_LED renames STM32.Board.LED_Red_L;
+   LED_Red_R   : Crazyflie_LED renames STM32.Board.LED_Red_R;
 
    --  This type is used to represent the possible Crazyflie states for the
    --  on-board LEDs to indicate. Each status has at least one corresponding
@@ -73,27 +76,6 @@ package LEDS is
 private
 
    Is_Initialized : Boolean := False;
-
-   --  Mapping to get the proper pin of a given LED.
-   LEDs_Pins : constant array (Crazyflie_LED) of GPIO_Pin
-     := (LED_Blue_L  => Pin_2,
-         LED_Green_L => Pin_1,
-         LED_Green_R => Pin_2,
-         LED_Red_L   => Pin_0,
-         LED_Red_R   => Pin_3);
-
-   --  Mapping to the proper polarity of a given LED.
-   LEDS_Polarity : constant array (Crazyflie_LED) of Boolean
-     := (LED_Blue_L  => True,
-         LED_Green_L => False,
-         LED_Green_R => False,
-         LED_Red_L   => False,
-         LED_Red_R   => False);
-
-   --  Used to configure all LEDs at the same time.
-   Red_And_Green_LEDs_Pins : constant GPIO_Pins
-     := LEDs_Pins (LED_Green_L) & LEDs_Pins (LED_Green_R) &
-        LEDs_Pins (LED_Red_L)   & LEDs_Pins (LED_Red_R);
 
    --  An LED animation targets a specific LED and switches it on/off according
    --  to its blink period.

@@ -1,16 +1,14 @@
+with "stm32_peripheral_libs/boards/crazyflie";
+
 project Cf_Ada_SPARK is
 
    for Languages use ("Ada");
    for Main use ("main.adb");
-   for Source_Dirs use ("init", "config", "stm32_peripheral_libs/ARM/STMicro/STM32/boards", "stm32_peripheral_libs/ARM/STMicro/STM32/components", "stm32_peripheral_libs/ARM/STMicro/STM32/drivers",
-      "stm32_peripheral_libs/ARM/STMicro/STM32/devices", "stm32_peripheral_libs/ARM/STMicro/STM32/utils", "types", "utils", "drivers", "lib", "hal", "modules");
+   for Source_Dirs use ("init", "config", "types", "utils", "drivers", "lib", "hal", "modules");
    for Object_Dir use "obj";
    for Exec_Dir use "obj";
 
    --  Export run-times's variables
-   type Loaders is
-      ("ROM", "RAM");
-   Loader : Loaders := external ("LOADER", "ROM");
    for Target use "arm-eabi";
    for Runtime ("ada") use "ravenscar-full-stm32f4";
 
@@ -26,16 +24,11 @@ project Cf_Ada_SPARK is
    package Ide is
       for Program_Host use "localhost:4242";
       for Communication_Protocol use "remote";
+      for Connection_Tool use "st-util";
 
-      case Loader is
-
-         when "ROM" =>
-
-         when "RAM" =>
-            for Debugger_Command use "arm-eabi-gdb";
-            for Gnatlist use "arm-eabi-gnatls";
-            for Gnat use "arm-eabi-gnat";
-      end case;
+      for Debugger_Command use "arm-eabi-gdb";
+      for Gnatlist use "arm-eabi-gnatls";
+      for Gnat use "arm-eabi-gnat";
    end Ide;
 
 end Cf_Ada_SPARK;

@@ -29,7 +29,8 @@
 
 with Ada.Unchecked_Conversion;
 
-with STM32F4.RCC;              use STM32F4.RCC;
+with Interfaces; use Interfaces;
+--  with STM32F4.RCC;              use STM32F4.RCC;
 
 with Console;                  use Console;
 
@@ -55,7 +56,7 @@ package body MPU9250 is
       end loop;
 
       --  Set the device address
-      Device_Address := Shift_Left (MPU9250_ADDRESS_AD0_HIGH, 1);
+      Device_Address := UInt10 (MPU9250_ADDRESS_AD0_HIGH) * 2;
 
       --  Init and configure GPIO pins and I2C
       MPU9250_Init_Control_Lines;
@@ -74,9 +75,10 @@ package body MPU9250 is
    procedure MPU9250_Init_Control_Lines
    is
       GPIO_Conf : GPIO_Port_Configuration;
+      Pins      : constant GPIO_Points :=
+                    (MPU9250_SCL_Pin, MPU9250_SDA_Pin);
    begin
-      Enable_Clock (MPU9250_SDA_GPIO);
-      Enable_Clock (MPU9250_SCL_GPIO);
+      Enable_Clock (Pins);
 
       Enable_Clock (MPU9250_I2C_PORT);
 
@@ -85,17 +87,16 @@ package body MPU9250 is
       Enable_Clock (MPU9250_I2C_PORT);
 
       Configure_Alternate_Function
-        (MPU9250_SCL_GPIO, MPU9250_SCL_Pin, MPU9250_SCL_AF);
+        (MPU9250_SCL_Pin, MPU9250_SCL_AF);
       Configure_Alternate_Function
-        (MPU9250_SDA_GPIO, MPU9250_SDA_Pin, MPU9250_SDA_AF);
+        (MPU9250_SDA_Pin, MPU9250_SDA_AF);
 
       GPIO_Conf.Speed       := Speed_25MHz;
       GPIO_Conf.Mode        := Mode_AF;
       GPIO_Conf.Output_Type := Open_Drain;
       GPIO_Conf.Resistors   := Pull_Up;
 
-      Configure_IO (MPU9250_SCL_GPIO, MPU9250_SCL_Pin, GPIO_Conf);
-      Configure_IO (MPU9250_SDA_GPIO, MPU9250_SDA_Pin, GPIO_Conf);
+      Configure_IO (Pins, GPIO_Conf);
    end MPU9250_Init_Control_Lines;
 
    ---------------------------
@@ -104,19 +105,19 @@ package body MPU9250 is
 
    procedure MPU9250_Configure_I2C is
    begin
-      I2C3_Force_Reset;
-      I2C3_Release_Reset;
+      Reset (MPU9250_I2C_PORT);
 
       Configure
-        (Port        => MPU9250_I2C_PORT,
-         Mode        => I2C_Mode,
-         Duty_Cycle  => DutyCycle_2,
-         Own_Address => MPU9250_I2C_OWN_ADDR,
-         Ack         => Ack_Enable,
-         Ack_Address => AcknowledgedAddress_7bit,
-         Clock_Speed => 100_000);
+        (Handle => MPU9250_I2C_PORT,
+         Conf   =>
+           (Clock_Speed => 100_000,
+            Mode        => I2C_Mode,
+            Duty_Cycle  => DutyCycle_2,
+            Addressing_Mode => Addressing_Mode_7bit,
+            Own_Address     => 0,
+            others => <>));
 
-      Set_State (MPU9250_I2C_PORT, Enabled);
+      Set_State (MPU9250_I2C_PORT, True);
    end MPU9250_Configure_I2C;
 
    ------------------
@@ -551,24 +552,16 @@ package body MPU9250 is
 
    procedure MPU9250_Read_Register
      (Reg_Addr    : Byte;
-      Data        : in out I2C_Data) is
+      Data        : in out I2C_Data)
+   is
+      Status : I2C_Status;
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Receiver);
-
-      for I in Data'Range loop
-         if I = Data'Last then
-            Data (I) := Read_Nack (MPU9250_I2C_PORT);
-         else
-            Data (I) := Read_Ack (MPU9250_I2C_PORT);
-         end if;
-      end loop;
+      MPU9250_I2C_PORT.Mem_Read
+        (Addr          => Device_Address,
+         Mem_Addr      => Short (Reg_Addr),
+         Mem_Addr_Size => Memory_Size_8b,
+         Data          => Data,
+         Status        => Status);
    end MPU9250_Read_Register;
 
    -----------------------------------
@@ -577,18 +570,18 @@ package body MPU9250 is
 
    procedure MPU9250_Read_Byte_At_Register
      (Reg_Addr : Byte;
-      Data     : out Byte) is
+      Data     : out Byte)
+   is
+      Status : I2C_Status;
+      I_Data : I2C_Data (1 .. 1);
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Receiver);
-
-      Data := Read_Nack (MPU9250_I2C_PORT);
+      MPU9250_I2C_PORT.Mem_Read
+        (Addr          => Device_Address,
+         Mem_Addr      => Short (Reg_Addr),
+         Mem_Addr_Size => Memory_Size_8b,
+         Data          => I_Data,
+         Status        => Status);
+      Data := I_Data (1);
    end MPU9250_Read_Byte_At_Register;
 
    ----------------------------------
@@ -614,18 +607,16 @@ package body MPU9250 is
 
    procedure MPU9250_Write_Register
      (Reg_Addr    : Byte;
-      Data        : I2C_Data) is
+      Data        : I2C_Data)
+   is
+      Status : I2C_Status;
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-
-      for Data_Byte of Data loop
-         Write (MPU9250_I2C_PORT, Data_Byte);
-      end loop;
-
-      Stop (MPU9250_I2C_PORT);
+      MPU9250_I2C_PORT.Mem_Write
+        (Addr          => Device_Address,
+         Mem_Addr      => Short (Reg_Addr),
+         Mem_Addr_Size => Memory_Size_8b,
+         Data          => Data,
+         Status        => Status);
    end MPU9250_Write_Register;
 
    ------------------------------------
@@ -634,14 +625,16 @@ package body MPU9250 is
 
    procedure MPU9250_Write_Byte_At_Register
      (Reg_Addr : Byte;
-      Data     : Byte) is
+      Data     : Byte)
+   is
+      Status : I2C_Status;
    begin
-      Start (MPU9250_I2C_PORT,
-             Device_Address,
-             Transmitter);
-      Write (MPU9250_I2C_PORT, Reg_Addr);
-      Write (MPU9250_I2C_PORT, Data);
-      Stop (MPU9250_I2C_PORT);
+      MPU9250_I2C_PORT.Mem_Write
+        (Addr          => Device_Address,
+         Mem_Addr      => Short (Reg_Addr),
+         Mem_Addr_Size => Memory_Size_8b,
+         Data          => (1 => Data),
+         Status        => Status);
    end MPU9250_Write_Byte_At_Register;
 
    -----------------------------------
