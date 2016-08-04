@@ -87,6 +87,16 @@ is
                           Channel => MOTORS_TIM_CHANNEL_M4,
                           Point   => MOTORS_GPIO_M4_POINT);
 
+      --  And then enable the channels
+      Enable_PWM_Channel (This    => M1_Modulator,
+                          Channel => MOTORS_TIM_CHANNEL_M1);
+      Enable_PWM_Channel (This    => M2_Modulator,
+                          Channel => MOTORS_TIM_CHANNEL_M2);
+      Enable_PWM_Channel (This    => M3_Modulator,
+                          Channel => MOTORS_TIM_CHANNEL_M3);
+      Enable_PWM_Channel (This    => M4_Modulator,
+                          Channel => MOTORS_TIM_CHANNEL_M4);
+
       --  Reset all the motors power to zero
       Motors_Reset;
    end Motors_Init;
