@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with STM32.Board;
-
 package body LEDS is
 
    ---------------
@@ -88,11 +86,17 @@ package body LEDS is
       --  This reset is in a race with the events' occurrences, but is OK since
       --  we're about to cancel all of the current live events anyway, and
       --  there is no corruption to worry about.
+      for Animation of LED_Animations (Current_LED_Status).all loop
+         if Animation.Blink_Period > Time_Span_Zero then
+            Animation.Cancel_Handler (Cancelled);
+         else
+            Set_LED (Animation.LED, False);
+         end if;
+      end loop;
 
       Current_LED_Status := LED_Status;
 
       for Animation of LED_Animations (Current_LED_Status).all loop
-         Animation.Cancel_Handler (Cancelled);
          if Animation.Blink_Period > Time_Span_Zero then
             Animation.Set_Handler
               (Clock + Animation.Blink_Period,

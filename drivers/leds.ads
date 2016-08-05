@@ -48,6 +48,7 @@ package LEDS is
    --  changes, and new animations are then enabled for the new status.
    type Crazyflie_LED_Status is
      (Ready_To_Fly,
+      Calibrating,
       Charging_Battery,
       Low_Power_Battery,
       Self_Test_Fail);
@@ -98,6 +99,12 @@ private
                            2 => LED_Animation'(Timing_Event with LED_Blue_L,
                            Blink_Period => Time_Span_Zero));
 
+   Calibrating_Group  : aliased LED_Animation_Group :=
+                          (1 => LED_Animation'(Timing_Event with LED_Red_R,
+                           Blink_Period => Milliseconds (250)),
+                           2 => LED_Animation'(Timing_Event with LED_Blue_L,
+                             Blink_Period => Time_Span_Zero));
+
    Charging_Battery_Group : aliased LED_Animation_Group :=
                               (1 => LED_Animation'(Timing_Event
                                  with LED_Blue_L,
@@ -115,12 +122,13 @@ private
 
    --  The collection of all LED animations, mapping Crazyflie_LED_Status
    --  values to their corresponding animations.
-   LED_Animations : constant array (Crazyflie_LED_Status)
-     of access LED_Animation_Group
-     := (Ready_To_Fly      => Ready_To_Fly_Group'Access,
-         Charging_Battery  => Charging_Battery_Group'Access,
-         Low_Power_Battery => Low_Power_Battery_Group'Access,
-         Self_Test_Fail    => Self_Test_Fail_Group'Access);
+   LED_Animations : constant array (Crazyflie_LED_Status) of
+     access LED_Animation_Group :=
+       (Ready_To_Fly      => Ready_To_Fly_Group'Access,
+        Calibrating       => Calibrating_Group'Access,
+        Charging_Battery  => Charging_Battery_Group'Access,
+        Low_Power_Battery => Low_Power_Battery_Group'Access,
+        Self_Test_Fail    => Self_Test_Fail_Group'Access);
 
    --  The package global for the status that determines which LEDs are active.
    --  Controlled by procedure Enable_LED_Status.
