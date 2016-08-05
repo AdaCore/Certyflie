@@ -2,6 +2,10 @@ with "stm32_peripheral_libs/boards/crazyflie";
 
 project Cf_Ada_SPARK is
 
+   type BUILD_TYPE is
+      ("Debug", "Production");
+   Build : BUILD_Type := external ("BUILD", "Debug");
+
    for Languages use ("Ada");
    for Main use ("main.adb");
    for Source_Dirs use ("init", "config", "types", "utils", "drivers", "lib", "hal", "modules");
@@ -10,10 +14,17 @@ project Cf_Ada_SPARK is
 
    --  Export run-times's variables
    for Target use "arm-eabi";
-   for Runtime ("ada") use "ravenscar-full-stm32f4";
+   for Runtime ("Ada") use Crazyflie'Runtime ("Ada");
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnatQ", "-gnatyg", "-O2", "-gnatn");
+      case Build is
+         when "Debug" =>
+            for Default_Switches ("ada") use
+              ("-gnatQ", "-gnatyg", "-O1", "-gnata", "-gnatwae", "-g");
+         when "Production" =>
+            for Default_Switches ("ada") use
+              ("-gnatQ", "-gnatyg", "-O2", "-gnatn");
+      end case;
    end Compiler;
 
    package Builder is
