@@ -28,8 +28,6 @@
 ------------------------------------------------------------------------------
 
 with Config;           use Config;
-with Power_Management; use Power_Management;
-with Motors;           use Motors;
 with Safety;           use Safety;
 
 package body Stabilizer
@@ -125,6 +123,7 @@ is
 
    function Limit_Thrust (Value : T_Int32) return T_Uint16
    is
+      use type T_Int32;
       Res : T_Uint16;
    begin
       if Value > T_Int32 (T_Uint16'Last) then
@@ -149,6 +148,7 @@ is
       Pitch  : T_Int16;
       Yaw    : T_Int16)
    is
+      use type T_Int32;
       T : constant T_Int32 := T_Int32 (Thrust);
       R : T_Int32 := T_Int32 (Roll);
       P : T_Int32 := T_Int32 (Pitch);
@@ -246,7 +246,9 @@ is
    -- Stabilizer_Alt_Hold_Update --
    --------------------------------
 
-   procedure Stabilizer_Alt_Hold_Update is
+   procedure Stabilizer_Alt_Hold_Update
+   is
+      use type T_Int32;
       LPS25H_Data_Valid   : Boolean;
       Prev_Integ          : Float;
       Baro_V_Speed        : T_Speed;
@@ -364,14 +366,10 @@ is
      (Attitude_Update_Counter : in out T_Uint32;
       Alt_Hold_Update_Counter : in out T_Uint32)
    is
+      use type T_Int16;
    begin
       --  Magnetometer not used for the moment
       IMU_9_Read (Gyro, Acc, Mag);
-
-      --  Do nothing if IMU is not calibrated correctly
-      if not IMU_6_Calibrated then
-         return;
-      end if;
 
       --  Increment the counters
       Attitude_Update_Counter := Attitude_Update_Counter + 1;

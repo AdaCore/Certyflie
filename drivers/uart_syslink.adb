@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with HAL; use HAL;
+
 package body UART_Syslink is
 
    --  Public procedures and functions

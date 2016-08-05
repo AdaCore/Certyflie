@@ -127,7 +127,9 @@ package body Crazyflie_System is
    -- Last_Chance_Handler --
    -------------------------
 
-   procedure Last_Chance_Handler (Error : Exception_Occurrence) is
+   procedure Last_Chance_Handler (Error : Exception_Occurrence)
+   is
+      pragma Unreferenced (Error);
    begin
       Motors_Reset;
       Reset_All_LEDs;

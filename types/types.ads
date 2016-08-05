@@ -4,10 +4,10 @@ package Types is
 
    --  General types used for C Interfacing.
 
-   type T_Int8   is new Interfaces.Integer_8;
-   type T_Int16  is new Interfaces.Integer_16;
-   type T_Int32  is new Interfaces.Integer_32;
-   type T_Int64  is new Interfaces.Integer_64;
+   subtype T_Int8   is Interfaces.Integer_8;
+   subtype T_Int16  is Interfaces.Integer_16;
+   subtype T_Int32  is Interfaces.Integer_32;
+   subtype T_Int64  is Interfaces.Integer_64;
 
    type T_Uint6 is mod 2 ** 6;
    for T_Uint6'Size use 6;

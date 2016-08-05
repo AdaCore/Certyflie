@@ -61,9 +61,9 @@ is
    function Calculate_Last_Derivative
      (Data_Collector : FF_Acc_Data_Collector) return Float
    is
-      Last_Sample        : Float
+      Last_Sample        : constant Float
         := Data_Collector.Samples (Data_Collector.Index);
-      Penultimate_Sample : Float
+      Penultimate_Sample : constant Float
         := (if Data_Collector.Index - 1 >= Data_Collector.Samples'First then
                Data_Collector.Samples (Data_Collector.Index - 1)
             else
