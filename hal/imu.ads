@@ -39,8 +39,6 @@ with SPARK_Mode,
   Abstract_State => IMU_State
 is
 
-   --  Types
-
    --  These ranges are deduced from the MPU9150 specification.
    --  It corresponds to the maximum range of values that can be output
    --  by the IMU.
@@ -112,7 +110,7 @@ is
    IMU_ACC_IIR_LPF_ATT_FACTOR   : constant T_Uint8
      := T_Uint8 (Float (2 ** IIR_SHIFT) / IMU_ACC_IIR_LPF_ATTENUATION + 0.5);
 
-   GYRO_VARIANCE_BASE        : constant := 2000.0;
+   GYRO_VARIANCE_BASE        : constant := 200_000.0;
    GYRO_VARIANCE_THRESHOLD_X : constant := (GYRO_VARIANCE_BASE);
    GYRO_VARIANCE_THRESHOLD_Y : constant := (GYRO_VARIANCE_BASE);
    GYRO_VARIANCE_THRESHOLD_Z : constant := (GYRO_VARIANCE_BASE);
@@ -149,8 +147,8 @@ is
      with
        Global => null;
 
-   --  Return True if the IMU is correctly calibrated, False otherwise.
-   function IMU_6_Calibrated return Boolean
+   --  Calibrates the IMU. Returns True if successful, False otherwise.
+   function IMU_6_Calibrate return Boolean
      with
        Global => (Input => IMU_State);
 
@@ -198,6 +196,11 @@ private
      with
        Part_Of => IMU_State;
 
+   type Calibration_Status is
+     (Not_Calibrated,
+      Calibrated,
+      Calibration_Error);
+
    --  Barometer and magnetometer not avalaible for now.
    --  TODO: add the code to manipulate them
    Is_Barometer_Avalaible   : Boolean := False
@@ -206,7 +209,7 @@ private
    Is_Magnetomer_Availaible : Boolean := False
      with
        Part_Of => IMU_State;
-   Is_Calibrated            : Boolean := False
+   Is_Calibrated            : Calibration_Status := Not_Calibrated
      with
        Part_Of => IMU_State;
 

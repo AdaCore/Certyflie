@@ -45,57 +45,46 @@ is
 
    procedure Motors_Init is
    begin
-      --  Initialize the pwm modulators
-      Initialise_PWM_Modulator
-        (This                => M1_Modulator,
-         Requested_Frequency => MOTORS_PWM_FREQUENCY,
-         PWM_Timer           => MOTORS_TIMER_M1'Access,
-         PWM_AF              => MOTORS_GPIO_AF_M1);
+      --  Initialize the pwm timers
 
-      Initialise_PWM_Modulator
-        (This                => M2_Modulator,
-         Requested_Frequency => MOTORS_PWM_FREQUENCY,
-         PWM_Timer           => MOTORS_TIMER_M2'Access,
-         PWM_AF              => MOTORS_GPIO_AF_M2);
-
-      Initialise_PWM_Modulator
-        (This                => M3_Modulator,
-         Requested_Frequency => MOTORS_PWM_FREQUENCY,
-         PWM_Timer           => MOTORS_TIMER_M3'Access,
-         PWM_AF              => MOTORS_GPIO_AF_M3);
-
-      Initialise_PWM_Modulator
-        (This                => M4_Modulator,
-         Requested_Frequency => MOTORS_PWM_FREQUENCY,
-         PWM_Timer           => MOTORS_TIMER_M4'Access,
-         PWM_AF              => MOTORS_GPIO_AF_M4);
+      Initialise_PWM_Timer
+        (This                => PWM_TIMER_M1_M2_M3,
+         Requested_Frequency => MOTORS_PWM_FREQUENCY);
+      Initialise_PWM_Timer
+        (This                => PWM_TIMER_M4,
+         Requested_Frequency => MOTORS_PWM_FREQUENCY);
 
       --  Attach the PWM modulators to the corresponding channels
-      Attach_PWM_Channel (This    => M1_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M1,
-                          Point   => MOTORS_GPIO_M1_POINT);
-
-      Attach_PWM_Channel (This    => M2_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M2,
-                          Point   => MOTORS_GPIO_M2_POINT);
-
-      Attach_PWM_Channel (This    => M3_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M3,
-                          Point   => MOTORS_GPIO_M3_POINT);
-
-      Attach_PWM_Channel (This    => M4_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M4,
-                          Point   => MOTORS_GPIO_M4_POINT);
+      Attach_PWM_Channel
+        (This      => PWM_TIMER_M1_M2_M3'Access,
+         Modulator => M1_Modulator,
+         Channel   => MOTORS_TIM_CHANNEL_M1,
+         Point     => MOTORS_GPIO_M1_POINT,
+         PWM_AF    => MOTORS_GPIO_AF_M1);
+      Attach_PWM_Channel
+        (This      => PWM_TIMER_M1_M2_M3'Access,
+         Modulator => M2_Modulator,
+         Channel   => MOTORS_TIM_CHANNEL_M2,
+         Point     => MOTORS_GPIO_M2_POINT,
+         PWM_AF    => MOTORS_GPIO_AF_M2);
+      Attach_PWM_Channel
+        (This      => PWM_TIMER_M1_M2_M3'Access,
+         Modulator => M3_Modulator,
+         Channel   => MOTORS_TIM_CHANNEL_M3,
+         Point     => MOTORS_GPIO_M3_POINT,
+         PWM_AF    => MOTORS_GPIO_AF_M3);
+      Attach_PWM_Channel
+        (This      => PWM_TIMER_M4'Access,
+         Modulator => M4_Modulator,
+         Channel   => MOTORS_TIM_CHANNEL_M4,
+         Point     => MOTORS_GPIO_M4_POINT,
+         PWM_AF    => MOTORS_GPIO_AF_M4);
 
       --  And then enable the channels
-      Enable_PWM_Channel (This    => M1_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M1);
-      Enable_PWM_Channel (This    => M2_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M2);
-      Enable_PWM_Channel (This    => M3_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M3);
-      Enable_PWM_Channel (This    => M4_Modulator,
-                          Channel => MOTORS_TIM_CHANNEL_M4);
+      Enable_PWM (M1_Modulator);
+      Enable_PWM (M2_Modulator);
+      Enable_PWM (M3_Modulator);
+      Enable_PWM (M4_Modulator);
 
       --  Reset all the motors power to zero
       Motors_Reset;
@@ -106,14 +95,14 @@ is
    ---------------------
 
    procedure Motor_Set_Power
-     (ID : Motor_ID;
-      Motor_Power : T_Uint16)
+     (ID    : Motor_ID;
+      Power : T_Uint16)
    is
       Power_Percentage_F : Float;
       Power_Percentage   : Percentage;
    begin
       Power_Percentage_F :=
-        Saturate ((Float (Motor_Power) / Float (T_Uint16'Last)) * 100.0,
+        Saturate ((Float (Power) / Float (T_Uint16'Last)) * 100.0,
                   0.0,
                   100.0);
       Power_Percentage := Percentage (Power_Percentage_F);
@@ -121,19 +110,15 @@ is
       case ID is
          when MOTOR_M1 =>
             Set_Duty_Cycle (This     => M1_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M1,
                             Value    => Power_Percentage);
          when MOTOR_M2 =>
             Set_Duty_Cycle (This     => M2_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M2,
                             Value    => Power_Percentage);
          when MOTOR_M3 =>
             Set_Duty_Cycle (This     => M3_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M3,
                             Value    => Power_Percentage);
          when MOTOR_M4 =>
             Set_Duty_Cycle (This     => M4_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M4,
                             Value    => Power_Percentage);
       end case;
    end Motor_Set_Power;
@@ -143,16 +128,17 @@ is
    -------------------------------------------
 
    procedure Motor_Set_Power_With_Bat_Compensation
-     (ID : Motor_ID;
-      Motor_Power : T_Uint16)
+     (ID    : Motor_ID;
+      Power : T_Uint16)
    is
-      Tmp_Thrust         : Float
-        := (Float (Motor_Power) / Float (T_Uint16'Last)) * 60.0;
-      Volts              : Float
-        := -0.0006239 * Tmp_Thrust * Tmp_Thrust + 0.088 * Tmp_Thrust;
+      Tmp_Thrust         : constant Float :=
+                             (Float (Power) / Float (T_Uint16'Last)) * 60.0;
+      Volts              : constant Float :=
+                   -0.0006239 * Tmp_Thrust * Tmp_Thrust + 0.088 * Tmp_Thrust;
       Supply_Voltage     : Float;
       Power_Percentage_F : Float;
       Power_Percentage   : Percentage;
+
    begin
       Supply_Voltage := Power_Management_Get_Battery_Voltage;
       Power_Percentage_F := (Volts / Supply_Voltage) * 100.0;
@@ -163,19 +149,15 @@ is
       case ID is
          when MOTOR_M1 =>
             Set_Duty_Cycle (This     => M1_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M1,
                             Value    => Power_Percentage);
          when MOTOR_M2 =>
             Set_Duty_Cycle (This     => M2_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M2,
                             Value    => Power_Percentage);
          when MOTOR_M3 =>
             Set_Duty_Cycle (This     => M3_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M3,
                             Value    => Power_Percentage);
          when MOTOR_M4 =>
             Set_Duty_Cycle (This     => M4_Modulator,
-                            Channel  => MOTORS_TIM_CHANNEL_M4,
                             Value    => Power_Percentage);
       end case;
    end Motor_Set_Power_With_Bat_Compensation;

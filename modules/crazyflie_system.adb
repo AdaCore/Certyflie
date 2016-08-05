@@ -88,10 +88,16 @@ package body Crazyflie_System is
       Self_Test_Passed := Self_Test_Passed and Commander_Test;
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
 
-      if Self_Test_Passed and Get_Current_LED_Status /= Charging_Battery then
-         Enable_LED_Status (Ready_To_Fly);
+      if Self_Test_Passed then
+         if Get_Current_LED_Status /= Charging_Battery then
+            Enable_LED_Status (Calibrating);
+         end if;
       elsif not Self_Test_Passed then
          Enable_LED_Status (Self_Test_Fail);
+      end if;
+
+      if Self_Test_Passed then
+         Self_Test_Passed := IMU_6_Calibrate;
       end if;
 
       return Self_Test_Passed;

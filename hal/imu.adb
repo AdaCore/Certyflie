@@ -29,7 +29,10 @@
 
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
+with STM32.Board;                       use STM32.Board;
 with Config;                            use Config;
+with Console;                           use Console;
+with LEDS;                              use LEDS;
 
 package body IMU
 with Refined_State => (IMU_State => (Is_Init,
@@ -62,33 +65,36 @@ is
          return;
       end if;
 
-      MPU9250_Init;
-      MPU9250_Reset;
+      Initialize_I2C_GPIO (MPU_I2C_Port);
+      Configure_I2C (MPU_I2C_Port);
+
+      MPU9250_Init (MPU_Device);
+      MPU9250_Reset (MPU_Device);
 
       --  Wait 50 ms after a reset has been performed
       Delay_After_Reset_Time := Clock + Milliseconds (50);
       delay until Delay_After_Reset_Time;
 
       --  Activate MPU9250
-      MPU9250_Set_Sleep_Enabled (False);
+      MPU9250_Set_Sleep_Enabled (MPU_Device, False);
       --  Enable temp sensor
-      MPU9250_Set_Temp_Sensor_Enabled (True);
+      MPU9250_Set_Temp_Sensor_Enabled (MPU_Device, True);
       --  Disable interrupts
-      MPU9250_Set_Int_Enabled (False);
+      MPU9250_Set_Int_Enabled (MPU_Device, False);
       --  Connect the HMC5883L to the main I2C bus
-      MPU9250_Set_I2C_Bypass_Enabled (True);
+      MPU9250_Set_I2C_Bypass_Enabled (MPU_Device, True);
       --  Set x-axis gyro as clock source
-      MPU9250_Set_Clock_Source (X_Gyro_Clk);
+      MPU9250_Set_Clock_Source (MPU_Device, X_Gyro_Clk);
       --  Set gyro full-scale range
-      MPU9250_Set_Full_Scale_Gyro_Range (IMU_GYRO_FS_CONFIG);
+      MPU9250_Set_Full_Scale_Gyro_Range (MPU_Device, IMU_GYRO_FS_CONFIG);
       --  Set accel full-scale range
-      MPU9250_Set_Full_Scale_Accel_Range (IMU_ACCEL_FS_CONFIG);
+      MPU9250_Set_Full_Scale_Accel_Range (MPU_Device, IMU_ACCEL_FS_CONFIG);
       --  To low DLPF bandwidth might cause instability and decrease agility
       --  but it works well for handling vibrations and unbalanced propellers
       --  Set output rate (1): 1000 / (1 + 1) = 500Hz
-      MPU9250_Set_Rate (1);
+      MPU9250_Set_Rate (MPU_Device, 1);
       --  Set digital low-pass bandwidth
-      MPU9250_Set_DLPF_Mode (MPU9250_DLPF_BW_98);
+      MPU9250_Set_DLPF_Mode (MPU_Device, MPU9250_DLPF_BW_98);
 
       Variance_Sample_Time := Time_First;
       IMU_Acc_Lp_Att_Factor := IMU_ACC_IIR_LPF_ATT_FACTOR;
@@ -110,8 +116,9 @@ is
       Self_Test_Passed : Boolean;
    begin
       --  TODO: implement the complete function
-      Is_Connected := MPU9250_Test_Connection;
-      Self_Test_Passed := MPU9250_Self_Test;
+      Is_Connected := MPU9250_Test_Connection (MPU_Device);
+      Self_Test_Passed := MPU9250_Self_Test
+        (MPU_Device, Console.Console_Test, Console.Console_Put_Line'Access);
 
       return Is_Init and Is_Connected and Self_Test_Passed;
    end IMU_Test;
@@ -127,7 +134,8 @@ is
       Pitch, Roll : T_Degrees;
       Start_Time  : Time;
    begin
-      Test_Status := MPU9250_Self_Test;
+      Test_Status := MPU9250_Self_Test
+        (MPU_Device, Console.Console_Test, Console.Console_Put_Line'Access);
       Start_Time := Clock;
 
       if Test_Status then
@@ -158,14 +166,62 @@ is
       return Test_Status;
    end IMU_6_Manufacturing_Test;
 
-   ----------------------
-   -- IMU_6_Calibrated --
-   ----------------------
+   ---------------------
+   -- IMU_6_Calibrate --
+   ---------------------
 
-   function IMU_6_Calibrated return Boolean is
+   function IMU_6_Calibrate return Boolean
+   is
+      Has_Found_Bias : Boolean;
+      Next_Period    : Time;
    begin
-      return Is_Calibrated;
-   end IMU_6_Calibrated;
+      case Is_Calibrated is
+         when Not_Calibrated =>
+            null;
+            --  Fall through
+         when Calibrated =>
+            return True;
+
+         when Calibration_Error =>
+            return False;
+      end case;
+
+      if Is_Calibrated = Not_Calibrated then
+         Next_Period := Clock + IMU_UPDATE_DT_MS;
+
+         loop
+            MPU9250_Get_Motion_6 (MPU_Device,
+                                  Accel_IMU.Y, Accel_IMU.X, Accel_IMU.Z,
+                                  Gyro_IMU.Y, Gyro_IMU.X, Gyro_IMU.Z);
+            IMU_Add_Bias_Value (Gyro_Bias, Gyro_IMU);
+
+            if Gyro_Bias.Is_Buffer_Filled then
+               IMU_Find_Bias_Value (Gyro_Bias, Has_Found_Bias);
+
+               if Has_Found_Bias then
+                  --  TODO: led sequence to indicate that it is calibrated
+                  Is_Calibrated := Calibrated;
+
+                  if Get_Current_LED_Status /= Charging_Battery then
+                     Enable_LED_Status (Ready_To_Fly);
+                  end if;
+
+                  return True;
+               else
+                  Is_Calibrated := Calibration_Error;
+                  Enable_LED_Status (Self_Test_Fail);
+
+                  return False;
+               end if;
+            end if;
+
+            Next_Period := Next_Period + IMU_UPDATE_DT_MS;
+            delay until Next_Period;
+         end loop;
+      end if;
+
+      return False;
+   end IMU_6_Calibrate;
 
    -----------------------
    -- IMU_Has_Barometer --
@@ -184,20 +240,11 @@ is
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data)
    is
-      Has_Found_Bias : Boolean;
    begin
       --  We invert X and Y because the chip is almso inverted.
-      MPU9250_Get_Motion_6 (Accel_IMU.Y, Accel_IMU.X, Accel_IMU.Z,
+      MPU9250_Get_Motion_6 (MPU_Device,
+                            Accel_IMU.Y, Accel_IMU.X, Accel_IMU.Z,
                             Gyro_IMU.Y, Gyro_IMU.X, Gyro_IMU.Z);
-      IMU_Add_Bias_Value (Gyro_Bias, Gyro_IMU);
-
-      if not Gyro_Bias.Is_Bias_Value_Found then
-         IMU_Find_Bias_Value (Gyro_Bias, Has_Found_Bias);
-         if Has_Found_Bias then
-            --  TODO: led sequence to indicate that it is calibrated
-            Is_Calibrated := True;
-         end if;
-      end if;
 
       IMU_Acc_IRR_LP_Filter
         (Input         => Accel_IMU,
@@ -299,6 +346,9 @@ is
    is
       Sum        : T_Int64_Array (1 .. 3) := (others => 0);
       Sum_Square : T_Int64_Array (1 .. 3) := (others => 0);
+      use type T_Int64;
+      use type T_Int16;
+
    begin
       for Value of Bias_Obj.Buffer loop
          Sum (1) := Sum (1) + T_Int64 (Value.X);
