@@ -80,6 +80,7 @@ package body Crazyflie_System is
    function System_Self_Test return Boolean is
       Self_Test_Passed : Boolean;
    begin
+      Set_System_State (Self_Test);
       Self_Test_Passed := LEDS_Test;
       Self_Test_Passed := Self_Test_Passed and Motors_Test;
       Self_Test_Passed := Self_Test_Passed and IMU_Test;
@@ -89,15 +90,16 @@ package body Crazyflie_System is
       Self_Test_Passed := Self_Test_Passed and Stabilizer_Test;
 
       if Self_Test_Passed then
-         if Get_Current_LED_Status /= Charging_Battery then
-            Enable_LED_Status (Calibrating);
-         end if;
-      elsif not Self_Test_Passed then
-         Enable_LED_Status (Self_Test_Fail);
-      end if;
+         Set_System_State (Calibrating);
 
-      if Self_Test_Passed then
-         Self_Test_Passed := IMU_6_Calibrate;
+         if IMU_6_Calibrate then
+            Set_System_State (Ready);
+         else
+            Set_System_State (Failure);
+         end if;
+
+      elsif not Self_Test_Passed then
+         Set_System_State (Failure);
       end if;
 
       return Self_Test_Passed;

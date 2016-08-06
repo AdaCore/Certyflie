@@ -32,7 +32,6 @@ with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 with STM32.Board;                       use STM32.Board;
 with Config;                            use Config;
 with Console;                           use Console;
-with LEDS;                              use LEDS;
 
 package body IMU
 with Refined_State => (IMU_State => (Is_Init,
@@ -202,14 +201,9 @@ is
                   --  TODO: led sequence to indicate that it is calibrated
                   Is_Calibrated := Calibrated;
 
-                  if Get_Current_LED_Status /= Charging_Battery then
-                     Enable_LED_Status (Ready_To_Fly);
-                  end if;
-
                   return True;
                else
                   Is_Calibrated := Calibration_Error;
-                  Enable_LED_Status (Self_Test_Fail);
 
                   return False;
                end if;

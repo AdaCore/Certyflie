@@ -29,6 +29,9 @@
 
 package body LEDS is
 
+   procedure Cancel_Animation (Animation : in out LED_Animation);
+   procedure Activate_Animation (Animation : in out LED_Animation);
+
    ---------------
    -- LEDS_Init --
    ---------------
@@ -62,6 +65,9 @@ package body LEDS is
       end if;
    end Set_LED;
 
+   function LED_Set (LED : Crazyflie_LED) return Boolean
+     renames STM32.Board.Is_On;
+
    ----------------
    -- Toggle_LED --
    ----------------
@@ -74,38 +80,124 @@ package body LEDS is
 
    procedure Reset_All_LEDs renames All_LEDs_Off;
 
-   -----------------------
-   -- Enable_LED_Status --
-   -----------------------
+   ----------------------
+   -- Cancel_Animation --
+   ----------------------
 
-   procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status) is
-      Cancelled : Boolean;
-      pragma Unreferenced (Cancelled);
+   procedure Cancel_Animation (Animation : in out LED_Animation)
+   is
+      Cancelled : Boolean with Unreferenced;
    begin
-      Reset_All_LEDs;
-      --  This reset is in a race with the events' occurrences, but is OK since
-      --  we're about to cancel all of the current live events anyway, and
-      --  there is no corruption to worry about.
-      for Animation of LED_Animations (Current_LED_Status).all loop
-         if Animation.Blink_Period > Time_Span_Zero then
-            Animation.Cancel_Handler (Cancelled);
-         else
-            Set_LED (Animation.LED, False);
-         end if;
-      end loop;
+      if Animation.Blink_Period > 0.0 then
+         Animation.Cancel_Handler (Cancelled);
+      end if;
 
-      Current_LED_Status := LED_Status;
+      Set_LED (Animation.LED, False);
+   end Cancel_Animation;
 
-      for Animation of LED_Animations (Current_LED_Status).all loop
-         if Animation.Blink_Period > Time_Span_Zero then
-            Animation.Set_Handler
-              (Clock + Animation.Blink_Period,
-               LED_Status_Event_Handler.Toggle_LED_Status'Access);
+   ------------------------
+   -- Activate_Animation --
+   ------------------------
+
+   procedure Activate_Animation (Animation : in out LED_Animation)
+   is
+   begin
+      Set_LED (Animation.LED, True);
+
+      if Animation.Blink_Period > 0.0 then
+         Animation.Set_Handler
+           (Clock + To_Time_Span (Animation.Blink_Period),
+            LED_Status_Event_Handler.Toggle_LED_Status'Access);
+      end if;
+   end Activate_Animation;
+
+   ----------------------
+   -- Set_System_State --
+   ----------------------
+
+   procedure Set_System_State (State : Valid_System_State)
+   is
+   begin
+      if Current_System_Status = State then
+         return;
+      end if;
+
+      if Current_System_Status /= Initial_State then
+         Cancel_Animation (System_Animations (Current_System_Status));
+      end if;
+
+      if State in Ready .. Connected then
+         if Current_Link_Status /= Connected then
+            Current_System_Status := Ready;
          else
-            Set_LED (Animation.LED, True);
+            Current_System_Status := Connected;
          end if;
-      end loop;
-   end Enable_LED_Status;
+      else
+         Current_System_Status := State;
+      end if;
+      Activate_Animation (System_Animations (Current_System_Status));
+   end Set_System_State;
+
+   --------------------
+   -- Set_Link_State --
+   --------------------
+
+   procedure Set_Link_State (State : Valid_Link_State)
+   is
+   begin
+      if Current_Link_Status = State then
+         return;
+      end if;
+
+      Current_Link_Status := State;
+
+      if Current_System_Status in Ready .. Connected then
+         --  Set_System_State handles automatically the ready or connected
+         --  states according to Current_Link_Status.
+         Set_System_State (Ready);
+      end if;
+   end Set_Link_State;
+
+   -----------------------
+   -- Set_Battery_State --
+   -----------------------
+
+   procedure Set_Battery_State (State : Valid_Battery_State)
+   is
+   begin
+      if Current_Battery_Status = State then
+         return;
+      end if;
+
+      if Current_Battery_Status /= Initial_State then
+         Cancel_Animation (Battery_Animations (Current_Battery_Status));
+      end if;
+      Current_Battery_Status := State;
+      Activate_Animation (Battery_Animations (Current_Battery_Status));
+   end Set_Battery_State;
+
+   -----------------------
+   -- Set_Battery_Level --
+   -----------------------
+
+   procedure Set_Battery_Level (Level : Natural)
+   is
+   begin
+      Battery_Animations (On_Battery).Blink_Period :=
+        0.5 * Duration (Level);
+   end Set_Battery_Level;
+
+   ----------------------
+   -- Get_System_State --
+   ----------------------
+
+   function Get_System_State return System_State is (Current_System_Status);
+
+   -----------------------
+   -- Get_Battery_State --
+   -----------------------
+
+   function Get_Battery_State return Battery_State is (Current_Battery_Status);
 
    ------------------------------
    -- LED_Status_Event_Handler --
@@ -121,25 +213,25 @@ package body LEDS is
          --  to the subclass to change the view. (The inner conversion to
          --  the classwide base type is required.) Changing the view allows
          --  reference to the LED and Blink_Period components within Event.
+         Next      : Time;
       begin
          Toggle_LED (Animation.LED);
 
+         --  Special case: the LED remains off not as long as it is on.
+         if Animation.Blink_Period > 0.5
+           and then not LED_Set (Animation.LED)
+         then
+            Next := Clock + Milliseconds (500);
+
+         else
+            Next := Clock + To_Time_Span (Animation.Blink_Period);
+         end if;
+
          --  Set this procedure as the handler for the next occurrence for
          --  Event, too.
-         Animation.Set_Handler
-           (Clock + Animation.Blink_Period,
-            Toggle_LED_Status'Access);
+         Animation.Set_Handler (Next, Toggle_LED_Status'Access);
       end Toggle_LED_Status;
 
    end LED_Status_Event_Handler;
-
-   ----------------------------
-   -- Get_Current_LED_Status --
-   ----------------------------
-
-   function Get_Current_LED_Status return Crazyflie_LED_Status is
-   begin
-      return Current_LED_Status;
-   end Get_Current_LED_Status;
 
 end LEDS;

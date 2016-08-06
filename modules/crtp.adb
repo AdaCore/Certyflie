@@ -32,6 +32,8 @@ with Ada.Unchecked_Conversion;
 with Link_Interface;      use Link_Interface;
 pragma Elaborate (Link_Interface);
 
+with LEDS;                use LEDS;
+
 package body CRTP
 with Refined_State => (CRTP_State => (Dropped_Packets,
                                       Is_Connected))
@@ -266,6 +268,7 @@ is
    procedure CRTP_Set_Is_Connected (Value : Boolean) is
    begin
       Is_Connected := Value;
+      LEDS.Set_Link_State ((if Value then Connected else Not_Connected));
    end CRTP_Set_Is_Connected;
 
    -----------------------

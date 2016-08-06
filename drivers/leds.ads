@@ -41,17 +41,29 @@ package LEDS is
    LED_Red_L   : Crazyflie_LED renames STM32.Board.LED_Red_L;
    LED_Red_R   : Crazyflie_LED renames STM32.Board.LED_Red_R;
 
-   --  This type is used to represent the possible Crazyflie states for the
-   --  on-board LEDs to indicate. Each status has at least one corresponding
-   --  LED. A given state's LEDs are animated, in that they can either blink
-   --  or be constantly enabled. The current animations cease when the status
-   --  changes, and new animations are then enabled for the new status.
-   type Crazyflie_LED_Status is
-     (Ready_To_Fly,
+   type Battery_State is
+     (Initial_State,
+      On_Battery,
+      Low_Power,
+      Charging,
+      Charged);
+
+   type System_State is
+     (Initial_State,
+      Self_Test,
       Calibrating,
-      Charging_Battery,
-      Low_Power_Battery,
-      Self_Test_Fail);
+      Failure,
+      Ready,
+      Connected);
+
+   type Link_State is
+     (Initial_State,
+      Not_Connected,
+      Connected);
+
+   subtype Valid_System_State is System_State range Self_Test .. Connected;
+   subtype Valid_Battery_State is Battery_State range On_Battery .. Charged;
+   subtype Valid_Link_State is Link_State range Not_Connected .. Connected;
 
    --  Initialize the Crazyflie LEDs.
    procedure LEDS_Init;
@@ -62,17 +74,21 @@ package LEDS is
    --  Enables the LED if Value = True, disables if Value = False.
    procedure Set_LED (LED : Crazyflie_LED; Value : Boolean);
 
+   --  Whether the LED is lid or off
+   function LED_Set (LED : Crazyflie_LED) return Boolean;
+
    procedure Toggle_LED (LED : Crazyflie_LED);
 
    --  Switch off all the Crazyflie LEDs.
    procedure Reset_All_LEDs;
 
-   --  Sets the specified Crazyflie LED status and activates the LED (or
-   --  LEDs) corresponding to this new status. All LEDs for the previous status
-   --  become disabled.
-   procedure Enable_LED_Status (LED_Status : Crazyflie_LED_Status);
+   procedure Set_System_State (State : Valid_System_State);
+   procedure Set_Battery_State (State : Valid_Battery_State);
+   procedure Set_Battery_Level (Level : Natural);
+   procedure Set_Link_State (State : Valid_Link_State);
 
-   function Get_Current_LED_Status return Crazyflie_LED_Status;
+   function Get_System_State return System_State;
+   function Get_Battery_State return Battery_State;
 
 private
 
@@ -82,57 +98,30 @@ private
    --  to its blink period.
    type LED_Animation is new Timing_Event with record
       LED          : Crazyflie_LED;
-      Blink_Period : Time_Span;
+      Blink_Period : Duration;
    end record;
-
-   --  A representation for a collection or "group" of animations, so that a
-   --  given Crazyflie_LED_Status value can involve multiple LEDs if desired.
-   type LED_Animation_Group is array (Positive range <>) of LED_Animation;
 
    --  The individual LED animations corresponding to the various individual
    --  values of Crazyflie_LED_Status. A period of zero represents constant
    --  "on" rather than blinking.
+   System_Animations : array (Valid_System_State) of LED_Animation :=
+                         (Self_Test   => (Timing_Event with LED_Red_R, 0.1),
+                          Calibrating => (Timing_Event with LED_Green_R, 0.1),
+                          Failure     => (Timing_Event with LED_Red_R, 0.0),
+                          Ready       => (Timing_Event with LED_Green_R, 0.5),
+                          Connected   => (Timing_Event with LED_Green_R, 0.0));
 
-   Ready_To_Fly_Group : aliased LED_Animation_Group :=
-                          (1 => LED_Animation'(Timing_Event with LED_Green_R,
-                           Blink_Period => Milliseconds (500)),
-                           2 => LED_Animation'(Timing_Event with LED_Blue_L,
-                           Blink_Period => Time_Span_Zero));
-
-   Calibrating_Group  : aliased LED_Animation_Group :=
-                          (1 => LED_Animation'(Timing_Event with LED_Red_R,
-                           Blink_Period => Milliseconds (250)),
-                           2 => LED_Animation'(Timing_Event with LED_Blue_L,
-                             Blink_Period => Time_Span_Zero));
-
-   Charging_Battery_Group : aliased LED_Animation_Group :=
-                              (1 => LED_Animation'(Timing_Event
-                                 with LED_Blue_L,
-                               Blink_Period => Milliseconds (500)));
-
-   Low_Power_Battery_Group : aliased LED_Animation_Group :=
-                               (1 => LED_Animation'(Timing_Event
-                                  with LED_Red_L,
-                                Blink_Period => Time_Span_Zero));
-
-   Self_Test_Fail_Group : aliased LED_Animation_Group :=
-                            (1 => LED_Animation'(Timing_Event
-                               with LED_Red_L,
-                             Blink_Period => Milliseconds (500)));
-
-   --  The collection of all LED animations, mapping Crazyflie_LED_Status
-   --  values to their corresponding animations.
-   LED_Animations : constant array (Crazyflie_LED_Status) of
-     access LED_Animation_Group :=
-       (Ready_To_Fly      => Ready_To_Fly_Group'Access,
-        Calibrating       => Calibrating_Group'Access,
-        Charging_Battery  => Charging_Battery_Group'Access,
-        Low_Power_Battery => Low_Power_Battery_Group'Access,
-        Self_Test_Fail    => Self_Test_Fail_Group'Access);
+   Battery_Animations : array (Valid_Battery_State) of LED_Animation :=
+                          (On_Battery => (Timing_Event with LED_Blue_L, 3.0),
+                           Low_Power  => (Timing_Event with LED_Red_L, 0.5),
+                           Charging   => (Timing_Event with LED_Blue_L, 0.5),
+                           Charged    => (Timing_Event with LED_Blue_L, 0.0));
 
    --  The package global for the status that determines which LEDs are active.
    --  Controlled by procedure Enable_LED_Status.
-   Current_LED_Status : Crazyflie_LED_Status := Ready_To_Fly;
+   Current_System_Status  : System_State := Initial_State;
+   Current_Battery_Status : Battery_State := Initial_State;
+   Current_Link_Status    : Link_State := Initial_State;
 
    --  The PO containing the handler for blinking the LEDs corresponding to the
    --  value of Current_LED_Status. The handler is passed an LED_Animation

@@ -95,21 +95,14 @@ is
    function Power_Management_Get_Charge_From_Voltage
      (Voltage : Float) return Integer
    is
-      Charge : Integer := 0;
    begin
-      if Voltage < Bat_671723HS25C (1) then
-         return 0;
-      end if;
-
-      if Voltage > Bat_671723HS25C (9) then
-         return 9;
-      end if;
-
-      while Voltage > Bat_671723HS25C (Charge) loop
-         Charge := Charge + 1;
+      for Charge in Bat_671723HS25C'Range loop
+         if Voltage <= Bat_671723HS25C (Charge) then
+            return Charge - 1;
+         end if;
       end loop;
 
-      return Charge;
+      return 9;
    end Power_Management_Get_Charge_From_Voltage;
 
    -------------------------------------
@@ -133,24 +126,31 @@ is
    function Power_Management_Get_State
      (Power_Info : Power_Syslink_Info) return Power_State
    is
-      State : Power_State;
+      State            : Power_State;
       Is_Charging      : Boolean;
       Is_Pgood         : Boolean;
+      Charge_Rate      : Integer;
       Battery_Low_Time : Time_Span;
-   begin
-      Is_Charging := Power_Info.Charging;
-      Is_Pgood := Power_Info.Pgood;
-      Battery_Low_Time := Clock - Battery_Low_Time_Stamp;
 
-      if Is_Pgood and not Is_Charging
-      then
+   begin
+      Is_Charging      := Power_Info.Charging;
+      Is_Pgood         := Power_Info.Pgood;
+      Battery_Low_Time := Clock - Battery_Low_Time_Stamp;
+      Charge_Rate      :=
+        Power_Management_Get_Charge_From_Voltage (Power_Info.V_Bat_1);
+      LEDS.Set_Battery_Level (Charge_Rate);
+
+      if (Charge_Rate = 9 and then Is_Charging) or else Is_Pgood then
          State := Charged;
+
       elsif Is_Charging then
          State := Charging;
+
       elsif not Is_Pgood and not Is_Charging and
         Battery_Low_Time > PM_BAT_LOW_TIMEOUT
       then
          State := Low_Power;
+
       else
          State := Battery;
       end if;
@@ -178,13 +178,13 @@ is
    begin
       case State is
          when Charging =>
-            Enable_LED_Status (Charging_Battery);
+            Set_Battery_State (Charging);
          when Charged =>
-            Enable_LED_Status (Ready_To_Fly);
+            Set_Battery_State (Charged);
          when Low_Power =>
-            Enable_LED_Status (Low_Power_Battery);
+            Set_Battery_State (Low_Power);
          when Battery =>
-            Enable_LED_Status (Ready_To_Fly);
+            Set_Battery_State (On_Battery);
          when others =>
             null;
       end case;
@@ -202,6 +202,7 @@ is
       Next_Period := Clock + Milliseconds (500);
 
       Battery_Low_Time_Stamp := Clock;
+      Set_Power_LEDs (Current_Power_State);
 
       loop
          delay until Next_Period;
