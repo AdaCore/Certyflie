@@ -135,6 +135,7 @@ package body LEDS is
       else
          Current_System_Status := State;
       end if;
+
       Activate_Animation (System_Animations (Current_System_Status));
    end Set_System_State;
 
@@ -152,9 +153,7 @@ package body LEDS is
       Current_Link_Status := State;
 
       if Current_System_Status in Ready .. Connected then
-         --  Set_System_State handles automatically the ready or connected
-         --  states according to Current_Link_Status.
-         Set_System_State (Ready);
+         Set_System_State ((if State = Connected then Connected else Ready));
       end if;
    end Set_Link_State;
 
@@ -172,6 +171,7 @@ package body LEDS is
       if Current_Battery_Status /= Initial_State then
          Cancel_Animation (Battery_Animations (Current_Battery_Status));
       end if;
+
       Current_Battery_Status := State;
       Activate_Animation (Battery_Animations (Current_Battery_Status));
    end Set_Battery_State;
