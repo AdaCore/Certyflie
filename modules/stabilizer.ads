@@ -184,8 +184,7 @@ private
    ALTHOLD_UPDATE_RATE_DIVIDER_F : constant := 5.0;
    --  200 Hz
    ALTHOLD_UPDATE_DT : constant Float :=
-                                     (1.0 / (IMU_UPDATE_FREQ /
-                                        ALTHOLD_UPDATE_RATE_DIVIDER_F));
+                                     (1.0 / (IMU_UPDATE_FREQ));
 
    Is_Init : Boolean := False
      with Part_Of => Stabilizer_State;
