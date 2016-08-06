@@ -147,9 +147,9 @@ is
          Q1_X8 := 8.0 * Q1;
          Q2_X8 := 8.0 * Q2;
          Q0_Q0 := Q0 * Q0;
-         Q1_Q1 := Q1 * Q0;
-         Q2_Q2 := Q2 * Q0;
-         Q3_Q3 := Q3 * Q0;
+         Q1_Q1 := Q1 * Q1;
+         Q2_Q2 := Q2 * Q2;
+         Q3_Q3 := Q3 * Q3;
 
          --  Gradient decent algorithm corrective step
          S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Norm_Ax +
