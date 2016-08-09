@@ -216,6 +216,7 @@ is
 
       if Is_Calibrated = Not_Calibrated then
          Next_Period := Clock + IMU_UPDATE_DT_MS;
+         Variance_Sample_Time := Clock;
 
          loop
             MPU9250_Get_Motion_6 (MPU_Device,
@@ -379,35 +380,22 @@ is
       Variance : out Axis3_Float;
       Mean     : out Axis3_Float)
    is
-      Sum        : T_Int64_Array (1 .. 3) := (others => 0);
-      Sum_Square : T_Int64_Array (1 .. 3) := (others => 0);
-      use type T_Int64;
-      use type T_Int16;
+      Sum        : Axis3_Float := (others => 0.0);
 
    begin
       for Value of Bias_Obj.Buffer loop
-         Sum (1) := Sum (1) + T_Int64 (Value.X);
-         Sum (2) := Sum (2) + T_Int64 (Value.Y);
-         Sum (3) := Sum (3) + T_Int64 (Value.Z);
-
-         Sum_Square (1) := Sum_Square (1) + T_Int64 (Value.X * Value.X);
-         Sum_Square (2) := Sum_Square (2) + T_Int64 (Value.Y * Value.Y);
-         Sum_Square (3) := Sum_Square (3) + T_Int64 (Value.Z * Value.Z);
+         Sum := Sum + Value;
       end loop;
 
-      Variance.X :=
-        Float (Sum_Square (1) -
-                     T_Int64 (Sum (1) * Sum (1)) / IMU_NBR_OF_BIAS_SAMPLES);
-      Variance.Y :=
-        Float (Sum_Square (2) -
-                     T_Int64 (Sum (2) * Sum (2)) / IMU_NBR_OF_BIAS_SAMPLES);
-      Variance.Z :=
-        Float (Sum_Square (3) -
-                     T_Int64 (Sum (3) * Sum (3)) / IMU_NBR_OF_BIAS_SAMPLES);
+      Mean := Sum / IMU_NBR_OF_BIAS_SAMPLES;
 
-      Mean.X := Float (Sum (1) / IMU_NBR_OF_BIAS_SAMPLES);
-      Mean.Y := Float (Sum (2) / IMU_NBR_OF_BIAS_SAMPLES);
-      Mean.Z := Float (Sum (3) / IMU_NBR_OF_BIAS_SAMPLES);
+      Sum := (others => 0.0);
+
+      for Value of Bias_Obj.Buffer loop
+         Sum := Sum + (Mean - Value) ** 2;
+      end loop;
+
+      Variance := Sum / IMU_NBR_OF_BIAS_SAMPLES;
    end IMU_Calculate_Variance_And_Mean;
 
    ---------------------------

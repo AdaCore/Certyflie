@@ -110,7 +110,7 @@ is
    IMU_ACC_IIR_LPF_ATT_FACTOR   : constant T_Uint8
      := T_Uint8 (Float (2 ** IIR_SHIFT) / IMU_ACC_IIR_LPF_ATTENUATION + 0.5);
 
-   GYRO_VARIANCE_BASE        : constant := 200_000.0;
+   GYRO_VARIANCE_BASE        : constant := 2_000.0;
    GYRO_VARIANCE_THRESHOLD_X : constant := (GYRO_VARIANCE_BASE);
    GYRO_VARIANCE_THRESHOLD_Y : constant := (GYRO_VARIANCE_BASE);
    GYRO_VARIANCE_THRESHOLD_Z : constant := (GYRO_VARIANCE_BASE);
@@ -178,6 +178,31 @@ private
       Y : Float := 0.0;
       Z : Float := 0.0;
    end record;
+
+   function "+" (A1 : Axis3_Float; A2 : Axis3_Float) return Axis3_Float
+   is ((X => A1.X + A2.X,
+        Y => A1.Y + A2.Y,
+        Z => A1.Z + A2.Z));
+
+   function "+" (AF : Axis3_Float; AI : Axis3_T_Int16) return Axis3_Float
+   is ((X => AF.X + Float (AI.X),
+        Y => AF.Y + Float (AI.Y),
+        Z => AF.Z + Float (AI.Z)));
+
+   function "**" (AF : Axis3_Float; E : Integer) return Axis3_Float
+   is ((X => AF.X ** E,
+        Y => AF.Y ** E,
+        Z => AF.Z ** E));
+
+   function "-" (AF : Axis3_Float; AI : Axis3_T_Int16) return Axis3_Float
+   is ((X => AF.X - Float (AI.X),
+        Y => AF.Y - Float (AI.Y),
+        Z => AF.Z - Float (AI.Z)));
+
+   function "/" (AF : Axis3_Float; Val : Integer) return Axis3_Float
+   is ((X => AF.X / Float (Val),
+        Y => AF.Y / Float (Val),
+        Z => AF.Z / Float (Val)));
 
    type Bias_Buffer_Array is
      array (1 .. IMU_NBR_OF_BIAS_SAMPLES) of Axis3_T_Int16;
