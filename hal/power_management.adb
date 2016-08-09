@@ -140,7 +140,7 @@ is
         Power_Management_Get_Charge_From_Voltage (Power_Info.V_Bat_1);
       LEDS.Set_Battery_Level (Charge_Rate);
 
-      if (Charge_Rate = 9 and then Is_Charging) or else Is_Pgood then
+      if Charge_Rate = 9 and then Is_Charging then
          State := Charged;
 
       elsif Is_Charging then
