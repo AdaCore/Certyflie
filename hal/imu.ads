@@ -124,7 +124,8 @@ is
    --  Procedures and functions
 
    --  Initialize the IMU device/
-   procedure IMU_Init;
+   procedure IMU_Init (Use_Mag    : Boolean;
+                       DLPF_256Hz : Boolean);
 
    --  Test if the IMU device is initialized/
    function IMU_Test return Boolean;

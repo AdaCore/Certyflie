@@ -11,6 +11,13 @@ is
 
    --  Procedures and functions
 
+   --  Return the square root using the sqrtf builtin.
+   function Sqrtf (X : Float) return Float with
+     Global => null,
+     Pre    => X >= 0.0,
+     Post   => Sqrtf'Result in 0.0 .. 1.85E+19,
+       Import, Convention => Intrinsic, External_Name => "__builtin_sqrtf";
+
    --  Return the inverse square root using the sqrtf builtin.
    function Inv_Sqrt (X : Float) return Float
      with

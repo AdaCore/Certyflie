@@ -55,7 +55,8 @@ package body Crazyflie_System is
       --  Initialize LEDs, power management, sensors and actuators.
       LEDS_Init;
       Motors_Init;
-      IMU_Init;
+      IMU_Init (Use_Mag    => True,
+                DLPF_256Hz => False);
 
       --  Initialize communication related modules.
       Communication_Init;

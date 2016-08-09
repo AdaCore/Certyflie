@@ -44,9 +44,44 @@ with SPARK_Mode,
                                           Two_Ki,
                                           Integral_FBx,
                                           Integral_FBy,
-                                          Integral_FBz,
-                                          Beta))
+                                          Integral_FBz))
 is
+
+   Two_Kp : constant Float := 2.0 * 0.4;
+   --  2 * proportional gain (Kp)
+   Two_Ki : constant Float := 2.0 * 0.001;
+   --  2 * integral gain (Ki)
+
+   --  Integral error terms scaled by Ki.
+   Integral_FBx : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0;
+   Integral_FBy : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0;
+   Integral_FBz : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0;
+
+   --  Subtypes used to help SPARK proving absence of runtime errors
+   --  in the Mahony algorithm
+
+   subtype T_Norm_Acc is T_Acc range -1.0 .. 1.0;
+   subtype T_Norm_Mag is T_Mag range -1.0 .. 1.0;
+   subtype T_Float_1  is Float range -3.0 .. 3.0;
+   subtype T_Float_2  is Float range -7.0 .. 7.0;
+   subtype T_Float_3  is
+     Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
+   subtype T_Float_4  is Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE;
+   subtype T_Float_5  is Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
+     .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR;
+
+   procedure Mahony_Update_Q
+     (Gx, Gy, Gz : T_Rate_Rad;
+      Ax, Ay, Az : T_Acc;
+      Mx, My, Mz : T_Mag;
+      Dt         : T_Delta_Time)
+     with Inline_Always;
+
+   procedure Mahony_Update_Q
+     (Gx, Gy, Gz : T_Rate_Rad;
+      Ax, Ay, Az : T_Acc;
+      Dt         : T_Delta_Time)
+     with Inline_Always;
 
    ----------------------
    -- SensFusion6_Init --
@@ -70,153 +105,176 @@ is
       return Is_Init;
    end SensFusion6_Test;
 
-   -----------------------
-   -- Madgwick_Update_Q --
-   -----------------------
+   ---------------------
+   -- Mahony_Update_Q --
+   ---------------------
 
-   procedure Madgwick_Update_Q
-     (Gx : T_Rate;
-      Gy : T_Rate;
-      Gz : T_Rate;
+   procedure Mahony_Update_Q
+     (Gx : T_Rate_Rad;
+      Gy : T_Rate_Rad;
+      Gz : T_Rate_Rad;
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
+      Mx : T_Mag;
+      My : T_Mag;
+      Mz : T_Mag;
       Dt : T_Delta_Time)
    is
-      Recip_Norm    : Float;
-      S0            : Float;
-      S1            : Float;
-      S2            : Float;
-      S3            : Float;
-      Q_Dot1        : Float;
-      Q_Dot2        : Float;
-      Q_Dot3        : Float;
-      Q_Dot4        : Float;
-      Q0_X2         : Float;
-      Q1_X2         : Float;
-      Q2_X2         : Float;
-      Q3_X2         : Float;
-      Q0_X4         : Float;
-      Q1_X4         : Float;
-      Q2_X4         : Float;
-      Q1_X8         : Float;
-      Q2_X8         : Float;
-      Q0_Q0         : Float;
-      Q1_Q1         : Float;
-      Q2_Q2         : Float;
-      Q3_Q3         : Float;
-      Norm_Ax       : T_Acc;
-      Norm_Ay       : T_Acc;
-      Norm_Az       : T_Acc;
-      Q0_Tmp        : Float;
-      Q1_Tmp        : Float;
-      Q2_Tmp        : Float;
-      Q3_Tmp        : Float;
-      Ax_Tmp        : T_Acc_Lifted;
-      Ay_Tmp        : T_Acc_Lifted;
-      Az_Tmp        : T_Acc_Lifted;
-      Square_Sum    : Natural_Float;
+      Length     : Float;
+      Recip_Norm : Float;
+      Norm_Ax    : T_Norm_Acc;
+      Norm_Ay    : T_Norm_Acc;
+      Norm_Az    : T_Norm_Acc;
+      Norm_Mx    : T_Norm_Mag;
+      Norm_My    : T_Norm_Mag;
+      Norm_Mz    : T_Norm_Mag;
+      N_Gx       : T_Rate_Rad := Gx;
+      N_Gy       : T_Rate_Rad := Gy;
+      N_Gz       : T_Rate_Rad := Gz;
+      Q0_Q0      : Float;
+      Q0_Q1      : Float;
+      Q0_Q2      : Float;
+      Q0_Q3      : Float;
+      Q1_Q1      : Float;
+      Q1_Q2      : Float;
+      Q1_Q3      : Float;
+      Q2_Q2      : Float;
+      Q2_Q3      : Float;
+      Q3_Q3      : Float;
+      Hx, Hy     : Float;
+      Bx, Bz     : Float;
+      Half_Vx    : Float;
+      Half_Vy    : Float;
+      Half_Vz    : Float;
+      Half_Wx    : Float;
+      Half_Wy    : Float;
+      Half_Wz    : Float;
+      Half_Ex    : Float;
+      Half_Ey    : Float;
+      Half_Ez    : Float;
+      Q0_Tmp     : T_Float_3;
+      Q1_Tmp     : T_Float_3;
+      Q2_Tmp     : T_Float_3;
+      Q3_Tmp     : T_Float_3;
+
    begin
-      --  Rate of change of quaternion from gyroscope
-      Q_Dot1 := 0.5 * (-Q1 * Gx - Q2 * Gy - Q3 * Gz);
-      Q_Dot2 := 0.5 * (Q0 * Gx + Q2 * Gz - Q3 * Gy);
-      Q_Dot3 := 0.5 * (Q0 * Gy - Q1 * Gz + Q3 * Gx);
-      Q_Dot4 := 0.5 * (Q0 * Gz + Q1 * Gy - Q2 * Gx);
+      Length := Sqrtf (Mx * Mx + My * My + Mz * Mz);
 
-      --  Compute feedback only if accelerometer measurement valid
-      --  (avoids NaN in accelerometer normalisation)
-      if not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0)) then
-         --  Normalize accelerometer measurement
-         Ax_Tmp := Lift_Away_From_Zero (Ax);
-         Ay_Tmp := Lift_Away_From_Zero (Ay);
-         Az_Tmp := Lift_Away_From_Zero (Az);
-         Square_Sum := Ax_Tmp * Ax_Tmp + Ay_Tmp * Ay_Tmp + Az_Tmp * Az_Tmp;
-         Recip_Norm := Inv_Sqrt (Square_Sum);
-         Norm_Ax := Saturate (Ax * Recip_Norm, -1.0, 1.0);
-         Norm_Ay := Saturate (Ay * Recip_Norm, -1.0, 1.0);
-         Norm_Az := Saturate (Az * Recip_Norm, -1.0, 1.0);
+      --  Use IMU algorighm if magnitometer measurement is invalid
+      if Length = 0.0 then
+         Mahony_Update_Q (Gx, Gy, Gz, Ax, Ay, Az, Dt);
 
-         --  Auxiliary variables to avoid repeated arithmetic
-         Q0_X2 := 2.0 * Q0;
-         Q1_X2 := 2.0 * Q1;
-         Q2_X2 := 2.0 * Q2;
-         Q3_X2 := 2.0 * Q3;
-         Q0_X4 := 4.0 * Q0;
-         Q1_X4 := 4.0 * Q1;
-         Q2_X4 := 4.0 * Q2;
-         Q1_X8 := 8.0 * Q1;
-         Q2_X8 := 8.0 * Q2;
-         Q0_Q0 := Q0 * Q0;
-         Q1_Q1 := Q1 * Q1;
-         Q2_Q2 := Q2 * Q2;
-         Q3_Q3 := Q3 * Q3;
-
-         --  Gradient decent algorithm corrective step
-         S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Norm_Ax +
-           Q0_X4 * Q1_Q1 - Q1_X2 * Norm_Ay;
-         S1 := Q1_X4 * Q3_Q3 - Q3_X2 * Norm_Ax + 4.0 * Q0_Q0 * Q1 -
-           Q0_X2 * Norm_Ay - Q1_X4 + Q1_X8 * Q1_Q1 +
-             Q1_X8 * Q2_Q2 + Q1_X4 * Norm_Az;
-         S2 := 4.0 * Q0_Q0 * Q2 + Q0_X2 * Norm_Ax + Q2_X4 * Q3_Q3 -
-           Q3_X2 * Norm_Ay - Q2_X4 + Q2_X8 * Q1_Q1 +
-             Q2_X8 * Q2_Q2 + Q2_X4 * Norm_Az;
-         S3 := 4.0 * Q1_Q1 * Q3 - Q1_X2 * Norm_Ax +
-           4.0 * Q2_Q2 * Q3 - Q2_X2 * Norm_Ay;
-
-         --  Normalize step magnitudes
-         Recip_Norm := Inv_Sqrt (S0 * S0 + S1 * S1 + S2 * S2 + S3 * S3);
-         S0 := S0 * Recip_Norm;
-         S1 := S1 * Recip_Norm;
-         S2 := S2 * Recip_Norm;
-         S3 := S3 * Recip_Norm;
-
-         --  Apply feedback step
-         Q_Dot1 := Q_Dot1 - Beta * S0;
-         Q_Dot2 := Q_Dot2 - Beta * S1;
-         Q_Dot3 := Q_Dot3 - Beta * S2;
-         Q_Dot4 := Q_Dot4 - Beta * S3;
+         return;
       end if;
 
-      --  Integrate rate of change of quaternion to yield quatrenion
-      Q0_Tmp := Q0 + Q_Dot1 * Dt;
-      Q1_Tmp := Q1 + Q_Dot2 * Dt;
-      Q2_Tmp := Q2 + Q_Dot3 * Dt;
-      Q3_Tmp := Q3 + Q_Dot4 * Dt;
+      --  Normalize the Magnetometer measurement
+      Norm_Mx := Saturate (Mx / Length, -1.0, 1.0);
+      Norm_My := Saturate (My / Length, -1.0, 1.0);
+      Norm_Mz := Saturate (Mz / Length, -1.0, 1.0);
 
-      --  Normalize quaternion
-      Recip_Norm := Inv_Sqrt
-        (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
-           Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
-      Q0 := Saturate
-        (Q0_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
-      Q1 := Saturate
-        (Q1_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
-      Q2 := Saturate
-        (Q2_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
-      Q3 := Saturate
-        (Q3_Tmp * Recip_Norm, T_Quaternion'First, T_Quaternion'Last);
-   end Madgwick_Update_Q;
+      Length := Sqrtf (Ax * Ax + Ay * Ay + Az * Az);
 
-   --  Subtypes used to help SPARK proving absence of runtime errors
-   --  in the Mahony algorithm
+      if Length /= 0.0 then
+         --  Normalize accelerometer measurment
+         Norm_Ax := Saturate (Ax / Length, -1.0, 1.0);
+         Norm_Ay := Saturate (Ay / Length, -1.0, 1.0);
+         Norm_Az := Saturate (Az / Length, -1.0, 1.0);
 
-   subtype T_Norm_Acc is T_Acc range -1.0 .. 1.0;
-   subtype T_Float_1  is Float range -3.0 .. 3.0;
-   subtype T_Float_2  is Float range -7.0 .. 7.0;
-   subtype T_Float_3  is
-     Float range -4.0 * MAX_RATE_CHANGE .. 4.0 * MAX_RATE_CHANGE;
-   subtype T_Float_4  is Float range -MAX_RATE_CHANGE .. MAX_RATE_CHANGE;
-   subtype T_Float_5  is Float range T_Rate_Rad'First - MAX_INTEGRAL_ERROR
-     .. T_Rate_Rad'Last + MAX_INTEGRAL_ERROR;
+         --  Auxiliary Variables to avoid repeated arithmetic
+         Q0_Q0 := Q0 * Q0;
+         Q0_Q1 := Q0 * Q1;
+         Q0_Q2 := Q0 * Q2;
+         Q0_Q3 := Q0 * Q3;
+         Q1_Q1 := Q1 * Q1;
+         Q1_Q2 := Q1 * Q2;
+         Q1_Q3 := Q1 * Q3;
+         Q2_Q2 := Q2 * Q2;
+         Q2_Q3 := Q2 * Q3;
+         Q3_Q3 := Q3 * Q3;
+
+         --  Reference direction of Earth's magnetic field
+         Hx := 2.0 * (Norm_Mx * (0.5 - Q2_Q2 - Q3_Q3) +
+                        Norm_My * (Q1_Q2 - Q0_Q3) + Norm_Mz * (Q1_Q3 + Q0_Q2));
+         Hy := 2.0 * (Norm_Mx * (Q1_Q2 + Q0_Q3) +
+                        Norm_My * (0.5 - Q1_Q1 - Q3_Q3) +
+                        Norm_Mz * (Q2_Q3 - Q0_Q1));
+         Bx := Sqrtf (Hx * Hx + Hy * Hy);
+         Bz := 2.0 * (Norm_Mx * (Q1_Q3 - Q0_Q2) + Norm_My * (Q2_Q3 + Q0_Q1) +
+                        Norm_Mz * (0.5 - Q1_Q1 - Q2_Q2));
+
+         --  Estimated direction of gravity and magnetic field
+         Half_Vx := Q1_Q3 - Q0_Q2;
+         Half_Vy := Q0_Q1 + Q2_Q3;
+         Half_Vz := Q0_Q0 - 0.5 + Q3_Q3;
+         Half_Wx := Bx * (0.5 - Q2_Q2 - Q3_Q3) + Bz * (Q1_Q3 - Q0_Q2);
+         Half_Wy := Bx * (Q1_Q2 - Q0_Q3) + Bz * (Q0_Q1 + Q2_Q3);
+         Half_Wz := Bx * (Q0_Q2 + Q1_Q3) + Bz * (0.5 - Q1_Q1 - Q2_Q2);
+
+         --  Error is sum of cross product between estimated direction and
+         --  measured direction of field vectors
+         Half_Ex := (Norm_Ay * Half_Vz - Norm_Az * Half_Vy) +
+                    (Norm_My * Half_Wz - Norm_Mz * Half_Wy);
+         Half_Ey := (Norm_Az * Half_Vx - Norm_Ax * Half_Vz) +
+                    (Norm_Mz * Half_Wx - Norm_Mx * Half_Wz);
+         Half_Ez := (Norm_Ax * Half_Vy - Norm_Ay * Half_Vx) +
+                    (Norm_Mx * Half_Wy - Norm_My * Half_Wx);
+
+         --  Compute and apply integral feedback if enabled
+--           if Two_Ki > 0.0 then
+--              Integral_FBx := Integral_FBx + Two_Ki * Half_Ex * Dt;
+--              Integral_FBy := Integral_FBy + Two_Ki * Half_Ey * Dt;
+--              Integral_FBz := Integral_FBz + Two_Ki * Half_Ez * Dt;
+--              N_Gx := N_Gx + Integral_FBx;
+--              N_Gy := N_Gy + Integral_FBy;
+--              N_Gz := N_Gz + Integral_FBz;
+--           else
+--              Integral_FBx := 0.0;
+--              Integral_FBy := 0.0;
+--              Integral_FBz := 0.0;
+--           end if;
+
+         --  Apply proportional feedback
+         N_Gx := N_Gx + Two_Kp * Half_Ex;
+         N_Gy := N_Gy + Two_Kp * Half_Ey;
+         N_Gz := N_Gz + Two_Kp * Half_Ez;
+      end if;
+
+      --  Integrate rate of change of quaternion
+      N_Gx := N_Gx * (0.5 * Dt);
+      N_Gy := N_Gy * (0.5 * Dt);
+      N_Gz := N_Gz * (0.5 * Dt);
+
+      Q0_Tmp := Q0 - Q1 * N_Gx - Q2 * N_Gy - Q3 * N_Gz;
+      Q1_Tmp := Q1 + Q0 * N_Gx + Q2 * N_Gz - Q3 * N_Gy;
+      Q2_Tmp := Q2 + Q0 * N_Gy - Q1 * N_Gz + Q3 * N_Gx;
+      Q3_Tmp := Q3 + Q0 * N_Gz + Q1 * N_Gy - Q2 * N_Gx;
+
+      --  Normalize quaternions
+      Recip_Norm := Inv_Sqrt (Q0_Tmp * Q0_Tmp + Q1_Tmp * Q1_Tmp +
+                                Q2_Tmp * Q2_Tmp + Q3_Tmp * Q3_Tmp);
+      Q0 := Saturate (Q0_Tmp * Recip_Norm,
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
+      Q1 := Saturate (Q1_Tmp * Recip_Norm,
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
+      Q2 := Saturate (Q2_Tmp * Recip_Norm,
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
+      Q3 := Saturate (Q3_Tmp * Recip_Norm,
+                      T_Quaternion'First,
+                      T_Quaternion'Last);
+   end Mahony_Update_Q;
 
    ---------------------
    -- Mahony_Update_Q --
    ---------------------
 
    procedure Mahony_Update_Q
-     (Gx : T_Rate;
-      Gy : T_Rate;
-      Gz : T_Rate;
+     (Gx : T_Rate_Rad;
+      Gy : T_Rate_Rad;
+      Gz : T_Rate_Rad;
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
@@ -226,10 +284,6 @@ is
       Norm_Ax         : T_Norm_Acc;
       Norm_Ay         : T_Norm_Acc;
       Norm_Az         : T_Norm_Acc;
-      --  Conversion from degrees/s to rad/s
-      Rad_Gx          : constant T_Rate_Rad := Gx * Pi / 180.0;
-      Rad_Gy          : constant T_Rate_Rad := Gy * Pi / 180.0;
-      Rad_Gz          : constant T_Rate_Rad := Gz * Pi / 180.0;
       --  Estimated direction of gravity and vector perpendicular
       --  to magnetic flux
       Half_Vx         : constant T_Float_1 := Q1 * Q3 - Q0 * Q2;
@@ -249,12 +303,13 @@ is
       Ay_Lifted       : T_Acc_Lifted;
       Az_Lifted       : T_Acc_Lifted;
       Square_Sum      : Natural_Float;
-      Rate_Change_Gx  : T_Float_4 := Rad_Gx;
-      Rate_Change_Gy  : T_Float_4 := Rad_Gy;
-      Rate_Change_Gz  : T_Float_4 := Rad_Gy;
-      Integ_FB_Gx     : T_Float_5 := Rad_Gx;
-      Integ_FB_Gy     : T_Float_5 := Rad_Gy;
-      Integ_FB_Gz     : T_Float_5 := Rad_Gz;
+      Rate_Change_Gx  : T_Float_4 := Gx;
+      Rate_Change_Gy  : T_Float_4 := Gy;
+      Rate_Change_Gz  : T_Float_4 := Gy;
+      Integ_FB_Gx     : T_Float_5 := Gx;
+      Integ_FB_Gy     : T_Float_5 := Gy;
+      Integ_FB_Gz     : T_Float_5 := Gz;
+
    begin
       if not ((Ax = 0.0) and (Ay = 0.0) and (Az = 0.0)) then
          --  Normalize accelerometer measurement
@@ -295,9 +350,9 @@ is
                                       -MAX_INTEGRAL_ERROR,
                                       MAX_INTEGRAL_ERROR);
             --  Apply integral feedback
-            Integ_FB_Gx := Rad_Gx + Integral_FBx;
-            Integ_FB_Gy := Rad_Gy + Integral_FBy;
-            Integ_FB_Gz := Rad_Gz + Integral_FBz;
+            Integ_FB_Gx := Gx + Integral_FBx;
+            Integ_FB_Gy := Gy + Integral_FBy;
+            Integ_FB_Gz := Gz + Integral_FBz;
 
          else
             Integral_FBx := 0.0;
@@ -363,24 +418,22 @@ is
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
-      Dt : T_Delta_Time) is
+      Mx : T_Mag;
+      My : T_Mag;
+      Mz : T_Mag;
+      Dt : T_Delta_Time)
+   is
+      --  Translate rates in degree to radians
+      Rad_Gx : constant T_Rate_Rad := Gx * Pi / 180.0;
+      Rad_Gy : constant T_Rate_Rad := Gy * Pi / 180.0;
+      Rad_Gz : constant T_Rate_Rad := Gz * Pi / 180.0;
+
    begin
-      case SENSOR_FUSION_ALGORITHM is
-         when MAHONY => Mahony_Update_Q (Gx,
-                                         Gy,
-                                         Gz,
-                                         Ax,
-                                         Ay,
-                                         Az,
-                                         Dt);
-         when others => Madgwick_Update_Q (Gx,
-                                           Gy,
-                                           Gz,
-                                           Ax,
-                                           Ay,
-                                           Az,
-                                           Dt);
-      end case;
+      Mahony_Update_Q
+        (Rad_Gx, Rad_Gy, Rad_Gz,
+         Ax, Ay, Az,
+         Mx, My, Mz,
+         Dt);
    end SensFusion6_Update_Q;
 
    -------------------------------
@@ -432,7 +485,7 @@ is
 
       Grav_Z := Q0 * Q0 - Q1 * Q1 - Q2 * Q2 + Q3 * Q3;
 
-      --  Feturn vertical acceleration without gravity
+      --  Return vertical acceleration without gravity
       --  (A dot G) / |G| - 1G (|G| = 1) -> (A dot G) - 1G
       return (Ax * Grav_X + Ay * Grav_Y + Az * Grav_Z) - 1.0;
    end SensFusion6_Get_AccZ_Without_Gravity;

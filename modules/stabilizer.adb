@@ -183,6 +183,7 @@ is
    begin
       SensFusion6_Update_Q (Gyro.X, Gyro.Y, Gyro.Z,
                             Acc.X, Acc.Y, Acc.Z,
+                            Mag.X, Mag.Y, Mag.Z,
                             FUSION_UPDATE_DT);
       --  Get Euler angles
       SensFusion6_Get_Euler_RPY (Euler_Roll_Actual,

@@ -52,6 +52,9 @@ is
       Ax : T_Acc;
       Ay : T_Acc;
       Az : T_Acc;
+      Mx : T_Mag;
+      My : T_Mag;
+      Mz : T_Mag;
       Dt : T_Delta_Time);
 
    --  Get Euler roll, pitch and yaw from the current quaternions.
@@ -93,55 +96,7 @@ private
 
    --  Global variables and constants
 
-   --  Needed for Mahony algorithm.
-   MAX_TWO_KP : constant := (2.0 * 1.0);
-   MAX_TWO_KI : constant := (2.0 * 1.0);
-
-   TWO_KP_DEF  : constant := (2.0 * 0.4);
-   TWO_KI_DEF  : constant := (2.0 * 0.001);
-
    MAX_INTEGRAL_ERROR : constant := 100.0;
    MAX_RATE_CHANGE    : constant := 1_000_000.0;
-
-   Two_Kp       : Float range 0.0 .. MAX_TWO_KP := TWO_KP_DEF
-     with Part_Of => SensFusion6_State; --  2 * proportional gain (Kp)
-   Two_Ki       : Float range 0.0 .. MAX_TWO_KI := TWO_KI_DEF
-     with Part_Of => SensFusion6_State; --  2 * integral gain (Ki)
-
-   --  Integral error terms scaled by Ki.
-   Integral_FBx : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
-     with Part_Of => SensFusion6_State;
-   Integral_FBy : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
-     with Part_Of => SensFusion6_State;
-   Integral_FBz : Float range -MAX_INTEGRAL_ERROR .. MAX_INTEGRAL_ERROR := 0.0
-     with Part_Of => SensFusion6_State;
-
-   --  Needed for Madgwick algorithm.
-   BETA_DEF     : constant Float := 0.01;
-
-   Beta         : T_Alpha := BETA_DEF
-     with Part_Of => SensFusion6_State;
-
-   --  Procedures and functions
-
-   --  Madgwick sensorfusion algorithm implementation.
-   procedure Madgwick_Update_Q
-     (Gx : T_Rate;
-      Gy : T_Rate;
-      Gz : T_Rate;
-      Ax : T_Acc;
-      Ay : T_Acc;
-      Az : T_Acc;
-      Dt : T_Delta_Time);
-
-   --  Mahony sensorfusion algorithm implementation.
-   procedure Mahony_Update_Q
-     (Gx : T_Rate;
-      Gy : T_Rate;
-      Gz : T_Rate;
-      Ax : T_Acc;
-      Ay : T_Acc;
-      Az : T_Acc;
-      Dt : T_Delta_Time);
 
 end SensFusion6;

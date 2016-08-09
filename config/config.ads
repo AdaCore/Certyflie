@@ -51,10 +51,6 @@ package Config is
    LOG_TASK_PRIORITY       : constant System.Priority := 1;
    PM_TASK_PRIORITY        : constant System.Priority := 0;
 
-   --  Two implemented algorithms for quaternions
-   type Quaternion_Algorithm is (MAHONY, MADGWICK);
-   SENSOR_FUSION_ALGORITHM : constant Quaternion_Algorithm := MAHONY;
-
    --  Link layers implemented to communicate via the CRTP protocol
    type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
    LINK_LAYER_TYPE : constant Link_Layer := RADIO_LINK;

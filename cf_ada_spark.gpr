@@ -2,13 +2,25 @@ with "stm32_peripheral_libs/boards/crazyflie";
 
 project Cf_Ada_SPARK is
 
+   type SENSOR_FUSION_TYPE is ("Mahony", "Madgwick");
+   SensorFusion : SENSOR_FUSION_TYPE := external ("SENSOR_FUSION", "Mahony");
+
    type BUILD_TYPE is
       ("Debug", "Production");
    Build : BUILD_Type := external ("BUILD", "Debug");
 
    for Languages use ("Ada");
    for Main use ("main.adb");
-   for Source_Dirs use ("init", "config", "types", "utils", "drivers", "lib", "hal", "modules");
+   for Source_Dirs use
+     ("init", "config", "types", "utils", "drivers", "lib", "hal", "modules");
+
+   case SensorFusion is
+      when "Mahony" =>
+         for Source_Dirs use Project'Source_Dirs & ("modules/mahony");
+      when "Madgwick" =>
+         for Source_Dirs use Project'Source_Dirs & ("modules/madgwick");
+   end case;
+
    for Object_Dir use "obj";
    for Exec_Dir use "obj";
 

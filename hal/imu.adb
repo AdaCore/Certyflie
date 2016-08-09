@@ -33,6 +33,8 @@ with STM32.Board;                       use STM32.Board;
 with Config;                            use Config;
 with Console;                           use Console;
 
+with AK8963;                            use AK8963;
+
 package body IMU
 with Refined_State => (IMU_State => (Is_Init,
                                      Is_Barometer_Avalaible,
@@ -57,7 +59,8 @@ is
    -- IMU_Init --
    --------------
 
-   procedure IMU_Init is
+   procedure IMU_Init (Use_Mag    : Boolean;
+                       DLPF_256Hz : Boolean) is
       Delay_After_Reset_Time : Time;
    begin
       if Is_Init then
@@ -88,14 +91,30 @@ is
       MPU9250_Set_Full_Scale_Gyro_Range (MPU_Device, IMU_GYRO_FS_CONFIG);
       --  Set accel full-scale range
       MPU9250_Set_Full_Scale_Accel_Range (MPU_Device, IMU_ACCEL_FS_CONFIG);
-      --  To low DLPF bandwidth might cause instability and decrease agility
-      --  but it works well for handling vibrations and unbalanced propellers
-      --  Set output rate (1): 1000 / (1 + 1) = 500Hz
-      MPU9250_Set_Rate (MPU_Device, 1);
-      --  Set digital low-pass bandwidth
-      MPU9250_Set_DLPF_Mode (MPU_Device, MPU9250_DLPF_BW_98);
 
-      Variance_Sample_Time := Time_First;
+      if DLPF_256Hz then
+         --  256Hz digital low-pass filter only works with little vibrations
+         --  Set output rate (15): 8000 / (1 + 15) = 500Hz
+         MPU9250_Set_Rate (MPU_Device, 15);
+         MPU9250_Set_DLPF_Mode (MPU_Device, MPU9250_DLPF_BW_256);
+      else
+         --  To low DLPF bandwidth might cause instability and decrease
+         --  agility but it works well for handling vibrations and
+         --  unbalanced propellers.
+         --  Set output rate (1): 1000 / (1 + 1) = 500Hz
+         MPU9250_Set_Rate (MPU_Device, 1);
+         --  Set digital low-pass bandwidth
+         MPU9250_Set_DLPF_Mode (MPU_Device, MPU9250_DLPF_BW_98);
+      end if;
+
+      if Use_Mag then
+         Initialize (STM32.Board.MAG_Device);
+         if Test_Connection (STM32.Board.MAG_Device) then
+            Is_Magnetomer_Availaible := True;
+            Set_Mode (MAG_Device, Continuous_2, Mode_16bit);
+         end if;
+      end if;
+
       IMU_Acc_Lp_Att_Factor := IMU_ACC_IIR_LPF_ATT_FACTOR;
 
       Cos_Pitch := Cos (0.0);
@@ -110,16 +129,26 @@ is
    -- IMU_Test --
    --------------
 
-   function IMU_Test return Boolean is
-      Is_Connected     : Boolean;
-      Self_Test_Passed : Boolean;
+   function IMU_Test return Boolean
+   is
    begin
-      --  TODO: implement the complete function
-      Is_Connected := MPU9250_Test_Connection (MPU_Device);
-      Self_Test_Passed := MPU9250_Self_Test
-        (MPU_Device, Console.Console_Test, Console.Console_Put_Line'Access);
+      if not MPU9250_Test_Connection (MPU_Device) then
+         return False;
+      end if;
 
-      return Is_Init and Is_Connected and Self_Test_Passed;
+      if not MPU9250_Self_Test
+        (MPU_Device, Console.Console_Test, Console.Console_Put_Line'Access)
+      then
+         return False;
+      end if;
+
+      if Is_Magnetomer_Availaible
+        and then not Self_Test (MAG_Device)
+      then
+         return False;
+      end if;
+
+      return True;
    end IMU_Test;
 
    ------------------------------
@@ -267,15 +296,27 @@ is
    procedure IMU_9_Read
      (Gyro : in out Gyroscope_Data;
       Acc  : in out Accelerometer_Data;
-      Mag  : in out Magnetometer_Data) is
+      Mag  : in out Magnetometer_Data)
+   is
    begin
       IMU_6_Read (Gyro,
                   Acc);
-      --  TODO: implement drivers for magnetometer if we want to
-      --  use it.
-      Mag.X := 0.0;
-      Mag.Y := 0.0;
-      Mag.Z := 0.0;
+      if not Is_Magnetomer_Availaible then
+         Mag := (others => 0.0);
+
+      else
+         declare
+            Mx, My, Mz : Gauss;
+            Dead       : Boolean with Unreferenced;
+         begin
+            Get_Heading (MAG_Device, Mx, My, Mz);
+            --  Get_Overflow_Status clears ST1 by reading ST2
+            Dead := Get_Overflow_Status (MAG_Device);
+            Mag  := (X => Mx,
+                     Y => My,
+                     Z => Mz);
+         end;
+      end if;
    end IMU_9_Read;
 
    ------------------------
