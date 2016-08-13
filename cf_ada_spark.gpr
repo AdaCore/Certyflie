@@ -1,4 +1,4 @@
-with "stm32_peripheral_libs/boards/crazyflie";
+with "Ada_Drivers_Library/boards/crazyflie";
 
 project Cf_Ada_SPARK is
 
@@ -32,7 +32,7 @@ project Cf_Ada_SPARK is
       case Build is
          when "Debug" =>
             for Default_Switches ("ada") use
-              ("-gnatQ", "-gnatyg", "-O1", "-gnata", "-gnatwae", "-g");
+              ("-gnatQ", "-gnatyg", "-O0", "-gnata", "-gnatwae", "-g");
          when "Production" =>
             for Default_Switches ("ada") use
               ("-gnatQ", "-gnatyg", "-O2", "-gnatn");
@@ -42,6 +42,7 @@ project Cf_Ada_SPARK is
    package Builder is
       for Global_Configuration_Pragmas use "gnat.adc";
       for Executable ("main.adb") use "cflie.elf";
+      for Default_Switches ("Ada") use ("-s");
    end Builder;
 
    package Ide is
