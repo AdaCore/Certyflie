@@ -30,6 +30,7 @@
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
 with STM32.Board;                       use STM32.Board;
+with STM32.I2C;
 with Config;                            use Config;
 with Console;                           use Console;
 
@@ -67,8 +68,8 @@ is
          return;
       end if;
 
-      Initialize_I2C_GPIO (MPU_I2C_Port);
-      Configure_I2C (MPU_I2C_Port);
+      Initialize_I2C_GPIO (STM32.I2C.I2C_Port (MPU_Device.Port.all));
+      Configure_I2C (STM32.I2C.I2C_Port (MPU_Device.Port.all));
 
       MPU9250_Init (MPU_Device);
       MPU9250_Reset (MPU_Device);

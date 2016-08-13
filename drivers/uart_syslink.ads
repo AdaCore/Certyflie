@@ -34,7 +34,6 @@ with Ada.Real_Time;            use Ada.Real_Time;
 with STM32;                    use STM32;
 with STM32.Device;             use STM32.Device;
 with STM32.DMA;                use STM32.DMA;
-with STM32.GPIO;               use STM32.GPIO;
 with STM32.USARTs;             use STM32.USARTs;
 
 with Types;                    use Types;
@@ -68,12 +67,6 @@ private
    use T_Uint8_Queue;
 
    --  Global variables and constants
-
-   Transceiver : USART renames USART_6;
-   Transceiver_AF : constant GPIO_Alternate_Function := GPIO_AF_USART6;
-
-   TX_Pin : constant GPIO_Point := PC6;
-   RX_Pin : constant GPIO_Point := PC7;
 
    Controller : DMA_Controller renames DMA_2;
 

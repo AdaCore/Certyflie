@@ -29,11 +29,10 @@
 
 with Types;             use Types;
 
-with STM32.GPIO;      use STM32.GPIO;
 with STM32;           use STM32;
-with STM32.PWM;       use STM32.PWM;
-with STM32.Timers;    use STM32.Timers;
 with STM32.Device;    use STM32.Device;
+with STM32.Board;     use STM32.Board;
+with STM32.PWM;       use STM32.PWM;
 
 package Motors
    with Abstract_State => Motors_State
@@ -87,26 +86,8 @@ private
    MOTORS_TEST_ON_TIME_MS    : constant := 50;
    MOTORS_TEST_DELAY_TIME_MS : constant := 150;
 
-   PWM_TIMER_M1_M2_M3        : aliased PWM_Timer (Timer_2'Access);
-   PWM_TIMER_M4              : aliased PWM_Timer (Timer_4'Access);
-
-   --  Constants used to configure the proper GPIO Ports and pins
-   --  to communicate with the motors.
-   MOTORS_GPIO_M1_POINT  : constant GPIO_Point := PA1;
-   MOTORS_GPIO_AF_M1     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_TIM_CHANNEL_M1 : constant Timer_Channel := Channel_2;
-
-   MOTORS_GPIO_M2_POINT  : constant GPIO_Point := PB11;
-   MOTORS_GPIO_AF_M2     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_TIM_CHANNEL_M2 : constant Timer_Channel := Channel_4;
-
-   MOTORS_GPIO_M3_POINT  : constant GPIO_Point := PA15;
-   MOTORS_GPIO_AF_M3     : constant GPIO_Alternate_Function := GPIO_AF_TIM2;
-   MOTORS_TIM_CHANNEL_M3 : constant Timer_Channel := Channel_1;
-
-   MOTORS_GPIO_M4_POINT  : constant GPIO_Point := PB9;
-   MOTORS_GPIO_AF_M4     : constant GPIO_Alternate_Function := GPIO_AF_TIM4;
-   MOTORS_TIM_CHANNEL_M4 : constant Timer_Channel := Channel_4;
+   PWM_TIMER_M1_M2_M3        : aliased PWM_Timer (MOTOR_123_Timer'Access);
+   PWM_TIMER_M4              : aliased PWM_Timer (MOTOR_4_Timer'Access);
 
    --  PWM modulators
    M1_Modulator          : PWM_Modulator

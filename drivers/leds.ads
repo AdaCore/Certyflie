@@ -72,12 +72,14 @@ package LEDS is
    function LEDS_Test return Boolean;
 
    --  Enables the LED if Value = True, disables if Value = False.
-   procedure Set_LED (LED : Crazyflie_LED; Value : Boolean);
+   procedure Set_LED (LED : in out Crazyflie_LED; Value : Boolean);
 
    --  Whether the LED is lid or off
-   function LED_Set (LED : Crazyflie_LED) return Boolean;
+   function LED_Set (LED : Crazyflie_LED) return Boolean
+     renames STM32.Board.Is_On;
 
-   procedure Toggle_LED (LED : Crazyflie_LED);
+   procedure Toggle_LED (LED : in out Crazyflie_LED)
+                         renames STM32.Board.Toggle_LED;
 
    --  Switch off all the Crazyflie LEDs.
    procedure Reset_All_LEDs;

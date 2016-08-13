@@ -27,7 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with HAL; use HAL;
+with HAL;         use HAL;
+with STM32.Board; use STM32.Board;
+with STM32.GPIO;  use STM32.GPIO;
 
 package body UART_Syslink is
 
@@ -43,7 +45,7 @@ package body UART_Syslink is
       Configure_USART;
       Initialize_DMA;
 
-      Enable (Transceiver);
+      Enable (NRF_USART);
 
       Enable_USART_Rx_Interrupts;
    end UART_Syslink_Init;
@@ -71,11 +73,11 @@ package body UART_Syslink is
         (Controller,
          Tx_Stream,
          Source      => Source_Block'Address,
-         Destination => Data_Register_Address (Transceiver),
+         Destination => Data_Register_Address (NRF_USART),
          Data_Count  => Short (Data_Size));
       --  also enables the stream
 
-      Enable_DMA_Transmit_Requests (Transceiver);
+      Enable_DMA_Transmit_Requests (NRF_USART);
 
       Tx_IRQ_Handler.Await_Transfer_Complete;
    end UART_Send_DMA_Data_Blocking;
@@ -90,13 +92,12 @@ package body UART_Syslink is
    is
       Configuration : GPIO_Port_Configuration;
       USART_Pins    : constant GPIO_Points :=
-                        RX_Pin & TX_Pin;
+                        NRF_RX & NRF_TX;
    begin
-      Enable_Clock (Transceiver);
       Enable_Clock (USART_Pins);
 
       Configuration.Mode := Mode_AF;
-      Configuration.Speed := Speed_50MHz;
+      Configuration.Speed := Speed_25MHz;
       Configuration.Output_Type := Push_Pull;
       Configuration.Resistors := Pull_Up;
 
@@ -106,7 +107,9 @@ package body UART_Syslink is
 
       Configure_Alternate_Function
         (Points => USART_Pins,
-         AF     => Transceiver_AF);
+         AF     => NRF_USART_AF);
+
+      Enable_Clock (NRF_USART);
    end Initialize_USART;
 
    ---------------------
@@ -115,16 +118,16 @@ package body UART_Syslink is
 
    procedure Configure_USART is
    begin
-      Disable (Transceiver);
+      Disable (NRF_USART);
 
-      Set_Baud_Rate    (Transceiver, 1_000_000);
-      Set_Mode         (Transceiver, Tx_Rx_Mode);
-      Set_Stop_Bits    (Transceiver, Stopbits_1);
-      Set_Word_Length  (Transceiver, Word_Length_8);
-      Set_Parity       (Transceiver, No_Parity);
-      Set_Flow_Control (Transceiver, No_Flow_Control);
+      Set_Baud_Rate    (NRF_USART, 1_000_000);
+      Set_Mode         (NRF_USART, Tx_Rx_Mode);
+      Set_Stop_Bits    (NRF_USART, Stopbits_1);
+      Set_Word_Length  (NRF_USART, Word_Length_8);
+      Set_Parity       (NRF_USART, No_Parity);
+      Set_Flow_Control (NRF_USART, No_Flow_Control);
 
-      Enable (Transceiver);
+      Enable (NRF_USART);
    end Configure_USART;
 
    --------------------
@@ -159,7 +162,7 @@ package body UART_Syslink is
 
    procedure Enable_USART_Rx_Interrupts is
    begin
-      Enable_Interrupts (Transceiver, Source => Received_Data_Not_Empty);
+      Enable_Interrupts (NRF_USART, Source => Received_Data_Not_Empty);
    end Enable_USART_Rx_Interrupts;
 
    -------------------------------
@@ -286,7 +289,7 @@ package body UART_Syslink is
                   Clear_Status
                     (Controller, Tx_Stream, Transfer_Complete_Indicated);
                end if;
-               Finalize_DMA_Transmission (Transceiver);
+               Finalize_DMA_Transmission (NRF_USART);
                Event_Kind := Transfer_Complete_Interrupt;
                Event_Occurred := True;
                Transfer_Complete := True;
@@ -320,9 +323,9 @@ package body UART_Syslink is
       procedure IRQ_Handler is
          Received_Byte : T_Uint8;
       begin
-         if Status (Transceiver, Read_Data_Register_Not_Empty) then
-            Received_Byte := T_Uint8 (Current_Input (Transceiver) and 16#FF#);
-            Clear_Status (Transceiver, Read_Data_Register_Not_Empty);
+         if Status (NRF_USART, Read_Data_Register_Not_Empty) then
+            Received_Byte := T_Uint8 (Current_Input (NRF_USART) and 16#FF#);
+            Clear_Status (NRF_USART, Read_Data_Register_Not_Empty);
             Enqueue (Rx_Queue, Received_Byte);
             Byte_Avalaible := True;
          end if;
@@ -331,6 +334,6 @@ package body UART_Syslink is
    end Rx_IRQ_Handler;
 
 begin
-   Disable_Interrupts (Transceiver, Source => Received_Data_Not_Empty);
-   Disable_DMA_Transmit_Requests (Transceiver);
+   Disable_Interrupts (NRF_USART, Source => Received_Data_Not_Empty);
+   Disable_DMA_Transmit_Requests (NRF_USART);
 end UART_Syslink;

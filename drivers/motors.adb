@@ -29,6 +29,9 @@
 
 with Ada.Real_Time;    use Ada.Real_Time;
 
+with STM32.GPIO;       use STM32.GPIO;
+with STM32.Timers;     use STM32.Timers;
+
 with Power_Management; use Power_Management;
 with Safety;           use Safety;
 
@@ -58,27 +61,27 @@ is
       Attach_PWM_Channel
         (This      => PWM_TIMER_M1_M2_M3'Access,
          Modulator => M1_Modulator,
-         Channel   => MOTORS_TIM_CHANNEL_M1,
-         Point     => MOTORS_GPIO_M1_POINT,
-         PWM_AF    => MOTORS_GPIO_AF_M1);
+         Channel   => MOTOR_1_Channel,
+         Point     => MOTOR_1,
+         PWM_AF    => MOTOR_1_AF);
       Attach_PWM_Channel
         (This      => PWM_TIMER_M1_M2_M3'Access,
          Modulator => M2_Modulator,
-         Channel   => MOTORS_TIM_CHANNEL_M2,
-         Point     => MOTORS_GPIO_M2_POINT,
-         PWM_AF    => MOTORS_GPIO_AF_M2);
+         Channel   => MOTOR_2_Channel,
+         Point     => MOTOR_2,
+         PWM_AF    => MOTOR_2_AF);
       Attach_PWM_Channel
         (This      => PWM_TIMER_M1_M2_M3'Access,
          Modulator => M3_Modulator,
-         Channel   => MOTORS_TIM_CHANNEL_M3,
-         Point     => MOTORS_GPIO_M3_POINT,
-         PWM_AF    => MOTORS_GPIO_AF_M3);
+         Channel   => MOTOR_3_Channel,
+         Point     => MOTOR_3,
+         PWM_AF    => MOTOR_3_AF);
       Attach_PWM_Channel
         (This      => PWM_TIMER_M4'Access,
          Modulator => M4_Modulator,
-         Channel   => MOTORS_TIM_CHANNEL_M4,
-         Point     => MOTORS_GPIO_M4_POINT,
-         PWM_AF    => MOTORS_GPIO_AF_M4);
+         Channel   => MOTOR_4_Channel,
+         Point     => MOTOR_4,
+         PWM_AF    => MOTOR_4_AF);
 
       --  And then enable the channels
       Enable_PWM (M1_Modulator);

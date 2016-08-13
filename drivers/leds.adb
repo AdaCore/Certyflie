@@ -55,7 +55,7 @@ package body LEDS is
    -- Set_LED --
    -------------
 
-   procedure Set_LED (LED : Crazyflie_LED; Value : Boolean)
+   procedure Set_LED (LED : in out Crazyflie_LED; Value : Boolean)
    is
    begin
       if Value then
@@ -64,15 +64,6 @@ package body LEDS is
          Turn_Off (LED);
       end if;
    end Set_LED;
-
-   function LED_Set (LED : Crazyflie_LED) return Boolean
-     renames STM32.Board.Is_On;
-
-   ----------------
-   -- Toggle_LED --
-   ----------------
-
-   procedure Toggle_LED (LED : Crazyflie_LED) renames STM32.Board.Toggle_LED;
 
    --------------------
    -- Reset_All_LEDs --
