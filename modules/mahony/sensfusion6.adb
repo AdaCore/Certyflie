@@ -29,7 +29,6 @@
 
 with Ada.Numerics; use Ada.Numerics;
 
-with Config;       use Config;
 with Maths;        use Maths;
 with Safety;       use Safety;
 
@@ -339,6 +338,7 @@ is
          Half_Ez := (Norm_Ax * Half_Vy - Norm_Ay * Half_Vx);
 
          --  Compute and apply integral feedback if enabled
+         pragma Warnings (Off, "*condition is always*");
          if Two_Ki > 0.0 then
             Integral_FBx := Saturate (Integral_FBx + Two_Ki * Half_Ex * Dt,
                                       -MAX_INTEGRAL_ERROR,
@@ -359,6 +359,7 @@ is
             Integral_FBy := 0.0;
             Integral_FBz := 0.0;
          end if;
+         pragma Warnings (On, "*condition is always*");
 
          --  Apply proportional feedback
          Rate_Change_Gx := Integ_FB_Gx + Two_Kp * Half_Ex;
