@@ -1,4 +1,4 @@
-with "Ada_Drivers_Library/boards/crazyflie";
+with "Ada_Drivers_Library/boards/crazyflie_full";
 
 project Cf_Ada_SPARK is
 
@@ -26,7 +26,7 @@ project Cf_Ada_SPARK is
 
    --  Export run-times's variables
    for Target use "arm-eabi";
-   for Runtime ("Ada") use Crazyflie'Runtime ("Ada");
+   for Runtime ("Ada") use Crazyflie_Full'Runtime ("Ada");
 
    package Compiler is
       case Build is
