@@ -30,7 +30,7 @@ If you want to use the SPARK + C version, switch to the *crazyflie2* branch inst
 This repository uses git submodules. Clone with the --recursive flag to clone
 the submodules:
 ```
-git clone --recursive https://github.com/AnthonyLeonardoGracio/crazyflie-firmware.git
+git clone --recursive https://github.com/AdaCore/Certyflie.git
 ```
 
 ## Requirements
