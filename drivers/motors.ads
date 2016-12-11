@@ -31,7 +31,6 @@ with Types;             use Types;
 
 with STM32;           use STM32;
 with STM32.Device;    use STM32.Device;
-with STM32.Board;     use STM32.Board;
 with STM32.PWM;       use STM32.PWM;
 
 package Motors
@@ -78,7 +77,7 @@ private
    --  Global variables and constants
 
    --  Constants used to configure PWM.
-   MOTORS_PWM_FREQUENCY : constant := 328_000.0; --  328 KHz
+   MOTORS_PWM_FREQUENCY : constant := 328_000; --  328 KHz
    MOTORS_PWM_PRESCALE  : constant := 0;
 
    --  Constants used for testing.
@@ -86,20 +85,17 @@ private
    MOTORS_TEST_ON_TIME_MS    : constant := 50;
    MOTORS_TEST_DELAY_TIME_MS : constant := 150;
 
-   PWM_TIMER_M1_M2_M3        : aliased PWM_Timer (MOTOR_123_Timer'Access);
-   PWM_TIMER_M4              : aliased PWM_Timer (MOTOR_4_Timer'Access);
-
    --  PWM modulators
-   M1_Modulator          : PWM_Modulator
+   M1_Modulator : PWM_Modulator
      with
        Part_Of => Motors_State;
-   M2_Modulator          : PWM_Modulator
+   M2_Modulator : PWM_Modulator
      with
        Part_Of => Motors_State;
-   M3_Modulator          : PWM_Modulator
+   M3_Modulator : PWM_Modulator
      with
        Part_Of => Motors_State;
-   M4_Modulator          : PWM_Modulator
+   M4_Modulator : PWM_Modulator
      with
        Part_Of => Motors_State;
 

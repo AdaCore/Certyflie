@@ -76,12 +76,6 @@ private
    DMA_Tx_IRQ : constant Ada.Interrupts.Interrupt_ID := DMA2_Stream6_Interrupt;
    --  must match that of the selected controller and stream number!!!!
 
-   Bytes_To_Transfer : constant := DMA_Data'Length;
-
-   Source_Block  : aliased DMA_Data := (others => 0);
-
-   Event_Kind : DMA_Interrupt;
-
    UART_RX_QUEUE_SIZE   : constant := 40;
    UART_DATA_TIMEOUT_MS : constant Time_Span :=  Milliseconds (1_000);
 

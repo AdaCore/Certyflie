@@ -67,14 +67,12 @@ package body UART_Syslink is
      (Data_Size : Natural;
       Data      : DMA_Data) is
    begin
-      Source_Block (1 .. Data_Size) := Data (1 .. Data_Size);
-
       Start_Transfer_with_Interrupts
         (Controller,
          Tx_Stream,
-         Source      => Source_Block'Address,
+         Source      => Data'Address,
          Destination => Data_Register_Address (NRF_USART),
-         Data_Count  => Short (Data_Size));
+         Data_Count  => UInt16 (Data_Size));
       --  also enables the stream
 
       Enable_DMA_Transmit_Requests (NRF_USART);
@@ -91,8 +89,7 @@ package body UART_Syslink is
    procedure Initialize_USART
    is
       Configuration : GPIO_Port_Configuration;
-      USART_Pins    : constant GPIO_Points :=
-                        NRF_RX & NRF_TX;
+      USART_Pins    : constant GPIO_Points := NRF_RX & NRF_TX;
    begin
       Enable_Clock (USART_Pins);
 
