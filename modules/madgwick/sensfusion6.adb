@@ -59,14 +59,14 @@ is
       Mx, My, Mz : T_Mag;
       Dt : T_Delta_Time);
    --  Madgwick sensorfusion algorithm implementation.
-   --  9 sensors fusion version (IMU + magnitometer);
+   --  9 sensors fusion version (IMU + magnetometer);
 
    procedure Madgwick_Update_Q
      (Gx, Gy, Gz : T_Rate_Rad;
       Ax, Ay, Az : T_Acc;
       Dt : T_Delta_Time);
    --  Madgwick sensorfusion algorithm implementation.
-   --  IMU version of the algorithm (without magnitometer);
+   --  IMU version of the algorithm (without magnetometer);
 
    -----------------------
    -- Madgwick_Update_Q --
@@ -128,7 +128,7 @@ is
    begin
       Length := Sqrtf (Mx * Mx + My * My + Mz * Mz);
 
-      --  Use IMU algorighm if magnitometer measurement is invalid
+      --  Use IMU algorithm if magnetometer measurement is invalid
       if Length = 0.0 then
          Madgwick_Update_Q (Gx, Gy, Gz, Ax, Ay, Az, Dt);
 
@@ -191,7 +191,7 @@ is
          Bx4 := 2.0 * Bx2;
          Bz4 := 2.0 * Bz2;
 
-         --  Gradient decent algorithm corrective step
+         --  Gradient descent algorithm corrective step
          S0 := -Q2_X2 * (2.0 * Q1_Q3 - Q0_Q2_X2 - Norm_Ax) +
            Q1_X2 * (2.0 * Q0_Q1 + Q2_Q3_X2 - Norm_Ay) -
            Bz2 * Q2 * (Bx2 * (0.5 - Q2_Q2 - Q3_Q3) +
@@ -244,7 +244,7 @@ is
          Q_Dot4 := Q_Dot4 - Beta * S3;
       end if;
 
-      --  Integrate rate of change of quaternion to yield quatrenion
+      --  Integrate rate of change of quaternion to yield quaternion
       Q0_Tmp := Q0 + Q_Dot1 * Dt;
       Q1_Tmp := Q1 + Q_Dot2 * Dt;
       Q2_Tmp := Q2 + Q_Dot3 * Dt;
@@ -361,10 +361,10 @@ is
          Q2_Q2 := Q2 * Q2;
          Q3_Q3 := Q3 * Q3;
 
-         --  Gradient decent algorithm corrective step
+         --  Gradient descent algorithm corrective step
          S0 := Q0_X4 * Q2_Q2 + Q2_X2 * Norm_Ax +
            Q0_X4 * Q1_Q1 - Q1_X2 * Norm_Ay;
-         S1 := Q1_X4 * Q2_Q2 - Q3_X2 * Norm_Ax + 4.0 * Q0_Q0 * Q1 -
+         S1 := Q1_X4 * Q3_Q3 - Q3_X2 * Norm_Ax + 4.0 * Q0_Q0 * Q1 -
            Q0_X2 * Norm_Ay - Q1_X4 + Q1_X8 * Q1_Q1 +
              Q1_X8 * Q2_Q2 + Q1_X4 * Norm_Az;
          S2 := 4.0 * Q0_Q0 * Q2 + Q0_X2 * Norm_Ax + Q2_X4 * Q3_Q3 -
@@ -387,7 +387,7 @@ is
          Q_Dot4 := Q_Dot4 - Beta * S3;
       end if;
 
-      --  Integrate rate of change of quaternion to yield quatrenion
+      --  Integrate rate of change of quaternion to yield quaternion
       Q0_Tmp := Q0 + Q_Dot1 * Dt;
       Q1_Tmp := Q1 + Q_Dot2 * Dt;
       Q2_Tmp := Q2 + Q_Dot3 * Dt;
