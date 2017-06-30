@@ -76,6 +76,8 @@ private
 
    --  Tasks and protected objects
 
+   pragma Warnings (Off,  "violate restriction No_Implicit_Heap_Allocation");
+
    --  Protected object queue used for transmission.
    Tx_Queue : Syslink_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, RADIOLINK_TX_QUEUE_SIZE);
@@ -83,5 +85,7 @@ private
    --  Protected object queue used for reception.
    Rx_Queue : CRTP_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, RADIOLINK_RX_QUEUE_SIZE);
+
+   pragma Warnings (On,  "violate restriction No_Implicit_Heap_Allocation");
 
 end Radiolink;

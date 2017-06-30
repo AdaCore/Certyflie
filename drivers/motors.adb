@@ -29,8 +29,6 @@
 
 with Ada.Real_Time;    use Ada.Real_Time;
 
-with STM32.GPIO;       use STM32.GPIO;
-with STM32.Timers;     use STM32.Timers;
 with STM32.Board;     use STM32.Board;
 
 with Power_Management; use Power_Management;
@@ -56,61 +54,36 @@ is
       --  this timer is shared among three motors, the next two calls should
       --  not configure the timer (hence Configure_Generator is False).
 
-      Initialize_PWM_Modulator
-        (M1_Modulator,
-         Generator           => MOTOR_123_Timer'Access,
-         Frequency           => MOTORS_PWM_FREQUENCY,
-         Configure_Generator => True);
-
-      Initialize_PWM_Modulator
-        (M2_Modulator,
-         Generator           => MOTOR_123_Timer'Access,
-         Frequency           => MOTORS_PWM_FREQUENCY,
-         Configure_Generator => False);
-
-      Initialize_PWM_Modulator
-        (M3_Modulator,
-         Generator           => MOTOR_123_Timer'Access,
-         Frequency           => MOTORS_PWM_FREQUENCY,
-         Configure_Generator => False);
-
-      Initialize_PWM_Modulator
-        (M4_Modulator,
-         Generator           => MOTOR_4_Timer'Access,
-         Frequency           => MOTORS_PWM_FREQUENCY,
-         Configure_Generator => True);
+      Configure_PWM_Timer (MOTOR_123_Timer'Access, MOTORS_PWM_FREQUENCY);
+      Configure_PWM_Timer (MOTOR_4_Timer'Access, MOTORS_PWM_FREQUENCY);
 
       --  Attach the PWM modulators to the corresponding channels
 
-      Attach_PWM_Channel
-        (M1_Modulator,
-         Channel => MOTOR_1_Channel,
-         Point   => MOTOR_1,
-         PWM_AF  => MOTOR_1_AF);
+      M1_Modulator.Attach_PWM_Channel (MOTOR_123_Timer'Access,
+                                       MOTOR_1_Channel,
+                                       MOTOR_1,
+                                       MOTOR_1_AF);
 
-      Attach_PWM_Channel
-        (M2_Modulator,
-         Channel => MOTOR_2_Channel,
-         Point   => MOTOR_2,
-         PWM_AF  => MOTOR_2_AF);
+      M2_Modulator.Attach_PWM_Channel (MOTOR_123_Timer'Access,
+                                       MOTOR_2_Channel,
+                                       MOTOR_2,
+                                       MOTOR_2_AF);
 
-      Attach_PWM_Channel
-        (M3_Modulator,
-         Channel => MOTOR_3_Channel,
-         Point   => MOTOR_3,
-         PWM_AF  => MOTOR_3_AF);
+      M3_Modulator.Attach_PWM_Channel (MOTOR_123_Timer'Access,
+                                       MOTOR_3_Channel,
+                                       MOTOR_3,
+                                       MOTOR_3_AF);
 
-      Attach_PWM_Channel
-        (M4_Modulator,
-         Channel => MOTOR_4_Channel,
-         Point   => MOTOR_4,
-         PWM_AF  => MOTOR_4_AF);
+      M4_Modulator.Attach_PWM_Channel (MOTOR_4_Timer'Access,
+                                       MOTOR_4_Channel,
+                                       MOTOR_4,
+                                       MOTOR_4_AF);
 
       --  And then enable the channels
-      Enable_PWM (M1_Modulator);
-      Enable_PWM (M2_Modulator);
-      Enable_PWM (M3_Modulator);
-      Enable_PWM (M4_Modulator);
+      M1_Modulator.Enable_Output;
+      M2_Modulator.Enable_Output;
+      M3_Modulator.Enable_Output;
+      M4_Modulator.Enable_Output;
 
       --  Reset all the motors power to zero
       Motors_Reset;

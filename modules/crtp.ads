@@ -193,6 +193,7 @@ private
 
    --  Tasks and protected objects
 
+   pragma Warnings (Off,  "violate restriction No_Implicit_Heap_Allocation");
    --  Protected object queue for transmission.
    Tx_Queue : CRTP_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, CRTP_TX_QUEUE_SIZE);
@@ -200,6 +201,7 @@ private
    --  Protected object queue for reception.
    Rx_Queue : CRTP_Queue.Protected_Queue
      (System.Interrupt_Priority'Last, CRTP_RX_QUEUE_SIZE);
+   pragma Warnings (On,  "violate restriction No_Implicit_Heap_Allocation");
 
    --  Array of protected object queues, one for each task.
    Port_Queues : array (CRTP_Port) of CRTP_Queue.Protected_Queue

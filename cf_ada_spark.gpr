@@ -1,4 +1,4 @@
-with "Ada_Drivers_Library/boards/crazyflie_full";
+with "Ada_Drivers_Library/boards/crazyflie/crazyflie_full";
 
 project Cf_Ada_SPARK is
 
@@ -23,6 +23,7 @@ project Cf_Ada_SPARK is
 
    for Object_Dir use "obj";
    for Exec_Dir use "obj";
+   for Create_Missing_Dirs use "True";
 
    --  Export run-times's variables
    for Target use "arm-eabi";
