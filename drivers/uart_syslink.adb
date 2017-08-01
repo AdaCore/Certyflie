@@ -325,6 +325,19 @@ package body UART_Syslink is
             Clear_Status (NRF_USART, Read_Data_Register_Not_Empty);
             Enqueue (Rx_Queue, Received_Byte);
             Byte_Avalaible := True;
+         elsif Status (NRF_USART, Overrun_Error_Indicated) then
+            --  RM0090 rev11 top of p 1001: overrun is cleared by
+            --  reading SR (which we've already done (twice, now?!)),
+            --  then reading DR.
+            --
+            --  We got here because the DR was empty. The incoming
+            --  character (the one that didn't make it from the shift
+            --  register to the DR) is discarded. We assume the
+            --  missing data can be recovered by higher-level
+            --  protocols.
+            Received_Byte := T_Uint8 (Current_Input (NRF_USART) and 16#FF#);
+            Clear_Status (NRF_USART, Read_Data_Register_Not_Empty);
+            Clear_Status (NRF_USART, Overrun_Error_Indicated);
          end if;
       end IRQ_Handler;
 
