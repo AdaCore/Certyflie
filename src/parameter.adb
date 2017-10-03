@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,7 +29,7 @@
 
 with Ada.Unchecked_Conversion;
 
-package body Parameter_Pack is
+package body Parameter is
 
    --  Public procedures and functions
 
@@ -70,7 +70,8 @@ package body Parameter_Pack is
         := Parameter_Data.Parameter_Groups_Index;
    begin
       if Parameter_Groups_Index > Parameter_Data.Parameter_Groups'Last or
-        Name'Length > MAX_PARAM_VARIABLE_NAME_LENGTH then
+        Name'Length > MAX_PARAM_VARIABLE_NAME_LENGTH
+      then
          Has_Succeed := False;
          return;
       end if;
@@ -78,7 +79,7 @@ package body Parameter_Pack is
       Parameter_Data.Parameter_Groups (Parameter_Groups_Index).Name :=
         String_To_Parameter_Name (Name);
       Parameter_Data.Parameter_Groups (Parameter_Groups_Index).Name_Length :=
-        Name'Length + 1;
+        Name'Length;
       Group_ID := Parameter_Groups_Index;
       Parameter_Data.Parameter_Groups_Index := Parameter_Groups_Index + 1;
 
@@ -111,7 +112,8 @@ package body Parameter_Pack is
       Parameter_Variables_Index := Group.Parameter_Variables_Index;
 
       if Parameter_Variables_Index > Group.Parameter_Variables'Last or
-        Name'Length > MAX_PARAM_VARIABLE_NAME_LENGTH then
+        Name'Length > MAX_PARAM_VARIABLE_NAME_LENGTH
+      then
          return;
       end if;
 
@@ -120,7 +122,7 @@ package body Parameter_Pack is
       Group.Parameter_Variables (Parameter_Variables_Index).Group_ID
         := Group_ID;
       Group.Parameter_Variables (Parameter_Variables_Index).Name_Length
-        := Name'Length + 1;
+        := Name'Length;
       Group.Parameter_Variables (Parameter_Variables_Index).Storage_Type
         := Storage_Type;
       Group.Parameter_Variables (Parameter_Variables_Index).Parameter_Type
@@ -191,6 +193,14 @@ package body Parameter_Pack is
       procedure CRTP_Append_T_Uint8_Data is new CRTP_Append_Data
         (T_Uint8);
 
+      ------------------------------
+      -- CRTP_Append_Parameter_Variable_Type_Data --
+      ------------------------------
+
+      procedure CRTP_Append_Parameter_Variable_Type_Data
+      is new CRTP_Append_Data
+        (Parameter_Variable_Type);
+
       -------------------------------
       -- CRTP_Append_T_Uint32_Data --
       -------------------------------
@@ -222,14 +232,6 @@ package body Parameter_Pack is
               (Packet_Handler,
                1,
                Has_Succeed);
-            CRTP_Append_T_Uint8_Data
-              (Packet_Handler,
-               MAX_PARAM_NUMBER_OF_GROUPS,
-               Has_Succeed);
-            CRTP_Append_T_Uint8_Data
-              (Packet_Handler,
-               MAX_PARAM_NUMBER_OF_GROUPS * MAX_PARAM_NUMBER_OF_VARIABLES,
-               Has_Succeed);
 
          when PARAM_CMD_GET_ITEM =>
             declare
@@ -247,10 +249,10 @@ package body Parameter_Pack is
                     (Integer (Var_ID)).all;
                   Parameter_Var_Group := Parameter_Data.Parameter_Groups
                     (Parameter_Var.Group_ID);
-                  CRTP_Append_T_Uint8_Data
+
+                  CRTP_Append_Parameter_Variable_Type_Data
                     (Packet_Handler,
-                     Parameter_Variable_Type'Enum_Rep
-                       (Parameter_Var.Parameter_Type),
+                     Parameter_Var.Parameter_Type,
                      Has_Succeed);
                   Append_Raw_Data_Variable_Name_To_Packet
                     (Parameter_Var,
@@ -289,9 +291,9 @@ package body Parameter_Pack is
       Has_Succeed     : out Boolean)
    is
       subtype Parameter_Complete_Name is
-        String (1 .. Variable.Name_Length + Group.Name_Length);
+        String (1 .. Variable.Name_Length + Group.Name_Length + 2); -- nulls
       subtype Parameter_Complete_Name_Raw is
-        T_Uint8_Array (1 .. Variable.Name_Length + Group.Name_Length);
+        T_Uint8_Array (Parameter_Complete_Name'Range);
 
       ------------------------------------------------------------
       -- Parameter_Complete_Name_To_Parameter_Complete_Name_Raw --
@@ -309,8 +311,8 @@ package body Parameter_Pack is
         CRTP_Append_Data (Parameter_Complete_Name_Raw);
 
       Complete_Name : constant Parameter_Complete_Name
-        := Group.Name (1 .. Group.Name_Length) &
-                        Variable.Name (1 .. Variable.Name_Length);
+        := Group.Name (1 .. Group.Name_Length) & ASCII.NUL
+        & Variable.Name (1 .. Variable.Name_Length) & ASCII.NUL;
       Complete_Name_Raw : Parameter_Complete_Name_Raw;
    begin
       Complete_Name_Raw :=
@@ -321,4 +323,4 @@ package body Parameter_Pack is
          Has_Succeed);
    end Append_Raw_Data_Variable_Name_To_Packet;
 
-end Parameter_Pack;
+end Parameter;

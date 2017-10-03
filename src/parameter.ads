@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,27 +29,38 @@
 
 with System;
 
-with CRTP_Pack; use CRTP_Pack;
+with CRTP;      use CRTP;
 with Types;     use Types;
 
-package Parameter_Pack is
+package Parameter is
 
    --  Types
 
    --  Type representing all the types that be used as parameters.
-   type Parameter_Variable_Type is
-     (PARAM_1BYTE,
-      PARAM_2BYTES,
-      PARAM_4BYTES,
-      PARAM_8BYTES);
-   for Parameter_Variable_Type use
-     (PARAM_1BYTE  => 0,
-      PARAM_2BYTES => 1,
-      PARAM_4BYTES => 2,
-      PARAM_8BYTES => 3);
+
+   type Parameter_Size is (One_Byte, Two_Bytes, Four_Bytes, Eight_Bytes);
+   type Reserved_4_5 is range 0 .. 0;
+   type Reserved_7_7 is range 0 .. 0;
+
+   type Parameter_Variable_Type is record
+      Size       : Parameter_Size;
+      Floating   : Boolean;
+      Signed     : Boolean;
+      Unused_4_5 : Reserved_4_5 := 0;
+      Read_Only  : Boolean;
+      Unused_7_7 : Reserved_7_7 := 0;
+   end record;
+   for Parameter_Variable_Type use record
+      Size       at 0 range 0 .. 1;
+      Floating   at 0 range 2 .. 2;
+      Signed     at 0 range 3 .. 3;
+      Unused_4_5 at 0 range 4 .. 5;
+      Read_Only  at 0 range 6 .. 6;
+      Unused_7_7 at 0 range 7 .. 7;
+   end record;
    for Parameter_Variable_Type'Size use 8;
 
-   --  Type representing all the avalaible parameter module CRTP channels.
+   --  Type representing all the available parameter module CRTP channels.
    type Parameter_Channel is
      (PARAM_TOC_CH,
       PARAM_READ_CH,
@@ -60,7 +71,7 @@ package Parameter_Pack is
       PARAM_WRITE_CH => 2);
    for Parameter_Channel'Size use 2;
 
-   --  Type reprensenting all the param commands.
+   --  Type representing all the param commands.
    --  PARAM_CMD_GET_INFO is requested at connexion to fetch the TOC.
    --  PARAM_CMD_GET_ITEM is requested whenever the client wants to
    --  fetch the newest variable data.
@@ -95,7 +106,7 @@ package Parameter_Pack is
 
    --  Procedures and functions
 
-   --  Initialize the paramater subystem.
+   --  Initialize the parameter subystem.
    procedure Parameter_Init;
 
    --  Test if the parameter subsystem is initialized.
@@ -123,7 +134,7 @@ private
 
    subtype Parameter_Name is String (1 .. MAX_PARAM_VARIABLE_NAME_LENGTH);
 
-   --  Type representing a log variable. Parameter variables
+   --  Type representing a parameter variable. Parameter variables
    --  can be chained together inside a same block.
    type Parameter_Variable is record
       Group_ID       : Natural;
@@ -139,7 +150,8 @@ private
      aliased Parameter_Variable;
 
    type Parameter_Variable_Array is
-     array (0 .. MAX_PARAM_NUMBER_OF_VARIABLES * MAX_PARAM_NUMBER_OF_GROUPS - 1)
+     array (0 ..
+              MAX_PARAM_NUMBER_OF_VARIABLES * MAX_PARAM_NUMBER_OF_GROUPS - 1)
      of access Parameter_Variable;
 
    --  Type representing a log group.
@@ -188,4 +200,4 @@ private
       Packet_Handler : in out CRTP_Packet_Handler;
       Has_Succeed    : out Boolean);
 
-end Parameter_Pack;
+end Parameter;

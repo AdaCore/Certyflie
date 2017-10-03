@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -86,6 +86,7 @@ is
       Handler : CRTP_Packet_Handler;
    begin
       Packet.Size := 0;
+      Packet.Reserved := 0;
       Packet.Port := Port;
       Packet.Channel := Channel;
 
@@ -160,7 +161,7 @@ is
       Data           : T_Data;
       Has_Succeed     : out Boolean)
    is
-      Data_Size : constant Natural := T_Data'Size / 8;
+      Data_Size : constant Natural := (T_Data'Size + 7) / 8;
 
       subtype Byte_Array_Data is T_Uint8_Array (1 .. Data_Size);
 

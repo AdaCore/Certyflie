@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,13 +33,18 @@ with Communication;    use Communication;
 with Commander;        use Commander;
 with IMU;              use IMU;
 with LEDS;             use LEDS;
+with Log;              use Log;
 with Memory;           use Memory;
 with Motors;           use Motors;
+with Parameter;        use Parameter;
 with Power_Management; use Power_Management;
 with Stabilizer;       use Stabilizer;
 with Types;            use Types;
 
 package body Crazyflie_System is
+
+   procedure Initialize_System_Parameter_Logging;
+   procedure Self_Test_Status (OK : Boolean) with Inline;
 
    -----------------
    -- System_Init --
@@ -64,8 +69,15 @@ package body Crazyflie_System is
       --  Initialize power management module.
       Power_Management_Init;
 
-      --  Inialize memory module.
+      --  Initialize memory module.
       Memory_Init;
+
+      --  Initialize logging.
+      Log_Init;
+
+      --  Initialize parameters.
+      Parameter_Init;
+      Initialize_System_Parameter_Logging;
 
       --  Initialize high level modules.
       Commander_Init;
@@ -102,6 +114,8 @@ package body Crazyflie_System is
       elsif not Self_Test_Passed then
          Set_System_State (Failure);
       end if;
+
+      Self_Test_Status (OK => Self_Test_Passed);
 
       return Self_Test_Passed;
    end System_Self_Test;
@@ -143,5 +157,49 @@ package body Crazyflie_System is
          delay until Clock + Milliseconds (1_000);
       end loop;
    end Last_Chance_Handler;
+
+   ------------------------------
+   -- System Parameter Logging --
+   ------------------------------
+
+   System_Group_ID : Natural := 0;
+   System_Group_Created : Boolean;
+
+   Self_Test_Passed : Boolean := True
+   with Convention => C;
+
+   pragma Assert (Self_Test_Passed'Size = 8);
+
+   procedure Initialize_System_Parameter_Logging is
+   begin
+      Parameter.Create_Parameter_Group (Name        => "system",
+                                        Group_ID    => System_Group_ID,
+                                        Has_Succeed => System_Group_Created);
+
+      if System_Group_Created then
+         declare
+            Dummy : Boolean;
+            Parameter_Type : constant Parameter.Parameter_Variable_Type
+              := (Size => One_Byte,
+                  Floating => False,
+                  Signed => False,
+                  Read_Only => True,
+                  others => <>);
+         begin
+            Parameter.Append_Parameter_Variable_To_Group
+              (System_Group_ID,
+               Name           => "selftestPassed",
+               Storage_Type   => Parameter_Type,
+               Parameter_Type => Parameter_Type,
+               Variable       => Self_Test_Passed'Address,
+               Has_Succeed    => Dummy);
+         end;
+      end if;
+   end Initialize_System_Parameter_Logging;
+
+   procedure Self_Test_Status (OK : Boolean) is
+   begin
+      Self_Test_Passed := OK;
+   end Self_Test_Status;
 
 end Crazyflie_System;

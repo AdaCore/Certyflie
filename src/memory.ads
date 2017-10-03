@@ -47,7 +47,7 @@ package Memory is
       MEM_WRITE_CH    => 2);
    for Memory_Channel'Size use 2;
 
-   --  Type representing all the avalaible memory commands.
+   --  Type representing all the available memory commands.
    type Memory_Command is
      (MEM_CMD_GET_NBR,
       MEM_CMD_GET_INFO);
