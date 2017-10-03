@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -37,13 +37,36 @@ package Crazyflie_Config is
 
    --  Constants used to configure the Crazyflie support
 
+   --  Interrupt priorities (see drivers/src/nvicconf.h)
+   LOW_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
+     := System.Interrupt_Priority'First + 2;
+   MID_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
+     := System.Interrupt_Priority'First + 5;
+   HIGH_INTERRUPT_PRIORITY    : constant System.Interrupt_Priority
+     := System.Interrupt_Priority'First + 8;
+   TOP_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
+     := System.Interrupt_Priority'Last;
+
+   DMA_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
+     := HIGH_INTERRUPT_PRIORITY;
+   DMA_FLOW_CONTROL_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
+     := TOP_INTERRUPT_PRIORITY;
+   SYSLINK_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
+     := TOP_INTERRUPT_PRIORITY;
+
    --  Link layers implemented to communicate via the CRTP protocol
    type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
    LINK_LAYER_TYPE : constant Link_Layer := RADIO_LINK;
 
    --  Radio configuration
    RADIO_CHANNEL       : constant := 80;
-   RADIO_DATARATE      : constant := 0;
+   --  This should be with the radio ..
+   type RADIO_RATE is
+     (RADIO_RATE_250K,
+      RADIO_RATE_1M,
+      RADIO_RATE_2M);
+   RADIO_DATARATE      : constant := RADIO_RATE'Pos (RADIO_RATE_2M);
+   RADIO_ADDRESS       : constant := 16#e7e7e7e7e7#;
 
    --  IMU configuration
    IMU_GYRO_FS_CONFIG  : constant MPU9250_FS_Gyro_Range

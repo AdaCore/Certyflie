@@ -15,6 +15,7 @@ package Types is
    type T_Uint8  is new Interfaces.Unsigned_8;
    type T_Uint16 is new Interfaces.Unsigned_16;
    type T_Uint32 is new Interfaces.Unsigned_32;
+   type T_Uint64 is new Interfaces.Unsigned_64;
 
    subtype T_Bit_Pos_8 is Natural  range 0 .. 7;
    subtype T_Bit_Pos_16 is Natural range 0 .. 15;

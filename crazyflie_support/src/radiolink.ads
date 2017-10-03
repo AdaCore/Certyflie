@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -39,7 +39,7 @@ package Radiolink is
    --  Constants
 
    --  Size of transmission/receptions queues.
-   RADIOLINK_TX_QUEUE_SIZE : constant := 1;
+   RADIOLINK_TX_QUEUE_SIZE : constant := 3;
    RADIOLINK_RX_QUEUE_SIZE : constant := 5;
 
    --  Procedures and functions
@@ -49,6 +49,9 @@ package Radiolink is
 
    --  Set the radio channel.
    procedure Radiolink_Set_Channel (Channel : T_Uint8);
+
+   --  Set the radio address.
+   procedure Radiolink_Set_Address (Address : T_Uint64);
 
    --  Set the radio data rate.
    procedure Radiolink_Set_Data_Rate (Data_Rate : T_Uint8);
