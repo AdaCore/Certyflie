@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -92,6 +92,15 @@ package LEDS is
    function Get_System_State return System_State;
    function Get_Battery_State return Battery_State;
 
+   --  Support flashing an LED (for example, to indicate that a
+   --  packet has been received from the controller).
+
+   type Flasher (The_LED : not null access Crazyflie_LED)
+     is tagged limited private;
+
+   procedure Set (The_Flasher : in out Flasher);
+   --  Lights the associated LED for 5 ms.
+
 private
 
    Is_Initialized : Boolean := False;
@@ -140,5 +149,8 @@ private
       procedure Toggle_LED_Status (Event : in out Timing_Event);
 
    end LED_Status_Event_Handler;
+
+   type Flasher (The_LED : not null access Crazyflie_LED)
+     is new Ada.Real_Time.Timing_Events.Timing_Event with null record;
 
 end LEDS;
