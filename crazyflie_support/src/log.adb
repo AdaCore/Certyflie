@@ -38,9 +38,6 @@ with Config;
 with CRTP;                        use CRTP;
 with Types;                       use Types;
 
-with CRC;
-with IO;
-
 package body Log is
 
    --  Declarations previously in private part of spec
@@ -497,13 +494,6 @@ package body Log is
 
       procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
         (T_Uint32);
-
-      -----------------------------
-      -- CRTP_Append_CRC_32_Data --
-      -----------------------------
-
-      procedure CRTP_Append_CRC_32_Data is new CRTP_Append_Data
-        (CRC.CRC_32);
 
       Command        : Log_TOC_Command;
       Packet_Handler : CRTP_Packet_Handler;
