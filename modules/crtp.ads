@@ -83,10 +83,10 @@ is
 
    --  Type listing the different representations for the union type
    --  CRTP Packet.
-   type Crpt_Packet_Representation is (DETAILED, HEADER_DATA, RAW);
+   type CRTP_Packet_Representation is (DETAILED, HEADER_DATA, RAW);
 
    --  Type for CRTP packets.
-   type CRTP_Packet (Repr : Crpt_Packet_Representation := DETAILED) is record
+   type CRTP_Packet (Repr : CRTP_Packet_Representation := DETAILED) is record
       Size     : T_Uint8;
 
       case Repr is
