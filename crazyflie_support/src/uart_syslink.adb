@@ -91,10 +91,7 @@ package body UART_Syslink is
    --  Tasks and protected objects
 
    Tx_IRQ_Handler : STM32.DMA.Interrupts.DMA_Interrupt_Controller
-     (Controller => Controller'Access,
-      Stream     => Tx_Stream,
-      ID         => Ada.Interrupts.Names.DMA2_Stream6_Interrupt,
-      Priority   => Config.DMA_INTERRUPT_PRIORITY);
+     renames STM32.Device.DMA2_Stream6;
 
    --  EXTI4 Interrupt Handler for transmission flow control.
    protected Flow_Control_Handler is
@@ -176,10 +173,7 @@ package body UART_Syslink is
       Tx_IRQ_Handler.Start_Transfer
         (Source      => Data'Address,
          Destination => Data_Register_Address (NRF_USART),
-         Data_Count  => UInt16 (Data_Size),
-         Enabled_Interrupts =>
-           (STM32.DMA.Half_Transfer_Complete_Interrupt => False,
-            others => True));
+         Data_Count  => UInt16 (Data_Size));
       --  The Crazyflie C code only enables Transfer_Complete
       --  interrupt. Presumably they just stumble on if something goes
       --  wrong.
