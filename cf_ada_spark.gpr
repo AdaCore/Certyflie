@@ -1,4 +1,4 @@
-with "Ada_Drivers_Library/boards/crazyflie/crazyflie_full";
+with "crazyflie_support/crazyflie_support";
 
 project Cf_Ada_SPARK is
 
@@ -11,14 +11,13 @@ project Cf_Ada_SPARK is
 
    for Languages use ("Ada");
    for Main use ("main.adb");
-   for Source_Dirs use
-     ("init", "config", "types", "utils", "drivers", "lib", "hal", "modules");
+   for Source_Dirs use ("src");
 
    case SensorFusion is
       when "Mahony" =>
-         for Source_Dirs use Project'Source_Dirs & ("modules/mahony");
+         for Source_Dirs use Project'Source_Dirs & ("src/mahony");
       when "Madgwick" =>
-         for Source_Dirs use Project'Source_Dirs & ("modules/madgwick");
+         for Source_Dirs use Project'Source_Dirs & ("src/madgwick");
    end case;
 
    for Object_Dir use "obj";
@@ -27,7 +26,7 @@ project Cf_Ada_SPARK is
 
    --  Export run-times's variables
    for Target use "arm-eabi";
-   for Runtime ("Ada") use Crazyflie_Full'Runtime ("Ada");
+   for Runtime ("Ada") use Crazyflie_Support'Runtime ("Ada");
 
    package Compiler is
       case Build is

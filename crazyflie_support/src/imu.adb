@@ -31,7 +31,7 @@ with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
 with STM32.Board;                       use STM32.Board;
 with STM32.I2C;
-with Config;                            use Config;
+with Crazyflie_Config;                  use Crazyflie_Config;
 with Console;                           use Console;
 
 with AK8963;                            use AK8963;

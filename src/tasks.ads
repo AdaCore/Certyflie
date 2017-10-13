@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2017, AdaCore                          --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,47 +27,16 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Real_Time; use Ada.Real_Time;
-with System;
+with Config;           use Config;
+with CRTP;             use CRTP;
+with Power_Management; use Power_Management;
+with Syslink;          use Syslink;
 
-with Types;         use Types;
-with MPU9250;       use MPU9250;
+package Tasks is
 
-package Config is
+   CRTP_Rx_Task          : CRTP_Rx_Task_Type (CRTP_RXTX_TASK_PRIORITY);
+   CRTP_Tx_Task          : CRTP_Tx_Task_Type (CRTP_RXTX_TASK_PRIORITY);
+   Syslink_Task          : Syslink_Task_Type (SYSLINK_TASK_PRIORITY);
+   Power_Management_Task : Power_Management_Task_Type (PM_TASK_PRIORITY);
 
-   --  Constants used to configure the drone firmware
-
-   --  Crazyflie 2.0 has an SMTM32F4 board
-   STM32F4XX : constant Boolean := True;
-   QUAD_FORMATION_X : constant Boolean := True;
-   CPU_CLOCK_HZ : constant T_Uint32 := 168000000;
-   TICK_RATE_HZ : constant T_Uint16 := 1000;
-   TICK_RATE_MS : constant T_Uint16 := 1000 / TICK_RATE_HZ;
-
-   --  Task priorities
-   MAIN_TASK_PRIORITY      : constant System.Priority := 4;
-   CRTP_RXTX_TASK_PRIORITY : constant System.Priority := 2;
-   SYSLINK_TASK_PRIORITY   : constant System.Priority := 3;
-   LOG_TASK_PRIORITY       : constant System.Priority := 1;
-   PM_TASK_PRIORITY        : constant System.Priority := 0;
-
-   --  Link layers implemented to communicate via the CRTP protocol
-   type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
-   LINK_LAYER_TYPE : constant Link_Layer := RADIO_LINK;
-
-   PORT_MAX_DELAY : constant T_Uint16 := T_Uint16'Last;
-
-   PORT_MAX_DELAY_TIME_MS : constant Time_Span
-     := Milliseconds (Integer (PORT_MAX_DELAY / TICK_RATE_MS));
-
-   --  Radio configuration
-   RADIO_CHANNEL       : constant := 80;
-   RADIO_DATARATE      : constant := 0;
-
-   --  IMU configuration
-   IMU_GYRO_FS_CONFIG  : constant MPU9250_FS_Gyro_Range
-     := MPU9250_Gyro_FS_2000;
-   IMU_ACCEL_FS_CONFIG : constant MPU9250_FS_Accel_Range
-     := MPU9250_Accel_FS_8;
-
-end Config;
+end Tasks;

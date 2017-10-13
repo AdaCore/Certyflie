@@ -30,7 +30,7 @@
 with System;
 with Ada.Real_Time;      use Ada.Real_Time;
 
-with Config;             use Config;
+with Crazyflie_Config;   use Crazyflie_Config;
 with Generic_Queue;
 with Types;              use Types;
 
@@ -182,6 +182,18 @@ is
    --  Used to know if we are still connected.
    function CRTP_Is_Connected return Boolean;
 
+   --  Task in charge of transmitting the messages in the Tx Queue
+   --  to the link layer.
+   task type CRTP_Tx_Task_Type (Prio : System.Priority) is
+      pragma Priority (Prio);
+   end CRTP_Tx_Task_Type;
+
+   --  Task in charge of dequeuing the messages in teh Rx_queue
+   --  to put them in the Port_Queues.
+   task type CRTP_Rx_Task_Type (Prio : System.Priority) is
+      pragma Priority (Prio);
+   end CRTP_Rx_Task_Type;
+
 private
    package CRTP_Queue is new Generic_Queue (CRTP_Packet);
 
@@ -209,18 +221,6 @@ private
 
    --  Array of callbacks when a packet is received.
    Callbacks : array (CRTP_Port) of CRTP_Callback := (others => null);
-
-   --  Task in charge of transmitting the messages in the Tx Queue
-   --  to the link layer.
-   task CRTP_Tx_Task is
-      pragma Priority (CRTP_RXTX_TASK_PRIORITY);
-   end CRTP_Tx_Task;
-
-   --  Task in charge of dequeuing the messages in teh Rx_queue
-   --  to put them in the Port_Queues.
-   task CRTP_Rx_Task is
-      pragma Priority (CRTP_RXTX_TASK_PRIORITY);
-   end CRTP_Rx_Task;
 
    --  Global variables
 

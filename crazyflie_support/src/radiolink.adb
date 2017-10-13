@@ -29,7 +29,7 @@
 
 with Ada.Unchecked_Conversion;
 
-with Config;                   use Config;
+with Crazyflie_Config;                   use Crazyflie_Config;
 
 package body Radiolink is
 

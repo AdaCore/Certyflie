@@ -27,29 +27,60 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Real_Time;       use Ada.Real_Time;
+with Crazyflie_Config;    use Crazyflie_Config;
+with Radiolink; use Radiolink;
 
-with Config;              use Config;
-with Crazyflie_System;    use Crazyflie_System;
+package body Link_Interface is
 
-----------
--- Main --
-----------
+   ---------------
+   -- Link_Init --
+   ---------------
 
-procedure Main is
-   pragma Priority (MAIN_TASK_PRIORITY);
-   Self_Test_Passed : Boolean;
-begin
-   --  System initialization
-   System_Init;
+   procedure Link_Init is
+   begin
+      if Is_Init then
+         return;
+      end if;
 
-   --  See if we pass the self test
-   Self_Test_Passed := System_Self_Test;
+      case LINK_LAYER_TYPE is
+         when RADIO_LINK =>
+            Radiolink_Init;
+         when others =>
+            --  Other link layers not implemented yet.
+            null;
+      end case;
 
-   --  Start the main loop if the self test passed
-   if Self_Test_Passed then
-      System_Loop;
-   else
-      delay until Time_Last;
-   end if;
-end Main;
+      Is_Init := True;
+   end Link_Init;
+
+   ----------------------
+   -- Link_Send_Packet --
+   ----------------------
+
+   function Link_Send_Packet (Packet : CRTP_Packet) return Boolean is
+   begin
+      case LINK_LAYER_TYPE is
+         when RADIO_LINK =>
+            return Radiolink_Send_Packet (Packet);
+         when others =>
+            --  Other link layers not implemented yet.
+            return False;
+      end case;
+   end Link_Send_Packet;
+
+   ----------------------------------
+   -- Link_Receive_Packet_Blocking --
+   ----------------------------------
+
+   procedure Link_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
+   begin
+      case LINK_LAYER_TYPE is
+         when RADIO_LINK =>
+            Radiolink_Receive_Packet_Blocking (Packet);
+         when others =>
+            --  Other link layers not implemented yet.
+            null;
+      end case;
+   end Link_Receive_Packet_Blocking;
+
+end Link_Interface;

@@ -67,7 +67,7 @@ package Log is
       LOG_DATA_CH     => 2);
    for Log_Channel'Size use 2;
 
-   --  Type reprensenting all the log commands.
+   --  Type representing all the log commands.
    --  LOG_CMD_GET_INFO is requested at connexion to fetch the TOC.
    --  LOG_CMD_GET_ITEM is requested whenever the client wants to
    --  fetch the newest variable data.

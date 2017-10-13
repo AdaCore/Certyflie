@@ -1,0 +1,495 @@
+V "GNAT Lib v2017"
+A -gnatA
+A --RTS=/home/leonardo/Development/toolchains/gnat-gpl-2017/arm-eabi/lib/gnat/ravenscar-full-stm32f4/
+A -mlittle-endian
+A -mfloat-abi=hard
+A -mcpu=cortex-m4
+A -mfpu=fpv4-sp-d16
+A -mthumb
+P DB LC TF  ES SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_CALENDAR
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_DISPATCH
+RV NO_DISPATCHING_CALLS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_QUEUE
+RV NO_FLOATING_POINT
+RV NO_IMPLICIT_CONDITIONALS
+RR NO_IMPLICIT_HEAP_ALLOCATIONS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RV NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RV NO_STANDARD_STORAGE_POOLS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TERMINATE_ALTERNATIVES
+RV NO_UNCHECKED_CONVERSION
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_ATTRIBUTES
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=1
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U log%b			log.adb			ed52c0a8 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ada.unchecked_conversion%s
+W interfaces%s		interfac.ads		interfac.ali
+W system%s		system.ads		system.ali
+W system.storage_elements%s  s-stoele.adb	s-stoele.ali
+W system.tasking.protected_objects%s  s-taprob.adb  s-taprob.ali
+
+U log%s			log.ads			63a6e81b BN EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.real_time%s	a-reatim.adb		a-reatim.ali
+W ada.real_time.timing_events%s  a-rttiev.adb	a-rttiev.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W crtp%s		crtp.adb		crtp.ali
+W system%s		system.ads		system.ali
+W system.storage_elements%s  s-stoele.adb	s-stoele.ali
+W system.tasking.protected_objects%s  s-taprob.adb  s-taprob.ali
+W system.unsigned_types%s  s-unstyp.ads		s-unstyp.ali
+W types%s		types.ads		types.ali
+
+D ada.ads		20170517144320 76789da1 ada%s
+D a-except.ads		20170517144320 291912d5 ada.exceptions%s
+D a-finali.ads		20170517144320 bf4f806b ada.finalization%s
+D a-reatim.ads		20170517144320 bb781ad1 ada.real_time%s
+D a-rttiev.ads		20170517144320 f8eb9b1f ada.real_time.timing_events%s
+D a-stream.ads		20170517144320 119b8fb3 ada.streams%s
+D a-tags.ads		20170517144320 d3a89129 ada.tags%s
+D a-unccon.ads		20170517144320 31484697 ada.unchecked_conversion%s
+D ak8963.ads		20170904100942 ee27c928 ak8963%s
+D crazyflie_config.ads	20171010145235 fc60652a crazyflie_config%s
+D crtp.ads		20171011090254 5ee734b1 crtp%s
+D crtp.adb		20171011090333 b2496cdf crtp%b
+D generic_queue.ads	20170904100928 4cb410a9 generic_queue%s
+D hal.ads		20170904100942 2b42c80e hal%s
+D hal-audio.ads		20170904100942 09f1fb35 hal.audio%s
+D hal-gpio.ads		20170904100942 146364b8 hal.gpio%s
+D hal-i2c.ads		20170904100942 0ed73138 hal.i2c%s
+D hal-real_time_clock.ads  20170904100942 9dd52fca hal.real_time_clock%s
+D hal-spi.ads		20170904100942 fe139819 hal.spi%s
+D hal-time.ads		20170904100942 f5295cd7 hal.time%s
+D hal-uart.ads		20170904100942 d58316b4 hal.uart%s
+D interfac.ads		20170517144320 5ab55268 interfaces%s
+D i-stm32.ads		20170517144320 4d2e1e9b interfaces.stm32%s
+D i-stm32-pwr.ads	20170517144320 10ed2a13 interfaces.stm32.pwr%s
+D i-stm32-rcc.ads	20170517144320 ed083a96 interfaces.stm32.rcc%s
+D leds.ads		20170904100928 060facc4 leds%s
+D link_interface.ads	20170904100928 63ce6922 link_interface%s
+D log.ads		20170904100928 25b522d4 log%s
+D log.adb		20170904100928 f9afa4eb log%b
+D mpu9250.ads		20170904100942 11ad30ab mpu9250%s
+D ravenscar_time.ads	20170904100942 7a23edc6 ravenscar_time%s
+D stm32.ads		20170904100942 698e2c3b stm32%s
+D stm32-adc.ads		20170904100942 a0a7f671 stm32.adc%s
+D stm32-board.ads	20170904100942 69000a83 stm32.board%s
+D stm32-crc.ads		20170904100942 9ef7b3c1 stm32.crc%s
+D stm32-dac.ads		20170904100942 bbc963b4 stm32.dac%s
+D stm32-device.ads	20170904100942 4287e02d stm32.device%s
+D stm32-dma.ads		20170904100942 a485c5f7 stm32.dma%s
+D stm32-exti.ads	20170904100942 27a7d05f stm32.exti%s
+D stm32-gpio.ads	20170904100942 dfe90a82 stm32.gpio%s
+D stm32-i2c.ads		20170904100942 6fa3b92b stm32.i2c%s
+D stm32-i2s.ads		20170904100942 29c9082d stm32.i2s%s
+D stm32-rtc.ads		20170904100942 ff58a3e8 stm32.rtc%s
+D stm32-spi.ads		20170904100942 470e2164 stm32.spi%s
+D stm32-timers.ads	20170904100942 63c500b2 stm32.timers%s
+D stm32-usarts.ads	20170904100942 c32302c7 stm32.usarts%s
+D stm32_svd.ads		20170904100942 eeda8404 stm32_svd%s
+D stm32_svd-adc.ads	20170904100942 0c4598f6 stm32_svd.adc%s
+D stm32_svd-crc.ads	20170904100942 f8fb8ec8 stm32_svd.crc%s
+D stm32_svd-dac.ads	20170904100942 7ce3d16d stm32_svd.dac%s
+D stm32_svd-dma.ads	20170904100942 cbdaf790 stm32_svd.dma%s
+D stm32_svd-gpio.ads	20170904100942 d1b361bd stm32_svd.gpio%s
+D stm32_svd-i2c.ads	20170904100942 bbdaed5e stm32_svd.i2c%s
+D stm32_svd-spi.ads	20170904100942 9452a68a stm32_svd.spi%s
+D stm32_svd-usart.ads	20170904100942 e4981db8 stm32_svd.usart%s
+D system.ads		20170517144320 db831581 system%s
+D s-bb.ads		20170517144320 09e072ae system.bb%s
+D s-bbbopa.ads		20170517144320 95d97b26 system.bb.board_parameters%s
+D s-bbbosu.ads		20170517144320 9b59a61f system.bb.board_support%s
+D s-bbcppr.ads		20170517144320 bcfa73ad system.bb.cpu_primitives%s
+D s-bcprmu.ads		20170517144320 043d3736 system.bb.cpu_primitives.multiprocessors%s
+D s-bbinte.ads		20170517144320 d9fc23b0 system.bb.interrupts%s
+D s-bbmcpa.ads		20170517144320 c4c55388 system.bb.mcu_parameters%s
+D s-bbpara.ads		20170517144320 77379e7b system.bb.parameters%s
+D s-bbthre.ads		20170517144320 d6c36e4f system.bb.threads%s
+D s-bbthqu.ads		20170517144320 db3cad46 system.bb.threads.queues%s
+D s-bbtime.ads		20170517144320 ad086247 system.bb.time%s
+D s-bbtiev.ads		20170517144320 14ca2877 system.bb.timing_events%s
+D s-finmas.ads		20170517144320 7811a767 system.finalization_masters%s
+D s-finroo.ads		20170517144320 4ff27390 system.finalization_root%s
+D s-multip.ads		20170517144320 f33e0e35 system.multiprocessors%s
+D s-mufalo.ads		20170517144320 3dca0374 system.multiprocessors.fair_locks%s
+D s-musplo.ads		20170517144320 69fa25c4 system.multiprocessors.spin_locks%s
+D s-osinte.ads		20170517144320 2d4f0621 system.os_interface%s
+D s-parame.ads		20170517144320 c9fe535f system.parameters%s
+D s-pooglo.ads		20170517144320 ede33ef8 system.pool_global%s
+D s-secsta.ads		20170517144320 0b22b54c system.secondary_stack%s
+D s-stalib.ads		20170517144320 09bd3940 system.standard_library%s
+D s-stm32.ads		20170517144320 e898dba2 system.stm32%s
+D s-stoele.ads		20170517144320 2dc34a04 system.storage_elements%s
+D s-stoele.adb		20170517144320 ed88f8fb system.storage_elements%b
+D s-stopoo.ads		20170517144320 b16154c2 system.storage_pools%s
+D s-stratt.ads		20170517144320 aedef97e system.stream_attributes%s
+D s-tasinf.ads		20170517144320 801abd01 system.task_info%s
+D s-taspri.ads		20170517144320 351848fa system.task_primitives%s
+D s-taskin.ads		20170517144320 a1f44ab3 system.tasking%s
+D s-taprob.ads		20170517144320 c8fc0753 system.tasking.protected_objects%s
+D s-tposen.ads		20170517144320 828b4fcc system.tasking.protected_objects.single_entry%s
+D s-tasres.ads		20170517144320 0c8ef6fb system.tasking.restricted%s
+D s-tarest.ads		20170517144320 4cbcd33f system.tasking.restricted.stages%s
+D s-traent.ads		20170517144320 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20170517144320 34867c83 system.unsigned_types%s
+D types.ads		20170904100928 80e46a31 types%s
+D /home/leonardo/Development/projects/Certyflie/gnat.adc  20170904100928 00000000
+X 1 ada.ads
+16K9*Ada 20e8 28|31r6 31r39 32r6 32r39 29|30r6 150r51 177r50 269r54 376r13
+. 400r55 565r9 617r50
+X 4 a-reatim.ads
+41K13*Real_Time 155e18 28|31w10 31r43 32r10 32r43
+53M9*Time<67|46M9> 29|618r10
+63I9*Time_Span<67|81I9> 28|215r18 29|646r36
+70V13*Clock{53M9}<67|134p13> 29|463s34 623s47 783s34
+74V14*"+"{53M9} 29|463s40 783s40
+106V13*Milliseconds{63I9} 29|461s32 463s42
+X 5 a-rttiev.ads
+38K23*Timing_Events 74e32 28|32w20 32r53
+40R9*Timing_Event<68|42R9> 72e17 28|213r39 235r47 29|642r47 645r15 648r15
+42P9*Timing_Event_Handler 28|240r39
+45U14*Set_Handler 29|462s10 782s10
+46r7 Event{28|213R9} 29|462r23 782r23
+47m7 At_Time{4|53M9} 29|463r23 783r23
+48p7 Handler{42P9} 29|464r23 784r23
+50V13*Current_Handler{42P9}
+53U14*Cancel_Handler<68|80p14> 29|355s7 459s10 491s7
+57V13*Time_Of_Event{4|53M9}
+X 8 a-unccon.ads
+20v14*Unchecked_Conversion 29|30w10 150r55 177r54 269r58 376r17 400r59 565r13
+. 617r54
+X 11 crtp.ads
+37K9*CRTP 237e9 28|34w6 34r39
+43N4*CRTP_MAX_DATA_SIZE 29|418r15
+52M9*CRTP_Channel<93|15M9> 29|151r10
+61n23*CRTP_PORT_LOG{57E9} 29|46r31 201r10 681r43
+89R9*CRTP_Packet 104e14 28|255r41 258r40 261r44 29|144r41 171r40 263r44 272r21
+90m7*Size{93|15M9} 29|284r72 288r72 303m17
+94m13*Channel{52M9} 29|155r54
+97a13*Data_1{79A12} 29|199r53 230r61 278r57 283r43 284r43 287r43 288r43 290r48
+. 293r35 294r44 296r46 302m17
+111R9*CRTP_Packet_Handler 204e14 28|312r31 29|195r24 552r32 651r27
+116V13*CRTP_Create_Packet{111R9} 29|200s25 681s12
+117e7 Port{57E9} 29|681r32
+118m7 Channel{52M9} 29|682r32
+125V13*CRTP_Get_Packet_From_Handler{89R9} 29|255s10 778s32
+131u14*CRTP_Append_Data 29|184r49 191r50 572r9 661r59 663r52 665r53 667r53
+. 669r51 671r52 673r52 675r50
+132r7 Handler{111R9} 29|685r36[663] 689r43[661] 704r48[663] 714r49[665] 724r49[667]
+. 734r47[669] 744r48[671] 754r48[673] 764r46[675]
+133m7 Data{93|15M9} 29|686r36[663] 690r43[661] 705r48[663] 715r48[665] 725r48[667]
+. 735r48[669] 745r48[671] 755r48[673] 765r46[675]
+134b7 Has_Succeed{boolean} 29|687r36[663] 691r43[661] 706r48[663] 716r48[665]
+. 726r48[667] 736r48[669] 746r48[671] 756r48[673] 766r46[675]
+162U14*CRTP_Send_Packet 29|254s7 304s7 777s13
+163r7 Packet{89R9} 29|778r16
+164b7 Has_Succeed{boolean} 29|779r16
+169U14*CRTP_Register_Callback 29|46s7
+177U14*CRTP_Reset 29|775s13
+183V13*CRTP_Is_Connected{boolean} 29|773s17
+X 15 hal-audio.ads
+59h9*Audio_Stream
+X 16 hal-gpio.ads
+44h9*GPIO_Point
+X 17 hal-i2c.ads
+48h9*I2C_Port
+X 18 hal-real_time_clock.ads
+79h9*RTC_Device
+X 19 hal-spi.ads
+48h9*SPI_Port
+X 20 hal-time.ads
+34h9*Delays
+X 21 hal-uart.ads
+48h9*UART_Port
+X 22 interfac.ads
+46I9*Integer_8<short_short_integer>
+49I9*Integer_16<short_integer>
+52I9*Integer_32<integer>
+63M9*Unsigned_8
+66M9*Unsigned_16
+74M9*Unsigned_32
+X 28 log.ads
+37K9*Log 159E12 315l5 315e8 29|32b14 789l5 789t8
+41E9*Log_Variable_Type 48e17 49r8 57r8 105r25 151r22 167r22 29|95r22 244r22
+. 401r22 405r33
+42n7*LOG_UINT8{41E9} 50r7 106r10 29|698r21
+43n7*LOG_UINT16{41E9} 51r7 107r10 29|708r21
+44n7*LOG_UINT32{41E9} 52r7 108r10 29|718r21
+45n7*LOG_INT8{41E9} 53r7 109r10 29|728r21
+46n7*LOG_INT16{41E9} 54r7 110r10 29|738r21
+47n7*LOG_INT32{41E9} 55r7 111r10 29|748r21
+48n7*LOG_FLOAT{41E9} 56r7 112r10 29|758r21
+60E9*Log_Channel 63e19 64r8 68r8 29|151r24 153r17 201r25 682r43
+61n7*LOG_TOC_CH{60E9} 65r7 29|158r15 201r47
+62n7*LOG_CONTROL_CH{60E9} 66r7 29|160r15
+63n7*LOG_DATA_CH{60E9} 67r7 29|682r65
+74E9*Log_TOC_Command 76e24 77r8 80r8 29|178r19 194r24 204r10
+75n7*LOG_CMD_GET_ITEM{74E9} 78r7 29|228r15
+76n7*LOG_CMD_GET_INFO{74E9} 79r7 29|208r15
+83E9*Log_Control_Command 89e25 90r8 97r8 29|270r19 273r21
+84n7*LOG_CONTROL_CREATE_BLOCK{83E9} 91r7 29|281r15
+85n7*LOG_CONTROL_APPEND_BLOCK{83E9} 92r7 29|285r15
+86n7*LOG_CONTROL_DELETE_BLOCK{83E9} 93r7 29|289r15
+87n7*LOG_CONTROL_START_BLOCK{83E9} 94r7 29|291r15
+88n7*LOG_CONTROL_STOP_BLOCK{83E9} 95r7 29|295r15
+89n7*LOG_CONTROL_RESET{83E9} 96r7 29|297r15
+99R9*Log_Block 220c9 225e14 249r49 291r25 301r52 29|315r22 339r26 378r29
+. 447r26 479r26 516r25 591r52
+105a4*Type_Length(93|15M9) 29|417r39 598r41
+115N4*ENOENT 29|345r17 383r17 390r17 427r23 453r17 485r17
+116N4*E2BIG 29|420r23
+117N4*ENOMEM 29|319r17
+118N4*EEXIST 29|325r17
+121N4*MAX_LOG_VARIABLE_NAME_LENGTH 159r37 29|72r23 114r23
+124N4*MAX_LOG_NUMBER_OF_GROUPS 179r51 193r18 29|220r16 224r16
+126N4*MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP 173r11 179r11 29|225r18
+128N4*MAX_LOG_OPS
+130N4*MAX_LOG_BLOCKS 209r47
+135U14*Log_Init 29|40b14 49l8 49t16
+138V13*Log_Test{boolean} 29|55b13 58l8 58t16
+142U14*Create_Log_Group 143>7 144<7 145<7 29|64b14 86l8 86t24
+143a7 Name{string} 29|65b7 72r9 79r29 81r9
+144i7 Group_ID{natural} 29|66b7 82m7
+145b7 Has_Succeed{boolean} 29|67b7 74m10 85m7
+148U14*Append_Log_Variable_To_Group 149>7 150>7 151>7 152>7 153<7 29|92b14
+. 136l8 136t36
+149i7 Group_ID{natural} 29|93b7 105r10 110r37 121r61 128r28 132r12
+150a7 Name{string} 29|94b7 114r9 120r29 122r64
+151e7 Log_Type{41E9} 29|95b7 123r61
+152m7 Variable{56|80M9} 29|96b7 124r61
+153b7 Has_Succeed{boolean} 29|97b7 102m7 135m7
+159A12 Log_Name{string}<integer> 165r22 186r29 296r55 29|537r55 538r16
+163R9 Log_Variable 170e14
+164i7*Group_ID{natural} 29|121m49 241r65
+165a7*Name{159A12} 29|119m49 576r38
+166i7*Name_Length{natural} 29|122m49 556r31 558r38 576r58
+167e7*Log_Type{41E9} 29|123m49 244r58 598r64 697r28
+168m7*Variable{56|80M9} 29|124m49 701r54 711r54 721r54 731r54 741r54 751r54
+. 761r54
+169p7*Next 29|525r30 526r44 529m24 599r33 770r36
+172M12 Log_Group_ID{93|15M9} 176r13
+175A9 Log_Group_Variable_Array(163R9)<93|15M9> 188r29
+178M12 Log_Variable_ID{93|15M9} 181r38 189r29 29|100r29
+181A9 Log_Variable_Array(163R9)<93|15M9> 198r29
+185R9 Log_Group 190e14 193r51 311r24 29|99r29 232r34 551r25
+186a7*Name{159A12} 29|78m46 575r18
+187i7*Name_Length{natural} 29|80m46 556r51 558r58 575r35
+188a7*Log_Variables{175A9} 29|113r38 119m13 121m13 122m13 123m13 124m13 132m22
+189m7*Log_Variables_Index{178M12} 29|111r36 126m13
+192A9 Log_Group_Array(185R9)<integer> 197r29
+196R9 Log_TOC 201e14 246r23
+197a7*Log_Groups{192A9} 29|71r38 78m16 80m16 105r35 110r25 128m16 131m21
+. 241r45
+198a7*Log_Variables{181A9} 29|130m16 240r39 424r47 425r24 430r34
+199i7*Log_Groups_Index{natural} 29|69r55 83m16
+200m7*Log_Variables_Count{93|15M9} 29|130r40 134m16 134r48 211r25 234r37
+203R9 Log_Ops_Setting 206e14 207r8 29|369r53 404r33
+204m7*Ops_Type{93|15M9} 29|414r28
+205m7*ID{93|15M9} 29|424r28 425r51 430r61
+209M12 Log_Block_ID{93|15M9} 214r18 221r19 249r24 29|318r26 643r36
+213R9 Log_Block_Timing_Event<5|40R9> 5|45p14 50p13 53P14 57p13 28|216e14
+. 223r19 29|644r15 647r15 68|63p14 75p13 86p13
+214m7*Block_ID{209M12} 29|460m22 645r43
+215i7*Period{4|63I9} 29|461m22 648r43
+221m7*ID{209M12}
+222b7*Free{boolean} 29|324r20 328m13 351m13 389r16
+223r7*Timer{213R9} 29|355m29 459m32 460m16 461m16 462m40 491m29
+224p7*Variables(163R9) 29|352m13 519r52 523m16 593r51 693r45
+228A12 Log_Time_Stamp{93|22A9}<integer> 305r39 29|609r39 621r20 650r27 662r13
+232w14 Log_Block_Timing_Event_Handler 241r9 29|636b19 787l8 787t38
+235U17 Log_Run_Block 235=32 241r40 29|642b17 785l11 785t24
+235r32 Event{5|40R9} 29|642b32 645r35 648r35 782m34
+240p4 Log_Block_Timer_Handler{5|42P9} 29|464r34 784r34
+243b4 Is_Init{boolean} 29|42r10 48m7 57r14 504r10
+246r4 Log_Data{196R9} 29|69r46 71r29 78m7 80m7 83m7 105r26 110r16 128m7 130m7
+. 130r31 131m12 131r12 134m7 134r39 211r16 234r28 240r30 241r36 424r38 425r15
+. 430r25
+249a4 Log_Blocks(99R9) 29|322m16 322r16 344r26 348m16 348r16 382r26 386m16
+. 386r16 452r26 456m16 456r16 484r26 488m16 488r16 505r20 693r23
+255U14 Log_CRTP_Handler 255>32 29|46r46 144b14 165l8 165t24
+255r32 Packet{11|89R9} 29|144b32 155r47 159r30 161r34
+258U14 Log_TOC_Process 258>31 29|159s13 171b14 257l8 257t23
+258r31 Packet{11|89R9} 29|171b31 199r46 230r54
+261U14 Log_Control_Process 261>35 29|161s13 263b14 305l8 305t27
+261r35 Packet{11|89R9} 29|263b35 272r36 278r50 283r36 284r36 284r65 287r36
+. 288r36 288r65 290r41 293r28 294r37 296r39
+265V13 Log_Create_Block{93|15M9} 266>7 267>7 29|282s23 311b13 331l8 331t24
+266m7 Block_ID{93|15M9} 29|283r16 312b7 318r10 322r28 330r35
+267a7 Ops_Settings_Raw{93|22A9} 29|284r16 313b7 330r45
+270V13 Log_Delete_Block{93|15M9} 270>31 29|290s23 337b13 358l8 358t24 506s20
+270m31 Block_ID{93|15M9} 29|337b31 344r10 348r28
+274V13 Log_Append_To_Block{93|15M9} 275>7 276>7 29|286s23 330s14 364b13 437l8
+. 437t27
+275m7 Block_ID{93|15M9} 29|287r16 365b7 382r10 386r28
+276a7 Ops_Settings_Raw{93|22A9} 29|288r16 366b7 369r21 393r60
+279V13 Log_Start_Block{93|15M9} 280>7 281>7 29|292s23 443b13 471l8 471t23
+280m7 Block_ID{93|15M9} 29|293r16 444b7 452r10 456r28 460r34
+281i7 Period{natural} 29|294r16 445b7 458r10 461r46 463r56
+284V13 Log_Stop_Block{93|15M9} 284>29 29|296s23 477b13 494l8 494t22
+284m29 Block_ID{93|15M9} 29|477b29 484r10 488r28
+287U14 Log_Reset 29|298s13 500b14 509l8 509t17 774s13
+290U14 Append_Log_Variable_To_Block 291^7 292^7 293r19 29|432s13 515b14 531l8
+. 531t36
+291p7 Block(99R9) 29|516b7 519r46 523r10
+292p7 Variable(163R9) 29|517b7 523r29 529r32
+296V13 String_To_Log_Name{159A12} 296>33 297r19 29|79s9 120s9 537b13 543l8
+. 543t26
+296a33 Name{string} 29|537b33 540r20 540r36
+301V13 Calculate_Block_Length{93|15M9} 301^37 302r19 29|410s37 591b13 603l8
+. 603t30
+301p37 Block(99R9) 29|591b37 593r45
+305V13 Get_Log_Time_Stamp{228A12} 306r19 29|609b13 628l8 628t26 678s24
+309U14 Append_Raw_Data_Variable_Name_To_Packet 310>7 311>7 312=7 313<7 29|246s19
+. 549b14 585l8 585t47
+310r7 Variable{163R9} 29|550b7 556r22 558r29 576r29 576r49
+311r7 Group{185R9} 29|551b7 556r45 558r52 575r12 575r29
+312r7 Packet_Handler{11|111R9} 29|552b7 582m10
+313b7 Has_Succeed{boolean} 29|553b7 584m10
+X 29 log.adb
+69i7 Log_Groups_Index{natural} 71r10 78r28 80r28 82r19 83r36
+99r7 Group{28|185R9} 110m7 111r30 113r32 119m7 121m7 122m7 123m7 124m7 126m7
+. 128r41
+100m7 Log_Variables_Index{28|178M12} 111m7 113r10 119r28 121r28 122r28 123r28
+. 124r28 126r36 132r37
+150V16 CRTP_Channel_To_Log_Channel[8|20]{28|60E9} 155s18
+153e7 Channel{28|60E9} 155m7 157r12
+177V16 T_Uint8_To_Log_TOC_Command[8|20]{28|74E9} 199s18
+184U17 CRTP_Append_T_Uint8_Data[11|131] 12|158b14 29|202s7 209s13 218s13
+. 222s13 235s19 242s19
+191U17 CRTP_Append_T_Uint32_Data[11|131] 12|158b14 29|214s13
+194e7 Command{28|74E9} 199m7 204r36 207r12
+195r7 Packet_Handler{11|111R9} 200m7 203m10 203r10 210m16 210r16 215m16 215r16
+. 219m16 219r16 223m16 223r16 236m22 236r22 243m22 243r22 249m22 249r22 255r40
+196b7 Has_Succeed{boolean} 197r28 205m10 212m16 217m16 221m16 226m16 238m22
+. 245m22 250m22 256m10
+230m16 Var_ID{93|15M9} 234r19 237r22 240r54
+231r16 Log_Var{28|163R9} 240m19 241r57 244r50 247r22
+232r16 Log_Var_Group{28|185R9} 241m19 248r22
+269V16 T_Uint8_To_Log_Control_Command[8|20]{28|83E9} 278s18
+272r7 Tx_Packet{11|89R9} 302m7 303m7 304r25
+273e7 Command{28|83E9} 278m7 280r12
+274m7 Answer{93|15M9} 282m13 286m13 290m13 292m13 296m13 299m13 302r31
+275b7 Has_Succeed{boolean} 276r28 304m36
+315p7 Block(28|99R9) 322m7 324r14 328r7
+339p7 Block(28|99R9) 348m7 351r7 352r7 355r23
+340b7 Cancelled{boolean} 341r28 355m36
+368A12 Ops_Settings_Array(28|203R9)<integer> 376r54 379r22
+375V16 T_Uint8_Array_To_Ops_Settings_Array[8|20]{368A12} 393s23
+378p7 Block(28|99R9) 386m7 389r10 410r61 432r43
+379a7 Ops_Settings{368A12} 393m7 409r19 411r28
+400V19 T_Uint8_To_Log_Variable_Type[8|20]{28|41E9} 413s25
+403m10 Current_Block_Length{93|15M9} 410m13 417r16
+404r10 Ops_Setting{28|203R9} 411m13 414r16 424r16 425r39 430r49
+405e10 Log_Type{28|41E9} 413m13 417r52
+406p10 Variable(28|163R9) 430m13 432r50
+409i14 I{integer} 411r42
+447p7 Block(28|99R9) 456m7 459r26 460r10 461r10 462r34
+448b7 Cancelled{boolean} 449r28 459m39
+479p7 Block(28|99R9) 488m7 491r23
+480b7 Cancelled{boolean} 481r28 491m36
+501m7 Res{93|15M9} 502r28 506m13
+505m14 ID<22|63M9> 506r38
+519p7 Variables_Aux(28|163R9) 522r10 525r16 526m13 526r30 529r10
+538a7 Result{28|159A12} 540m7 542r14
+555A15 Log_Complete_Name{string}<integer> 565r35 574r36
+557A15 Log_Complete_Name_Raw{93|22A9}<integer> 565r54 572r27 577r27
+564V16 Log_Complete_Name_To_Log_Complete_Name_Raw[8|20]{93|22A9} 580s9
+571U17 CRTP_Append_Log_Complete_Name_Raw_Data[11|131] 12|158b14 29|581s7
+574a7 Complete_Name=575:48{555A15} 580r53
+577a7 Complete_Name_Raw{557A15} 579m7 583r10
+593p7 Variables(28|163R9) 597r13 598r54 599m10 599r23
+594m7 Block_Length{93|15M9} 598m10 598r26 602r14
+611A16 Time_T_Uint8_Array{93|22A9}<integer> 618r16 620r20
+617V16 Time_To_Time_T_Uint8_Array[8|20]{93|22A9} 623s19
+620a7 Raw_Time{611A16} 623m7 625r21
+621a7 Time_Stamp{28|228A12} 625m7 627r14
+643m10 Block_ID{28|209M12} 686r51 693r35
+646i10 Period{4|63I9} 783r42
+649p10 Variables(28|163R9) 693m10 696r16 697r18 701r44 711r44 721r44 731r44
+. 741r44 751r44 761r44 770m13 770r26
+650a10 Time_Stamp{28|228A12} 678m10 690r58
+651r10 Packet_Handler{11|111R9} 680m10 685m51 685r51 689m58 689r58 704m63
+. 704r63 714m64 714r64 724m64 724r64 734m62 734r62 744m63 744r63 754m63 754r63
+. 764m61 764r61 778r62
+652b10 Has_Succeed{boolean} 653r31 687m51 691m58 706m63 716m63 726m63 736m63
+. 746m63 756m63 766m61 779m32
+661U20 CRTP_Append_Log_Time_Stamp_Data[11|131] 12|158b14 29|689s10
+663U20 CRTP_Append_T_Uint8_Data[11|131] 12|158b14 29|685s10 704s22
+665U20 CRTP_Append_T_Uint16_Data[11|131] 12|158b14 29|714s22
+667U20 CRTP_Append_T_Uint32_Data[11|131] 12|158b14 29|724s22
+669U20 CRTP_Append_T_Int8_Data[11|131] 12|158b14 29|734s22
+671U20 CRTP_Append_T_Int16_Data[11|131] 12|158b14 29|744s22
+673U20 CRTP_Append_T_Int32_Data[11|131] 12|158b14 29|754s22
+675U20 CRTP_Append_Float_Data[11|131] 12|158b14 29|764s22
+700m22 Value{93|15M9} 701m26 701r26 705r63
+710m22 Value{93|16M9} 711m26 711r26 715r63
+720m22 Value{93|17M9} 721m26 721r26 725r63
+730i22 Value{93|7I12} 731m26 731r26 735r63
+740i22 Value{93|8I12} 741m26 741r26 745r63
+750i22 Value{93|9I12} 751m26 751r26 755r63
+760f22 Value{float} 761m26 761r26 765r61
+X 56 system.ads
+50K9*System 28|30w6 152r22 168r22 168r40 29|96r22 56|164e11
+80M9*Address 28|152r29 168r29 29|96r29
+82m4*Null_Address{80M9} 28|168r47
+X 61 s-bcprmu.ads
+39U14*Start_All_CPUs 40i<c,__gnat_start_slave_cpus>22
+X 67 s-bbtime.ads
+46M9*Time
+81I9*Time_Span<long_long_integer>
+X 68 s-bbtiev.ads
+37P9*Timing_Event_Handler
+42R9*Timing_Event
+63U14*Set_Handler
+75V13*Current_Handler{37P9}
+86V13*Time_Of_Event{67|46M9}
+X 86 s-taskin.ads
+413V13*Get_Sec_Stack{56|80M9} 414i<c,__gnat_get_secondary_stack>22
+X 90 s-tarest.ads
+225U14*Activate_All_Tasks_Sequential 226i<c,__gnat_activate_all_tasks>22
+X 93 types.ads
+3K9*Types 28|35w6 35r39 93|58e10
+7I12*T_Int8{22|46I9} 29|670r13 730r30
+8I12*T_Int16{22|49I9} 29|672r13 740r30
+9I12*T_Int32{22|52I9} 29|674r13 750r30
+15M9*T_Uint8<22|63M9> 28|105r47 172r28 178r31 200r29 204r22 205r22 209r28
+. 266r26 267r48 270r42 270r58 275r26 276r48 280r18 281r34 284r40 284r56 301r70
+. 29|178r10 185r10 230r43 270r10 274r21 312r26 313r48 337r42 337r58 365r26
+. 366r48 401r13 403r33 444r18 445r34 477r40 477r56 501r15 591r70 594r22 664r13
+. 700r30
+16M9*T_Uint16<22|66M9> 29|666r13 710r30
+17M9*T_Uint32<22|74M9> 29|192r10 668r13 720r30
+22A9*T_Uint8_Array(15M9)<integer> 28|228r30 267r26 276r26 29|313r26 366r26
+. 376r39 558r9 611r38
+

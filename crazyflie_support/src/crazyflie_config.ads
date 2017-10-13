@@ -27,60 +27,28 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Config;    use Config;
-with Radiolink; use Radiolink;
+with Ada.Real_Time; use Ada.Real_Time;
+with System;
 
-package body Link_Interface is
+with Types;         use Types;
+with MPU9250;       use MPU9250;
 
-   ---------------
-   -- Link_Init --
-   ---------------
+package Crazyflie_Config is
 
-   procedure Link_Init is
-   begin
-      if Is_Init then
-         return;
-      end if;
+   --  Constants used to configure the Crazyflie support
 
-      case LINK_LAYER_TYPE is
-         when RADIO_LINK =>
-            Radiolink_Init;
-         when others =>
-            --  Other link layers not implemented yet.
-            null;
-      end case;
+   --  Link layers implemented to communicate via the CRTP protocol
+   type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
+   LINK_LAYER_TYPE : constant Link_Layer := RADIO_LINK;
 
-      Is_Init := True;
-   end Link_Init;
+   --  Radio configuration
+   RADIO_CHANNEL       : constant := 80;
+   RADIO_DATARATE      : constant := 0;
 
-   ----------------------
-   -- Link_Send_Packet --
-   ----------------------
+   --  IMU configuration
+   IMU_GYRO_FS_CONFIG  : constant MPU9250_FS_Gyro_Range
+     := MPU9250_Gyro_FS_2000;
+   IMU_ACCEL_FS_CONFIG : constant MPU9250_FS_Accel_Range
+     := MPU9250_Accel_FS_8;
 
-   function Link_Send_Packet (Packet : CRTP_Packet) return Boolean is
-   begin
-      case LINK_LAYER_TYPE is
-         when RADIO_LINK =>
-            return Radiolink_Send_Packet (Packet);
-         when others =>
-            --  Other link layers not implemented yet.
-            return False;
-      end case;
-   end Link_Send_Packet;
-
-   ----------------------------------
-   -- Link_Receive_Packet_Blocking --
-   ----------------------------------
-
-   procedure Link_Receive_Packet_Blocking (Packet : out CRTP_Packet) is
-   begin
-      case LINK_LAYER_TYPE is
-         when RADIO_LINK =>
-            Radiolink_Receive_Packet_Blocking (Packet);
-         when others =>
-            --  Other link layers not implemented yet.
-            null;
-      end case;
-   end Link_Receive_Packet_Blocking;
-
-end Link_Interface;
+end Crazyflie_Config;

@@ -27,8 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Config;           use Config;
-with Safety;           use Safety;
+with Config; use Config;
+with Safety; use Safety;
 
 package body Stabilizer
 with SPARK_Mode,

@@ -1,0 +1,81 @@
+V "GNAT Lib v2017"
+A -gnatA
+A --RTS=/home/leonardo/Development/toolchains/gnat-gpl-2017/arm-eabi/lib/gnat/ravenscar-full-stm32f4/
+A -mlittle-endian
+A -mfloat-abi=hard
+A -mcpu=cortex-m4
+A -mfpu=fpv4-sp-d16
+A -mthumb
+P DB ES ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_CALENDAR
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_QUEUE
+RV NO_FLOATING_POINT
+RR NO_IMPLICIT_HEAP_ALLOCATIONS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TERMINATE_ALTERNATIVES
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=1
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U types%s		types.ads		da513859 NE OO PK
+W interfaces%s		interfac.ads		interfac.ali
+
+D interfac.ads		20170517144320 5ab55268 interfaces%s
+D system.ads		20170517144320 db831581 system%s
+D types.ads		20170904100928 80e46a31 types%s
+D /home/leonardo/Development/projects/Certyflie/gnat.adc  20170904100928 00000000
+X 1 interfac.ads
+38K9*Interfaces 184e15 3|1w6 7r24 8r24 9r24 10r24 15r25 16r25 17r25
+46I9*Integer_8<short_short_integer> 3|7r35
+49I9*Integer_16<short_integer> 3|8r35
+52I9*Integer_32<integer> 3|9r35
+55I9*Integer_64<long_long_integer> 3|10r35
+63M9*Unsigned_8 3|15r36
+66M9*Unsigned_16 3|16r36
+74M9*Unsigned_32 3|17r36
+X 3 types.ads
+3K9*Types 58l5 58e10
+7I12*T_Int8{1|46I9}
+8I12*T_Int16{1|49I9}
+9I12*T_Int32{1|52I9} 25r55
+10I12*T_Int64{1|55I9} 26r55
+12M9*T_Uint6 13r8
+15M9*T_Uint8<1|63M9> 22r55
+16M9*T_Uint16<1|66M9> 23r55
+17M9*T_Uint32<1|74M9>
+19I12*T_Bit_Pos_8{natural}
+20I12*T_Bit_Pos_16{natural}
+22A9*T_Uint8_Array(15M9)<integer>
+23A9*T_Uint16_Array(16M9)<integer>
+25A9*T_Int32_Array(9I12)<integer>
+26A9*T_Int64_Array(10I12)<integer>
+28A9*Float_Array(float)<integer>
+30F12*Natural_Float{float}
+35F12*T_Delta_Time{float}
+38F12*T_Alpha{float}
+42F12*T_Degrees{float}
+46F12*T_Speed{float}
+49F12*T_Sensitivity{float}
+52F12*T_Motor_Fac{float}
+56F12*T_Quaternion{float}
+

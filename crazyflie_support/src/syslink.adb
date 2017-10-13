@@ -123,11 +123,11 @@ package body Syslink is
       end case;
    end Syslink_Route_Incoming_Packet;
 
-   ------------------
-   -- Syslink_Task --
-   ------------------
+   -----------------------
+   -- Syslink_Task_Type --
+   -----------------------
 
-   task body Syslink_Task is
+   task body Syslink_Task_Type is
       Rx_State     : Syslink_Rx_State := WAIT_FOR_FIRST_START;
       Rx_Sl_Packet : Syslink_Packet;
       Rx_Byte      : T_Uint8;
@@ -192,6 +192,6 @@ package body Syslink is
                Rx_State := WAIT_FOR_FIRST_START;
          end case;
       end loop;
-   end Syslink_Task;
+   end Syslink_Task_Type;
 
 end Syslink;

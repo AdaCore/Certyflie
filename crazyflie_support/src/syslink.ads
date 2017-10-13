@@ -3,8 +3,9 @@
 
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with Ada.Unchecked_Conversion;
+with System;
 
-with Config;                       use Config;
+with Crazyflie_Config;             use Crazyflie_Config;
 with Types;                        use Types;
 with UART_Syslink;                 use UART_Syslink;
 
@@ -98,6 +99,12 @@ package Syslink is
    --  Send a packet to the nrf51 chip.
    procedure Syslink_Send_Packet (Sl_Packet : Syslink_Packet);
 
+   --  Tasks and protected objects
+
+   task type Syslink_Task_Type (Prio : System.Priority) is
+      pragma Priority (Prio);
+   end Syslink_Task_Type;
+
 private
 
    --  Global variables
@@ -111,14 +118,8 @@ private
    function T_Uint8_To_Slp_Type is new Ada.Unchecked_Conversion
      (T_Uint8, Syslink_Packet_Type);
 
-   --  Route the incoming pâcket by sending it to the appropriate layer
+   --  Route the incoming packet by sending it to the appropriate layer
    --  (Radiolink, Power_Management etc.).
    procedure Syslink_Route_Incoming_Packet (Rx_Sl_Packet : Syslink_Packet);
-
-   --  Tasks and protected objects
-
-   task Syslink_Task is
-      pragma Priority (SYSLINK_TASK_PRIORITY);
-   end Syslink_Task;
 
 end Syslink;

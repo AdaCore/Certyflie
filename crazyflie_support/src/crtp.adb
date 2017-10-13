@@ -39,11 +39,11 @@ with Refined_State => (CRTP_State => (Dropped_Packets,
                                       Is_Connected))
 is
 
-   ------------------
-   -- CRTP_Tx_Task --
-   ------------------
+   -----------------------
+   -- CRTP_Tx_Task_Type --
+   -----------------------
 
-   task body CRTP_Tx_Task is
+   task body CRTP_Tx_Task_Type is
       Packet : CRTP_Packet;
       Has_Succeed : Boolean;
       pragma Unreferenced (Has_Succeed);
@@ -54,13 +54,13 @@ is
 
          Has_Succeed := Link_Send_Packet (Packet);
       end loop;
-   end CRTP_Tx_Task;
+   end CRTP_Tx_Task_Type;
 
-   ------------------
-   -- CRTP_Rx_Task --
-   ------------------
+   -----------------------
+   -- CRTP_Rx_Task_Type --
+   -----------------------
 
-   task body CRTP_Rx_Task is
+   task body CRTP_Rx_Task_Type is
       Packet : CRTP_Packet;
       Has_Succeed : Boolean;
    begin
@@ -73,7 +73,7 @@ is
             Port_Queues (Packet.Port).Enqueue_Item (Packet, Has_Succeed);
          end if;
       end loop;
-   end CRTP_Rx_Task;
+   end CRTP_Rx_Task_Type;
 
    ------------------------
    -- CRTP_Create_Packet --

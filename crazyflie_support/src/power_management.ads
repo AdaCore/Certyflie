@@ -27,8 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 with Ada.Real_Time; use Ada.Real_Time;
+with System;
 
-with Config;        use Config;
 with LEDS;          use LEDS;
 with Syslink;       use Syslink;
 with Types;         use Types;
@@ -81,6 +81,12 @@ is
 
    --  Get the current battery voltage.
    function Power_Management_Get_Battery_Voltage return Float;
+
+   --  Tasks and protected objects
+
+   task type Power_Management_Task_Type (Prio : System.Priority) is
+      pragma Priority (Prio);
+   end Power_Management_Task_Type;
 
 private
 
@@ -150,11 +156,5 @@ private
 
    --  Switch on/off the power related leds according to power state.
    procedure Set_Power_LEDs (State : Power_State);
-
-   --  Tasks and protected objects
-
-   task Power_Management_Task is
-      pragma Priority (PM_TASK_PRIORITY);
-   end Power_Management_Task;
 
 end Power_Management;

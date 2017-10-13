@@ -191,11 +191,11 @@ is
       --  TODO: find other led feedback for the other power states
    end Set_Power_LEDs;
 
-   ---------------------------
-   -- Power_Management_Task --
-   ---------------------------
+   --------------------------------
+   -- Power_Management_Task_Type --
+   --------------------------------
 
-   task body Power_Management_Task is
+   task body Power_Management_Task_Type is
       Next_Period     : Time;
       New_Power_State : Power_State;
    begin
@@ -221,6 +221,6 @@ is
 
          Next_Period := Next_Period + Milliseconds (500);
       end loop;
-   end Power_Management_Task;
+   end Power_Management_Task_Type;
 
 end Power_Management;
