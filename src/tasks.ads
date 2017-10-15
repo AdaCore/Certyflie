@@ -29,6 +29,7 @@
 
 with Config;           use Config;
 with CRTP;             use CRTP;
+with Log;              use Log;
 with Power_Management; use Power_Management;
 with Syslink;          use Syslink;
 
@@ -38,5 +39,6 @@ package Tasks is
    CRTP_Tx_Task          : CRTP_Tx_Task_Type (CRTP_RXTX_TASK_PRIORITY);
    Syslink_Task          : Syslink_Task_Type (SYSLINK_TASK_PRIORITY);
    Power_Management_Task : Power_Management_Task_Type (PM_TASK_PRIORITY);
+   Logger_Task           : Logger (LOG_TASK_PRIORITY);
 
 end Tasks;

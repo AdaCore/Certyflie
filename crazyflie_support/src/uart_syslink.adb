@@ -32,7 +32,7 @@ with Ada.Real_Time;            use Ada.Real_Time;
 with System;
 with System.Storage_Elements;
 
-with Config;
+with Crazyflie_Config;
 with HAL;                      use HAL;
 with STM32;                    use STM32;
 with STM32.Device;             use STM32.Device;
@@ -95,7 +95,7 @@ package body UART_Syslink is
 
    --  EXTI4 Interrupt Handler for transmission flow control.
    protected Flow_Control_Handler is
-      pragma Interrupt_Priority (Config.TOP_INTERRUPT_PRIORITY);
+      pragma Interrupt_Priority (Crazyflie_Config.TOP_INTERRUPT_PRIORITY);
 
       procedure Starting_Transfer (Number_Of_Bytes : Natural;
                                    Starting_From   : System.Address);
@@ -117,7 +117,7 @@ package body UART_Syslink is
 
    --  Interrupt Handler for reception (DMA not used here).
    protected Rx_IRQ_Handler is
-      pragma Interrupt_Priority (Config.SYSLINK_INTERRUPT_PRIORITY);
+      pragma Interrupt_Priority (Crazyflie_Config.SYSLINK_INTERRUPT_PRIORITY);
 
       entry Await_Byte_Reception (Rx_Byte : out T_Uint8);
 

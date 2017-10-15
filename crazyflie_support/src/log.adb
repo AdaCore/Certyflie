@@ -34,7 +34,7 @@ with Ada.Real_Time;               use Ada.Real_Time;
 with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
 with Ada.Strings.Bounded;
 
-with Config;
+--  with Config;
 with CRTP;                        use CRTP;
 with Types;                       use Types;
 
@@ -236,10 +236,6 @@ package body Log is
       Record_Required : Boolean := False;
       Block_To_Record : T_Uint8;  -- OK to lose records on overrun
    end Log_Block_Timing_Event_Handler;
-
-   task Logger is
-     pragma Priority (Config.LOG_TASK_PRIORITY);
-   end Logger;
 
    --  Global variables and constants
 

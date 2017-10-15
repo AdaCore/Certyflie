@@ -88,4 +88,8 @@ package Log is
    with Pre =>
        Group'Length <= Max_Name_Length and Name'Length <= Max_Name_Length;
 
+   task type Logger (Priority : System.Priority)
+   with Priority => Priority;
+   --  Priority needs to be determined in overall system.
+
 end Log;
