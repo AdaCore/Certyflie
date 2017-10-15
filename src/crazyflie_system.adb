@@ -178,18 +178,17 @@ package body Crazyflie_System is
 
       if System_Group_Created then
          declare
-            Dummy : Boolean;
+            Dummy          : Boolean;
             Parameter_Type : constant Parameter.Parameter_Variable_Type
-              := (Size => One_Byte,
-                  Floating => False,
-                  Signed => False,
+              := (Size      => One_Byte,
+                  Floating  => False,
+                  Signed    => False,
                   Read_Only => True,
-                  others => <>);
+                  others    => <>);
          begin
             Parameter.Append_Parameter_Variable_To_Group
               (System_Group_ID,
                Name           => "selftestPassed",
-               Storage_Type   => Parameter_Type,
                Parameter_Type => Parameter_Type,
                Variable       => Self_Test_Passed'Address,
                Has_Succeed    => Dummy);
