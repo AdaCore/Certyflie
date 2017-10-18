@@ -32,9 +32,10 @@ with Ada.Containers.Bounded_Hashed_Maps;
 with Ada.Containers.Bounded_Vectors;
 with Ada.Real_Time;               use Ada.Real_Time;
 with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
+with Ada.Streams;
 with Ada.Strings.Bounded;
+with GNAT.CRC32;
 
---  with Config;
 with CRTP;                        use CRTP;
 with Types;                       use Types;
 
@@ -143,8 +144,10 @@ package body Log is
    subtype Log_Variable_Array is Log_Variables.Vector
      (Capacity => Max_Variables);
 
-   --  Storage for groups. A group contains a number of variables; a
-   --  variable can appear in more than one group. Groups are
+   --  Storage for groups. A group has a name and contains a number of
+   --  variables; a variable has a name, a type, and an address. A
+   --  variable can only appear in one group, though there can be more
+   --  than one variable referencing the same address. Groups are
    --  recognised by the client, and for a group to be used it must
    --  contain all the variables expected.
 
@@ -160,8 +163,8 @@ package body Log is
 
    --  Type representing a log group.
    type Log_Group is record
-      Name                : Log_Name;
-      Log_Variables       : Log_Group_Variable_Array;
+      Name          : Log_Name;
+      Log_Variables : Log_Group_Variable_Array;
    end record;
 
    subtype Log_Group_ID is Integer range 0 .. MAX_LOG_NUMBER_OF_GROUPS - 1;
@@ -175,11 +178,17 @@ package body Log is
    --  Type representing the log TOC
 
    type Log_TOC is record
-      Log_Groups          : Log_Group_Array;
-      Log_Variables       : Log_Variable_Array;
+      Log_Groups    : Log_Group_Array;
+      Log_Variables : Log_Variable_Array;
    end record;
 
    --  Storage for Blocks.
+
+   --  A Block is requested by the client, using a client-determined
+   --  ID (type T_Uint8). It is a request to report a number of
+   --  variables at an interval.
+   --
+   --  A particular variable can appear in more than one block.
 
    type Log_Operation is record     -- XXX might need to support addresses too
       Variable  : Log_Variable_ID;
@@ -491,6 +500,27 @@ package body Log is
       procedure CRTP_Append_T_Uint32_Data is new CRTP_Append_Data
         (T_Uint32);
 
+      function Log_Data_CRC32 return T_Uint32;
+      function Log_Data_CRC32 return T_Uint32 is
+         --  Note, this doesn't take account of uninitialized
+         --  components of Log_Data, but since the only use (in
+         --  cfclient, anyway) is to determine whether to load new
+         --  data this will just add a minor startup load.
+         use type Ada.Streams.Stream_Element_Offset;
+         subtype Stream_Element_Array
+           is Ada.Streams.Stream_Element_Array
+             (1 .. (Log_TOC'Size + 7) / 8);
+         function Convert is new Ada.Unchecked_Conversion
+           (Log_TOC, Stream_Element_Array);
+         As_Stream_Elements : constant Stream_Element_Array
+           := Convert (Log_Data);
+         CRC32 : GNAT.CRC32.CRC32;
+      begin
+         GNAT.CRC32.Initialize (CRC32);
+         GNAT.CRC32.Update (CRC32, As_Stream_Elements);
+         return T_Uint32 (GNAT.CRC32.Get_Value (CRC32));
+      end Log_Data_CRC32;
+
       Command        : Log_TOC_Command;
       Packet_Handler : CRTP_Packet_Handler;
       Has_Succeed    : Boolean;
@@ -511,10 +541,9 @@ package body Log is
                T_Uint8 (Log_Data.Log_Variables.Length),
                Has_Succeed);
 
-            --  Add CRC. 0 for the moment..
             CRTP_Append_T_Uint32_Data
               (Packet_Handler,
-               0,
+               Log_Data_CRC32,
                Has_Succeed);
             CRTP_Append_T_Uint8_Data
               (Packet_Handler,
@@ -756,6 +785,9 @@ package body Log is
             end if;
 
             Variable := Log_Variable_ID (O.Variable_ID);
+
+            --  XXX Shouldn't we check that O.Storage_Type matches the
+            --  variable's Storage_Type?
 
             Block.Operations.Append
               ((Variable => Variable,
