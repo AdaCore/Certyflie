@@ -30,7 +30,6 @@
 with System;
 with Ada.Real_Time;      use Ada.Real_Time;
 
-with Crazyflie_Config;   use Crazyflie_Config;
 with Generic_Queue;
 with Types;              use Types;
 
@@ -188,7 +187,7 @@ is
       pragma Priority (Prio);
    end CRTP_Tx_Task_Type;
 
-   --  Task in charge of dequeuing the messages in teh Rx_queue
+   --  Task in charge of dequeuing the messages in the Rx_queue
    --  to put them in the Port_Queues.
    task type CRTP_Rx_Task_Type (Prio : System.Priority) is
       pragma Priority (Prio);

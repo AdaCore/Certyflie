@@ -29,15 +29,15 @@
 
 with Ada.Unchecked_Conversion;
 with Ada.Containers.Bounded_Hashed_Maps;
-with Ada.Containers.Bounded_Vectors;
 with Ada.Real_Time;               use Ada.Real_Time;
 with Ada.Real_Time.Timing_Events; use Ada.Real_Time.Timing_Events;
-with Ada.Streams;
 with Ada.Strings.Bounded;
-with GNAT.CRC32;
 
 with CRTP;                        use CRTP;
 with Types;                       use Types;
+
+with CRC;
+with Generic_Vectors;
 
 package body Log is
 
@@ -123,9 +123,11 @@ package body Log is
      (Strings.To_Bounded_String (S))
      with Pre => S'Length <= Max_Name_Length;
 
+   subtype Group_Identifier is Natural range 0 .. MAX_LOG_NUMBER_OF_GROUPS - 1;
+
    --  Type representing a log variable.
    type Log_Variable is record
-      Group_ID     : Natural;
+      Group_ID     : Group_Identifier;
       Name         : Log_Name;
       Log_Type     : Log_Variable_Type;
       Variable     : System.Address := System.Null_Address;
@@ -136,10 +138,10 @@ package body Log is
    Max_Variables : constant
      := MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP * MAX_LOG_NUMBER_OF_GROUPS;
 
-   subtype Log_Variable_ID is Integer range 0 .. Max_Variables - 1;
-   package Log_Variables is new Ada.Containers.Bounded_Vectors
-     (Index_Type   => Log_Variable_ID,
-      Element_Type => Log_Variable);
+   subtype Variable_Identifier is Natural range 0 .. Max_Variables - 1;
+
+   package Log_Variables is new Generic_Vectors
+     (Element_Type => Log_Variable);
 
    subtype Log_Variable_Array is Log_Variables.Vector
      (Capacity => Max_Variables);
@@ -151,12 +153,8 @@ package body Log is
    --  recognised by the client, and for a group to be used it must
    --  contain all the variables expected.
 
-   subtype Group_Variable_ID is Integer range
-     0 .. MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP - 1;
-
-   package Group_Variables is new Ada.Containers.Bounded_Vectors
-     (Index_Type   => Group_Variable_ID,
-      Element_Type => Log_Variable_ID);
+   package Group_Variables is new Generic_Vectors
+     (Element_Type => Variable_Identifier);
 
    subtype Log_Group_Variable_Array is Group_Variables.Vector
      (Capacity => MAX_LOG_NUMBER_OF_VARIABLES_PER_GROUP);
@@ -167,10 +165,8 @@ package body Log is
       Log_Variables : Log_Group_Variable_Array;
    end record;
 
-   subtype Log_Group_ID is Integer range 0 .. MAX_LOG_NUMBER_OF_GROUPS - 1;
-   package Log_Groups is new Ada.Containers.Bounded_Vectors
-     (Index_Type   => Log_Group_ID,
-      Element_Type => Log_Group);
+   package Log_Groups is new Generic_Vectors
+     (Element_Type => Log_Group);
 
    subtype Log_Group_Array is Log_Groups.Vector
      (Capacity => MAX_LOG_NUMBER_OF_GROUPS);
@@ -191,15 +187,14 @@ package body Log is
    --  A particular variable can appear in more than one block.
 
    type Log_Operation is record     -- XXX might need to support addresses too
-      Variable  : Log_Variable_ID;
+      Variable  : Variable_Identifier;
       Stored_As : Log_Variable_Type;
       Report_As : Log_Variable_Type;
    end record;
 
-   subtype Log_Operation_ID is Integer range 0 .. MAX_LOG_OPS - 1;
-   package Log_Operations is new Ada.Containers.Bounded_Vectors
-     (Index_Type   => Log_Operation_ID,
-      Element_Type => Log_Operation);
+   subtype Operation_Identifier is Natural range 0 .. MAX_LOG_OPS - 1;
+   package Log_Operations is new Generic_Vectors
+     (Element_Type => Log_Operation);
    subtype Log_Operations_Array is Log_Operations.Vector
      (Capacity => MAX_LOG_OPS);
 
@@ -365,7 +360,7 @@ package body Log is
         ((Name   => String_To_Log_Name (Name),
           others => <>));
 
-      Group_ID := Natural (Log_Data.Log_Groups.Last_Index);
+      Group_ID := Log_Data.Log_Groups.Length - 1;
 
       Has_Succeed := True;
    end Create_Log_Group;
@@ -381,7 +376,8 @@ package body Log is
       Variable     : System.Address;
       Has_Succeed  : out Boolean)
    is
-      Group : Log_Group renames Log_Data.Log_Groups (Group_ID);
+      Group : Log_Group
+      renames Log_Data.Log_Groups.Element_Access (Group_ID).all;
       use type Ada.Containers.Count_Type;
    begin
       Has_Succeed := False;
@@ -396,7 +392,7 @@ package body Log is
                                       Log_Type => Log_Type,
                                       Variable => Variable));
 
-      Group.Log_Variables.Append (Log_Data.Log_Variables.Last_Index);
+      Group.Log_Variables.Append (Log_Data.Log_Variables.Length - 1);
 
       Has_Succeed := True;
    end Append_Log_Variable_To_Group;
@@ -420,14 +416,14 @@ package body Log is
       --  May be falsified if a new group is required but can't be
       --  created.
 
-      for J in Log_Data.Log_Groups.Iterate loop
-         if Log_Data.Log_Groups (J).Name = Group_Name then
-            Group_ID := Integer (Log_Groups.To_Index (J));
+      for J in 0 .. Log_Data.Log_Groups.Length - 1 loop
+         if Log_Data.Log_Groups.Element (J).Name = Group_Name then
+            Group_ID := J;
             exit;
          end if;
       end loop;
 
-      if Group_ID not in Log_Group_ID then
+      if Group_ID not in Group_Identifier then
          --  This will be a new group; create it.
          Create_Log_Group (Name        => Group,
                            Group_ID    => Group_ID,
@@ -506,19 +502,9 @@ package body Log is
          --  components of Log_Data, but since the only use (in
          --  cfclient, anyway) is to determine whether to load new
          --  data this will just add a minor startup load.
-         use type Ada.Streams.Stream_Element_Offset;
-         subtype Stream_Element_Array
-           is Ada.Streams.Stream_Element_Array
-             (1 .. (Log_TOC'Size + 7) / 8);
-         function Convert is new Ada.Unchecked_Conversion
-           (Log_TOC, Stream_Element_Array);
-         As_Stream_Elements : constant Stream_Element_Array
-           := Convert (Log_Data);
-         CRC32 : GNAT.CRC32.CRC32;
+         function Log_TOC_CRC is new CRC.Make (Data_Kind => Log_TOC);
       begin
-         GNAT.CRC32.Initialize (CRC32);
-         GNAT.CRC32.Update (CRC32, As_Stream_Elements);
-         return T_Uint32 (GNAT.CRC32.Get_Value (CRC32));
+         return T_Uint32 (Log_TOC_CRC (Log_Data));
       end Log_Data_CRC32;
 
       Command        : Log_TOC_Command;
@@ -559,7 +545,7 @@ package body Log is
                Var_ID : constant Integer
                  := Integer (Packet.Data_1 (2));
             begin
-               if Var_ID in 0 .. Log_Data.Log_Variables.Last_Index then
+               if Var_ID < Log_Data.Log_Variables.Length then
                   CRTP_Append_T_Uint8_Data
                     (Packet_Handler,
                      T_Uint8 (Var_ID),
@@ -567,9 +553,10 @@ package body Log is
 
                   declare
                      Variable : Log_Variable renames
-                       Log_Data.Log_Variables (Var_ID);
+                       Log_Data.Log_Variables.Element_Access (Var_ID).all;
                      Group : Log_Group renames
-                       Log_Data.Log_Groups (Variable.Group_ID);
+                       Log_Data.Log_Groups.Element_Access
+                         (Variable.Group_ID).all;
                   begin
                      CRTP_Append_T_Uint8_Data
                        (Packet_Handler,
@@ -581,6 +568,9 @@ package body Log is
                         Packet_Handler,
                         Has_Succeed);
                   end;
+               else
+                  --  Return the packet with no content.
+                  null;
                end if;
             end;
       end case;
@@ -758,7 +748,7 @@ package body Log is
       declare
          Block : Log_Block renames Log_Blocks (ID);
          Current_Block_Length : T_Uint8;
-         Variable             : Log_Variable_ID;
+         Variable             : Variable_Identifier;
 
          Ops_Settings : constant Ops_Settings_Array
            := T_Uint8_Array_To_Ops_Settings_Array (Ops_Settings_Raw);
@@ -777,21 +767,21 @@ package body Log is
                return E2BIG;
             end if;
 
-            --  Trying to add a variable that does not exist
-            if Ada.Containers.Count_Type (O.Variable_ID)
-              >=  Log_Data.Log_Variables.Length
+            --  Check not trying to add a variable that does not exist
+            if Natural (O.Variable_ID) >  Log_Data.Log_Variables.Length
             then
                return ENOENT;
             end if;
 
-            Variable := Log_Variable_ID (O.Variable_ID);
+            Variable := Variable_Identifier (O.Variable_ID);
 
             --  XXX Shouldn't we check that O.Storage_Type matches the
             --  variable's Storage_Type?
 
             Block.Operations.Append
               ((Variable => Variable,
-                Stored_As => Log_Data.Log_Variables (Variable).Log_Type,
+                Stored_As =>
+                  Log_Data.Log_Variables.Element (Variable).Log_Type,
                 Report_As => Log_Variable_Type (O.Log_Type)));
          end loop;
       end;
@@ -922,8 +912,9 @@ package body Log is
       Block_Length : T_Uint8 := 0;
    begin
 
-      for Op of Block.Operations loop
-         Block_Length := Block_Length + Type_Length (Op.Report_As);
+      for J in 0 .. Block.Operations.Length - 1 loop
+         Block_Length := Block_Length
+           + Type_Length (Block.Operations.Element (J).Report_As);
       end loop;
 
       return Block_Length;
@@ -1047,82 +1038,88 @@ package body Log is
                                              Has_Succeed => Has_Succeed);
 
             --  Add all the variables data in the packet
-            for Op of Log_Blocks (Block_ID).Operations loop
-               --  Get the address of this operation's variable.
-               Variable := Log_Data.Log_Variables (Op.Variable).Variable;
+            for J in 0 .. Log_Blocks (Block_ID).Operations.Length - 1 loop
+               declare
+                  Op : Log_Operation renames
+                    Log_Blocks (Block_ID).Operations.Element_Access (J).all;
+               begin
+                  --  Get the address of this operation's variable.
+                  Variable :=
+                    Log_Data.Log_Variables.Element (Op.Variable).Variable;
 
-               case Op.Report_As is
-                  when LOG_UINT8 =>
-                     declare
-                        Value : T_Uint8;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_T_Uint8_Data
-                          (Handler     => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-                  when LOG_UINT16 =>
-                     declare
-                        Value : T_Uint16;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_T_Uint16_Data
-                          (Handler     => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-                  when LOG_UINT32 =>
-                     declare
-                        Value : T_Uint32;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_T_Uint32_Data
-                          (Handler     => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-                  when LOG_INT8 =>
-                     declare
-                        Value : T_Int8;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_T_Int8_Data
-                          (Handler      => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-                  when LOG_INT16 =>
-                     declare
-                        Value : T_Int16;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_T_Int16_Data
-                          (Handler     => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-                  when LOG_INT32 =>
-                     declare
-                        Value : T_Int32;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_T_Int32_Data
-                          (Handler     => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-                  when LOG_FLOAT =>
-                     declare
-                        Value : Float;
-                        for Value'Address use Variable;
-                     begin
-                        CRTP_Append_Float_Data
-                          (Handler     => Packet_Handler,
-                           Data        => Value,
-                           Has_Succeed => Has_Succeed);
-                     end;
-               end case;
+                  case Op.Report_As is
+                     when LOG_UINT8 =>
+                        declare
+                           Value : T_Uint8;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_T_Uint8_Data
+                             (Handler     => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                     when LOG_UINT16 =>
+                        declare
+                           Value : T_Uint16;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_T_Uint16_Data
+                             (Handler     => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                     when LOG_UINT32 =>
+                        declare
+                           Value : T_Uint32;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_T_Uint32_Data
+                             (Handler     => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                     when LOG_INT8 =>
+                        declare
+                           Value : T_Int8;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_T_Int8_Data
+                             (Handler      => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                     when LOG_INT16 =>
+                        declare
+                           Value : T_Int16;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_T_Int16_Data
+                             (Handler     => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                     when LOG_INT32 =>
+                        declare
+                           Value : T_Int32;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_T_Int32_Data
+                             (Handler     => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                     when LOG_FLOAT =>
+                        declare
+                           Value : Float;
+                           for Value'Address use Variable;
+                        begin
+                           CRTP_Append_Float_Data
+                             (Handler     => Packet_Handler,
+                              Data        => Value,
+                              Has_Succeed => Has_Succeed);
+                        end;
+                  end case;
+               end;
             end loop;
 
             CRTP_Send_Packet

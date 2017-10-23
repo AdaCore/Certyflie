@@ -28,11 +28,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
-with GNAT.CRC32;
-with Ada.Streams;
 
 with CRTP;      use CRTP;
 with Types;     use Types;
+
+with CRC;
 
 package body Parameter is
 
@@ -74,9 +74,9 @@ package body Parameter is
 
    --  Error code constants
    ENOENT : constant := 2;
-   E2BIG  : constant := 7;
-   ENOMEM : constant := 12;
-   EEXIST : constant := 17;
+   --  E2BIG  : constant := 7;
+   --  ENOMEM : constant := 12;
+   --  EEXIST : constant := 17;
 
    --  Maximum number of groups we can log.
    MAX_PARAM_NUMBER_OF_GROUPS          : constant := 8;
@@ -321,19 +321,10 @@ package body Parameter is
          --  components of Parameter_Data, but since the only use (in
          --  cfclient, anyway) is to determine whether to load new
          --  data this will just add a minor startup load.
-         use type Ada.Streams.Stream_Element_Offset;
-         subtype Stream_Element_Array
-           is Ada.Streams.Stream_Element_Array
-             (1 .. (Parameter_Data_Base'Size + 7) / 8);
-         function Convert is new Ada.Unchecked_Conversion
-           (Parameter_Data_Base, Stream_Element_Array);
-         As_Stream_Elements : constant Stream_Element_Array
-           := Convert (Parameter_Data);
-         CRC32 : GNAT.CRC32.CRC32;
+         function Parameter_TOC_CRC
+         is new CRC.Make (Data_Kind => Parameter_Data_Base);
       begin
-         GNAT.CRC32.Initialize (CRC32);
-         GNAT.CRC32.Update (CRC32, As_Stream_Elements);
-         return T_Uint32 (GNAT.CRC32.Get_Value (CRC32));
+         return T_Uint32 (Parameter_TOC_CRC (Parameter_Data));
       end Parameter_Database_CRC32;
 
       Command        : Parameter_TOC_Command;
@@ -464,7 +455,8 @@ package body Parameter is
    begin
       Packet_Handler := CRTP_Create_Packet
         (CRTP_PORT_PARAM, Parameter_Channel'Enum_Rep (PARAM_READ_CH));
-      if ID not in 0 .. Parameter_Data.Parameter_Variables_Count - 1 then
+      if ID >= Parameter_Data.Parameter_Variables_Count then
+         --  Invalid
          CRTP_Append_T_Uint8_Data
            (Packet_Handler,
             T_Uint8'Last,

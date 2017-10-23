@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                        Copyright (C) 2017, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,49 +27,19 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with System;
+--  This package computes CRC32 for an object.
+--
+--  Used in packages Log and Parameters to allow a client
+--  (e.g. cfclient) to decide whether the log or parameter items have
+--  changed; if not, a cached copy can be used instead of repeating
+--  the upload.
 
-with MPU9250;       use MPU9250;
+with Interfaces;
 
-package Crazyflie_Config is
+package CRC is
 
-   --  Constants used to configure the Crazyflie support
+   generic
+      type Data_Kind is private;
+   function Make (Data : Data_Kind) return Interfaces.Unsigned_32;
 
-   --  Interrupt priorities (see drivers/src/nvicconf.h)
-   LOW_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'First + 2;
-   MID_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'First + 5;
-   HIGH_INTERRUPT_PRIORITY    : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'First + 8;
-   TOP_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'Last;
-
-   DMA_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
-     := HIGH_INTERRUPT_PRIORITY;
-   DMA_FLOW_CONTROL_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
-     := TOP_INTERRUPT_PRIORITY;
-   SYSLINK_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
-     := TOP_INTERRUPT_PRIORITY;
-
-   --  Link layers implemented to communicate via the CRTP protocol
-   type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
-   LINK_LAYER_TYPE : constant Link_Layer := RADIO_LINK;
-
-   --  Radio configuration
-   RADIO_CHANNEL       : constant := 80;
-   --  This should be with the radio ..
-   type RADIO_RATE is
-     (RADIO_RATE_250K,
-      RADIO_RATE_1M,
-      RADIO_RATE_2M);
-   RADIO_DATARATE      : constant := RADIO_RATE'Pos (RADIO_RATE_2M);
-   RADIO_ADDRESS       : constant := 16#e7e7e7e7e7#;
-
-   --  IMU configuration
-   IMU_GYRO_FS_CONFIG  : constant MPU9250_FS_Gyro_Range
-     := MPU9250_Gyro_FS_2000;
-   IMU_ACCEL_FS_CONFIG : constant MPU9250_FS_Accel_Range
-     := MPU9250_Accel_FS_8;
-
-end Crazyflie_Config;
+end CRC;

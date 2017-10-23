@@ -5,7 +5,6 @@ with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with Ada.Unchecked_Conversion;
 with System;
 
-with Crazyflie_Config;             use Crazyflie_Config;
 with Types;                        use Types;
 with UART_Syslink;                 use UART_Syslink;
 

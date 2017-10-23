@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                        Copyright (C) 2017, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,49 +27,30 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with System;
+with Ada.Streams;
+with GNAT.CRC32;
 
-with MPU9250;       use MPU9250;
+package body CRC is
 
-package Crazyflie_Config is
+   function Make (Data : Data_Kind) return Interfaces.Unsigned_32 is
+      use type Ada.Streams.Stream_Element_Offset;
 
-   --  Constants used to configure the Crazyflie support
+      subtype Stream_Element_Array
+        is Ada.Streams.Stream_Element_Array (1 .. (Data_Kind'Size + 7) / 8);
 
-   --  Interrupt priorities (see drivers/src/nvicconf.h)
-   LOW_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'First + 2;
-   MID_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'First + 5;
-   HIGH_INTERRUPT_PRIORITY    : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'First + 8;
-   TOP_INTERRUPT_PRIORITY     : constant System.Interrupt_Priority
-     := System.Interrupt_Priority'Last;
+      As_Stream_Elements : Stream_Element_Array
+      with
+        Import,
+        Convention => Ada,
+        Address    => Data'Address;
+      --  We can't use Unchecked_Conversion here, because that makes a
+      --  copy!
 
-   DMA_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
-     := HIGH_INTERRUPT_PRIORITY;
-   DMA_FLOW_CONTROL_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
-     := TOP_INTERRUPT_PRIORITY;
-   SYSLINK_INTERRUPT_PRIORITY : constant System.Interrupt_Priority
-     := TOP_INTERRUPT_PRIORITY;
+      CRC32              : GNAT.CRC32.CRC32;
+   begin
+      GNAT.CRC32.Initialize (CRC32);
+      GNAT.CRC32.Update (CRC32, As_Stream_Elements);
+      return GNAT.CRC32.Get_Value (CRC32);
+   end Make;
 
-   --  Link layers implemented to communicate via the CRTP protocol
-   type Link_Layer is (RADIO_LINK, USB_LINK, ESKY_LINK);
-   LINK_LAYER_TYPE : constant Link_Layer := RADIO_LINK;
-
-   --  Radio configuration
-   RADIO_CHANNEL       : constant := 80;
-   --  This should be with the radio ..
-   type RADIO_RATE is
-     (RADIO_RATE_250K,
-      RADIO_RATE_1M,
-      RADIO_RATE_2M);
-   RADIO_DATARATE      : constant := RADIO_RATE'Pos (RADIO_RATE_2M);
-   RADIO_ADDRESS       : constant := 16#e7e7e7e7e7#;
-
-   --  IMU configuration
-   IMU_GYRO_FS_CONFIG  : constant MPU9250_FS_Gyro_Range
-     := MPU9250_Gyro_FS_2000;
-   IMU_ACCEL_FS_CONFIG : constant MPU9250_FS_Accel_Range
-     := MPU9250_Accel_FS_8;
-
-end Crazyflie_Config;
+end CRC;
