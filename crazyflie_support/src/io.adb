@@ -5,8 +5,21 @@ with STM32.Device;
 with STM32.GPIO;
 with STM32.USARTs;
 
+with System;
+
 package body IO
 is
+
+   protected Buffer is
+      procedure Put (C : Character);
+      entry Get (C : out Character);
+   private
+      Ready : Boolean := False;
+      Count : Natural := 0;
+      Buf : String (1 .. 256);
+      Read_Index : Positive := 1;
+      Write_Index : Positive := 1;
+   end Buffer;
 
    --  Uses PC10 (TX), PC11 (RX).
    USART : STM32.USARTs.USART
@@ -19,12 +32,8 @@ is
      renames STM32.Board.EXT_USART1_RX;
 
    procedure Put (C : Character) is
-      use STM32.USARTs;
    begin
-      while not STM32.USARTs.Tx_Ready (USART) loop
-         null;
-      end loop;
-      STM32.USARTs.Transmit (USART, HAL.UInt9 (Character'Pos (C)));
+      Buffer.Put (C);
    end Put;
 
    procedure Put (S : String) is
@@ -55,6 +64,43 @@ is
       end loop;
       C := Character'Val (STM32.USARTs.Current_Input (USART));
    end Get;
+
+   protected body Buffer is
+      procedure Put (C : Character) is
+      begin
+         if Count < Buf'Length then
+            Buf (Write_Index) := C;
+            Write_Index := (if Write_Index = Buf'Last
+                            then Buf'First
+                            else Write_Index + 1);
+            Count := Count + 1;
+            Ready := True;
+         end if;
+      end Put;
+      entry Get (C : out Character) when Ready is
+      begin
+         C := Buf (Read_Index);
+         Read_Index := (if Read_Index = Buf'Last
+                        then Buf'First
+                        else Read_Index + 1);
+         Count := Count - 1;
+         Ready := Count > 0;
+      end Get;
+   end Buffer;
+
+   task Output with Priority => System.Priority'First + 1;
+
+   task body Output is
+      C : Character;
+   begin
+      loop
+         Buffer.Get (C);
+         while not STM32.USARTs.Tx_Ready (USART) loop
+            null;
+         end loop;
+         STM32.USARTs.Transmit (USART, HAL.UInt9 (Character'Pos (C)));
+      end loop;
+   end Output;
 
    procedure Initialize_USART;
    procedure Configure_USART;
