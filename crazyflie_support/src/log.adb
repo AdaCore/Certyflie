@@ -1017,7 +1017,10 @@ package body Log is
          Log_Block_Timing_Event_Handler.Get_Block_To_Run
            (ID => Client_Block_ID);
 
-         if CRTP_Is_Connected then
+         if CRTP_Is_Connected
+           and then Log_Block_Map.Contains (Client_Block_ID)
+           --  Bit of a race condition here! Blocks could have been reset.
+         then
 
             Block_ID := Log_Block_Map (Client_Block_ID);
 

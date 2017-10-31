@@ -278,7 +278,9 @@ is
 
    function CRTP_Is_Connected return Boolean is
    begin
-      return Is_Connected;
+      --  This is what crazyflie-firmware/src/modules/src/crtp.c does
+      return True;
+      --  return Is_Connected;
    end CRTP_Is_Connected;
 
 end CRTP;
