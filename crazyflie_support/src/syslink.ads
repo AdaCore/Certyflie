@@ -5,7 +5,6 @@ with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with Ada.Unchecked_Conversion;
 with System;
 
-with Crazyflie_Config;             use Crazyflie_Config;
 with Types;                        use Types;
 with UART_Syslink;                 use UART_Syslink;
 
@@ -47,6 +46,7 @@ package Syslink is
                                 SYSLINK_RADIO_DATARATE,
                                 SYSLINK_RADIO_CONTWAVE,
                                 SYSLINK_RADIO_RSSI,
+                                SYSLINK_RADIO_ADDRESS,
                                 SYSLINK_PM_SOURCE,
                                 SYSLINK_PM_ONOFF_SWITCHOFF,
                                 SYSLINK_PM_BATTERY_VOLTAGE,
@@ -61,6 +61,7 @@ package Syslink is
                                 SYSLINK_RADIO_DATARATE        => 16#02#,
                                 SYSLINK_RADIO_CONTWAVE        => 16#03#,
                                 SYSLINK_RADIO_RSSI            => 16#04#,
+                                SYSLINK_RADIO_ADDRESS         => 16#05#,
                                 SYSLINK_PM_SOURCE             => 16#10#,
                                 SYSLINK_PM_ONOFF_SWITCHOFF    => 16#11#,
                                 SYSLINK_PM_BATTERY_VOLTAGE    => 16#12#,

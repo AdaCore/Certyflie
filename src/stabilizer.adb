@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,7 @@
 
 with Config; use Config;
 with Safety; use Safety;
+with Log;
 
 package body Stabilizer
 with SPARK_Mode,
@@ -104,6 +105,52 @@ is
       end if;
 
       Controller_Init;
+
+      declare
+         Dummy : Boolean;
+      begin
+         Log.Add_Log_Variable (Group    => "motor",
+                               Name     => "m1",
+                               Log_Type => Log.LOG_UINT16,
+                               Variable => Motor_Power_M1'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "motor",
+                               Name     => "m2",
+                               Log_Type => Log.LOG_UINT16,
+                               Variable => Motor_Power_M2'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "motor",
+                               Name     => "m3",
+                               Log_Type => Log.LOG_UINT16,
+                               Variable => Motor_Power_M3'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "motor",
+                               Name     => "m4",
+                               Log_Type => Log.LOG_UINT16,
+                               Variable => Motor_Power_M4'Address,
+                               Success  => Dummy);
+
+         Log.Add_Log_Variable (Group    => "stabilizer",
+                               Name     => "roll",
+                               Log_Type => Log.LOG_FLOAT,
+                               Variable => Euler_Roll_Actual'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "stabilizer",
+                               Name     => "pitch",
+                               Log_Type => Log.LOG_FLOAT,
+                               Variable => Euler_Pitch_Actual'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "stabilizer",
+                               Name     => "yaw",
+                               Log_Type => Log.LOG_FLOAT,
+                               Variable => Euler_Yaw_Actual'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "stabilizer",
+                               Name     => "thrust",
+                               Log_Type => Log.LOG_UINT16,
+                               Variable => Actuator_Thrust'Address,
+                               Success  => Dummy);
+      end;
 
       Is_Init := True;
    end Stabilizer_Init;

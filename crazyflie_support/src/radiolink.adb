@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,7 +31,15 @@ with Ada.Unchecked_Conversion;
 
 with Crazyflie_Config;                   use Crazyflie_Config;
 
+with LEDS;
+
 package body Radiolink is
+
+   Red_L   : LEDS.Flasher (LEDS.LED_Red_L'Access);
+   --  Indicate we've transmitted a packet.
+
+   Green_L   : LEDS.Flasher (LEDS.LED_Green_L'Access);
+   --  Indicate we've received a packet.
 
    --------------------
    -- Radiolink_Init --
@@ -47,6 +55,7 @@ package body Radiolink is
 
       Radiolink_Set_Channel (RADIO_CHANNEL);
       Radiolink_Set_Data_Rate (RADIO_DATARATE);
+      Radiolink_Set_Address (RADIO_ADDRESS);
 
       Is_Init := True;
    end Radiolink_Init;
@@ -78,6 +87,23 @@ package body Radiolink is
       Sl_Packet.Data (1) := Channel;
       Syslink_Send_Packet (Sl_Packet);
    end Radiolink_Set_Channel;
+
+   ---------------------------
+   -- Radiolink_Set_Address --
+   ---------------------------
+
+   procedure Radiolink_Set_Address (Address : T_Uint64)
+   is
+      Sl_Packet : Syslink_Packet;
+      subtype As_Bytes is T_Uint8_Array (1 .. 8);
+      function Convert is new Ada.Unchecked_Conversion (T_Uint64, As_Bytes);
+      Address_As_Bytes : constant As_Bytes := Convert (Address);
+   begin
+      Sl_Packet.Slp_Type := SYSLINK_RADIO_ADDRESS;
+      Sl_Packet.Length := 5;
+      Sl_Packet.Data (1 .. 5) := Address_As_Bytes (1 .. 5);
+      Syslink_Send_Packet (Sl_Packet);
+   end Radiolink_Set_Address;
 
    ---------------------------------------
    -- Radiolink_Receive_Packet_Blocking --
@@ -132,13 +158,15 @@ package body Radiolink is
 
          --  Enqueue the received packet
          Rx_Queue.Enqueue_Item (Rx_CRTP_Packet, Has_Succeed);
-         --  TODO: led blink
+         if Has_Succeed then
+            Green_L.Set;
+         end if;
 
          --  If a radio packet is received, one can be sent
          Tx_Queue.Dequeue_Item (Tx_Sl_Packet, Has_Succeed);
 
          if Has_Succeed then
-            --  TODO: led blink
+            Red_L.Set;
             Syslink_Send_Packet (Tx_Sl_Packet);
          end if;
       elsif Rx_Sl_Packet.Slp_Type = SYSLINK_RADIO_RSSI then

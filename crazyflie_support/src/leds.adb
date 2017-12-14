@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2017, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -224,5 +224,41 @@ package body LEDS is
       end Toggle_LED_Status;
 
    end LED_Status_Event_Handler;
+
+   protected Flasher_Handler is
+      pragma Interrupt_Priority;
+      --  GNAT GPL 2017/ravenscar-full-stm32f4 needs this.
+
+      procedure Turn_Off_The_LED
+        (Event : in out Ada.Real_Time.Timing_Events.Timing_Event);
+      --  We "know" that the Event is actually a Flasher.
+   end Flasher_Handler;
+
+   procedure Set (The_Flasher : in out Flasher) is
+   begin
+      --  cancel the timing event, if any
+      declare
+         Dummy : Boolean;
+      begin
+         The_Flasher.Cancel_Handler (Cancelled => Dummy);
+      end;
+      --  set the LED
+      Set_LED (The_Flasher.The_LED.all, True);
+      --  set the timing event to turn off the LED in 5 ms
+      The_Flasher.Set_Handler
+        (Handler => Flasher_Handler.Turn_Off_The_LED'Access,
+         At_Time => Ada.Real_Time.Clock + Ada.Real_Time.Milliseconds (5));
+   end Set;
+
+   protected body Flasher_Handler is
+      procedure Turn_Off_The_LED
+        (Event : in out Ada.Real_Time.Timing_Events.Timing_Event) is
+         The_Flasher : Flasher
+           renames Flasher
+           (Ada.Real_Time.Timing_Events.Timing_Event'Class (Event));
+      begin
+         Set_LED (The_Flasher.The_LED.all, False);
+      end Turn_Off_The_LED;
+   end Flasher_Handler;
 
 end LEDS;

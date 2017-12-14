@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                        Copyright (C) 2017, AdaCore                       --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,62 +27,30 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with System;
+with Ada.Streams;
+with GNAT.CRC32;
 
-package Parameter is
+package body CRC is
 
-   --  Type representing all the types that be used as parameters.
+   function Make (Data : Data_Kind) return Interfaces.Unsigned_32 is
+      use type Ada.Streams.Stream_Element_Offset;
 
-   type Parameter_Size is (One_Byte, Two_Bytes, Four_Bytes, Eight_Bytes);
-   type Reserved_4_5 is range 0 .. 0;
-   type Reserved_7_7 is range 0 .. 0;
+      subtype Stream_Element_Array
+        is Ada.Streams.Stream_Element_Array (1 .. (Data_Kind'Size + 7) / 8);
 
-   type Parameter_Variable_Type is record
-      Size       : Parameter_Size;
-      Floating   : Boolean;
-      Signed     : Boolean;
-      Unused_4_5 : Reserved_4_5 := 0;
-      Read_Only  : Boolean;
-      Unused_7_7 : Reserved_7_7 := 0;
-   end record;
-   for Parameter_Variable_Type use record
-      Size       at 0 range 0 .. 1;
-      Floating   at 0 range 2 .. 2;
-      Signed     at 0 range 3 .. 3;
-      Unused_4_5 at 0 range 4 .. 5;
-      Read_Only  at 0 range 6 .. 6;
-      Unused_7_7 at 0 range 7 .. 7;
-   end record;
-   for Parameter_Variable_Type'Size use 8;
+      As_Stream_Elements : Stream_Element_Array
+      with
+        Import,
+        Convention => Ada,
+        Address    => Data'Address;
+      --  We can't use Unchecked_Conversion here, because that makes a
+      --  copy!
 
-   --  Global variables and constants
+      CRC32              : GNAT.CRC32.CRC32;
+   begin
+      GNAT.CRC32.Initialize (CRC32);
+      GNAT.CRC32.Update (CRC32, As_Stream_Elements);
+      return GNAT.CRC32.Get_Value (CRC32);
+   end Make;
 
-   --  Limitation of the variable/group name size.
-   MAX_PARAM_VARIABLE_NAME_LENGTH : constant := 14;
-
-   --  Procedures and functions
-
-   --  Initialize the parameter subystem.
-   procedure Parameter_Init;
-
-   --  Test if the parameter subsystem is initialized.
-   function Parameter_Test return Boolean;
-
-   --  Create a parameter group if there is any space left and if the name
-   --  is not too long.
-   procedure Create_Parameter_Group
-     (Name        : String;
-      Group_ID    : out Natural;
-      Has_Succeed : out Boolean)
-   with Pre => Name'Length <= MAX_PARAM_VARIABLE_NAME_LENGTH;
-
-   --  Append a variable to a parameter group.
-   procedure Append_Parameter_Variable_To_Group
-     (Group_ID       : Natural;
-      Name           : String;
-      Parameter_Type : Parameter_Variable_Type;
-      Variable       : System.Address;
-      Has_Succeed    : out Boolean)
-   with Pre => Name'Length <= MAX_PARAM_VARIABLE_NAME_LENGTH;
-
-end Parameter;
+end CRC;

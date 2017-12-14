@@ -33,7 +33,7 @@ package CRTP_Service is
 
    --  Types
 
-   --  Type representing all the avalaible commands for
+   --  Type representing all the available commands for
    --  CRTP service module.
    type CRTP_Service_Command is (Link_Echo,
                                  Link_Source,

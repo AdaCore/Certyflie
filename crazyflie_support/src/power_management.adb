@@ -29,7 +29,7 @@
 
 with Ada.Unchecked_Conversion;
 
-with Log;                      use Log;
+with Log;
 
 package body Power_Management
 with Refined_State => (Power_Management_State => (Current_Power_Info,
@@ -45,23 +45,23 @@ is
    ---------------------------
 
    procedure Power_Management_Init is
-      Group_ID : Natural;
-      Has_Succeed : Boolean;
-      pragma Unreferenced (Has_Succeed);
-
    begin
       Current_Power_State := Battery;
 
-      Create_Log_Group
-        (Name        => "pm",
-         Group_ID    => Group_ID,
-         Has_Succeed => Has_Succeed);
-      Append_Log_Variable_To_Group
-        (Group_ID     => Group_ID,
-         Name         => "vbat",
-         Log_Type     => LOG_FLOAT,
-         Variable     => Battery_Voltage'Address,
-         Has_Succeed  => Has_Succeed);
+      declare
+         Dummy : Boolean;
+      begin
+         Log.Add_Log_Variable (Group    => "pm",
+                               Name     => "vbat",
+                               Log_Type => Log.LOG_FLOAT,
+                               Variable => Battery_Voltage'Address,
+                               Success  => Dummy);
+         Log.Add_Log_Variable (Group    => "pm",
+                               Name     => "state",
+                               Log_Type => Log.LOG_INT8,
+                               Variable => Current_Power_State'Address,
+                               Success  => Dummy);
+      end;
    end Power_Management_Init;
 
    ------------------------------------------

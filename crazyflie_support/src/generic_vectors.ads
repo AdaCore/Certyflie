@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                       Copyright (C) 2017, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,62 +27,46 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with System;
+generic
+   type Element_Type is private;
+package Generic_Vectors is
 
-package Parameter is
+   --  A Vector corresponds conceptually to a zero-indexed array.
+   type Vector (Capacity : Positive) is tagged private;
 
-   --  Type representing all the types that be used as parameters.
+   function Length (This : Vector) return Natural;
 
-   type Parameter_Size is (One_Byte, Two_Bytes, Four_Bytes, Eight_Bytes);
-   type Reserved_4_5 is range 0 .. 0;
-   type Reserved_7_7 is range 0 .. 0;
+   procedure Append (To : in out Vector; Item : Element_Type)
+     with Pre => Length (To) < To.Capacity;
 
-   type Parameter_Variable_Type is record
-      Size       : Parameter_Size;
-      Floating   : Boolean;
-      Signed     : Boolean;
-      Unused_4_5 : Reserved_4_5 := 0;
-      Read_Only  : Boolean;
-      Unused_7_7 : Reserved_7_7 := 0;
-   end record;
-   for Parameter_Variable_Type use record
-      Size       at 0 range 0 .. 1;
-      Floating   at 0 range 2 .. 2;
-      Signed     at 0 range 3 .. 3;
-      Unused_4_5 at 0 range 4 .. 5;
-      Read_Only  at 0 range 6 .. 6;
-      Unused_7_7 at 0 range 7 .. 7;
-   end record;
-   for Parameter_Variable_Type'Size use 8;
+   function Element (This : Vector; Index : Natural)
+                     return Element_Type
+     with Pre => Index < Length (This);
 
-   --  Global variables and constants
+   function Element_Access (This : in out Vector; Index : Natural)
+                           return not null access Element_Type
+     with Pre => Index < Length (This);
 
-   --  Limitation of the variable/group name size.
-   MAX_PARAM_VARIABLE_NAME_LENGTH : constant := 14;
+   type Action is access procedure (On : in out Element_Type);
 
-   --  Procedures and functions
+   procedure Act_On (This : in out Vector;
+                     Taking : not null Action);
 
-   --  Initialize the parameter subystem.
-   procedure Parameter_Init;
+   procedure Act_On (This : in out Vector;
+                     Index : Natural;
+                     Taking : not null Action)
+     with Pre => Index < Length (This);
 
-   --  Test if the parameter subsystem is initialized.
-   function Parameter_Test return Boolean;
+   procedure Clear (This : in out Vector; Taking : Action := null);
 
-   --  Create a parameter group if there is any space left and if the name
-   --  is not too long.
-   procedure Create_Parameter_Group
-     (Name        : String;
-      Group_ID    : out Natural;
-      Has_Succeed : out Boolean)
-   with Pre => Name'Length <= MAX_PARAM_VARIABLE_NAME_LENGTH;
+private
 
-   --  Append a variable to a parameter group.
-   procedure Append_Parameter_Variable_To_Group
-     (Group_ID       : Natural;
-      Name           : String;
-      Parameter_Type : Parameter_Variable_Type;
-      Variable       : System.Address;
-      Has_Succeed    : out Boolean)
-   with Pre => Name'Length <= MAX_PARAM_VARIABLE_NAME_LENGTH;
+   type Components is array (Natural range <>) of Element_Type;
 
-end Parameter;
+   type Vector (Capacity : Positive) is tagged
+      record
+         Last : Natural := 0;
+         Elements : Components (1 .. Capacity) := (others => <>);
+      end record;
+
+end Generic_Vectors;
