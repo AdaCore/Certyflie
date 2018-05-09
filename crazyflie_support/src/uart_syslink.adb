@@ -203,19 +203,18 @@ package body UART_Syslink is
       Enable_Clock (NRF_RX & NRF_TX);
 
       Configure_IO (NRF_RX,
-                    Config => (Mode => Mode_AF,
-                               Output_Type => Open_Drain,
-                               Speed => Speed_25MHz,
-                               Resistors => Pull_Up));
+                    Config => (Mode             => Mode_AF,
+                               AF               => NRF_USART_AF,
+                               AF_Output_Type   => Open_Drain,
+                               AF_Speed         => Speed_25MHz,
+                               Resistors        => Pull_Up));
 
       Configure_IO (NRF_TX,
-                    Config => (Mode => Mode_AF,
-                               Output_Type => Push_Pull,
-                               Speed => Speed_25MHz,
-                               Resistors => Pull_Up));
-
-      Configure_Alternate_Function (NRF_RX & NRF_TX,
-                                    AF => NRF_USART_AF);
+                    Config => (Mode             => Mode_AF,
+                               AF               => NRF_USART_AF,
+                               AF_Output_Type   => Push_Pull,
+                               AF_Speed         => Speed_25MHz,
+                               Resistors        => Pull_Up));
 
       Enable_Clock (NRF_USART);
    end Initialize_USART;
@@ -271,9 +270,7 @@ package body UART_Syslink is
       Enable_Clock (NRF_FLOW_CTRL);
 
       Configure_IO (NRF_FLOW_CTRL,
-                    Config => (Mode => Mode_In,
-                               Output_Type => Open_Drain,  -- n/a
-                               Speed => Speed_25MHz,
+                    Config => (Mode      => Mode_In,
                                Resistors => Pull_Up));
 
       Clear_External_Interrupt (Interrupt_Line_Number (NRF_FLOW_CTRL));

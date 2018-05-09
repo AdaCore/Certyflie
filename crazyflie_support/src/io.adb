@@ -111,19 +111,18 @@ is
       STM32.Device.Enable_Clock (Rx_Point & Tx_Point);
 
       Configure_IO (Rx_Point,
-                    Config => (Mode => Mode_AF,
-                               Output_Type => Open_Drain,
-                               Speed => Speed_25MHz,
+                    Config => (Mode           => Mode_AF,
+                               AF             => Alternate_Function,
+                               AF_Output_Type => Open_Drain,
+                               AF_Speed       => Speed_25MHz,
                                Resistors => Pull_Up));
 
       Configure_IO (Tx_Point,
-                    Config => (Mode => Mode_AF,
-                               Output_Type => Push_Pull,
-                               Speed => Speed_25MHz,
-                               Resistors => Pull_Up));
-
-      Configure_Alternate_Function (Rx_Point & Tx_Point,
-                                    AF => Alternate_Function);
+                    Config => (Mode           => Mode_AF,
+                               AF             => Alternate_Function,
+                               AF_Output_Type => Push_Pull,
+                               AF_Speed       => Speed_25MHz,
+                               Resistors      => Pull_Up));
 
       STM32.Device.Enable_Clock (USART);
    end Initialize_USART;
