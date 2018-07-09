@@ -84,21 +84,23 @@ package body Console is
    is
       Free_Bytes_In_Packet : Boolean := True;
 
-      --------------------------------
-      -- CRTP_Append_Character_Data --
-      --------------------------------
-
       procedure CRTP_Append_Character_Data is new CRTP_Append_Data (Character);
 
-   begin
-      for C of Message loop
+      procedure Put_Character (C : Character);
+      procedure Put_Character (C : Character) is
+      begin
          CRTP_Append_Character_Data
            (Message_To_Print, C, Free_Bytes_In_Packet);
 
          if not Free_Bytes_In_Packet then
             Console_Send_Message (Has_Succeed);
          end if;
+      end Put_Character;
+   begin
+      for C of Message loop
+         Put_Character (C);
       end loop;
+      Put_Character (ASCII.LF);
 
       Console_Send_Message (Has_Succeed);
    end Console_Put_Line;
