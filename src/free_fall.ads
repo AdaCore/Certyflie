@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,8 +31,7 @@ with Ada.Real_Time;           use Ada.Real_Time;
 
 with Commander;               use Commander;
 with IMU;                     use IMU;
-with Interfaces.C;            use Interfaces.C;
-with Interfaces.C.Extensions; use Interfaces.C.Extensions;
+with Interfaces.C;
 with Types;                   use Types;
 
 package Free_Fall
@@ -126,7 +125,7 @@ private
    --  Free Fall features internal variables.
    FF_Duration_Counter      : T_Uint16 := 0
      with Part_Of => FF_State;
-   In_Recovery              : bool := 0
+   In_Recovery              : Boolean := False
      with Part_Of => FF_State;
    Recovery_Thrust          : T_Uint16 := MAX_RECOVERY_THRUST
      with Part_Of => FF_State;
