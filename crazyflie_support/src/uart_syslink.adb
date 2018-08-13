@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                     Copyright (C) 2015-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -91,7 +91,8 @@ package body UART_Syslink is
    --  Tasks and protected objects
 
    Tx_IRQ_Handler : STM32.DMA.Interrupts.DMA_Interrupt_Controller
-     renames STM32.Device.DMA2_Stream6;
+     (DMA_2'Access, Stream_6, Ada.Interrupts.Names.DMA2_Stream6_Interrupt,
+      System.Interrupt_Priority'Last);
 
    --  EXTI4 Interrupt Handler for transmission flow control.
    protected Flow_Control_Handler is
