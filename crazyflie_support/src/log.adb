@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2017, AdaCore                     --
+--                     Copyright (C) 2015-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -348,7 +348,6 @@ package body Log is
       Group_ID    : out Natural;
       Has_Succeed : out Boolean)
    is
-      use type Ada.Containers.Count_Type;
    begin
       Has_Succeed := False;
 
@@ -378,7 +377,6 @@ package body Log is
    is
       Group : Log_Group
       renames Log_Data.Log_Groups.Element_Access (Group_ID).all;
-      use type Ada.Containers.Count_Type;
    begin
       Has_Succeed := False;
 
@@ -752,8 +750,6 @@ package body Log is
 
          Ops_Settings : constant Ops_Settings_Array
            := T_Uint8_Array_To_Ops_Settings_Array (Ops_Settings_Raw);
-
-         use type Ada.Containers.Count_Type;
       begin
 
          for O of Ops_Settings loop

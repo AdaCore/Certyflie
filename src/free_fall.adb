@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Certyflie                                   --
 --                                                                          --
---                     Copyright (C) 2015-2016, AdaCore                     --
+--                     Copyright (C) 2015-2018, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -107,7 +107,7 @@ is
 
       --  Try to detect landing only if a free fall has
       --  been detected and we still are in recovery mode.
-      if In_Recovery = 1 then
+      if In_Recovery then
 
          Derivative := Calculate_Last_Derivative (Landing_Data_Collector);
          --  If the derivative between two samples of the Z acceleration
@@ -131,8 +131,8 @@ is
    begin
       --  if the drone is in recovery mode and it has not recovered after
       --  the specified timeout, disable the free fall mode in emergency.
-      if In_Recovery = 1 and then Time_Since_Last_FF > RECOVERY_TIMEOUT then
-         In_Recovery := 0;
+      if In_Recovery and then Time_Since_Last_FF > RECOVERY_TIMEOUT then
+         In_Recovery := False;
          FF_Mode := DISABLED;
       end if;
    end FF_Watchdog;
@@ -150,7 +150,7 @@ is
    begin
       --  Check if FF Detection is disabled
       if FF_Mode = DISABLED then
-         In_Recovery := 0;
+         In_Recovery := False;
          return;
       end if;
 
@@ -163,17 +163,17 @@ is
 
       if Has_Landed then
          Last_Landing_Time := Clock;
-         In_Recovery := 0;
+         In_Recovery := False;
       end if;
 
       --  Detect if the drone is in free fall.
       FF_Detect_Free_Fall (Acc, Has_Detected_FF);
 
-      if In_Recovery = 0 and Has_Detected_FF and
+      if not In_Recovery and Has_Detected_FF and
         Time_Since_Last_Landing > STABILIZATION_PERIOD_AFTER_LANDING
       then
          Last_FF_Detected_Time := Clock;
-         In_Recovery := 1;
+         In_Recovery := True;
          Recovery_Thrust := MAX_RECOVERY_THRUST;
       end if;
 
@@ -191,7 +191,7 @@ is
       Pitch_Type          : in out RPY_Type) is
    begin
       --  If not in recovery, keep the original commands
-      if In_Recovery = 0 then
+      if not In_Recovery then
          return;
       end if;
 
@@ -214,8 +214,8 @@ is
       --  If not in recovery, keep the original thrust
       --  If the pilot has moved his joystick, the drone is not in recovery
       --  anymore
-      if In_Recovery = 0 or Thrust > 0 then
-         In_Recovery := 0;
+      if not In_Recovery or Thrust > 0 then
+         In_Recovery := False;
          return;
       end if;
 
